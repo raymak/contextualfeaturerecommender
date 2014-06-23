@@ -12,6 +12,7 @@ function init() {
   		onMessage: function(e) {
     	// message only the frame that pinged us
     	//e.source.postMessage("pong" + Math.floor((Math.random() * 10) + 1).toString() , e.origin); 
+    	console.log("new message from" + e.source.toString())
     	}
 	});
  
