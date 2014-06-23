@@ -2,10 +2,19 @@ var buttons = require("sdk/ui/button/action");
 var ui = require('sdk/ui');
 var tabs = require("sdk/tabs");
 var notifications = require("sdk/notifications");
+var timers = require("sdk/timers");
 
 //initialize a toolbar
-mytoolbar = require("./toolbar");
+var mytoolbar = require("./toolbar");
 mytoolbar.init();
+
+//initialize a panel
+var mypanel = require("./panel");
+mypanel.init();
+
+//initialize a widget
+var mywidget = require("./widget");
+mywidget.init();
 
 var buton = buttons.ActionButton({
 	id: "init-button",
@@ -29,5 +38,15 @@ function handleClick(state){
 
 	// notifications.notify({ title: "TITLE",  text: "TEXT",  data: "DATA",  onClick: function (data) {console.log(data);}});
 
+	mypanel.show();
+
 }
+
+tabs.on('activate', function onOpen(tab) {
+    timers.setTimeout(function (){
+  	panel = mypanel.getPanel();
+ 	panel.port.emit("message", tab.url);
+ 	panel.show();
+  }, 1000);
+});
 

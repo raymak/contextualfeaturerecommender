@@ -1,5 +1,5 @@
 
-window.parent.postMessage("ping", "*");
+//window.parent.postMessage("ping", "*");
 
 window.addEventListener("message", function(msg) {
   document.body.innerHTML = msg.data;
