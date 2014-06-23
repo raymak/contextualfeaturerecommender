@@ -1,4 +1,3 @@
-//https://blog.mozilla.org/addons/2014/03/13/new-add-on-sdk-australis-ui-features-in-firefox-29/
 
 
 var ui = require('sdk/ui');
@@ -8,12 +7,15 @@ var frame;
 
 function init() {
  
-	frame = ui.Frame({
+	frame = new ui.Frame({
   		url: data.url("myframe.html"),
-  		contentScriptFile: data.url("myframe.js")
+  		onMessage: function(e) {
+    	// message only the frame that pinged us
+    	//e.source.postMessage("pong" + Math.floor((Math.random() * 10) + 1).toString() , e.origin); 
+    	}
 	});
  
-	var toolbar = ui.Toolbar({
+	var toolbar = new ui.Toolbar({
 	  title: "mytoolbar",
 	  items: [frame]
 	}); 

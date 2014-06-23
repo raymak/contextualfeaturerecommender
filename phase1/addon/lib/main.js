@@ -20,5 +20,9 @@ var buton = buttons.ActionButton({
 function handleClick(state){
 //	console.log("button clicked!");
 	var frame = mytoolbar.getFrame();
-	frame.postMessage("Firefox Rocks!", frame.url);
+	frame.postMessage("", frame.url);
+	//frame.postMessage(tabs.activeTab.url, "https://www.yahoo.com");
+	//frame.postMessage(tabs.activeTab.url, "*");
+
 }
+
