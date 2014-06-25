@@ -33,12 +33,12 @@ function handleClick(state){
 	
 	var frame = mytoolbar.getFrame();
 	
-	frame.postMessage("", frame.url);
+	//frame.postMessage("", frame.url);
 	//frame.postMessage(tabs.activeTab.url, "*");
 
-	// notifications.notify({ title: "TITLE",  text: "TEXT",  data: "DATA",  onClick: function (data) {console.log(data);}});
+	 notifications.notify({ title: "TITLE",  text: "TEXT",  data: "DATA",  onClick: function (data) {console.log(data);}});
 
-	mypanel.show();
+	//mypanel.show();
 
 }
 
