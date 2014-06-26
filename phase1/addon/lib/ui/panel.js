@@ -2,15 +2,15 @@
 
 data = require("sdk/self").data;
 
-var panel;
+
 
 var init = function (){
-	panel = require("sdk/panel").Panel({
+	return require("sdk/panel").Panel({
 	width: 300,
 	height: 300,
 	//contentURL: data.url("mypanel.html"),
 	content: "hello",
-	contentScriptFile: data.url("mypanel.js"),
+	contentScriptFile: data.url("./ui/mypanel.js"),
 	position: {
 		top: 0,    //negative numbers can be used
 		left: 0 
@@ -23,7 +23,7 @@ function show(){
 }
 
 function getPanel(){
-	return panel;
+	return init();
 }
 
 exports.init = init;

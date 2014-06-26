@@ -8,7 +8,7 @@ var frame;
 function init() {
  
 	frame = new ui.Frame({
-  		url: data.url("myframe.html"),
+  		url: data.url("./ui/myframe.html"),
   		onMessage: function(e) {
     	// message only the frame that pinged us
     	//e.source.postMessage("pong" + Math.floor((Math.random() * 10) + 1).toString() , e.origin); 

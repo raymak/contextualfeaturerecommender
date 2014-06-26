@@ -6,8 +6,8 @@ function init(){
   id: "mywidget",
   width: 72,
   label: "My Widget",
-  contentURL: data.url("mywidget.html"),
-  contentScriptFile: data.url("mywidget.js")
+  contentURL: data.url("./ui/mywidget.html"),
+  contentScriptFile: data.url("./ui/mywidget.js")
 });
 }
 
