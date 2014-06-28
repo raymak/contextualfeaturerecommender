@@ -6,8 +6,8 @@ var fileEnabled = true;
 const LOG_FILE_NAME  = "CFRLog.txt"
 
 function log(message){
-	if (enabled && consoleEnabled) console.log(message);
-	if (enabled && fileEnabled) require("./utils.js").writeToFile(LOG_FILE_NAME, message);
+	logToC(message);
+	logToF(message);
 }
 
 
@@ -16,7 +16,7 @@ function logToC(message){
 }
 
 function logToF(message){
-	if (enabled && fileEnabled) require("./utils.js").writeToFile(LOG_FILE_NAME, message);	
+	if (enabled && fileEnabled) require("./utils.js").appendLineToFile(LOG_FILE_NAME, message);	
 }
 
 exports.log = log;

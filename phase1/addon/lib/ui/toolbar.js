@@ -2,12 +2,11 @@
 
 var ui = require('sdk/ui');
 var data = require("sdk/self").data;
+var logger = require("./../logger");
 
-var frame;
 
 function init() {
- 
-	frame = new ui.Frame({
+	var frame = new ui.Frame({
   		url: data.url("./ui/myframe.html"),
   		onMessage: function(e) {
     	// message only the frame that pinged us
@@ -20,10 +19,12 @@ function init() {
 	  title: "mytoolbar",
 	  items: [frame]
 	}); 
+	return frame;
 }
 
 function getFrame() {
-	return frame;
+	logger.logToC("in getFrame()");
+	return init();
 }
 
 exports.init = init;

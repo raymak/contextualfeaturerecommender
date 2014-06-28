@@ -1,5 +1,7 @@
 buttons = require("sdk/ui/button/action");
 
+var logger = require("./../logger");
+
 function getButton(clickHandler){
 	return buttons.ActionButton({
 		id: "init-button",
