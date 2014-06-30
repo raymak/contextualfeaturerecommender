@@ -1,6 +1,8 @@
 
 var {getMostRecentBrowserWindow } = require("sdk/window/utils");
 var {getTabBrowser} = require("sdk/tabs/utils");
+var hotkeys = require("sdk/hotkeys");
+var tabs = require("sdk/tabs");
 var actions = require("./actions");
 var logger = require("./logger");
 const {Cu} = require("chrome");
@@ -12,12 +14,13 @@ var downloadList;
 actionTriggerMap = {onURIChange: actions.mapActiveURLToAction, onDownloadAdded: actions.recommendDLManager}
 
 function init(){
-	listenForURIChange();
+	listenForURIChanges();
 	listenForDownloads();
+	listenForHotkeys();
 
 }
 
-function listenForURIChange(){
+function listenForURIChanges(){
 	logger.log("URI Change");
 	recentWindow = getMostRecentBrowserWindow();
 	tabBrowser = getTabBrowser(recentWindow);
@@ -47,6 +50,16 @@ function listenForDownloads(){
 	  } catch (ex) {
 	    console.error(ex);
 	  }
+	});
+}
+
+function listenForHotkeys(){
+	var newTab = hotkeys.Hotkey({
+    combo: "accel-t",
+    onPress: function() {
+    	logger.log("New Tab hotkey pressed");
+    	tabs.open("about:newtab");
+ 	}
 	});
 }
 

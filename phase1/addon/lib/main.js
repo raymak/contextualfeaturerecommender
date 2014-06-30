@@ -7,7 +7,6 @@ var logger = require("./logger");
 
 var button = require("./ui/button");
 
-	
 button.getButton(start);
 
 function start(state){
