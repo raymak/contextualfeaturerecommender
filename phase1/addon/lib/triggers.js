@@ -4,7 +4,7 @@ var {getTabBrowser} = require("sdk/tabs/utils");
 var actions = require("./actions");
 var logger = require("./logger");
 
-actionTriggerMap = {onURIChange: actions.showOnToolbar}
+actionTriggerMap = {onURIChange: actions.mapActiveURLToAction}
 
 function init(){
 	listenForURIChange();
@@ -12,6 +12,7 @@ function init(){
 }
 
 function listenForURIChange(){
+	logger.log("URI Change");
 	recentWindow = getMostRecentBrowserWindow();
 	tabBrowser = getTabBrowser(recentWindow);
 	tabBrowser.addTabsProgressListener({onLocationChange: actionTriggerMap.onURIChange});
