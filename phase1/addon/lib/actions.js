@@ -8,7 +8,8 @@ var {URL} = require("sdk/url");
 var URLToActionMapper = {"www.youtube.com": ytDetect, "www.gmail.com": gmailDetect, "mail.google.com": gmailDetect, "www.fifa.com": soccerDetect, "www.goal.com": soccerDetect};
 var addonData = {
 	"1click-yt-download": {name: "1-Click YouTube Video Download", link: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi?src=search"},
-	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi?src=dp-btn-primary"}
+	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi?src=dp-btn-primary"},
+	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi?src=search"}
 }
 
 function showNewURI(aBrowser, aWebProgress, aRequest, aLocation){
@@ -64,6 +65,10 @@ function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 
 }
 
+function recommendDLManager(download){
+	recommendAddon({addonID: "flashgot"});
+}
+
 
 function recommendAddon(options){
 	setTimeout(function (){
@@ -93,3 +98,4 @@ exports.showNewURI = showNewURI;
 exports.loadImageKiller = loadImageKiller;
 exports.showOnToolbar = showOnToolbar;
 exports.mapActiveURLToAction = mapActiveURLToAction;
+exports.recommendDLManager = recommendDLManager;
