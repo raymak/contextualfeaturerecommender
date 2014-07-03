@@ -5,13 +5,17 @@ var {data} = require("sdk/self");
 var logger = require("./logger");
 var {URL} = require("sdk/url");
 
+//stores what action each webpage should map to 
 var URLToActionMapper = {"www.youtube.com": ytDetect, "www.gmail.com": gmailDetect, "mail.google.com": gmailDetect, "www.fifa.com": soccerDetect, "www.goal.com": soccerDetect};
+
+//stores basic information needed when recommending addons
 var addonData = {
 	"1click-yt-download": {name: "1-Click YouTube Video Download", link: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi?src=search"},
 	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi?src=dp-btn-primary"},
 	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi?src=search"}
 }
 
+//shows URI of a tab in a panel
 function showNewURI(aBrowser, aWebProgress, aRequest, aLocation){
 	console.log("show new URI");
 	tab = tabs.activeTab;
@@ -26,19 +30,20 @@ function showNewURI(aBrowser, aWebProgress, aRequest, aLocation){
 	}
 }
 
+// removes all images in a webpage
 function loadImageKiller(aBrowser, aWebProgress, aRequest, aLocation){
 	
 
-	// tab = tabs.activeTab;
+	tab = tabs.activeTab;
 	
-	// if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
-	// 	tab.on("ready", function (){
-	// 	tab.attach({
-	// 		contentScriptFile: data.url("./ui/imagekiller.js")
-	// 	}); } );
+	if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
+		tab.on("ready", function (){
+		tab.attach({
+			contentScriptFile: data.url("./ui/imagekiller.js")
+		}); } );
 
 
-	// }
+	}
 
 }
 
@@ -51,6 +56,7 @@ function showOnToolbar(aBrowser, aWebProgress, aRequest, aLocation){
 	}	
 }
 
+//carries out right action based on (hostname of) current website
 function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 	tab = tabs.activeTab;
 	logger.log("mapActiveURLToAction");
@@ -65,11 +71,12 @@ function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 
 }
 
+// recommends installing a DL manager to user
 function recommendDLManager(download){
 	recommendAddon({addonID: "flashgot"});
 }
 
-
+// recommends a specific addon to user
 function recommendAddon(options){
 	setTimeout(function (){
   		var panel = require("./ui/panel").getPanel();
@@ -94,6 +101,7 @@ function soccerDetect(){
 	
 }
 
+//recommends using a keyboard shortcut to open a  new tab
 function recommendNewTabShortcut(event){
 	logger.log("recommendNewTabShortcut");
 	setTimeout(function () {

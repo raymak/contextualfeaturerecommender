@@ -9,6 +9,7 @@ var button = require("./ui/button");
 
 button.getButton(start);
 
+//start listening when button is clicked
 function start(state){
 	logger.logToF("Button Clicked!");
 	triggers.init();

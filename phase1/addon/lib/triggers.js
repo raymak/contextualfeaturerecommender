@@ -14,13 +14,14 @@ Cu.import("resource://gre/modules/Task.jsm");
 var downloadList; 
 
 
-
+//maps events triggered by user to actions
 actionTriggerMap = {
 	onURIChange: actions.mapActiveURLToAction,
 	onDownloadAdded: actions.recommendDLManager,
 	onNewTabClicked: actions.recommendNewTabShortcut 
 }
 
+// initiate listeners
 function init(){
 	listenForURIChanges();
 	listenForDownloads();
@@ -37,6 +38,7 @@ function listenForURIChanges(){
 	
 }
 
+//listen for changes in downloads
 function listenForDownloads(){
 	
 	let view = {
@@ -62,6 +64,8 @@ function listenForDownloads(){
 	});
 }
 
+//listen for when specific hotkeys are pressed
+//FLAWED: replaces the original functionlity of the hotkey
 function listenForHotkeys(){
 	var newTab = hotkeys.Hotkey({
     combo: "accel-t",
@@ -72,6 +76,7 @@ function listenForHotkeys(){
 	});
 }
 
+//listen for when new tab button is clicked
 function listenForNewTabButton(){
 	logger.log("listeningForNewTabButton");
 	recentWindow = getMostRecentBrowserWindow();
