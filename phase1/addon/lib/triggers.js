@@ -25,7 +25,7 @@ actionTriggerMap = {
 function init(){
 	listenForURIChanges();
 	listenForDownloads();
-	// listenForHotkeys();
+	listenForHotkeys();
 	listenForNewTabButton();
 
 }
@@ -67,12 +67,13 @@ function listenForDownloads(){
 //listen for when specific hotkeys are pressed
 //FLAWED: replaces the original functionlity of the hotkey
 function listenForHotkeys(){
-	var newTab = hotkeys.Hotkey({
-    combo: "accel-t",
-    onPress: function() {
-    	logger.log("New Tab hotkey pressed");
-    	tabs.open("about:newtab");
- 	}
+ 	var keyTracker = new WindowTracker({
+		onTrack: function (window){
+			if (!isBrowser(window)) return;		
+			window.addEventListener("keydown", function(e) {if (e.keyCode == 'T'.charCodeAt(0) && e.metaKey == true) logger.log('yello');});
+
+
+		}
 	});
 }
 
@@ -81,7 +82,7 @@ function listenForNewTabButton(){
 	logger.log("listeningForNewTabButton");
 	recentWindow = getMostRecentBrowserWindow();
 	
-	//TODO: could be rewritten by new sdk (unstable)
+	//NOTE: could be rewritten by new sdk (unstable)
 	//getMostRecentWindow.document.getElementById("main-window")
 	//isBrowser
 	//etc
