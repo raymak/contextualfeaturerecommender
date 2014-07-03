@@ -72,7 +72,7 @@ function recommendDLManager(download){
 
 function recommendAddon(options){
 	setTimeout(function (){
-  		panel = require("./ui/panel").getPanel();
+  		var panel = require("./ui/panel").getPanel();
  		panel.port.emit("updateinnerhtml", "Wanna try downloading " + addonData[options.addonID].name + " ?" + "<br>" + "<a href=\'" + addonData[options.addonID].link + "\'> Click here! </a>");
  		panel.port.on("openlinkinnewtab", function(link){
  			tabs.activeTab.url = link; //url reverts back again if it's an extension
@@ -94,8 +94,19 @@ function soccerDetect(){
 	
 }
 
+function recommendNewTabShortcut(event){
+	logger.log("recommendNewTabShortcut");
+	setTimeout(function () {
+		var panel = require("./ui/panel").getPanel();
+		panel.port.emit("updateinnerhtml", "You can also use CTRL+T to open a new tab! Why don't you give it a try!?");
+		panel.show();
+	}, 500);
+
+}
+
 exports.showNewURI = showNewURI;
 exports.loadImageKiller = loadImageKiller;
 exports.showOnToolbar = showOnToolbar;
 exports.mapActiveURLToAction = mapActiveURLToAction;
 exports.recommendDLManager = recommendDLManager;
+exports.recommendNewTabShortcut = recommendNewTabShortcut;

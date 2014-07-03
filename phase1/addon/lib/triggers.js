@@ -1,22 +1,31 @@
 
-var {getMostRecentBrowserWindow } = require("sdk/window/utils");
-var {getTabBrowser} = require("sdk/tabs/utils");
+var {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
+var {getTabBrowser, getBrowserForTab, getTabForId, getTabBrowserForTab} = require("sdk/tabs/utils");
 var hotkeys = require("sdk/hotkeys");
 var tabs = require("sdk/tabs");
 var actions = require("./actions");
 var logger = require("./logger");
+var chrome = require("chrome");
+var {WindowTracker} = require("sdk/deprecated/window-utils");
 const {Cu} = require("chrome");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 
 var downloadList; 
 
-actionTriggerMap = {onURIChange: actions.mapActiveURLToAction, onDownloadAdded: actions.recommendDLManager}
+
+
+actionTriggerMap = {
+	onURIChange: actions.mapActiveURLToAction,
+	onDownloadAdded: actions.recommendDLManager,
+	onNewTabClicked: actions.recommendNewTabShortcut 
+}
 
 function init(){
 	listenForURIChanges();
 	listenForDownloads();
-	listenForHotkeys();
+	// listenForHotkeys();
+	listenForNewTabButton();
 
 }
 
@@ -61,6 +70,26 @@ function listenForHotkeys(){
     	tabs.open("about:newtab");
  	}
 	});
+}
+
+function listenForNewTabButton(){
+	logger.log("listeningForNewTabButton");
+	recentWindow = getMostRecentBrowserWindow();
+	
+	//TODO: could be rewritten by new sdk (unstable)
+	//getMostRecentWindow.document.getElementById("main-window")
+	//isBrowser
+	//etc
+	var newTabButtonTracker = new WindowTracker({
+		onTrack: function (window){
+			if (!isBrowser(window)) return;		
+			window.document.getElementById("new-tab-button").addEventListener("click", actionTriggerMap.onNewTabClicked);
+
+		}
+
+	});
+
+
 }
 
 
