@@ -1,6 +1,8 @@
 const {Cu} = require("chrome");
 Cu.import("resource://gre/modules/osfile.jsm");
 const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
+var request = require("sdk/request");
+var logger = require("./logger");
 
 //FILE SYSTEM
 
@@ -26,6 +28,28 @@ function appendLineToFile(fileName, message){
 }
 
 
+//LANGUAGE API
+function getLanguage(urlStr, callback){
+	
+	function requestCompleted(response){
+		logger.log("language: " + response.json.language);
+		console.log(response.text);
+		callback(response.json.language);
+	}
+
+	var XMLReq = new request.Request({
+		url: "http://access.alchemyapi.com/calls/url/URLGetLanguage",
+		onComplete: requestCompleted ,
+		content: {url: urlStr, apikey: "5e2845660844aaaf84fb3ba9be486800ef63eb3f", outputMode: "json"}
+	});
+
+	XMLReq.get();
+}
+
+
+
+
 exports.writeToFile = writeToFile;
 exports.appendToFile = appendToFile;
 exports.appendLineToFile = appendLineToFile;
+exports.getLanguage = getLanguage;

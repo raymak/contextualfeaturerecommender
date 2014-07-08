@@ -34,4 +34,21 @@ window.document.getElementById("file-menu").addEventListener("click", function (
 			for (var i=0; i < window.document.getElementById("TabsToolbar").childNodes.length; i++)
 				window.document.getElementById("TabsToolbar").childNodes[i].addEventListener("click", function (evt){logger.log("general" + evt.target.id)});
 
+
+//NOTE: could be rewritten by new sdk (unstable)
+	//getMostRecentWindow.document.getElementById("main-window")
+	//isBrowser
+	//etc
+	// var newTabButtonTracker = new WindowTracker({
+	// 	onTrack: function (window){
+	// 		if (!isBrowser(window)) return;		
+	// 		window.document.getElementById("new-tab-button").addEventListener("command", actionTriggerMap.onNewTabClicked);
+	// 		// window.document.getElementById("tabbrowser-tabs").addEventListener("click", actionTriggerMap.onNewTabClicked);
+
+	// 	}
+
+	// });
+
+				
+
 */

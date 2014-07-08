@@ -7,19 +7,21 @@ var actions = require("./actions");
 var logger = require("./logger");
 var chrome = require("chrome");
 var {WindowTracker} = require("sdk/deprecated/window-utils");
+var utils = require("./utils");
 const {Cu} = require("chrome");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 
 var downloadList; 
-var newTabHotKey = false;
+var newTabHotKey = false; //used for detecting new tab initiations without keyboard shortcuts	
 
 
 //maps events triggered by user to actions
 actionTriggerMap = {
 	onURIChange: actions.mapActiveURLToAction,
 	onDownloadAdded: actions.recommendDLManager,
-	onNewTabClicked: actions.recommendNewTabShortcut 
+	onNewTabClicked: actions.recommendNewTabShortcut,
+	onForeignPageDetected: actions.recommendTranslator 
 }
 
 // initiate listeners
@@ -28,14 +30,16 @@ function init(){
 	listenForDownloads();
 	listenForHotkeys();
 	listenForNewTabButton();
+	listenForForeignPages();
 
 }
-
+//TODO: listen for all windows (use tabs.on?)
 function listenForURIChanges(){
 	logger.log("URI Change");
-	recentWindow = getMostRecentBrowserWindow();
-	tabBrowser = getTabBrowser(recentWindow);
-	tabBrowser.addTabsProgressListener({onLocationChange: actionTriggerMap.onURIChange});
+	tabs.on("ready", actionTriggerMap.onURIChange);
+	// recentWindow = getMostRecentBrowserWindow();
+	// tabBrowser = getTabBrowser(recentWindow);
+	// tabBrowser.addTabsProgressListener({onLocationChange: actionTriggerMap.onURIChange});
 	
 }
 
@@ -81,30 +85,27 @@ function listenForHotkeys(){
 //listen for when new tab button is clicked
 function listenForNewTabButton(){
 	logger.log("listeningForNewTabButton");
-	recentWindow = getMostRecentBrowserWindow();
-	
-	//NOTE: could be rewritten by new sdk (unstable)
-	//getMostRecentWindow.document.getElementById("main-window")
-	//isBrowser
-	//etc
-	// var newTabButtonTracker = new WindowTracker({
-	// 	onTrack: function (window){
-	// 		if (!isBrowser(window)) return;		
-	// 		window.document.getElementById("new-tab-button").addEventListener("command", actionTriggerMap.onNewTabClicked);
-	// 		// window.document.getElementById("tabbrowser-tabs").addEventListener("click", actionTriggerMap.onNewTabClicked);
-
-	// 	}
-
-	// });
 
 	tabs.on("open", function (tab) { 
-		console.log("yo");
 		if (!newTabHotKey) 
 			actionTriggerMap.onNewTabClicked();
 		newTabHotKey = false;
 	});
 
 
+}
+
+//listen for a non-english page
+function listenForForeignPages(){
+	logger.log("listeningForForeignPage");
+	tabs.on("ready", function (tab){
+		console.log("tab ready");
+		utils.getLanguage(tab.url, function (lang){
+			if (lang != "english" && lang != "unknown")
+				actionTriggerMap.onForeignPageDetected();
+		});
+	});
+			
 }
 
 

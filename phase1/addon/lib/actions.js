@@ -12,8 +12,10 @@ var URLToActionMapper = {"www.youtube.com": ytDetect, "www.gmail.com": gmailDete
 var addonData = {
 	"1click-yt-download": {name: "1-Click YouTube Video Download", link: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi?src=search"},
 	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi?src=dp-btn-primary"},
-	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi?src=search"}
+	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi?src=search"},
+	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi?src=search"}
 }
+
 
 //shows URI of a tab in a panel
 function showNewURI(aBrowser, aWebProgress, aRequest, aLocation){
@@ -57,11 +59,11 @@ function showOnToolbar(aBrowser, aWebProgress, aRequest, aLocation){
 }
 
 //carries out right action based on (hostname of) current website
-function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
-	tab = tabs.activeTab;
+function mapActiveURLToAction(tab){
+	activeTab = tabs.activeTab;
 	logger.log("mapActiveURLToAction");
 	
-	if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
+	if (tab.id == activeTab.id) {
 		
 		var hostname = URL(tab.url).hostname;
 		logger.log(hostname);
@@ -101,6 +103,10 @@ function soccerDetect(){
 	
 }
 
+function recommendTranslator(){
+	recommendAddon({addonID: "googletranslator"});
+}
+
 //recommends using a keyboard shortcut to open a  new tab
 function recommendNewTabShortcut(event){
 	logger.log("recommendNewTabShortcut");
@@ -118,3 +124,4 @@ exports.showOnToolbar = showOnToolbar;
 exports.mapActiveURLToAction = mapActiveURLToAction;
 exports.recommendDLManager = recommendDLManager;
 exports.recommendNewTabShortcut = recommendNewTabShortcut;
+exports.recommendTranslator = recommendTranslator;
