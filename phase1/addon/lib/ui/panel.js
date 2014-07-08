@@ -7,7 +7,8 @@ data = require("sdk/self").data;
 var init = function (){
 	return require("sdk/panel").Panel({
 	width: 300,
-	height: 300,
+	height: 80,
+	focus: false,
 	//contentURL: data.url("mypanel.html"),
 	content: "hello",
 	contentScriptFile: data.url("./ui/mypanel.js"),

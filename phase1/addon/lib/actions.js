@@ -4,6 +4,7 @@ var tabs = require("sdk/tabs");
 var {data} = require("sdk/self");
 var logger = require("./logger");
 var {URL} = require("sdk/url");
+var notifications = require("sdk/notifications");
 
 //stores what action each webpage should map to 
 var URLToActionMapper = {"www.youtube.com": ytDetect, "www.gmail.com": gmailDetect, "mail.google.com": gmailDetect, "www.fifa.com": soccerDetect, "www.goal.com": soccerDetect};
@@ -49,6 +50,7 @@ function loadImageKiller(aBrowser, aWebProgress, aRequest, aLocation){
 
 }
 
+//TODO
 function showOnToolbar(aBrowser, aWebProgress, aRequest, aLocation){
 	tab = tabs.activeTab;
 	
@@ -110,11 +112,21 @@ function recommendTranslator(){
 //recommends using a keyboard shortcut to open a  new tab
 function recommendNewTabShortcut(event){
 	logger.log("recommendNewTabShortcut");
-	setTimeout(function () {
-		var panel = require("./ui/panel").getPanel();
-		panel.port.emit("updateinnerhtml", "You can also use CTRL+T to open a new tab! Why don't you give it a try!?");
-		panel.show();
-	}, 500);
+
+		notifications.notify({
+  		title: "CTRL + T",
+  		text: "'You can also use CTRL+T to open a new tab! Why don't you give it a try!?",
+  		data: "",
+  		onClick: function (data) {
+    	console.log(data);
+    // console.log(this.data) would produce the same result.
+  }
+});
+	// setTimeout(function () {
+	// 	var panel = require("./ui/panel").getPanel();
+	// 	panel.port.emit("updateinnerhtml", "You can also use CTRL+T to open a new tab! Why don't you give it a try!?");
+	// 	panel.show();
+	// }, 500);
 
 }
 

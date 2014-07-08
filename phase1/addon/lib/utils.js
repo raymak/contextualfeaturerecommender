@@ -32,9 +32,10 @@ function appendLineToFile(fileName, message){
 function getLanguage(urlStr, callback){
 	
 	function requestCompleted(response){
-		logger.log("language: " + response.json.language);
+		var lang = response.json.language || "unknown";
+		logger.log("language: " + lang);
 		console.log(response.text);
-		callback(response.json.language);
+		callback(lang);
 	}
 
 	var XMLReq = new request.Request({
