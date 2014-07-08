@@ -7,14 +7,21 @@ var {URL} = require("sdk/url");
 var notifications = require("sdk/notifications");
 
 //stores what action each webpage should map to 
-var URLToActionMapper = {"www.youtube.com": ytDetect, "www.gmail.com": gmailDetect, "mail.google.com": gmailDetect, "www.fifa.com": soccerDetect, "www.goal.com": soccerDetect};
+var URLToActionMapper = {
+	"www.youtube.com": ytDetected, 
+	"www.gmail.com": gmailDetected, "mail.google.com": gmailDetected, 
+	"www.fifa.com": soccerDetected, 
+	"www.goal.com": soccerDetected,
+	"www.reddit.com": redditDetected
+};
 
 //stores basic information needed when recommending addons
 var addonData = {
 	"1click-yt-download": {name: "1-Click YouTube Video Download", link: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi?src=search"},
 	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi?src=dp-btn-primary"},
 	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi?src=search"},
-	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi?src=search"}
+	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi?src=search"},
+	"redditenhancement": {name: "Reddit Enhancement Suite", link: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=search"}
 }
 
 
@@ -92,21 +99,25 @@ function recommendAddon(options){
   			}, 500);
 }
 
-function ytDetect(){
+function ytDetected(){
 	logger.log("ytDetect");
 	recommendAddon({addonID: "1click-yt-download"});
 }
 
-function gmailDetect(){
+function gmailDetected(){
 	recommendAddon({addonID: "gmail-notifier"});
 }
 
-function soccerDetect(){
+function soccerDetected(){
 	
 }
 
 function recommendTranslator(){
 	recommendAddon({addonID: "googletranslator"});
+}
+
+function redditDetected(){
+	recommendAddon({addonID: "redditenhancement"});
 }
 
 //recommends using a keyboard shortcut to open a  new tab
