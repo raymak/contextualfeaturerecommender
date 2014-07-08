@@ -12,6 +12,7 @@ Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 
 var downloadList; 
+var newTabHotKey = false;
 
 
 //maps events triggered by user to actions
@@ -70,7 +71,7 @@ function listenForHotkeys(){
  	var keyTracker = new WindowTracker({
 		onTrack: function (window){
 			if (!isBrowser(window)) return;		
-			window.addEventListener("keydown", function(e) {if (e.keyCode == 'T'.charCodeAt(0) && e.metaKey == true) logger.log('yello');});
+			window.addEventListener("keydown", function(e) {if (e.keyCode == 'T'.charCodeAt(0) && e.metaKey == true) newTabHotKey = true;});
 
 
 		}
@@ -86,13 +87,21 @@ function listenForNewTabButton(){
 	//getMostRecentWindow.document.getElementById("main-window")
 	//isBrowser
 	//etc
-	var newTabButtonTracker = new WindowTracker({
-		onTrack: function (window){
-			if (!isBrowser(window)) return;		
-			window.document.getElementById("new-tab-button").addEventListener("click", actionTriggerMap.onNewTabClicked);
+	// var newTabButtonTracker = new WindowTracker({
+	// 	onTrack: function (window){
+	// 		if (!isBrowser(window)) return;		
+	// 		window.document.getElementById("new-tab-button").addEventListener("command", actionTriggerMap.onNewTabClicked);
+	// 		// window.document.getElementById("tabbrowser-tabs").addEventListener("click", actionTriggerMap.onNewTabClicked);
 
-		}
+	// 	}
 
+	// });
+
+	tabs.on("open", function (tab) { 
+		console.log("yo");
+		if (!newTabHotKey) 
+			actionTriggerMap.onNewTabClicked();
+		newTabHotKey = false;
 	});
 
 
