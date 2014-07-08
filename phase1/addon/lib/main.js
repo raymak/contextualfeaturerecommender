@@ -5,6 +5,7 @@ var { viewFor } = require("sdk/model/core");
 var triggers = require("./triggers");
 var logger = require("./logger");
 var button = require("./ui/button");
+var info = require("./generalInfoCollector");
 
 button.getButton(start);
 
@@ -14,4 +15,12 @@ function start(state){
 	triggers.init();
 }
 
+info.getAddons(function (addons) {
+	for (var i = 0; i < addons.length; i++)
+		console.log(addons[i].name);
+});
+
+console.log(info.getStartDate());
+
+require("sdk/timers").setTimeout(function(){console.log(info.getStartDate())}, 5000);
 
