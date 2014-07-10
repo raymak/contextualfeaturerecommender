@@ -25,7 +25,8 @@ actionTriggerMap = {
 	onDownloadAdded: actions.recommendDLManager,
 	onNewTabClicked: actions.recommendNewTabShortcut,
 	onForeignPageDetected: actions.recommendTranslator, 
-	onNewBookmark: actions.recommendNewBookmarkShortcut
+	// onNewBookmark: actions.recommendNewBookmarkShortcut,
+	onNewBookmark: actions.recommendBookmarkManager
 }
 
 // initiate listeners
@@ -119,9 +120,12 @@ function listenForBookmarks(){
 	    this._inBatch = false;
 	  },
 	  onItemAdded: function(id, folder, index) {
-	  	if (!newBookmarkHotkey)
-	  		actionTriggerMap.onNewBookmark();
-	  	newBookmarkHotkey = false;	//set to true in listenForHotkeys
+	  	//check if keyboard shortcut was used
+	  	// if (!newBookmarkHotkey)
+	  	// 	actionTriggerMap.onNewBookmark();
+	  	// newBookmarkHotkey = false;	//set to true in listenForHotkeys
+	  	actionTriggerMap.onNewBookmark();
+
 	  },
 
 	  onItemRemoved: function(id, folder, index) {

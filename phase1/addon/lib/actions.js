@@ -23,7 +23,8 @@ var addonData = {
 	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi?src=search"},
 	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi?src=search"},
 	"redditenhancement": {name: "Reddit Enhancement Suite", link: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=search"},
-	"amazonwishlistbutton": {name: "Amazon \"Add to Wish List\" Button", link: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi?src=dp-btn-primary"}
+	"amazonwishlistbutton": {name: "Amazon \"Add to Wish List\" Button", link: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi?src=dp-btn-primary"},
+	"quickmark": {name: "Quick Mark", link: "https://addons.mozilla.org/firefox/downloads/latest/462572/addon-462572-latest.xpi?src=dp-btn-primary"}
 }
 
 
@@ -147,6 +148,10 @@ function recommendNewTabShortcut(event){
 
 }
 
+function recommendBookmarkManager(){
+	recommendAddon({addonID: "quickmark"});
+}
+
 function recommendNewBookmarkShortcut(event){
 	notifications.notify({
   		title: "CTRL + D",
@@ -168,3 +173,4 @@ exports.recommendDLManager = recommendDLManager;
 exports.recommendNewTabShortcut = recommendNewTabShortcut;
 exports.recommendTranslator = recommendTranslator;
 exports.recommendNewBookmarkShortcut = recommendNewBookmarkShortcut;
+exports.recommendBookmarkManager = recommendBookmarkManager;
