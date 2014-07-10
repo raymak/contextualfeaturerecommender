@@ -8,12 +8,15 @@ var logger = require("./logger");
 var chrome = require("chrome");
 var {WindowTracker} = require("sdk/deprecated/window-utils");
 var utils = require("./utils");
-const {Cu} = require("chrome");
+const {Cu, Cc, Ci} = require("chrome");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
+Cu.import("resource://gre/modules/Services.jsm");
 
 var downloadList; 
 var newTabHotKey = false; //used for detecting new tab initiations without keyboard shortcuts	
+var newBookmarkHotkey = false;
+var bookmarksObserver;
 
 
 //maps events triggered by user to actions
@@ -21,7 +24,8 @@ actionTriggerMap = {
 	onURIChange: actions.mapActiveURLToAction,
 	onDownloadAdded: actions.recommendDLManager,
 	onNewTabClicked: actions.recommendNewTabShortcut,
-	onForeignPageDetected: actions.recommendTranslator 
+	onForeignPageDetected: actions.recommendTranslator, 
+	onNewBookmark: actions.recommendNewBookmarkShortcut
 }
 
 // initiate listeners
@@ -31,6 +35,7 @@ function init(){
 	listenForHotkeys();
 	listenForNewTabButton();
 	listenForForeignPages();
+	listenForBookmarks();
 
 }
 //TODO: listen for all windows (use tabs.on?)
@@ -39,6 +44,7 @@ function listenForURIChanges(){
 	tabs.on("ready", actionTriggerMap.onURIChange);
 	// recentWindow = getMostRecentBrowserWindow();
 	// tabBrowser = getTabBrowser(recentWindow);
+
 	// tabBrowser.addTabsProgressListener({onLocationChange: actionTriggerMap.onURIChange});
 	
 }
@@ -75,7 +81,11 @@ function listenForHotkeys(){
  	var keyTracker = new WindowTracker({
 		onTrack: function (window){
 			if (!isBrowser(window)) return;		
+			
+			// CTRL + T (new tab)
 			window.addEventListener("keydown", function(e) {if (e.keyCode == 'T'.charCodeAt(0) && e.metaKey == true) newTabHotKey = true;});
+			// CTRL + D (new bookmark)
+			window.addEventListener("keydown", function(e) {if (e.keyCode == 'D'.charCodeAt(0) && e.metaKey == true) newBookmarkHotkey = true; });
 
 
 		}
@@ -89,9 +99,60 @@ function listenForNewTabButton(){
 	tabs.on("open", function (tab) { 
 		if (!newTabHotKey) 
 			actionTriggerMap.onNewTabClicked();
-		newTabHotKey = false;
+		newTabHotKey = false;	// set to true in listenForHotkeys
 	});
+}
 
+
+function listenForBookmarks(){
+
+	logger.log("listeningForBookmarks");
+
+	// Create a bookmark observer
+	bookmarksObserver = {
+	  onBeginUpdateBatch: function() {
+	    // This method is notified when a batch of changes are about to occur.
+	    // Observers can use this to suspend updates to the user-interface, for example
+	    // while a batch change is occurring.
+	  },
+	  onEndUpdateBatch: function() {
+	    this._inBatch = false;
+	  },
+	  onItemAdded: function(id, folder, index) {
+	  	if (!newBookmarkHotkey)
+	  		actionTriggerMap.onNewBookmark();
+	  	newBookmarkHotkey = false;	//set to true in listenForHotkeys
+	  },
+
+	  onItemRemoved: function(id, folder, index) {
+	  },
+	  onItemChanged: function(id, property, isAnnotationProperty, value) {
+	    // isAnnotationProperty is a boolean value that is true of the changed property is an annotation.
+	    // You can access a bookmark item's annotations with the <code>nsIAnnotationService</code>.
+	  },
+	  onItemVisited: function(id, visitID, time) {
+	    // The visit id can be used with the History service to access other properties of the visit.
+	    // The time is the time at which the visit occurred, in microseconds.
+	  },
+	  onItemMoved: function(id, oldParent, oldIndex, newParent, newIndex) {
+	    // oldParent and newParent are the ids of the old and new parent folders of the moved item.
+	  },
+	  QueryInterface: function(iid) {
+	    if (iid.equals(Ci.nsINavBookmarkObserver) ||
+	        iid.equals(Ci.nsISupports)) {
+	      return this;
+	    }
+	    throw Cr.NS_ERROR_NO_INTERFACE;
+	  },
+	};
+
+	
+	// Register the observer with the bookmarks service
+	var bmsvc = Cc["@mozilla.org/browser/nav-bookmarks-service;1"]
+	            .getService(Ci.nsINavBookmarksService);
+	bmsvc.addObserver(bookmarksObserver, false);
+
+	//Un-register when done
 
 }
 
@@ -111,6 +172,8 @@ function listenForForeignPages(){
 
 function onUnload(reason){
 	if (downloadList) downloadList.removeView();
+	// Un-register the observer when done.
+	bmsvc.removeObserver(observer);
 }
 
 exports.init = init;

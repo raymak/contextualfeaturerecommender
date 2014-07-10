@@ -23,4 +23,3 @@ info.getAddons(function (addons) {
 console.log(info.getStartDate());
 
 require("sdk/timers").setTimeout(function(){console.log(info.getStartDate())}, 5000);
-

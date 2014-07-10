@@ -12,7 +12,8 @@ var URLToActionMapper = {
 	"www.gmail.com": gmailDetected, "mail.google.com": gmailDetected, 
 	"www.fifa.com": soccerDetected, 
 	"www.goal.com": soccerDetected,
-	"www.reddit.com": redditDetected
+	"www.reddit.com": redditDetected,
+	"www.amazon.com": amazonDetected, "www.amazon.ca": amazonDetected
 };
 
 //stores basic information needed when recommending addons
@@ -21,7 +22,8 @@ var addonData = {
 	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi?src=dp-btn-primary"},
 	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi?src=search"},
 	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi?src=search"},
-	"redditenhancement": {name: "Reddit Enhancement Suite", link: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=search"}
+	"redditenhancement": {name: "Reddit Enhancement Suite", link: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=search"},
+	"amazonwishlistbutton": {name: "Amazon \"Add to Wish List\" Button", link: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi?src=dp-btn-primary"}
 }
 
 
@@ -120,6 +122,10 @@ function redditDetected(){
 	recommendAddon({addonID: "redditenhancement"});
 }
 
+function amazonDetected(){
+	recommendAddon({addonID: "amazonwishlistbutton"});
+}
+
 //recommends using a keyboard shortcut to open a  new tab
 function recommendNewTabShortcut(event){
 	logger.log("recommendNewTabShortcut");
@@ -130,14 +136,27 @@ function recommendNewTabShortcut(event){
   		data: "",
   		onClick: function (data) {
     	console.log(data);
-    // console.log(this.data) would produce the same result.
-  }
-});
+    	// console.log(this.data) would produce the same result.
+  		}
+		});
 	// setTimeout(function () {
 	// 	var panel = require("./ui/panel").getPanel();
 	// 	panel.port.emit("updateinnerhtml", "You can also use CTRL+T to open a new tab! Why don't you give it a try!?");
 	// 	panel.show();
 	// }, 500);
+
+}
+
+function recommendNewBookmarkShortcut(event){
+	notifications.notify({
+  		title: "CTRL + D",
+  		text: "'You can also use CTRL+D to bookmark a page! Why don't you give it a try!?",
+  		data: "",
+  		onClick: function (data) {
+    	console.log(data);
+    	// console.log(this.data) would produce the same result.
+    	}	
+  		});
 
 }
 
@@ -148,3 +167,4 @@ exports.mapActiveURLToAction = mapActiveURLToAction;
 exports.recommendDLManager = recommendDLManager;
 exports.recommendNewTabShortcut = recommendNewTabShortcut;
 exports.recommendTranslator = recommendTranslator;
+exports.recommendNewBookmarkShortcut = recommendNewBookmarkShortcut;
