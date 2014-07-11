@@ -131,7 +131,7 @@ function amazonDetected(){
 
 function pornDetected(){
 	
-	logger.log("pornDetected");
+	logger.log("pornDetected"); 
 	setTimeout(function (){
   		var panel = require("./ui/panel").getPanel();
  		panel.port.emit("updateinnerhtml", "You might want to try opening this page in a new private window if you don't want it to be stored in your history. <br> <a href='' class='privatewindow'>open in a private window</a>");
