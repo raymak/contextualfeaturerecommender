@@ -5,6 +5,7 @@ var {data} = require("sdk/self");
 var logger = require("./logger");
 var {URL} = require("sdk/url");
 var notifications = require("sdk/notifications");
+windows = require("sdk/windows");
 
 //stores what action each webpage should map to 
 var URLToActionMapper = {
@@ -13,7 +14,8 @@ var URLToActionMapper = {
 	"www.fifa.com": soccerDetected, 
 	"www.goal.com": soccerDetected,
 	"www.reddit.com": redditDetected,
-	"www.amazon.com": amazonDetected, "www.amazon.ca": amazonDetected
+	"www.amazon.com": amazonDetected, "www.amazon.ca": amazonDetected,
+	"stoppornculture.org": pornDetected
 };
 
 //stores basic information needed when recommending addons
@@ -125,6 +127,24 @@ function redditDetected(){
 
 function amazonDetected(){
 	recommendAddon({addonID: "amazonwishlistbutton"});
+}
+
+function pornDetected(){
+	
+	logger.log("pornDetected");
+	setTimeout(function (){
+  		var panel = require("./ui/panel").getPanel();
+ 		panel.port.emit("updateinnerhtml", "You might want to try opening this page in a new private window if you don't want it to be stored in your history. <br> <a href='' class='privatewindow'>open in a private window</a>");
+ 		panel.port.on("movelinktoprivatewindow", function(){
+ 			// open in a private window
+ 			windows.browserWindows.open({
+ 				url: tabs.activeTab.url,
+ 				isPrivate: true
+ 			});
+ 			tabs.activeTab.close();
+ 		});
+ 		panel.show();
+  			}, 500);
 }
 
 //recommends using a keyboard shortcut to open a  new tab

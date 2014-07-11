@@ -3,10 +3,19 @@
 self.port.on("updateinnerhtml", function (msg){
 	document.body.innerHTML = msg;
 	//refering the hyperlinks back to the extension
-		tags = document.getElementsByTagName("a");
-		for each (var tag in tags) tag.onclick = onlinkclick;
+		elements = document.getElementsByTagName("a");
+		for each (var element in elements) {
+			if (element.className != 'dummy')
+				element.onclick = onlinkclick;
+			if (element.className = 'privatewindow')
+				element.onclick = movelinktoprivatewindow;
+		}
 });
 
 function onlinkclick(){
 	self.port.emit("openlinkinnewtab", this.href);
+}
+
+function movelinktoprivatewindow(){
+	self.port.emit("movelinktoprivatewindow");
 }
