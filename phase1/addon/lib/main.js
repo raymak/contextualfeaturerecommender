@@ -6,6 +6,7 @@ var triggers = require("./triggers");
 var logger = require("./logger");
 var button = require("./ui/button");
 var info = require("./generalInfoCollector");
+var featuredata = require("./featuredata");
 
 button.getButton(start);
 
@@ -23,3 +24,7 @@ info.getAddons(function (addons) {
 console.log(info.getStartDate());
 
 require("sdk/timers").setTimeout(function(){console.log(info.getStartDate())}, 5000);
+
+featuredata.writeToPrefs();
+obj = featuredata.getFromPrefs();
+logger.log(obj.closetabshortcut.count);
