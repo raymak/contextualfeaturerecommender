@@ -16,7 +16,8 @@ var URLToActionMapper = {
 	"www.goal.com": soccerDetected,
 	"www.reddit.com": redditDetected,
 	"www.amazon.com": amazonDetected, "www.amazon.ca": amazonDetected,
-	"stoppornculture.org": pornDetected
+	"stoppornculture.org": pornDetected,
+	"www.facebook.com": facebookDetected
 };
 
 //stores basic information needed when recommending addons
@@ -128,6 +129,17 @@ function redditDetected(){
 
 function amazonDetected(){
 	recommendAddon({addonID: "amazonwishlistbutton"});
+}
+function facebookDetected(){
+	setTimeout(function (){
+  		var panel = require("./ui/panel").getPanel();
+ 		panel.port.emit("updateinnerhtml", "You might want to pin this page. <br> <a href='' class='pintab'>pin this tab</a>");
+ 		panel.port.on("pintab", function(){
+ 			// open in a private window
+ 			tabs.activeTab.pin();
+ 		});
+ 		panel.show();
+  			}, 500);
 }
 
 function pornDetected(){

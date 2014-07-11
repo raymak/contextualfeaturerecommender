@@ -7,8 +7,10 @@ self.port.on("updateinnerhtml", function (msg){
 		for each (var element in elements) {
 			if (element.className != 'dummy')
 				element.onclick = onlinkclick;
-			if (element.className = 'privatewindow')
+			if (element.className == 'privatewindow')
 				element.onclick = movelinktoprivatewindow;
+			if (element.className == 'pintab')
+				element.onclick = pintab;
 		}
 });
 
@@ -18,4 +20,8 @@ function onlinkclick(){
 
 function movelinktoprivatewindow(){
 	self.port.emit("movelinktoprivatewindow");
+}
+
+function pintab(){
+	self.port.emit("pintab");
 }
