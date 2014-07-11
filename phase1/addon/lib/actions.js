@@ -5,6 +5,7 @@ var {data} = require("sdk/self");
 var logger = require("./logger");
 var {URL} = require("sdk/url");
 var notifications = require("sdk/notifications");
+var featuredata = require("./featuredata");
 windows = require("sdk/windows");
 
 //stores what action each webpage should map to 
@@ -171,6 +172,13 @@ function recommendNewTabShortcut(event){
 function recommendCloseTabShortcut(event){
 	logger.log("recommendCloseTabShortcut");
 
+	var count = featuredata.get("closetabshortcut", "count");
+	count++;
+
+	featuredata.set("closetabshortcut", "count", count);
+
+	if (count == 4){
+
 		notifications.notify({
 			title: "CTRL + W",
 			text: "You can also use CTRL+W to close a tab!",
@@ -179,6 +187,7 @@ function recommendCloseTabShortcut(event){
 				console.log(data);
 			}
 			});
+	}
 }
 
 function recommendBookmarkManager(){

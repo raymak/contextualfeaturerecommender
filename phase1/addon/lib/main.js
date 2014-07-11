@@ -25,6 +25,3 @@ console.log(info.getStartDate());
 
 require("sdk/timers").setTimeout(function(){console.log(info.getStartDate())}, 5000);
 
-featuredata.writeToPrefs();
-obj = featuredata.getFromPrefs();
-logger.log(obj.closetabshortcut.count);
