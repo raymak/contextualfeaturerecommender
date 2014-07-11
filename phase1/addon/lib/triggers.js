@@ -14,9 +14,10 @@ Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
 var downloadList; 
-var newTabHotKey = false; //used for detecting new tab initiations without keyboard shortcuts	
+var newTabHotkey = false; //used for detecting new tab initiations without keyboard shortcuts	
 var newBookmarkHotkey = false;
 var bookmarksObserver;
+var closeTabHotkey = false;
 
 
 //maps events triggered by user to actions
@@ -24,6 +25,7 @@ actionTriggerMap = {
 	onURIChange: actions.mapActiveURLToAction,
 	onDownloadAdded: actions.recommendDLManager,
 	onNewTabClicked: actions.recommendNewTabShortcut,
+	onCloseTabClicked: actions.recommendCloseTabShortcut,
 	onForeignPageDetected: actions.recommendTranslator, 
 	// onNewBookmark: actions.recommendNewBookmarkShortcut,
 	onNewBookmark: actions.recommendBookmarkManager
@@ -35,6 +37,7 @@ function init(){
 	listenForDownloads();
 	listenForHotkeys();
 	listenForNewTabButton();
+	listenForCloseTabButton();
 	listenForForeignPages();
 	listenForBookmarks();
 
@@ -63,7 +66,7 @@ function listenForDownloads(){
 	  },
 	  onDownloadRemoved: function(download) {
 	   logger.log("Download Removed");
-	  }
+	  }	
 	};
 
 	Task.spawn(function() {
@@ -84,9 +87,11 @@ function listenForHotkeys(){
 			if (!isBrowser(window)) return;		
 			
 			// CTRL + T (new tab)
-			window.addEventListener("keydown", function(e) {if (e.keyCode == 'T'.charCodeAt(0) && e.metaKey == true) newTabHotKey = true;});
+			window.addEventListener("keydown", function(e) {if (e.keyCode == 'T'.charCodeAt(0) && e.metaKey == true) newTabHotkey = true;});
+			// CTRL + W  (close tab)
+			window.addEventListener("keydown", function(e) {if (e.keyCode == 'W'.charCodeAt(0) && e.metaKey == true) closeTabHotkey = true;});
 			// CTRL + D (new bookmark)
-			window.addEventListener("keydown", function(e) {if (e.keyCode == 'D'.charCodeAt(0) && e.metaKey == true) newBookmarkHotkey = true; });
+			window.addEventListener("keydown", function(e) {if (e.keyCode == 'D'.charCodeAt(0) && e.metaKey == true) newBookmarkHotkey = true;});
 
 
 		}
@@ -98,9 +103,19 @@ function listenForNewTabButton(){
 	logger.log("listeningForNewTabButton");
 
 	tabs.on("open", function (tab) { 
-		if (!newTabHotKey) 
+		if (!newTabHotkey) 
 			actionTriggerMap.onNewTabClicked();
-		newTabHotKey = false;	// set to true in listenForHotkeys
+		newTabHotkey = false;	// set to true in listenForHotkeys
+	});
+}
+
+function listenForCloseTabButton(){
+	logger.log("listeningForCloseTabButton");
+
+	tabs.on("close", function (tab) {
+		if (!closeTabHotkey)
+			actionTriggerMap.onCloseTabClicked();
+		closeTabHotkey = false; // set to true in listenForHotkeys
 	});
 }
 

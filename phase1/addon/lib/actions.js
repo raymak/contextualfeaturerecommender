@@ -153,7 +153,7 @@ function recommendNewTabShortcut(event){
 
 		notifications.notify({
   		title: "CTRL + T",
-  		text: "'You can also use CTRL+T to open a new tab! Why don't you give it a try!?",
+  		text: "You can also use CTRL+T to open a new tab! Why don't you give it a try!?",
   		data: "",
   		onClick: function (data) {
     	console.log(data);
@@ -166,6 +166,19 @@ function recommendNewTabShortcut(event){
 	// 	panel.show();
 	// }, 500);
 
+}
+
+function recommendCloseTabShortcut(event){
+	logger.log("recommendCloseTabShortcut");
+
+		notifications.notify({
+			title: "CTRL + W",
+			text: "You can also use CTRL+W to close a tab!",
+			data: "",
+			onClick: function (data){
+				console.log(data);
+			}
+			});
 }
 
 function recommendBookmarkManager(){
@@ -194,3 +207,4 @@ exports.recommendNewTabShortcut = recommendNewTabShortcut;
 exports.recommendTranslator = recommendTranslator;
 exports.recommendNewBookmarkShortcut = recommendNewBookmarkShortcut;
 exports.recommendBookmarkManager = recommendBookmarkManager;
+exports.recommendCloseTabShortcut = recommendCloseTabShortcut;
