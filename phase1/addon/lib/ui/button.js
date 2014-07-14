@@ -7,9 +7,7 @@ function getButton(clickHandler){
 		id: "init-button",
 		label: "Press Me!",
 		icon: {
-			"16": "./ui/icons/icon-16.png",
-			"32": "./ui/icons/icon-32.png",
-			"64": "./ui/icons/icon-64.png"
+			"16": "./ui/icons/lightbulb_bw.png",
 		},
 		onClick: clickHandler
 	});

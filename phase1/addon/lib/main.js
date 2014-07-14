@@ -1,18 +1,18 @@
 
 
-var { modelFor } = require("sdk/view/core");
-var { viewFor } = require("sdk/model/core");
 var triggers = require("./triggers");
 var logger = require("./logger");
 var button = require("./ui/button");
 var info = require("./generalInfoCollector");
 var featuredata = require("./featuredata");
 
-button.getButton(start);
+var startButton = button.getButton(start);
+// start();
 
 //start listening when button is clicked
 function start(state){
 	logger.logToF("Button Clicked!");
+	startButton.icon = {"16": "./ui/icons/lightbulb_gr.png"};
 	triggers.init();
 }
 
