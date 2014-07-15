@@ -38,14 +38,25 @@ function init(){
 	listenForHotkeys();
 	listenForNewTabButton();
 	listenForCloseTabButton();
-	listenForForeignPages();
+	// listenForForeignPages();
 	listenForBookmarks();
 
 }
 //TODO: listen for all windows (use tabs.on?)
 function listenForURIChanges(){
 	logger.log("URI Change");
-	tabs.on("ready", actionTriggerMap.onURIChange);
+	// tabs.on("ready", actionTriggerMap.onURIChange);
+	
+	var windowTracker = new WindowTracker({
+		onTrack: function (window){
+
+			if (!isBrowser(window)) return;
+
+			tabBrowser = window.gBrowser;
+			tabBrowser.addTabsProgressListener({onLocationChange: actionTriggerMap.onURIChange});
+		}
+	});
+
 	// recentWindow = getMostRecentBrowserWindow();
 	// tabBrowser = getTabBrowser(recentWindow);
 

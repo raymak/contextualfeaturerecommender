@@ -17,7 +17,9 @@ var URLToActionMapper = {
 	"www.reddit.com": redditDetected,
 	"www.amazon.com": amazonDetected, "www.amazon.ca": amazonDetected,
 	"stoppornculture.org": pornDetected,
-	"www.facebook.com": facebookDetected
+	"www.facebook.com": facebookDetected,
+	"www.google.com": googleDetected, "www.google.ca": googleDetected,  "www.bing.com": bingDetected, "www.bing.ca": bingDetected,
+	"en.wikipedia.org": wikipediaDetected, "search.yahoo.com": yahooDetected, "search.yahoo.ca": yahooDetected
 };
 
 //stores basic information needed when recommending addons
@@ -75,11 +77,12 @@ function showOnToolbar(aBrowser, aWebProgress, aRequest, aLocation){
 }
 
 //carries out right action based on (hostname of) current website
-function mapActiveURLToAction(tab){
-	activeTab = tabs.activeTab;
+function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
+	tab = tabs.activeTab;
 	logger.log("mapActiveURLToAction");
-	
-	if (tab.id == activeTab.id) {
+
+	// if (tab.id == activeTab.id)
+	if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
 		
 		var hostname = URL(tab.url).hostname;
 		logger.log(hostname);
@@ -128,8 +131,85 @@ function redditDetected(){
 }
 
 function amazonDetected(){
-	recommendAddon({addonID: "amazonwishlistbutton"});
+	// recommendAddon({addonID: "amazonwishlistbutton"});
+	extractSearchQuery("amazon");
 }
+
+function googleDetected(){
+	extractSearchQuery("google");
+}
+
+function bingDetected(){
+	extractSearchQuery("bing");
+}
+
+function yahooDetected(){
+	extractSearchQuery("yahoo");
+}
+
+function wikipediaDetected(){
+	extractSearchQuery("wikipedia");
+}
+
+function extractSearchQuery(engine){
+	logger.log(URL(tabs.activeTab.url).search);
+
+	var qSeparator;
+	var qKeyword;
+
+	var autoSeparator = true; //if set, checks both + and space (ignores qSeparator)
+
+
+	switch (engine){
+		case "google":
+			qSeparator = "+";
+			qKeyword = "q";
+		break;
+		case "bing":
+			qSeparator = "+";
+			qKeyword = "q";
+		break;
+		case "wikipedia":
+			qSeparator = "+";
+			qKeyword = "search";
+
+		break;
+		case "yahoo":
+			qSeparator = "+";
+			qKeyword = "p";
+
+		break;
+		case "amazon":
+			qSeparator = "+";
+			qKeyword = "field-keywords";
+
+		break;
+
+	}
+
+	var queryRegExp = new RegExp(".*(?:\\?|\\#|&)" + qKeyword + "=(.*?)(?:\\&|$)", "i");
+
+	var allQs = queryRegExp.exec(URL(tabs.activeTab.url).search + URL(tabs.activeTab.url).hash);
+
+	if (allQs){
+		logger.log("matched a " + engine + " search query: " + allQs[1]);
+		
+		if (autoSeparator){
+			var queries = allQs[1].split(/\W(?:\d|\W)*/i);
+			// if (allQs[1].search(/ /i) != -1)
+			// 	qSeparator = " ";
+			// else
+			// 	qSeparator = "+";
+		} 
+		else 
+			var queries = allQs[1].split(qSeparator);
+
+		queries.map(function (elm){
+			logger.log(elm);
+		});
+	}
+}
+
 function facebookDetected(){
 	setTimeout(function (){
   		var panel = require("./ui/panel").getPanel();
