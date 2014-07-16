@@ -12,6 +12,7 @@ var info = require("./generalInfoCollector");
 var featuredata = require("./featuredata");
 var {WindowTracker} = require("sdk/deprecated/window-utils");
 var {isBrowser} = require("sdk/window/utils");
+var config = require("./config");
 
 var startButton = button.getButton(start);
 // start();
@@ -30,15 +31,5 @@ info.getAddons(function (addons) {
 
 console.log(info.getStartDate());
 
-var track = new WindowTracker({
-	onTrack: function (window){
-		if (!isBrowser(window)) return;
-		var keys = Object.keys(window).sort();
-		// console.log(Object.keys(window.URLBar));
-		// for (var i = 0; i < keys.length; i++)
-		// 	console.log(keys[i]);
-	}
-});
-
-require("sdk/timers").setTimeout(function(){console.log(info.getStartDate())}, 5000);
+console.log(config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD);
 

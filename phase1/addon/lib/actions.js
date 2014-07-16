@@ -14,7 +14,8 @@ var logger = require("./logger");
 var {URL} = require("sdk/url");
 var notifications = require("sdk/notifications");
 var featuredata = require("./featuredata");
-windows = require("sdk/windows");
+var config = require("./config");
+var windows = require("sdk/windows");
 
 //stores what action each webpage should map to 
 var URLToActionMapper = {
@@ -45,7 +46,8 @@ var addonData = {
 //shows URI of a tab in a panel
 function showNewURI(aBrowser, aWebProgress, aRequest, aLocation){
 	console.log("show new URI");
-	tab = tabs.activeTab;
+	
+	var tab = tabs.activeTab;
 	
 	if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
 		
@@ -59,9 +61,8 @@ function showNewURI(aBrowser, aWebProgress, aRequest, aLocation){
 
 // removes all images in a webpage
 function loadImageKiller(aBrowser, aWebProgress, aRequest, aLocation){
-	
 
-	tab = tabs.activeTab;
+	var tab = tabs.activeTab;
 	
 	if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
 		tab.on("ready", function (){
@@ -76,7 +77,8 @@ function loadImageKiller(aBrowser, aWebProgress, aRequest, aLocation){
 
 //TODO
 function showOnToolbar(aBrowser, aWebProgress, aRequest, aLocation){
-	tab = tabs.activeTab;
+	
+	var tab = tabs.activeTab;
 	
 	if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
 		
@@ -86,7 +88,8 @@ function showOnToolbar(aBrowser, aWebProgress, aRequest, aLocation){
 
 //carries out right action based on (hostname of) current website
 function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
-	tab = tabs.activeTab;
+	
+	var tab = tabs.activeTab;
 	logger.log("mapActiveURLToAction");
 
 	// if (tab.id == activeTab.id)
@@ -102,7 +105,16 @@ function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 
 // recommends installing a DL manager to user
 function recommendDLManager(download){
-	recommendAddon({addonID: "flashgot"});
+	
+	var count = featuredata.get("download", "count");
+	count++;
+
+	featuredata.set("download", "count", count);
+
+	if (count == config.DOWNLOAD_COUNT_THRESHOLD){
+
+		recommendAddon({addonID: "flashgot"});
+	}
 }
 
 // recommends a specific addon to user
@@ -118,12 +130,30 @@ function recommendAddon(options){
 }
 
 function ytDetected(){
+	
 	logger.log("ytDetect");
-	recommendAddon({addonID: "1click-yt-download"});
+
+	var count = featuredata.get("youtube", "count");
+	count++;
+
+	console.log(count);
+
+	featuredata.set("youtube", "count", count);
+
+	if (count == config.YOUTUBE_COUNT_THRESHOLD){
+		recommendAddon({addonID: "1click-yt-download"});
+	}
 }
 
 function gmailDetected(){
-	recommendAddon({addonID: "gmail-notifier"});
+	var count = featuredata.get("gmail", "count");
+	count++;
+
+	featuredata.set("gmail", "count", count);
+
+	if (count == config.GMAIL_COUNT_THRESHOLD){
+		recommendAddon({addonID: "gmail-notifier"});
+	}
 }
 
 function soccerDetected(){
@@ -131,19 +161,44 @@ function soccerDetected(){
 }
 
 function recommendTranslator(){
-	recommendAddon({addonID: "googletranslator"});
+	var count = featuredata.get("translator", "count");
+	count++;
+
+	featuredata.set("translator", "count", count);
+
+	if (count == config.TRANSLATOR_COUNT_THRESHOLD){
+
+		recommendAddon({addonID: "googletranslator"});
+	}
 }
 
 function redditDetected(){
-	recommendAddon({addonID: "redditenhancement"});
+	var count = featuredata.get("reddit", "count");
+	count++;
+
+	featuredata.set("reddit", "count", count);
+
+	if (count == config.REDDIT_COUNT_THRESHOLD){
+
+		recommendAddon({addonID: "redditenhancement"});
+	}
 }
 
 function amazonDetected(){
-	// recommendAddon({addonID: "amazonwishlistbutton"});
+	var count = featuredata.get("amazon", "count");
+	count++;
+
+	featuredata.set("amazon", "count", count);
+
+	if (count == config.AMAZON_COUNT_THRESHOLD){
+		recommendAddon({addonID: "amazonwishlistbutton"});
+	}
+
 	extractSearchQuery("amazon");
 }
 
 function googleDetected(){
+
 	extractSearchQuery("google");
 }
 
@@ -219,38 +274,66 @@ function extractSearchQuery(engine){
 }
 
 function facebookDetected(){
-	setTimeout(function (){
-  		var panel = require("./ui/panel").getPanel();
- 		panel.port.emit("updateinnerhtml", "You might want to pin this page. <br> <a href='' class='pintab'>pin this tab</a>");
- 		panel.port.on("pintab", function(){
- 			// open in a private window
- 			tabs.activeTab.pin();
- 		});
- 		panel.show();
-  			}, 500);
+
+	var count = featuredata.get("facebook", "count");
+	count++;
+
+	featuredata.set("facebook", "count", count);
+
+	if (count == config.FACEBOOK_COUNT_THRESHOLD){
+
+		setTimeout(function (){
+	  		var panel = require("./ui/panel").getPanel();
+	 		panel.port.emit("updateinnerhtml", "You might want to pin this page. <br> <a href='' class='pintab'>pin this tab</a>");
+	 		panel.port.on("pintab", function(){
+	 			// open in a private window
+	 			tabs.activeTab.pin();
+	 		});
+	 		panel.show();
+	  			}, 500);
+	}	
 }
+
+
 
 function pornDetected(){
 	
 	logger.log("pornDetected"); 
-	setTimeout(function (){
-  		var panel = require("./ui/panel").getPanel();
- 		panel.port.emit("updateinnerhtml", "You might want to try opening this page in a new private window if you don't want it to be stored in your history. <br> <a href='' class='privatewindow'>open in a private window</a>");
- 		panel.port.on("movelinktoprivatewindow", function(){
- 			// open in a private window
- 			windows.browserWindows.open({
- 				url: tabs.activeTab.url,
- 				isPrivate: true
- 			});
- 			tabs.activeTab.close();
- 		});
- 		panel.show();
-  			}, 500);
+
+	var count = featuredata.get("privatewindowporn", "count");
+	count++;
+
+	featuredata.set("privatewindowporn", "count", count);
+
+	if (count == config.PRIVATE_WINDOW_PORN_COUNT_THRESHOLD){
+
+		setTimeout(function (){
+	  		var panel = require("./ui/panel").getPanel();
+	 		panel.port.emit("updateinnerhtml", "You might want to try opening this page in a new private window if you don't want it to be stored in your history. <br> <a href='' class='privatewindow'>open in a private window</a>");
+	 		panel.port.on("movelinktoprivatewindow", function(){
+	 			// open in a private window
+	 			windows.browserWindows.open({
+	 				url: tabs.activeTab.url,
+	 				isPrivate: true
+	 			});
+	 			tabs.activeTab.close();
+	 		});
+	 		panel.show();
+	  			}, 500);
+
+	}
 }
 
 //recommends using a keyboard shortcut to open a  new tab
 function recommendNewTabShortcut(event){
 	logger.log("recommendNewTabShortcut");
+
+	var count = featuredata.get("newtabshortcut", "count");
+	count++;
+
+	featuredata.set("newtabshortcut", "count", count);
+
+	if (count == config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD){
 
 		notifications.notify({
   		title: "CTRL + T",
@@ -261,6 +344,7 @@ function recommendNewTabShortcut(event){
     	// console.log(this.data) would produce the same result.
   		}
 		});
+	}
 	// setTimeout(function () {
 	// 	var panel = require("./ui/panel").getPanel();
 	// 	panel.port.emit("updateinnerhtml", "You can also use CTRL+T to open a new tab! Why don't you give it a try!?");
@@ -277,7 +361,7 @@ function recommendCloseTabShortcut(event){
 
 	featuredata.set("closetabshortcut", "count", count);
 
-	if (count == 4){
+	if (count == config.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD){
 
 		notifications.notify({
 			title: "CTRL + W",
@@ -291,19 +375,33 @@ function recommendCloseTabShortcut(event){
 }
 
 function recommendBookmarkManager(){
-	recommendAddon({addonID: "quickmark"});
+	var count = featuredata.get("newbookmark", "count");
+	count++;
+
+	featuredata.set("newbookmark", "count", count);
+
+	if (count == config.BOOKMARK_MANAGER_COUNT_THRESHOLD){
+		recommendAddon({addonID: "quickmark"});
+	}
 }
 
 function recommendNewBookmarkShortcut(event){
-	notifications.notify({
-  		title: "CTRL + D",
-  		text: "'You can also use CTRL+D to bookmark a page! Why don't you give it a try!?",
-  		data: "",
-  		onClick: function (data) {
-    	console.log(data);
-    	// console.log(this.data) would produce the same result.
-    	}	
-  		});
+	var count = featuredata.get("newbookmark", "count");
+	count++;
+
+	featuredata.set("newbookmark", "count", count);
+
+	if (count == config.BOOKMARK_SHORTCUT_COUNT_THRESHOLD){
+		notifications.notify({
+	  		title: "CTRL + D",
+	  		text: "'You can also use CTRL+D to bookmark a page! Why don't you give it a try!?",
+	  		data: "",
+	  		onClick: function (data) {
+	    	console.log(data);
+	    	// console.log(this.data) would produce the same result.
+	    	}	
+	  		});
+	}	
 
 }
 

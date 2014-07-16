@@ -9,8 +9,11 @@
 self.port.on("updateinnerhtml", function (msg){
 	document.body.innerHTML = msg;
 	//refering the hyperlinks back to the extension
-		elements = document.getElementsByTagName("a");
-		for each (var element in elements) {
+		var elements = document.getElementsByTagName("a");
+		var element;
+		for (var i = 0; i < elements.length; i++) {
+			element = elements[i];
+
 			if (element.className != 'dummy')
 				element.onclick = onlinkclick;
 			if (element.className == 'privatewindow')

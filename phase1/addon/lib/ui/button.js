@@ -5,7 +5,7 @@
 
 "use strict";
 
-buttons = require("sdk/ui/button/action");
+var buttons = require("sdk/ui/button/action");
 
 var logger = require("./../logger");
 

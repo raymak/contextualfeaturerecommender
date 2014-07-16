@@ -11,9 +11,21 @@ const featureObjectAddress = "cfrexp.featureData.dataObject";
 
 
 
-featuredata = {
+var featuredata = {
 	//featurename: dataobject
-	closetabshortcut: {count: 0}
+	closetabshortcut: {count: 0},
+	newbookmark: {count: 0},
+	newtabshortcut: {count: 0},
+	privatewindowporn: {count: 0},
+	facebook: {count: 0},
+	amazon: {count: 0},
+	translator: {count: 0},
+	youtube: {count: 0},
+	download: {count: 0},
+	gmail: {count: 0},
+	reddit: {count: 0}
+
+
 };
 
 writeToPrefs();

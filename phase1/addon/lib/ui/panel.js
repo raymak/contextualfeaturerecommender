@@ -5,7 +5,7 @@
 
 "use strict";
 
-data = require("sdk/self").data;
+var data = require("sdk/self").data;
 
 
 var init = function (){

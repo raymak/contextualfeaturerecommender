@@ -27,7 +27,7 @@ var closeTabHotkey = false;
 
 
 //maps events triggered by user to actions
-actionTriggerMap = {
+var actionTriggerMap = {
 	onURIChange: actions.mapActiveURLToAction,
 	onDownloadAdded: actions.recommendDLManager,
 	onNewTabClicked: actions.recommendNewTabShortcut,
@@ -50,7 +50,7 @@ function init(){
 }
 //TODO: listen for all windows (use tabs.on?)
 function listenForURIChanges(){
-	logger.log("URI Change");
+	logger.log("listening forURI Change");
 	// tabs.on("ready", actionTriggerMap.onURIChange);
 	
 	var windowTracker = new WindowTracker({
@@ -58,7 +58,7 @@ function listenForURIChanges(){
 
 			if (!isBrowser(window)) return;
 
-			tabBrowser = window.gBrowser;
+			var tabBrowser = window.gBrowser;
 			tabBrowser.addTabsProgressListener({onLocationChange: actionTriggerMap.onURIChange});
 		}
 	});
@@ -142,7 +142,7 @@ function listenForBookmarks(){
 	logger.log("listeningForBookmarks");
 
 	// Create a bookmark observer
-	bookmarksObserver = {
+	var bookmarksObserver = {
 	  onBeginUpdateBatch: function() {
 	    // This method is notified when a batch of changes are about to occur.
 	    // Observers can use this to suspend updates to the user-interface, for example
