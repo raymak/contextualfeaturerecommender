@@ -15,8 +15,8 @@ var {WindowTracker} = require("sdk/deprecated/window-utils");
 var {isBrowser} = require("sdk/window/utils");
 var config = require("./config");
 
-var startButton = button.getButton(start);
-start({});
+// var startButton = button.getButton(start);
+// start({});
 
 
 
@@ -26,8 +26,8 @@ function firstRun(){
 }
 
 //start listening when button is clicked
-function start(state){
-	logger.logToF("Button Clicked!");
+var main = exports.main = function (options, callbacks){
+	
 	startButton.icon = {"16": "./ui/icons/lightbulb_gr.png"};
 
 	//check if this is the first time 
