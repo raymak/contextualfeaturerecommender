@@ -49,8 +49,10 @@ function getTestMode(){
 	if (system.staticArgs.test_mode && (system.staticArgs.test_mode == "true" || system.staticArgs.test_mode == "false"))
 		prefs.set("cfrexp.config.test_mode", system.staticArgs.test_mode);
 	else
-		if (!prefs.has("cfrexp.config.test_mode"))
-			throw Error("test_mode state not specified properly. use --static-args to define set .test_mode to either \"true\" or \"false\"");
+		if (!prefs.has("cfrexp.config.test_mode")){
+			// throw Error("test_mode state not specified properly. use --static-args to define set .test_mode to either \"true\" or \"false\"");
+			prefs.set("cfrexp.config.test_mode", "true");
+		}
 
 	logger.log("TEST_MODE = " + prefs.get("cfrexp.config.test_mode"));	
 	

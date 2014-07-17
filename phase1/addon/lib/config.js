@@ -38,4 +38,4 @@ exports.TYPE_OFFERING_ADDON = "ADDON";
 exports.TYPE_INSTALL = "INSTALL";
 exports.ID_NA = "NA";
 
-exports.SEND_REQ_TO_GA = "false";
+exports.SEND_REQ_TO_GA = "true";

@@ -60,8 +60,9 @@ function getLanguage(urlStr, callback){
 function sendToGA(dataObject){
 	
 	function requestCompleted(response){
-			console.log(response.text);
+			// console.log(response.text);
 			logger.log("HTTP REQUEST COMPLETE");
+			appendToFile("httpresponse", response.text);
 		}
 
 	
@@ -75,13 +76,17 @@ function sendToGA(dataObject){
 
 		logger.log("sending to GA");
 
+		var newstr = "https://addons.allizom.org/?" + "POST=true&" + "THISISAFAKEMESSAGE=true&" + str;
+		console.log(newstr);
+
 		var XMLReq = new request.Request({
-			url: "https://addons.allizom.org/?" + "THISISAFAKEMESSAGE=true&" + str,
+
+			url: newstr,
 			onComplete: requestCompleted
 			// content:
 		});
 
-		XMLReq.get();
+		XMLReq.post();
 	}
 	
 

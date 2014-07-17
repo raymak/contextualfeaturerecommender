@@ -28,7 +28,7 @@ function firstRun(){
 //start listening when button is clicked
 var main = exports.main = function (options, callbacks){
 	
-	startButton.icon = {"16": "./ui/icons/lightbulb_gr.png"};
+	// startButton.icon = {"16": "./ui/icons/lightbulb_gr.png"};
 
 	//check if this is the first time 
 	if (info.isThisFirstTime())
