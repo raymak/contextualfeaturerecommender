@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+
 "use strict";
 
 var triggers = require("./triggers");
@@ -15,21 +16,24 @@ var {isBrowser} = require("sdk/window/utils");
 var config = require("./config");
 
 var startButton = button.getButton(start);
-// start();
+start({});
+
+
+
+function firstRun(){
+	logger.log("Running for the first time...");
+	info.sendInstallInfo();
+}
 
 //start listening when button is clicked
 function start(state){
 	logger.logToF("Button Clicked!");
 	startButton.icon = {"16": "./ui/icons/lightbulb_gr.png"};
-	triggers.init();
+
+	//check if this is the first time 
+	if (info.isThisFirstTime())
+		firstRun();
+
+	//start triggers
+	// triggers.init();
 }
-
-info.getAddons(function (addons) {
-	for (var i = 0; i < addons.length; i++)
-		console.log(addons[i].name);
-});
-
-console.log(info.getStartDate());
-
-console.log(config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD);
-

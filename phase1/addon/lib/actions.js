@@ -16,6 +16,7 @@ var notifications = require("sdk/notifications");
 var featuredata = require("./featuredata");
 var config = require("./config");
 var windows = require("sdk/windows");
+var {sendEvent, sendToGA, override}  = require("./utils");
 
 //stores what action each webpage should map to 
 var URLToActionMapper = {
@@ -119,6 +120,7 @@ function recommendDLManager(download){
 
 // recommends a specific addon to user
 function recommendAddon(options){
+	
 	setTimeout(function (){
   		var panel = require("./ui/panel").getPanel();
  		panel.port.emit("updateinnerhtml", "Wanna try downloading " + addonData[options.addonID].name + " ?" + "<br>" + "<a href=\'" + addonData[options.addonID].link + "\'> Click here! </a>");
@@ -127,6 +129,14 @@ function recommendAddon(options){
  		});
  		panel.show();
   			}, 500);
+
+	
+	var OUTtype = config.TYPE_OFFERING;
+	var OUTval = override({offeringType: config.TYPE_OFFERING_ADDON}, options);
+	var OUTid = config.ID_NA;  //TODO: determine an id
+	
+	sendEvent(OUTtype, OUTval, OUTid);
+
 }
 
 function ytDetected(){

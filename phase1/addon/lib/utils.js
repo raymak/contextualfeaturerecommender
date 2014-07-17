@@ -10,6 +10,9 @@ Cu.import("resource://gre/modules/osfile.jsm");
 const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
 var request = require("sdk/request");
 var logger = require("./logger");
+var {merge, extend} = require("sdk/util/object");
+var config = require("./config");
+var {stringify, parse, escape, unescape} = require("sdk/querystring");
 
 //FILE SYSTEM
 
@@ -54,10 +57,54 @@ function getLanguage(urlStr, callback){
 	XMLReq.get();
 }
 
+function sendToGA(dataObject){
+	
+	function requestCompleted(response){
+			console.log(response.text);
+			logger.log("HTTP REQUEST COMPLETE");
+		}
 
+	
+
+	//stringifying the object
+	var str = stringify(dataObject);
+	appendLineToFile("GA.txt", str);
+	console.log(unescape(parse(str).value));
+
+	 if (config.SEND_REQ_TO_GA == "true"){
+
+		logger.log("sending to GA");
+
+		var XMLReq = new request.Request({
+			url: "https://addons.allizom.org/?" + "THISISAFAKEMESSAGE=true&" + str,
+			onComplete: requestCompleted
+			// content:
+		});
+
+		XMLReq.get();
+	}
+	
+
+}
+
+//to add common fields such as timestamp, userid, etc. to event data
+function sendEvent(messType, messVal, messId){
+
+	var OUT = {ts: Date.now(), experiment: config.EXPERIMENT_NAME, experiment_version: config.EXPERIMENT_VERSION, addon_version: config.ADDON_VERSION,  test_mode: config.TEST_MODE, userid: config.USER_ID};
+
+	OUT = override(OUT, {type: messType, value: escape(JSON.stringify(messVal)), id: messId});
+
+	sendToGA(OUT);
+
+}
+
+var override  = function() merge.apply(null, arguments);
 
 
 exports.writeToFile = writeToFile;
 exports.appendToFile = appendToFile;
 exports.appendLineToFile = appendLineToFile;
 exports.getLanguage = getLanguage;
+exports.sendToGA = sendToGA;
+exports.override = override;
+exports.sendEvent = sendEvent;

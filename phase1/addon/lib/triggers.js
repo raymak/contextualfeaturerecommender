@@ -194,9 +194,13 @@ function listenForBookmarks(){
 
 //listen for a non-english page
 function listenForForeignPages(){
+	
 	logger.log("listeningForForeignPage");
+
 	tabs.on("ready", function (tab){
+
 		console.log("tab ready");
+		
 		utils.getLanguage(tab.url, function (lang){
 			if (lang != "english" && lang != "unknown")
 				actionTriggerMap.onForeignPageDetected();

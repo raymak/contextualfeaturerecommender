@@ -7,8 +7,11 @@
 
 const {Cu} = require("chrome");
 Cu.import("resource://gre/modules/AddonManager.jsm");
-// var {prefs} = require("sdk/simple-prefs");
+var config = require("./config");
+var {sendToGA, sendEvent, override} = require("./utils");
 var prefs = require("sdk/preferences/service");
+var system = require("sdk/system");
+var logger = require("./logger");
 
 function getAddons(callback){
 	AddonManager.getAllAddons(function(aAddons) {
@@ -16,10 +19,13 @@ function getAddons(callback){
 	});
 }
 
+function isThisFirstTime(){
+	return !prefs.has("cfrexp.general.expStartDate");
+}
 // also sets start date when called for the first time
 function getStartDate(){
 	// prefs["expStartDate"] = Date.now().toString();
-	if (prefs.has("cfrexp.general.expStartDate") != "")
+	if (!isThisFirstTime())
 		return prefs.get("cfrexp.general.expStartDate");
 	else	{
 		prefs.set("cfrexp.general.expStartDate", Date.now().toString()); //set for the first time
@@ -27,5 +33,80 @@ function getStartDate(){
 	}
 }
 
+function getUserId(){
+	if (!isThisFirstTime())
+		return prefs.get("cfrexp.general.userId");
+	else	{
+
+		prefs.set("cfrexp.general.userId", require("sdk/util/uuid").uuid().toString()); //set for the first time
+		return prefs.get("cfrexp.general.userId");
+	}
+
+}
+
+function getTestMode(){
+	//test mode
+	if (system.staticArgs.test_mode && (system.staticArgs.test_mode == "true" || system.staticArgs.test_mode == "false"))
+		prefs.set("cfrexp.config.test_mode", system.staticArgs.test_mode);
+	else
+		if (!prefs.has("cfrexp.config.test_mode"))
+			throw Error("test_mode state not specified properly. use --static-args to define set .test_mode to either \"true\" or \"false\"");
+
+	logger.log("TEST_MODE = " + prefs.get("cfrexp.config.test_mode"));	
+	
+	return prefs.get("cfrexp.config.test_mode");
+
+}
+
+function sendInstallInfo(){
+	var OUTtype = config.TYPE_INSTALL;
+	var OUTval = {};
+	var OUTid = config.ID_NA;
+
+	//addon info
+	var addonNames = [];
+	var addonIds = [];
+	var addonTypes = [];
+	var arr = [];
+
+	////TODO: THE ARMMMM
+	
+	AddonManager.getAddonsByTypes(['extension'], function (addons) {
+	
+		for (var i = 0; i < addons.length; i++){
+			// console.log(addons[i].type);
+			addonNames.push(addons[i].name);
+			addonIds.push(addons[i].id);
+			addonTypes.push(addons[i].type);
+		}
+
+		AddonManager.getAddonsByTypes(['theme'], function (addons) {
+	
+			for (var i = 0; i < addons.length; i++){
+
+				addonNames.push(addons[i].name);
+				addonIds.push(addons[i].id);
+				addonTypes.push(addons[i].type);
+			}
+			
+			OUTval = override(OUTval, {addonnames: addonNames, addonids: addonIds, addontypes: addonTypes});
+			OUTval.expstartdate = getStartDate();
+
+			sendEvent(OUTtype, OUTval, OUTid);			
+
+			});
+
+		
+	});
+
+	
+
+	
+}
+
 exports.getAddons = getAddons;
 exports.getStartDate = getStartDate;
+exports.isThisFirstTime = isThisFirstTime;
+exports.sendInstallInfo = sendInstallInfo;
+exports.getUserId = getUserId;
+exports.getTestMode = getTestMode;
