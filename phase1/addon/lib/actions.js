@@ -12,6 +12,7 @@ var tabs = require("sdk/tabs");
 var {data} = require("sdk/self");
 var logger = require("./logger");
 var {URL} = require("sdk/url");
+var utils = require("./utils");
 var notifications = require("sdk/notifications");
 var featuredata = require("./featuredata");
 var config = require("./config");
@@ -113,7 +114,12 @@ function recommendDLManager(download){
 
 	featuredata.set("download", "count", count);
 
+	var triggerId = "newdownload";
+	var name = "newdownload";
+
 	if (count == config.DOWNLOAD_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 		recommendAddon({addonID: "flashgot"});
 	}
@@ -162,11 +168,17 @@ function ytDetected(){
 	var count = featuredata.get("youtube", "count");
 	count++;
 
+	var triggerId = "youtube";
+	var name = "youtube";
+
 	console.log(count);
 
 	featuredata.set("youtube", "count", count);
 
 	if (count == config.YOUTUBE_COUNT_THRESHOLD){
+		
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
+		
 		recommendAddon({addonID: "1click-yt-download"});
 	}
 }
@@ -175,9 +187,15 @@ function gmailDetected(){
 	var count = featuredata.get("gmail", "count");
 	count++;
 
+	var triggerId = "gmail";
+	var name = "gmail";
+
 	featuredata.set("gmail", "count", count);
 
 	if (count == config.GMAIL_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
+
 		recommendAddon({addonID: "gmail-notifier"});
 	}
 }
@@ -192,7 +210,13 @@ function recommendTranslator(){
 
 	featuredata.set("translator", "count", count);
 
+	var triggerId = "foreignpage";
+	var name = "foreignpage";
+
 	if (count == config.TRANSLATOR_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
+
 
 		recommendAddon({addonID: "googletranslator"});
 	}
@@ -204,7 +228,13 @@ function redditDetected(){
 
 	featuredata.set("reddit", "count", count);
 
+	var triggerId = "reddit";
+	var name = "reddit";
+
 	if (count == config.REDDIT_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
+
 
 		recommendAddon({addonID: "redditenhancement"});
 	}
@@ -216,7 +246,14 @@ function amazonDetected(){
 
 	featuredata.set("amazon", "count", count);
 
+	var triggerId = "amazon";
+	var name = "amazon";
+
 	if (count == config.AMAZON_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
+	
+
 		recommendAddon({addonID: "amazonwishlistbutton"});
 	}
 
@@ -241,6 +278,7 @@ function wikipediaDetected(){
 }
 
 function extractSearchQuery(engine){
+
 	logger.log(URL(tabs.activeTab.url).search);
 
 	var qSeparator;
@@ -322,7 +360,13 @@ function facebookDetected(){
 
 	featuredata.set("facebook", "count", count);
 
+	var triggerId = "facebook";
+	var name = "facebook";
+
 	if (count == config.FACEBOOK_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
+
 
 		recommendPinTab();
 	}	
@@ -339,7 +383,13 @@ function pornDetected(){
 
 	featuredata.set("privatewindowporn", "count", count);
 
+	var triggerId = "porn";
+	var name = "porn";
+
 	if (count == config.PRIVATE_WINDOW_PORN_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
+
 
 		ui.showNotification({
 		message: "You might want to open view this page in a private window.",
@@ -376,7 +426,13 @@ function recommendNewTabShortcut(event){
 
 	featuredata.set("newtabshortcut", "count", count);
 
+	var triggerId = "newtab";
+	var name = "newtab";
+
 	if (count == config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
+
 
 		ui.showNotification({
 		message: "You can also use CTRL+T to open a new tab! Why don't you give it a try?",
@@ -401,7 +457,12 @@ function recommendCloseTabShortcut(event){
 
 	featuredata.set("closetabshortcut", "count", count);
 
+	var triggerId = "closetab";
+	var name = "closetab";
+
 	if (count == config.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 		ui.showNotification({
 		message: "You can also use CTRL+W to close a tab!",
@@ -422,7 +483,13 @@ function recommendBookmarkManager(){
 
 	featuredata.set("newbookmark", "count", count);
 
+	var triggerId = "newbookmark";
+	var name = "newbookmark";
+
 	if (count == config.BOOKMARK_MANAGER_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);		
+		
 		recommendAddon({addonID: "quickmark"});
 	}
 }
@@ -433,7 +500,13 @@ function recommendNewBookmarkShortcut(event){
 
 	featuredata.set("newbookmark", "count", count);
 
+	var triggerId = "newbookmarknoshortcut";
+	var name = "newbookmarknoshortcut";
+
 	if (count == config.BOOKMARK_SHORTCUT_COUNT_THRESHOLD){
+
+		utils.sendTriggerEvent({name: name, count: count}, triggerId);
+
 
 		ui.showNotification({
 		message: "You can also use CTRL+D to to bookmark a page! Why don't you give it a try?",

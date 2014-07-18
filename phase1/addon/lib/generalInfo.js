@@ -13,19 +13,23 @@ var prefs = require("sdk/preferences/service");
 var system = require("sdk/system");
 var logger = require("./logger");
 
+var firstTime = false; // set to true in sendInstallInfo, have to revise it
+
 function getAddons(callback){
 	AddonManager.getAllAddons(function(aAddons) {
 	callback(aAddons);
 	});
 }
 
+// can only be usef once
 function isThisFirstTime(){
-	return !prefs.has("cfrexp.general.expStartDate");
+	// return !prefs.has("cfrexp.general.expStartDate");
+	return firstTime;
 }
 // also sets start date when called for the first time
 function getStartDate(){
 	// prefs["expStartDate"] = Date.now().toString();
-	if (!isThisFirstTime())
+	if (!isThisFirstTime()) //TODO: change this, isThisFirstTime is not a reliable method
 		return prefs.get("cfrexp.general.expStartDate");
 	else	{
 		prefs.set("cfrexp.general.expStartDate", Date.now().toString()); //set for the first time
@@ -34,7 +38,7 @@ function getStartDate(){
 }
 
 function getUserId(){
-	if (!isThisFirstTime())
+	if (!isThisFirstTime()) //TODO: change this, isThisFirstTime is not a reliable method
 		return prefs.get("cfrexp.general.userId");
 	else	{
 
@@ -58,6 +62,16 @@ function getTestMode(){
 	
 	return prefs.get("cfrexp.config.test_mode");
 
+}
+
+function getArm(){
+
+	if (!isThisFirstTime())
+		return prefs.get("cfrexp.config.arm");
+	else {
+		prefs.set("cfrexp.config.arm", JSON.stringify(generateRandomArm()));
+		return prefs.get("cfrexp.config.arm");
+	}
 }
 
 function sendInstallInfo(){
@@ -102,7 +116,7 @@ function sendInstallInfo(){
 	});
 
 	
-
+	firstTime = true;
 	
 }
 
@@ -112,3 +126,4 @@ exports.isThisFirstTime = isThisFirstTime;
 exports.sendInstallInfo = sendInstallInfo;
 exports.getUserId = getUserId;
 exports.getTestMode = getTestMode;
+exports.getArm = getArm;

@@ -5,3 +5,7 @@
 
 "use strict";
 
+function generateRandomArm(){
+
+	return {basis: "contextual", explanation: "explanation", ui: "doorhanger-active", trigger: "non-privacy-invasive", install: "recommendation"};
+}

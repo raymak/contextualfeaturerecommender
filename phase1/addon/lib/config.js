@@ -7,13 +7,13 @@
 var prefs = require("sdk/preferences/service");
 var system = require("sdk/system");
 var logger = require("./logger");
-var info = require("./generalInfoCollector");
+var info = require("./generalInfo");
 var TEST_MODE;
 var USER_ID;
 
 
 //arm
-// exports.ARM = info.getArm(); //TODO
+exports.ARM = info.getArm(); //TODO
 
 // recommendation counts
 exports.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD = 2;
@@ -41,6 +41,7 @@ exports.ADDON_VERSION = "0.1";
 exports.TEST_MODE = info.getTestMode(); //set by init()
 exports.USER_ID = info.getUserId();
 
+exports.TYPE_TRIGGER = "TRIGGER";
 exports.TYPE_OFFERING = "OFFERING";
 exports.TYPE_OFFERING_ADDON = "ADDON";
 exports.TYPE_INSTALL = "INSTALL";
