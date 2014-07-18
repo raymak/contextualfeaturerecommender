@@ -76,7 +76,7 @@ function getArm(){
 		return prefs.get("cfrexp.config.arm");
 		
 	else {
-		prefs.set("cfrexp.config.arm", JSON.stringify(arms.generateRandomArm()));
+		prefs.set("cfrexp.config.arm", JSON.stringify(arms.assignRandomArm()));
 		return prefs.get("cfrexp.config.arm");
 		
 	}
@@ -102,6 +102,8 @@ function sendInstallInfo(){
 	var addonTypes = [];
 	var arr = [];
 
+	var locale = prefs.get("general.useragent.locale");
+
 	AddonManager.getAddonsByTypes(['extension'], function (addons) {
 	
 		for (var i = 0; i < addons.length; i++){
@@ -124,7 +126,8 @@ function sendInstallInfo(){
 			try {
 			OUTval = require("./utils").override(OUTval, {addonnames: addonNames, addonids: addonIds, addontypes: addonTypes});						
 			OUTval.expstartdate = getStartDate();
-		}
+			OUTval.locale = locale;
+			}
 			catch (e){
 				console.log(e.message);
 			}

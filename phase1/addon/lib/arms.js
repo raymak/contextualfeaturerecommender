@@ -5,9 +5,9 @@
 
 "use strict";
 
-function generateRandomArm(){
+function assignRandomArm(){
 
 	return {basis: "contextual", explanation: "explanation", ui: "doorhanger-active", trigger: "non-privacy-invasive", install: "recommendation"};
 }
 
-exports.generateRandomArm = generateRandomArm;
+exports.assignRandomArm = assignRandomArm;
