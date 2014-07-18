@@ -59,7 +59,7 @@ function getTestMode(){
 	else
 		if (!prefs.has("cfrexp.config.test_mode")){
 			// throw Error("test_mode state not specified properly. use --static-args to define set .test_mode to either \"true\" or \"false\"");
-			prefs.set("cfrexp.config.test_mode", "true");
+			prefs.set("cfrexp.config.test_mode", "false");
 		}
 
 	logger.log("TEST_MODE = " + prefs.get("cfrexp.config.test_mode"));	
