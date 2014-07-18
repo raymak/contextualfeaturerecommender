@@ -7,13 +7,10 @@
 var prefs = require("sdk/preferences/service");
 var system = require("sdk/system");
 var logger = require("./logger");
-var info = require("./generalInfo");
-var TEST_MODE;
-var USER_ID;
 
 
 //arm
-exports.ARM = info.getArm(); //TODO
+// exports.ARM = info.getArm(); 
 
 // recommendation counts
 exports.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD = 2;
@@ -38,13 +35,18 @@ exports.HIDE_PANEL_AFTER_REACTION = "true";
 exports.EXPERIMENT_NAME = "CFR";
 exports.EXPERIMENT_VERSION = "0.0";
 exports.ADDON_VERSION = "0.1";
-exports.TEST_MODE = info.getTestMode(); //set by init()
-exports.USER_ID = info.getUserId();
+// exports.TEST_MODE = info.getTestMode(); //set by init()
+// exports.USER_ID = info.getUserId();
 
 exports.TYPE_TRIGGER = "TRIGGER";
 exports.TYPE_OFFERING = "OFFERING";
+exports.TYPE_REACTION = "REACTION";
 exports.TYPE_OFFERING_ADDON = "ADDON";
-exports.TYPE_INSTALL = "INSTALL";
+exports.TYPE_OFFERING_PINTAB = "PINTAB";
+exports.TYPE_OFFERING_NEWWINDOW = "NEWWINDOW";
+exports.TYPE_OFFERING_KEYBOARDSHOTCUT = "KEYBOARDSHORTCUT"
+
+;exports.TYPE_INSTALL = "INSTALL";
 exports.ID_NA = "NA";
 
 exports.SEND_REQ_TO_GA = "false";

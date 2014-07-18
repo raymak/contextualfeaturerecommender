@@ -12,8 +12,8 @@ var {sendToGA, sendEvent, override} = require("./utils");
 var prefs = require("sdk/preferences/service");
 var system = require("sdk/system");
 var logger = require("./logger");
+var arms = require("./arms");
 
-var firstTime = false; // set to true in sendInstallInfo, have to revise it
 
 function getAddons(callback){
 	AddonManager.getAllAddons(function(aAddons) {
@@ -21,10 +21,14 @@ function getAddons(callback){
 	});
 }
 
-// can only be usef once
+
+function setIsFirstTime(){
+	prefs.set("cfrexp.general.isFirstTime", "false");
+}
+
 function isThisFirstTime(){
 	// return !prefs.has("cfrexp.general.expStartDate");
-	return firstTime;
+	return !prefs.has("cfrexp.general.isFirstTime");
 }
 // also sets start date when called for the first time
 function getStartDate(){
@@ -66,12 +70,25 @@ function getTestMode(){
 
 function getArm(){
 
+	console.log("in getArm");
+
 	if (!isThisFirstTime())
 		return prefs.get("cfrexp.config.arm");
+		
 	else {
-		prefs.set("cfrexp.config.arm", JSON.stringify(generateRandomArm()));
+		prefs.set("cfrexp.config.arm", JSON.stringify(arms.generateRandomArm()));
 		return prefs.get("cfrexp.config.arm");
+		
 	}
+}
+
+function registerFirstTimePrefs(){
+	getUserId();
+	getTestMode();
+	getStartDate();
+	getArm();
+	setIsFirstTime();
+
 }
 
 function sendInstallInfo(){
@@ -85,19 +102,18 @@ function sendInstallInfo(){
 	var addonTypes = [];
 	var arr = [];
 
-	////TODO: THE ARMMMM
-	
 	AddonManager.getAddonsByTypes(['extension'], function (addons) {
 	
 		for (var i = 0; i < addons.length; i++){
-			// console.log(addons[i].type);
+			// console.addons[i].type);
 			addonNames.push(addons[i].name);
 			addonIds.push(addons[i].id);
 			addonTypes.push(addons[i].type);
 		}
 
 		AddonManager.getAddonsByTypes(['theme'], function (addons) {
-	
+			
+
 			for (var i = 0; i < addons.length; i++){
 
 				addonNames.push(addons[i].name);
@@ -105,21 +121,33 @@ function sendInstallInfo(){
 				addonTypes.push(addons[i].type);
 			}
 			
-			OUTval = override(OUTval, {addonnames: addonNames, addonids: addonIds, addontypes: addonTypes});
+			try {
+			OUTval = require("./utils").override(OUTval, {addonnames: addonNames, addonids: addonIds, addontypes: addonTypes});						
 			OUTval.expstartdate = getStartDate();
+		}
+			catch (e){
+				console.log(e.message);
+			}
 
-			sendEvent(OUTtype, OUTval, OUTid);			
+
+			try {
+			require("./utils").sendEvent(OUTtype, OUTval, OUTid);			
+		}
+		catch (e){
+			console.log(e.message);
+		}
+			
 
 			});
 
 		
-	});
-
+	}); 
 	
-	firstTime = true;
+	
 	
 }
 
+exports.registerFirstTimePrefs = registerFirstTimePrefs;
 exports.getAddons = getAddons;
 exports.getStartDate = getStartDate;
 exports.isThisFirstTime = isThisFirstTime;

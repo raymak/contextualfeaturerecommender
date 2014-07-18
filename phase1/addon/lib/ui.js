@@ -12,11 +12,15 @@ var {Panel} = require("sdk/panel")
 var logger = require("./logger");
 var data = require("sdk/self").data;
 var config = require("./config");
+var {sendEvent} = require("./utils");
 
 
 var button = getButton(buttonClick);
 var panel = getPanel(button);
 var lastReactionCallback;
+var lastId;
+var showCount;
+var reactionCount;
 
 function getButton(clickHandler){
 	return ActionButton({
@@ -60,6 +64,10 @@ function showNotification(options){
 	}
 
 	lastReactionCallback = options.reactionCallback;
+	lastId = options.id;
+
+	showCount = 0;
+	reactionCount = 0;
 
 
 	panel.show({
@@ -68,8 +76,13 @@ function showNotification(options){
 }
 
 function reaction(){
+	
 	if (config.HIDE_PANEL_AFTER_REACTION == "true")
 		panel.hide();
+
+	reactionCount++;
+
+	sendReactionEvent();
 	lastReactionCallback();
 }
 
@@ -93,10 +106,22 @@ function buttonOff(){
 
 function onPanelShow(event){
 	buttonOn();
+	showCount ++;
 }
 
 function onPanelHide(event){
 	buttonOff();
+}
+
+//events
+
+function sendReactionEvent(){
+	var OUTtype = config.TYPE_REACTION;
+	var OUTval = {id: lastId, showcount: showCount, reactioncount: reactionCount};
+	var OUTid = lastId;
+
+	sendEvent(OUTtype, OUTval, OUTid);
+
 }
 
 function show(){

@@ -121,7 +121,7 @@ function recommendDLManager(download){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "flashgot"});
+		recommendAddon({addonID: "flashgot", triggerId: triggerId});
 	}
 }
 
@@ -148,16 +148,12 @@ function recommendAddon(options){
 			tabs.activeTab.url = addonData[options.addonID].link; //url reverts back again if it's an extension
 
 			},
-		buttonLabel: "Install Addon"
+		buttonLabel: "Install Addon",
+		id: options.triggerId
 		});
 
 
-	
-	var OUTtype = config.TYPE_OFFERING;
-	var OUTval = override({offeringType: config.TYPE_OFFERING_ADDON}, options);
-	var OUTid = config.ID_NA;  //TODO: determine an id
-	
-	sendEvent(OUTtype, OUTval, OUTid);
+	utils.sendOfferingEvent(config.TYPE_OFFERING_ADDON, options, options.triggerId);
 
 }
 
@@ -179,7 +175,7 @@ function ytDetected(){
 		
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 		
-		recommendAddon({addonID: "1click-yt-download"});
+		recommendAddon({addonID: "1click-yt-download", triggerId: triggerId});
 	}
 }
 
@@ -196,7 +192,7 @@ function gmailDetected(){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "gmail-notifier"});
+		recommendAddon({addonID: "gmail-notifier", triggerId: triggerId});
 	}
 }
 
@@ -218,7 +214,7 @@ function recommendTranslator(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "googletranslator"});
+		recommendAddon({addonID: "googletranslator", triggerId: triggerId});
 	}
 }
 
@@ -236,7 +232,7 @@ function redditDetected(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "redditenhancement"});
+		recommendAddon({addonID: "redditenhancement", triggerId: triggerId});
 	}
 }
 
@@ -254,7 +250,7 @@ function amazonDetected(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 	
 
-		recommendAddon({addonID: "amazonwishlistbutton"});
+		recommendAddon({addonID: "amazonwishlistbutton", triggerId: triggerId});
 	}
 
 	extractSearchQuery("amazon");
@@ -337,7 +333,7 @@ function extractSearchQuery(engine){
 	}
 }
 
-function recommendPinTab(){
+function recommendPinTab(options){
 
 	ui.showNotification({
 		message: "It seems that you frequently visit this page. You might want to pin its tab!",
@@ -348,8 +344,11 @@ function recommendPinTab(){
 			tabs.open("https://support.mozilla.org/en-US/kb/pinned-tabs-keep-favorite-websites-open");
 
 			},
-		buttonLabel: "Show Me How"
+		buttonLabel: "Show Me How",
+		id: options.triggerId
 		});
+
+		utils.sendOfferingEvent(config.TYPE_OFFERING_PINTAB, options, options.triggerId);
 
 }
 
@@ -368,12 +367,15 @@ function facebookDetected(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendPinTab();
+		recommendPinTab({triggerId: triggerId});
 	}	
 }
 
+function recommendPrivateWindow(){
+	//TODO
+}
 
-
+// TODO: create a recommendPrivateWindow function 
 function pornDetected(){
 	
 	logger.log("pornDetected"); 
@@ -407,8 +409,11 @@ function pornDetected(){
 			tabs.open("https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info");
 
 			},
-		buttonLabel: "Show Me How"
+		buttonLabel: "Show Me How",
+		id: triggerId
 		});
+
+		utils.sendOfferingEvent(config.TYPE_OFFERING_PRIVATEWINDOW, {}, triggerId);
 
 	}
 }
@@ -418,7 +423,7 @@ function recommendKeyboardShortcut(){
 }
 
 //recommends using a keyboard shortcut to open a  new tab
-function recommendNewTabShortcut(event){
+function recommendNewTabShortcut(options){
 	logger.log("recommendNewTabShortcut");
 
 	var count = featuredata.get("newtabshortcut", "count");
@@ -441,8 +446,11 @@ function recommendNewTabShortcut(event){
 		reactionCallback: function(){
 
 			},
-		buttonLabel: "Got It"
+		buttonLabel: "Got It",
+		id: triggerId
 		});
+
+		utils.sendOfferingEvent(config.TYPE_OFFERING_KEYBOARDSHORTCUT, options, triggerId);
 
 	}
 	
@@ -471,8 +479,11 @@ function recommendCloseTabShortcut(event){
 		reactionCallback: function(){
 
 			},
-		buttonLabel: "Got It"
+		buttonLabel: "Got It",
+		id: triggerId
 		});
+
+		utils.sendOfferingEvent(config.TYPE_OFFERING_KEYBOARDSHORTCUT, options, triggerId);
 
 	}
 }
@@ -490,7 +501,7 @@ function recommendBookmarkManager(){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);		
 		
-		recommendAddon({addonID: "quickmark"});
+		recommendAddon({addonID: "quickmark", triggerId: triggerId});
 	}
 }
 
@@ -515,8 +526,11 @@ function recommendNewBookmarkShortcut(event){
 		reactionCallback: function(){
 
 			},
-		buttonLabel: "Got It"
+		buttonLabel: "Got It",
+		id: triggerId
 		});
+
+		utils.sendOfferingEvent(config.TYPE_OFFERING_KEYBOARDSHORTCUT, options, triggerId);
 	}	
 
 }

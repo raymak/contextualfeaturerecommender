@@ -5,13 +5,12 @@
 
 "use strict";
 
-const {Cu} = require("chrome");
-Cu.import("resource://gre/modules/osfile.jsm");
-const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
+
 var request = require("sdk/request");
 var logger = require("./logger");
-var {merge, extend} = require("sdk/util/object");
 var config = require("./config");
+var info = require("./generalInfo");
+var {merge, extend} = require("sdk/util/object");
 var {stringify, parse, escape, unescape} = require("sdk/querystring");
 var {appendToFile, appendLineToFile} = require("./file");
 
@@ -73,7 +72,7 @@ function sendToGA(dataObject){
 //to add common fields such as timestamp, userid, etc. to event data
 function sendEvent(messType, messVal, messId){
 
-	var OUT = {ts: Date.now(), experiment: config.EXPERIMENT_NAME, experiment_version: config.EXPERIMENT_VERSION, addon_version: config.ADDON_VERSION,  test_mode: config.TEST_MODE, userid: config.USER_ID, arm: config.ARM};
+	var OUT = {ts: Date.now(), experiment: config.EXPERIMENT_NAME, experiment_version: config.EXPERIMENT_VERSION, addon_version: config.ADDON_VERSION,  test_mode: info.getTestMode(), userid: info.getUserId(), arm: info.getArm()};
 
 	OUT = override(OUT, {type: messType, value: escape(JSON.stringify(messVal)), id: messId});
 
@@ -90,6 +89,14 @@ function sendTriggerEvent(value, triggerId){
 	sendEvent(OUTtype, OUTval, OUTid);
 }
 
+function sendOfferingEvent(offeringType, value, triggerId){
+	var OUTtype = config.TYPE_OFFERING;
+	var OUTval = override({offeringType: offeringType}, value);
+	var OUTid = triggerId;
+
+	sendEvent(OUTtype, OUTval, OUTid);
+}
+
 var override  = function() merge.apply(null, arguments);
 
 
@@ -100,4 +107,5 @@ exports.appendLineToFile = appendLineToFile;
 exports.sendToGA = sendToGA;
 exports.override = override;
 exports.sendEvent = sendEvent;
+exports.sendOfferingEvent = sendOfferingEvent;
 exports.sendTriggerEvent = sendTriggerEvent;

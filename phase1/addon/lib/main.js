@@ -30,6 +30,7 @@ var button = ToggleButton({
 
 function firstRun(){
 	logger.log("Running for the first time...");
+	info.registerFirstTimePrefs();
 	info.sendInstallInfo();
 }
 
@@ -45,5 +46,6 @@ var main = exports.main = function (options, callbacks){
 	//start triggers
 	triggers.init();
 }
+
 
 // require("./ui").show();
