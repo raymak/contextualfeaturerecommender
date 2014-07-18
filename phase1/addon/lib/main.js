@@ -15,10 +15,18 @@ var {WindowTracker} = require("sdk/deprecated/window-utils");
 var {isBrowser} = require("sdk/window/utils");
 var config = require("./config");
 
-// var startButton = button.getButton(start);
-// start({});
+var { ToggleButton } = require("sdk/ui/button/toggle");
 
-
+var button = ToggleButton({
+    id: "my-button",
+    label: "my button",
+    icon: {
+      "16": "./icons/lightbulb_bw.png",
+    },
+    onChange: function(state) {
+      console.log(state.label + " checked state: " + state.checked);
+    }
+  });
 
 function firstRun(){
 	logger.log("Running for the first time...");
@@ -35,5 +43,7 @@ var main = exports.main = function (options, callbacks){
 		firstRun();
 
 	//start triggers
-	// triggers.init();
+	triggers.init();
 }
+
+// require("./ui").show();

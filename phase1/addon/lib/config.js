@@ -11,6 +11,10 @@ var info = require("./generalInfoCollector");
 var TEST_MODE;
 var USER_ID;
 
+
+//arm
+// exports.ARM = info.getArm(); //TODO
+
 // recommendation counts
 exports.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD = 4;
 exports.NEW_TAB_SHORTCUT_COUNT_THRESHOLD = 4;
@@ -38,4 +42,4 @@ exports.TYPE_OFFERING_ADDON = "ADDON";
 exports.TYPE_INSTALL = "INSTALL";
 exports.ID_NA = "NA";
 
-exports.SEND_REQ_TO_GA = "true";
+exports.SEND_REQ_TO_GA = "false";

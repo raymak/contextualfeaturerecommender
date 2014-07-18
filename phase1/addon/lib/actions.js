@@ -17,6 +17,7 @@ var featuredata = require("./featuredata");
 var config = require("./config");
 var windows = require("sdk/windows");
 var {sendEvent, sendToGA, override}  = require("./utils");
+var ui = require("./ui");
 
 //stores what action each webpage should map to 
 var URLToActionMapper = {
@@ -121,14 +122,28 @@ function recommendDLManager(download){
 // recommends a specific addon to user
 function recommendAddon(options){
 	
-	setTimeout(function (){
-  		var panel = require("./ui/panel").getPanel();
- 		panel.port.emit("updateinnerhtml", "Wanna try downloading " + addonData[options.addonID].name + " ?" + "<br>" + "<a href=\'" + addonData[options.addonID].link + "\'> Click here! </a>");
- 		panel.port.on("openlinkinnewtab", function(link){
- 			tabs.activeTab.url = link; //url reverts back again if it's an extension
- 		});
- 		panel.show();
-  			}, 500);
+	logger.log("recommending addon");
+
+	// setTimeout(function (){
+ //  		var panel = require("./ui/panel").getPanel();
+ // 		panel.port.emit("updateinnerhtml", "Wanna try downloading " + addonData[options.addonID].name + " ?" + "<br>" + "<a href=\'" + addonData[options.addonID].link + "\'> Click here! </a>");
+ // 		panel.port.on("openlinkinnewtab", function(link){
+ // 			tabs.activeTab.url = link; //url reverts back again if it's an extension
+ // 		});
+ // 		panel.show();
+ //  			}, 500);
+
+	ui.showNotification({
+		message: "Wanna try downloading " + addonData[options.addonID].name + " ?",
+		header: "A Cool Addon",
+		reactionType: "openlinkinnewtab",
+		reactionCallback: function(){
+			
+			tabs.activeTab.url = addonData[options.addonID].link; //url reverts back again if it's an extension
+			},
+		buttonLabel: "Install Addon"
+		});
+
 
 	
 	var OUTtype = config.TYPE_OFFERING;
