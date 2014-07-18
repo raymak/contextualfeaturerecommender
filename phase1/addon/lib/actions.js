@@ -140,6 +140,7 @@ function recommendAddon(options){
 		reactionCallback: function(){
 			
 			tabs.activeTab.url = addonData[options.addonID].link; //url reverts back again if it's an extension
+
 			},
 		buttonLabel: "Install Addon"
 		});
@@ -298,6 +299,22 @@ function extractSearchQuery(engine){
 	}
 }
 
+function recommendPinTab(){
+
+	ui.showNotification({
+		message: "It seems that you frequently visit this page. You might want to pin its tab!",
+		header: "App Page",
+		reactionType: "openlinkinnewtab",
+		reactionCallback: function(){
+			// tabs.activeTab.pin(); 
+			tabs.open("https://support.mozilla.org/en-US/kb/pinned-tabs-keep-favorite-websites-open");
+
+			},
+		buttonLabel: "Show Me How"
+		});
+
+}
+
 function facebookDetected(){
 
 	var count = featuredata.get("facebook", "count");
@@ -307,15 +324,7 @@ function facebookDetected(){
 
 	if (count == config.FACEBOOK_COUNT_THRESHOLD){
 
-		setTimeout(function (){
-	  		var panel = require("./ui/panel").getPanel();
-	 		panel.port.emit("updateinnerhtml", "You might want to pin this page. <br> <a href='' class='pintab'>pin this tab</a>");
-	 		panel.port.on("pintab", function(){
-	 			// open in a private window
-	 			tabs.activeTab.pin();
-	 		});
-	 		panel.show();
-	  			}, 500);
+		recommendPinTab();
 	}	
 }
 
@@ -332,21 +341,30 @@ function pornDetected(){
 
 	if (count == config.PRIVATE_WINDOW_PORN_COUNT_THRESHOLD){
 
-		setTimeout(function (){
-	  		var panel = require("./ui/panel").getPanel();
-	 		panel.port.emit("updateinnerhtml", "You might want to try opening this page in a new private window if you don't want it to be stored in your history. <br> <a href='' class='privatewindow'>open in a private window</a>");
-	 		panel.port.on("movelinktoprivatewindow", function(){
-	 			// open in a private window
-	 			windows.browserWindows.open({
+		ui.showNotification({
+		message: "You might want to open view this page in a private window.",
+		header: "Private Page",
+		reactionType: "openlinkinnewtab",
+		reactionCallback: function(){
+
+			// open in a private window
+	 		/*	windows.browserWindows.open({
 	 				url: tabs.activeTab.url,
 	 				isPrivate: true
 	 			});
-	 			tabs.activeTab.close();
-	 		});
-	 		panel.show();
-	  			}, 500);
+	 			tabs.activeTab.close(); */
+
+			tabs.open("https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info");
+
+			},
+		buttonLabel: "Show Me How"
+		});
 
 	}
+}
+
+function recommendKeyboardShortcut(){
+	//TODO
 }
 
 //recommends using a keyboard shortcut to open a  new tab
@@ -360,21 +378,18 @@ function recommendNewTabShortcut(event){
 
 	if (count == config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD){
 
-		notifications.notify({
-  		title: "CTRL + T",
-  		text: "You can also use CTRL+T to open a new tab! Why don't you give it a try!?",
-  		data: "",
-  		onClick: function (data) {
-    	console.log(data);
-    	// console.log(this.data) would produce the same result.
-  		}
+		ui.showNotification({
+		message: "You can also use CTRL+T to open a new tab! Why don't you give it a try?",
+		header: "New Tab",
+		reactionType: "noreaction",
+		reactionCallback: function(){
+
+			},
+		buttonLabel: "Got It"
 		});
+
 	}
-	// setTimeout(function () {
-	// 	var panel = require("./ui/panel").getPanel();
-	// 	panel.port.emit("updateinnerhtml", "You can also use CTRL+T to open a new tab! Why don't you give it a try!?");
-	// 	panel.show();
-	// }, 500);
+	
 
 }
 
@@ -388,14 +403,16 @@ function recommendCloseTabShortcut(event){
 
 	if (count == config.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD){
 
-		notifications.notify({
-			title: "CTRL + W",
-			text: "You can also use CTRL+W to close a tab!",
-			data: "",
-			onClick: function (data){
-				console.log(data);
-			}
-			});
+		ui.showNotification({
+		message: "You can also use CTRL+W to close a tab!",
+		header: "Close Tab",
+		reactionType: "noreaction",
+		reactionCallback: function(){
+
+			},
+		buttonLabel: "Got It"
+		});
+
 	}
 }
 
@@ -417,15 +434,16 @@ function recommendNewBookmarkShortcut(event){
 	featuredata.set("newbookmark", "count", count);
 
 	if (count == config.BOOKMARK_SHORTCUT_COUNT_THRESHOLD){
-		notifications.notify({
-	  		title: "CTRL + D",
-	  		text: "'You can also use CTRL+D to bookmark a page! Why don't you give it a try!?",
-	  		data: "",
-	  		onClick: function (data) {
-	    	console.log(data);
-	    	// console.log(this.data) would produce the same result.
-	    	}	
-	  		});
+
+		ui.showNotification({
+		message: "You can also use CTRL+D to to bookmark a page! Why don't you give it a try?",
+		header: "New Bookmark",
+		reactionType: "noreaction",
+		reactionCallback: function(){
+
+			},
+		buttonLabel: "Got It"
+		});
 	}	
 
 }

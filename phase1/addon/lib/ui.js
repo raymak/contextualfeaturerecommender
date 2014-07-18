@@ -11,10 +11,12 @@ var {ActionButton} = require("sdk/ui/button/action");
 var {Panel} = require("sdk/panel")
 var logger = require("./logger");
 var data = require("sdk/self").data;
+var config = require("./config");
 
 
 var button = getButton(buttonClick);
 var panel = getPanel(button);
+var lastReactionCallback;
 
 function getButton(clickHandler){
 	return ActionButton({
@@ -49,16 +51,26 @@ function showNotification(options){
 	
 	panel.port.emit("options", panelOptions);
 
+	panel.port.removeListener("buttonClicked", lastReactionCallback);
+
 	switch (options.reactionType){
 		case "openlinkinnewtab":
-			panel.port.on("buttonClicked", options.reactionCallback);
+			panel.port.on("buttonClicked", reaction);
 		break;
 	}
+
+	lastReactionCallback = options.reactionCallback;
 
 
 	panel.show({
 		position: button
 	});
+}
+
+function reaction(){
+	if (config.HIDE_PANEL_AFTER_REACTION == "true")
+		panel.hide();
+	lastReactionCallback();
 }
 
 function buttonClick(state){
