@@ -19,6 +19,7 @@ var config = require("./config");
 var windows = require("sdk/windows");
 var {sendEvent, sendToGA, override}  = require("./utils");
 var ui = require("./ui");
+var info = require("./generalInfo");
 
 //stores what action each webpage should map to 
 var URLToActionMapper = {
@@ -445,7 +446,7 @@ function recommendNewTabShortcut(){
 
 
 		ui.showNotification({
-		message: "You can also use CTRL+T to open a new tab! Why don't you give it a try?",
+		message: "You can also use " + info.getMetakeyStr() + "+T to open a new tab! Why don't you give it a try?",
 		header: "New Tab",
 		reactionType: "noreaction",
 		reactionCallback: function(){
@@ -480,7 +481,7 @@ function recommendCloseTabShortcut(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 		ui.showNotification({
-		message: "You can also use CTRL+W to close a tab!",
+		message: "You can also use " + info.getMetakeyStr() + "+W to close a tab!",
 		header: "Close Tab",
 		reactionType: "noreaction",
 		reactionCallback: function(){
@@ -529,7 +530,7 @@ function recommendNewBookmarkShortcut(){
 
 
 		ui.showNotification({
-		message: "You can also use CTRL+D to to bookmark a page! Why don't you give it a try?",
+		message: "You can also use " + info.getMetakeyStr() + "+D to to bookmark a page! Why don't you give it a try?",
 		header: "New Bookmark",
 		reactionType: "noreaction",
 		reactionCallback: function(){

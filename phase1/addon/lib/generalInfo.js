@@ -109,6 +109,10 @@ function registerFirstTimePrefs(){
 
 }
 
+function getMetakeyStr(){
+	return (getSystemInfo().os == "darwin" ? "Command" : "CTRL");
+}
+
 function sendInstallInfo(){
 	var OUTtype = config.TYPE_INSTALL;
 	var OUTval = {};
@@ -175,4 +179,5 @@ exports.getTestMode = getTestMode;
 exports.getLocale = getLocale;
 exports.getUpdateChannel = getUpdateChannel;
 exports.getSystemInfo = getSystemInfo;
+exports.getMetakeyStr = getMetakeyStr;
 exports.getArm = getArm;
