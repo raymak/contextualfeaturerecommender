@@ -333,7 +333,7 @@ function extractSearchQuery(engine){
 	}
 }
 
-function recommendPinTab(options){
+function recommendPinTab(){
 
 	ui.showNotification({
 		message: "It seems that you frequently visit this page. You might want to pin its tab!",
@@ -347,6 +347,9 @@ function recommendPinTab(options){
 		buttonLabel: "Show Me How",
 		id: options.triggerId
 		});
+
+		var options = {};
+
 
 		utils.sendOfferingEvent(config.TYPE_OFFERING_PINTAB, options, options.triggerId);
 
@@ -413,6 +416,8 @@ function pornDetected(){
 		id: triggerId
 		});
 
+		var options = {};
+
 		utils.sendOfferingEvent(config.TYPE_OFFERING_PRIVATEWINDOW, {}, triggerId);
 
 	}
@@ -423,7 +428,7 @@ function recommendKeyboardShortcut(){
 }
 
 //recommends using a keyboard shortcut to open a  new tab
-function recommendNewTabShortcut(options){
+function recommendNewTabShortcut(){
 	logger.log("recommendNewTabShortcut");
 
 	var count = featuredata.get("newtabshortcut", "count");
@@ -450,6 +455,8 @@ function recommendNewTabShortcut(options){
 		id: triggerId
 		});
 
+		var options = {};
+
 		utils.sendOfferingEvent(config.TYPE_OFFERING_KEYBOARDSHORTCUT, options, triggerId);
 
 	}
@@ -457,7 +464,7 @@ function recommendNewTabShortcut(options){
 
 }
 
-function recommendCloseTabShortcut(event){
+function recommendCloseTabShortcut(){
 	logger.log("recommendCloseTabShortcut");
 
 	var count = featuredata.get("closetabshortcut", "count");
@@ -483,6 +490,8 @@ function recommendCloseTabShortcut(event){
 		id: triggerId
 		});
 
+		var options = {};
+
 		utils.sendOfferingEvent(config.TYPE_OFFERING_KEYBOARDSHORTCUT, options, triggerId);
 
 	}
@@ -505,7 +514,7 @@ function recommendBookmarkManager(){
 	}
 }
 
-function recommendNewBookmarkShortcut(event){
+function recommendNewBookmarkShortcut(){
 	var count = featuredata.get("newbookmark", "count");
 	count++;
 
@@ -529,6 +538,9 @@ function recommendNewBookmarkShortcut(event){
 		buttonLabel: "Got It",
 		id: triggerId
 		});
+
+		var options = {};
+
 
 		utils.sendOfferingEvent(config.TYPE_OFFERING_KEYBOARDSHORTCUT, options, triggerId);
 	}	

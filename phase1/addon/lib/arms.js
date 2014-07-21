@@ -5,11 +5,16 @@
 
 "use strict";
 
-const v0Arm = {basis: "contextual", explanation: "explanation", ui: "doorhanger-active", trigger: "non-privacy-invasive", install: "recommendation"};
+var arms = [
+	{basis: "contextual", explanation: "unexplained", ui: "doorhanger-active"},
+	{basis: "contextual", explanation: "unexplained", ui: "doorhanger-passive"},
+	{basis: "contextual", explanation: "explained", ui: "doorhanger-active"},
+	{basis: "contextual", explanation: "explained", ui: "doorhanger-passive"},
+]
 
 function assignRandomArm(){
 	//TODO randomly assign an arm
-	return v0Arm;  
+	return arms[0];  
 }
 
 exports.assignRandomArm = assignRandomArm;
