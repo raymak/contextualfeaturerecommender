@@ -68,6 +68,24 @@ function getTestMode(){
 
 }
 
+function getLocale(){
+	return prefs.get("general.useragent.locale");
+}
+
+function getUpdateChannel(){
+	return prefs.get("app.update.channel");
+}
+
+function getSystemInfo(){
+	var info = {
+		systemname: system.name,
+		systemversion: system.version,
+		os: system.platform
+
+	};
+	return info;
+}
+
 function getArm(){
 
 	console.log("in getArm");
@@ -102,8 +120,6 @@ function sendInstallInfo(){
 	var addonTypes = [];
 	var arr = [];
 
-	var locale = prefs.get("general.useragent.locale");
-
 	AddonManager.getAddonsByTypes(['extension'], function (addons) {
 	
 		for (var i = 0; i < addons.length; i++){
@@ -126,7 +142,6 @@ function sendInstallInfo(){
 			try {
 			OUTval = require("./utils").override(OUTval, {addonnames: addonNames, addonids: addonIds, addontypes: addonTypes});						
 			OUTval.expstartdate = getStartDate();
-			OUTval.locale = locale;
 			}
 			catch (e){
 				console.log(e.message);
@@ -157,4 +172,7 @@ exports.isThisFirstTime = isThisFirstTime;
 exports.sendInstallInfo = sendInstallInfo;
 exports.getUserId = getUserId;
 exports.getTestMode = getTestMode;
+exports.getLocale = getLocale;
+exports.getUpdateChannel = getUpdateChannel;
+exports.getSystemInfo = getSystemInfo;
 exports.getArm = getArm;

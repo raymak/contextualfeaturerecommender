@@ -46,6 +46,7 @@ function sendToGA(dataObject){
 
 	//stringifying the object
 	var str = stringify(dataObject);
+
 	appendLineToFile("GA.txt", str);
 	console.log(unescape(parse(str).value));
 
@@ -72,9 +73,20 @@ function sendToGA(dataObject){
 //to add common fields such as timestamp, userid, etc. to event data
 function sendEvent(messType, messVal, messId){
 
-	var OUT = {ts: Date.now(), experiment: config.EXPERIMENT_NAME, experiment_version: config.EXPERIMENT_VERSION, addon_version: config.ADDON_VERSION,  test_mode: info.getTestMode(), userid: info.getUserId(), arm: info.getArm()};
+	var OUT = {ts: Date.now(),
+			 experiment: config.EXPERIMENT_NAME,
+			 experiment_version: config.EXPERIMENT_VERSION,
+			 addon_version: config.ADDON_VERSION,
+			 test_mode: info.getTestMode(),
+			 userid: info.getUserId(), 
+			 arm: info.getArm(),
+			 locale: info.getLocale()
+			};
 
-	OUT = override(OUT, {type: messType, value: escape(JSON.stringify(messVal)), id: messId});
+	OUT = override(OUT, info.getSystemInfo());
+
+	
+	OUT = override(OUT, {type: messType, value: JSON.stringify(messVal), id: messId});
 
 	sendToGA(OUT);
 
