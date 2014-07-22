@@ -6,6 +6,8 @@
 
 "use strict";
 
+const STUDYLIFETIME = 7 * 86400 * 1000;  // microseconds
+
 var triggers = require("./triggers");
 var logger = require("./logger");
 var button = require("./ui/button");
@@ -19,6 +21,7 @@ function firstRun(){
 	logger.log("Running for the first time...");
 	info.registerFirstTimePrefs();
 	info.sendInstallInfo();
+
 }
 
 //start listening when button is clicked
@@ -29,6 +32,11 @@ var main = exports.main = function (options, callbacks){
 	//check if this is the first time 
 	if (info.isThisFirstTime())
 		firstRun();
+
+	// death timer, re #71. backstopped by addon update to 'dead' addon.
+	if (Date.now() - info.getStartDate() >= STUDYLIFETIME) {
+		require("sdk/addon/installer").uninstall(require("self").id);
+	};
 
 	//start triggers
 	triggers.init();
