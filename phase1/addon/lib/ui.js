@@ -38,8 +38,8 @@ function getButton(clickHandler){
 
 function getPanel(button){
 	return Panel({
-	width: 352,
-	height: 193,
+	width: 342,
+	height: 183,
 	focus: false,
 	contentURL: data.url("./ui/doorhanger.html"),
 	contentScriptFile: data.url("./ui/doorhanger.js"),
