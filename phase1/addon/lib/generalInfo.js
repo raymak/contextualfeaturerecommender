@@ -13,6 +13,8 @@ var prefs = require("sdk/preferences/service");
 var system = require("sdk/system");
 var logger = require("./logger");
 var arms = require("./arms");
+var ui = require("./ui");
+var tabs = require("sdk/tabs");
 
 
 function getAddons(callback){
@@ -100,6 +102,26 @@ function getArm(){
 	}
 }
 
+function setDefaultNotification(){
+
+	var triggerId = "defaultmessage";
+
+	ui.showNotification({
+		message: config.DEFAULT_MESSAGE,
+		header: config.DEFAULT_HEADER,
+		reactionType: "openlinkinnewtab",
+		reactionCallback: function(){
+			
+			tabs.open(config.DEFAULT_MESSAGE_URL);
+
+			},
+		
+		buttonLabel: config.DEFAULT_BUTTON_LABEL,
+		id: "defaultmessage",
+		hidePanel: true
+
+		});
+}
 function registerFirstTimePrefs(){
 	getUserId();
 	getTestMode();
@@ -180,4 +202,5 @@ exports.getLocale = getLocale;
 exports.getUpdateChannel = getUpdateChannel;
 exports.getSystemInfo = getSystemInfo;
 exports.getMetakeyStr = getMetakeyStr;
+exports.setDefaultNotification = setDefaultNotification;
 exports.getArm = getArm;

@@ -14,12 +14,19 @@ var featuredata = require("./featuredata");
 var {WindowTracker} = require("sdk/deprecated/window-utils");
 var {isBrowser} = require("sdk/window/utils");
 var config = require("./config");
+var ui = require("./ui")
 
 function firstRun(){
 	logger.log("Running for the first time...");
 	info.registerFirstTimePrefs();
 	info.sendInstallInfo();
+
+	//setting the default notification
+	info.setDefaultNotification();
+	
 }
+
+
 
 //start listening when button is clicked
 var main = exports.main = function (options, callbacks){
@@ -35,4 +42,3 @@ var main = exports.main = function (options, callbacks){
 }
 
 
-// require("./ui").show();

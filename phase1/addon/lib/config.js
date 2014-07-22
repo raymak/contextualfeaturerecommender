@@ -30,6 +30,11 @@ exports.BOOKMARK_MANAGER_COUNT_THRESHOLD = 2;
 //notification panel
 exports.HIDE_PANEL_AFTER_REACTION = "true";
 
+//strings
+exports.DEFAULT_MESSAGE = "As you use Firefox we'll show you tips and tricks to get the most out of your browser and favorite websites!"
+exports.DEFAULT_HEADER = "Awesomeness Ahead";
+exports.DEFAULT_BUTTON_LABEL = "Show Me";
+exports.DEFAULT_MESSAGE_URL = "https://support.mozilla.org/en-US/products/firefox/get-started/tips";
 
 // standard GA payload info
 exports.EXPERIMENT_NAME = "CFR";

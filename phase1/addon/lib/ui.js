@@ -15,6 +15,7 @@ var config = require("./config");
 var {sendEvent} = require("./utils");
 
 
+
 var button = getButton(buttonClick);
 var panel = getPanel(button);
 var lastReactionCallback;
@@ -69,10 +70,11 @@ function showNotification(options){
 	showCount = 0;
 	reactionCount = 0;
 
-
-	panel.show({
-		position: button
-	});
+	if (!options.hidePanel){
+		panel.show({
+			position: button
+		});
+	}
 }
 
 function reaction(){
@@ -120,7 +122,7 @@ function sendReactionEvent(){
 	var OUTval = {id: lastId, showcount: showCount, reactioncount: reactionCount};
 	var OUTid = lastId;
 
-	sendEvent(OUTtype, OUTval, OUTid);
+	require("./utils.js").sendEvent(OUTtype, OUTval, OUTid);
 
 }
 
