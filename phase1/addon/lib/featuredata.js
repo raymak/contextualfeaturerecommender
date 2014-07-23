@@ -5,9 +5,9 @@
 
 "use strict";
 
-var prefs = require("sdk/preferences/service");
+var prefs = require("sdk/simple-prefs").prefs;
 
-const featureObjectAddress = "cfrexp.featureData.dataObject";
+const featureObjectAddress = "featureData.dataObject";
 
 
 
@@ -31,11 +31,11 @@ var featuredata = {
 writeToPrefs();
 
 function writeToPrefs(){
-	prefs.set(featureObjectAddress , JSON.stringify(featuredata));
+	prefs[featureObjectAddress] = JSON.stringify(featuredata);
 }
 
 function getFromPrefs(){
-	return JSON.parse(prefs.get(featureObjectAddress));
+	return JSON.parse(prefs[featureObjectAddress]);
 }
 
 function get(feat, prop){
