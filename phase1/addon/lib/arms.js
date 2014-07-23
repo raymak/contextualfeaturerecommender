@@ -6,10 +6,11 @@
 "use strict";
 
 var arms = [
-	{basis: "contextual", explanation: "unexplained", ui: "doorhanger-active"},
-	{basis: "contextual", explanation: "unexplained", ui: "doorhanger-passive"},
-	{basis: "contextual", explanation: "explained", ui: "doorhanger-active"},
-	{basis: "contextual", explanation: "explained", ui: "doorhanger-passive"},
+	{basis: "contextual", explanation: "unexplained", ui: "doorhanger-active"}, //0
+	{basis: "contextual", explanation: "unexplained", ui: "doorhanger-passive"},//1
+	{basis: "contextual", explanation: "explained", ui: "doorhanger-active"},   //2
+	{basis: "contextual", explanation: "explained", ui: "doorhanger-passive"},  //3
+	{basis: "contextual", explanation: "explained", ui: "none"}                 //4
 ]
 
 function assignRandomArm(){
