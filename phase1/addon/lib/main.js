@@ -17,6 +17,7 @@ var {WindowTracker} = require("sdk/deprecated/window-utils");
 var {isBrowser} = require("sdk/window/utils");
 var config = require("./config");
 var ui = require("./ui")
+var utils = require("./utils");
 
 const REASON = [ 'unknown', 'startup', 'shutdown', 'enable', 'disable',
 'install', 'uninstall', 'upgrade', 'downgrade' ];
@@ -31,12 +32,26 @@ function firstRun(){
 	
 }
 
+function lastRun(reason){
+
+	//send last call
+	utils.sendLastCallEvent(reason);
+}
+
 
 
 //start listening when button is clicked
 var main = exports.main = function (options, callbacks){
 	
-	// startButton.icon = {"16": "./ui/icons/lightbulb_gr.png"};
+	var reason = options.loadReason;
+
+	//sending the load message to GA
+	utils.sendLoadEvent(reason);
+
+	if (reason == 'uninstall' || reason == 'disable'){
+		lastRun(reason);
+		return;
+	}
 
 	//check if this is the first time 
 	if (info.isThisFirstTime())

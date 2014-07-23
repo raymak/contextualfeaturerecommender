@@ -109,6 +109,22 @@ function sendOfferingEvent(offeringType, value, triggerId){
 	sendEvent(OUTtype, OUTval, OUTid);
 }
 
+function sendLoadEvent(reason){
+	var OUTtype = config.TYPE_LOAD;
+	var OUTval = {reason: reason};
+	var OUTid = config.ID_NA;
+
+	sendEvent(OUTtype, OUTval, OUTid);
+}
+
+function sendLastCallEvent(reason){
+	var OUTtype = config.TYPE_LAST_CALL;
+	var OUTval = {reason: reason};
+	var OUTid = config.ID_NA;
+
+	sendEvent(OUTtype, OUTval, OUTid);
+}
+
 var override  = function() merge.apply(null, arguments);
 
 
@@ -121,3 +137,5 @@ exports.override = override;
 exports.sendEvent = sendEvent;
 exports.sendOfferingEvent = sendOfferingEvent;
 exports.sendTriggerEvent = sendTriggerEvent;
+exports.sendLoadEvent = sendLoadEvent;
+exports.sendLastCallEvent = sendLastCallEvent;

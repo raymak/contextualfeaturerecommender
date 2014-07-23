@@ -43,9 +43,14 @@ exports.ADDON_VERSION = "0.1";
 // exports.TEST_MODE = info.getTestMode(); //set by init()
 // exports.USER_ID = info.getUserId();
 
+// general types
 exports.TYPE_TRIGGER = "TRIGGER";
 exports.TYPE_OFFERING = "OFFERING";
 exports.TYPE_REACTION = "REACTION";
+exports.TYPE_LOAD = "LOAD";
+exports.TYPE_LAST_CALL = "LASTCALL";
+
+// offering types
 exports.TYPE_OFFERING_ADDON = "ADDON";
 exports.TYPE_OFFERING_PINTAB = "PINTAB";
 exports.TYPE_OFFERING_NEWWINDOW = "NEWWINDOW";
