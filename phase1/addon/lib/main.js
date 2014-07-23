@@ -35,6 +35,7 @@ function firstRun(){
 function lastRun(reason){
 
 	//send last call
+	logger.log("lastRun called");
 	utils.sendLastCallEvent(reason);
 }
 
@@ -48,10 +49,7 @@ var main = exports.main = function (options, callbacks){
 	//sending the load message to GA
 	utils.sendLoadEvent(reason);
 
-	if (reason == 'uninstall' || reason == 'disable'){
-		lastRun(reason);
-		return;
-	}
+	
 
 	//check if this is the first time 
 	if (info.isThisFirstTime())
@@ -59,11 +57,19 @@ var main = exports.main = function (options, callbacks){
 
 	// death timer, re #71. backstopped by addon update to 'dead' addon.
 	if (Date.now() - info.getStartDate() >= STUDYLIFETIME) {
-		require("sdk/addon/installer").uninstall(require("self").id);
+		require("sdk/addon/installer").uninstall(require("sdk/self").id);
 	};
 
 	//start triggers
 	triggers.init();
+}
+
+var onUnload = exports.onUnload = function (reason){
+	utils.sendLoadEvent(reason);
+	if (reason == 'uninstall' || reason == 'disable'){
+		lastRun(reason);
+	}
+
 }
 
 
