@@ -1,0 +1,84 @@
+#/* This Source Code Form is subject to the terms of the Mozilla Public
+# * License, v. 2.0. If a copy of the MPL was not distributed with this
+# * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+VERSION ?= $(shell python -c "import json;print json.load(open('package.json'))['version']")
+TOP ?= $(shell pwd)
+FOX=Aurora
+NAME=feature-recommender
+
+# see http://stackoverflow.com/questions/649246/is-it-possible-to-create-a-multi-line-string-variable-in-a-makefile
+define HELPDOC
+
+  version   - print version (according to `package.json`)
+  help      - this help.
+
+  deps      - get dependencies, if any
+  test      - calls both 'simple' and 'complex' tests
+  addon     - make the addon, and the update.rdf
+  deploy    - push the addon to testpilot server
+
+Note:  some targets are in the make file, some stuff is in `cfx`
+
+endef
+export HELPDOC
+
+version:
+	@echo $(VERSION)
+
+help:
+	@echo "$$HELPDOC"
+
+deps:
+	# wget micropilot
+	#curl https://raw.github.com/gregglind/micropilot/dev/lib/micropilot.js > lib/micropilot.js
+	# wget bwclarks thing
+	#curl https://raw.github.com/gregglind/browser-search-engine/master/lib/browser-search-engine.js > lib/browser-search-engine.js
+
+addon: deps
+	cd $(TOP)
+	rm -f $(NAME).xpi $(NAME).update.rdf
+	cfx xpi \
+		--update-link https://testpilot.mozillalabs.com/addons/$(NAME).xpi \
+		--update-url https://testpilot.mozillalabs.com/addons/$(NAME).rdf $(OPTS)
+
+deploy: addon
+	cd $(TOP)
+	scp search-test-phase-1.update.rdf search-test-phase-1.xpi $(WHO)testpilot1.vm.labs.scl3.mozilla.com:/opt/www/testpilotweb/addons/
+
+
+#.phony test-complex: test-all-arms-work test-study-dies test-mutex-timing test-elig-claimed
+#
+#
+## NOTE: some of these 'include' the addon at startup, some don't.
+#test-all-arms-work:  addon
+#	cd $(TOP)/test/all-arms-work &&\
+#	ln -fs $(TOP)/lib/arms.js . &&\
+#	cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox --addon $(TOP)/search-test-phase-1.xpi \
+#	--static-args '{"addon":"$(TOP)/search-test-phase-1.xpi"}' ;
+#
+#test-study-dies:  addon
+#	cd $(TOP)/test/study-dies &&\
+#	cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox \
+#	--static-args '{"addon":"$(TOP)/search-test-phase-1.xpi"}' ;
+#
+#test-mutex-timing:  addon
+#	cd $(TOP)/test/mutex-timing &&\
+#	cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox --addon $(TOP)/search-test-phase-1.xpi \
+#	--static-args '{"addon":"$(TOP)/search-test-phase-1.xpi"}' ;
+#
+#test-elig-claimed:  addon
+#	cd $(TOP)/test/elig-claimed &&\
+#	cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox \
+#	--static-args '{"addon":"$(TOP)/search-test-phase-1.xpi"}' ;
+#
+#
+#test: deps test-complex test-code-only
+#
+#test-code-only:
+#	cd $(TOP) &&\
+#	(cfx test $(OPTS)  -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox)
+#
+#experiment:
+#	cat $(TOP)/../experiment/deploy.txt
+#
