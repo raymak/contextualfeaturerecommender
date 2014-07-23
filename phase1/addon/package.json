@@ -1,12 +1,17 @@
 {
   "name": "featurerecommender",
   "title": "Contextual Feature Recommender",
-  "id": "jid1-8xoGk5r8WrAsDw",
+  "id": "featurerecommender@insights.mozilla.com",
   "description": "Recommends interface features when they are needed.",
-  "author": "Mozilla",
+  "author": "Kamyar Ardekani <kamyar@mozilla.com>",
+  "contributors": [
+  	"Ilana Segall <isegall@mozilla.com>",
+  	"Gregg Lind <glind@mozilla.com"],
+  "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "license": "MPL 2.0",
-  "version": "0.01",
-  "permissions": {"private-browsing": true},
+  "version": "0.0.1",
+  "permissions": {
+  	"private-browsing": true
+  },
   "icon": "./data/ui/icons/lightbulb_gr.png"
-	
 }
