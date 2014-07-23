@@ -13,15 +13,13 @@ var logger = require("./logger");
 var data = require("sdk/self").data;
 var config = require("./config");
 var {sendEvent} = require("./utils");
+var prefs = require("sdk/simple-prefs").prefs
+var tabs = require("sdk/tabs");
 
 
 
 var button = getButton(buttonClick);
 var panel = getPanel(button);
-var lastReactionCallback;
-var lastId;
-var showCount;
-var reactionCount;
 
 function getButton(clickHandler){
 	return ActionButton({
@@ -52,23 +50,19 @@ function getPanel(button){
 function showNotification(options){
 	logger.log("starting to show notification");
 
-	var panelOptions = {message: options.message, header: options.header, buttonLabel: options.buttonLabel};
+
+	//store all parameters to prefs
+	prefs["notification.showCount"] = 0;
+	prefs["notification.reactionCount"] = 0;
+	prefs["notification.lastId"] = options.id;
+	prefs["notification.panel.message"] = options.message;
+	prefs["notification.panel.header"] = options.header;
+	prefs["notification.panel.buttonLabel"] = options.buttonLabel;
+	prefs["notification.panel.reactionType"] = options.reactionType;
+	prefs["notification.panel.reactionOptions"] = JSON.stringify(options.reactionOptions || {});
 	
-	panel.port.emit("options", panelOptions);
 
-	panel.port.removeListener("buttonClicked", lastReactionCallback);
-
-	switch (options.reactionType){
-		case "openlinkinnewtab":
-			panel.port.on("buttonClicked", reaction);
-		break;
-	}
-
-	lastReactionCallback = options.reactionCallback;
-	lastId = options.id;
-
-	showCount = 0;
-	reactionCount = 0;
+	populatePanel();
 
 	if (!options.hidePanel){
 		panel.show({
@@ -77,18 +71,50 @@ function showNotification(options){
 	}
 }
 
-function reaction(){
+function populatePanel(){
+	var panelOptions = {
+		message: prefs["notification.panel.message"],
+		header: prefs["notification.panel.header"],
+		buttonLabel: prefs["notification.panel.buttonLabel"],
+		reactionType: prefs["notification.panel.reactionType"]
+	};
+
+	panel.port.removeListener("buttonClicked", reaction);
+
+	panel.port.on("buttonClicked", reaction);
 	
+	panel.port.emit("options", panelOptions);
+	
+
+}
+
+function reaction(){
+
+	logger.log("panel button clicked");
+
 	if (config.HIDE_PANEL_AFTER_REACTION == "true")
 		panel.hide();
 
-	reactionCount++;
+	prefs["notification.reactionCount"] += 1;
 
 	sendReactionEvent();
-	lastReactionCallback();
+
+	var reactionOptions = JSON.parse(prefs["notification.panel.reactionOptions"]);
+
+	switch (prefs["notification.panel.reactionType"]){
+		case "openlinkinnewtab":
+			tabs.open(reactionOptions.url);
+		break;
+		case "openlinkinactivetab":
+			tabs.activeTab.url = reactionOptions.url;
+		break;
+	}
 }
 
 function buttonClick(state){
+
+	populatePanel();
+
 	panel.show({
 		position: button
 	}
@@ -108,7 +134,7 @@ function buttonOff(){
 
 function onPanelShow(event){
 	buttonOn();
-	showCount ++;
+	prefs["notification.showCount"] += 1;
 }
 
 function onPanelHide(event){
@@ -118,21 +144,14 @@ function onPanelHide(event){
 //events
 
 function sendReactionEvent(){
+
 	var OUTtype = config.TYPE_REACTION;
-	var OUTval = {id: lastId, showcount: showCount, reactioncount: reactionCount};
-	var OUTid = lastId;
+	var OUTval = {id: prefs["notification.lastId"], showcount: prefs["notification.showCount"], reactioncount: prefs["notification.reactionCount"], reactionType: prefs["notification.panel.reactionType"]};
+	var OUTid = prefs["notification.lastId"];
 
 	require("./utils.js").sendEvent(OUTtype, OUTval, OUTid);
 
 }
 
-function show(){
-	panel.show({
-		position: button
-	});
-}
 
-
-
-exports.show = show;
 exports.showNotification = showNotification;

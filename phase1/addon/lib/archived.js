@@ -56,6 +56,13 @@ window.document.getElementById("file-menu").addEventListener("click", function (
 
 	// });
 
+	// open in a private window
+	 		/*	windows.browserWindows.open({
+	 				url: tabs.activeTab.url,
+	 				isPrivate: true
+	 			});
+	 			tabs.activeTab.close(); */
+
 				
 
 */
