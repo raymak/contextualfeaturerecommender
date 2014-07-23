@@ -5,10 +5,15 @@
 VERSION ?= $(shell python -c "import json;print json.load(open('package.json'))['version']")
 TOP ?= $(shell pwd)
 FOX=Aurora
-NAME=feature-recommender
+NAME=featurerecommender
+
+REMOTEMACHINE=testpilot1.webapp.scl3.mozilla.com
+REMOTEDIR=/data/www/testpilotweb/addons
 
 # see http://stackoverflow.com/questions/649246/is-it-possible-to-create-a-multi-line-string-variable-in-a-makefile
 define HELPDOC
+
+= targets =
 
   version   - print version (according to `package.json`)
   help      - this help.
@@ -17,6 +22,11 @@ define HELPDOC
   test      - calls both 'simple' and 'complex' tests
   addon     - make the addon, and the update.rdf
   deploy    - push the addon to testpilot server
+
+= variables =
+
+  WHO       - ssh user for deploy (example:  "person@")
+  OPTS      - options to pass to cfx various places
 
 Note:  some targets are in the make file, some stuff is in `cfx`
 
@@ -30,10 +40,10 @@ help:
 	@echo "$$HELPDOC"
 
 deps:
-	# wget micropilot
-	#curl https://raw.github.com/gregglind/micropilot/dev/lib/micropilot.js > lib/micropilot.js
-	# wget bwclarks thing
-	#curl https://raw.github.com/gregglind/browser-search-engine/master/lib/browser-search-engine.js > lib/browser-search-engine.js
+	@# wget micropilot
+	@#curl https://raw.github.com/gregglind/micropilot/dev/lib/micropilot.js > lib/micropilot.js
+	@# wget bwclarks thing
+	@#curl https://raw.github.com/gregglind/browser-search-engine/master/lib/browser-search-engine.js > lib/browser-search-engine.js
 
 addon: deps
 	cd $(TOP)
@@ -42,9 +52,17 @@ addon: deps
 		--update-link https://testpilot.mozillalabs.com/addons/$(NAME).xpi \
 		--update-url https://testpilot.mozillalabs.com/addons/$(NAME).rdf $(OPTS)
 
-deploy: addon
+backup:
+	ssh $(WHO)$(REMOTEMACHINE) 'cd $(REMOTEDIR); if [ -e "$(NAME).xpi" ]; then mv "$(NAME).xpi" "$(NAME).xpi.old"; fi;  if [ -e "$(NAME).update.rdf" ]; then mv "$(NAME).update.rdf" "$(NAME).update.rdf.old"; fi;'
+
+deploy: addon backup
 	cd $(TOP)
-	scp search-test-phase-1.update.rdf search-test-phase-1.xpi $(WHO)testpilot1.vm.labs.scl3.mozilla.com:/opt/www/testpilotweb/addons/
+	scp -rp $(NAME).update.rdf $(NAME).xpi $(WHO)$(REMOTEMACHINE):$(REMOTEDIR)/
+
+
+# doesn't quite work (permissions)
+#undeploy:
+#	ssh $(WHO)$(REMOTEMACHINE) 'cd $(REMOTEDIR); if [ -e "$(NAME).xpi.#old" ]; then mv "$(NAME).xpi.old" "$(NAME).xpi"; fi;  if [ -e "$#(NAME).update.rdf.old" ]; then mv "$(NAME).update.rdf.old" "$(#NAME).update.rdf"; fi;'
 
 
 #.phony test-complex: test-all-arms-work test-study-dies test-mutex-timing test-elig-claimed
