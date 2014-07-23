@@ -143,12 +143,8 @@ function recommendAddon(options){
 	ui.showNotification({
 		message: "Wanna try downloading " + addonData[options.addonID].name + " ?",
 		header: "A Cool Addon",
-		reactionType: "openlinkinnewtab",
-		reactionCallback: function(){
-			
-			tabs.activeTab.url = addonData[options.addonID].link; //url reverts back again if it's an extension
-
-			},
+		reactionType: "openlinkinactivetab",
+		reactionOptions: {url: addonData[options.addonID].link},
 		buttonLabel: "Install Addon",
 		id: options.triggerId
 		});
@@ -340,11 +336,7 @@ function recommendPinTab(){
 		message: "It seems that you frequently visit this page. You might want to pin its tab!",
 		header: "App Page",
 		reactionType: "openlinkinnewtab",
-		reactionCallback: function(){
-			// tabs.activeTab.pin(); 
-			tabs.open("https://support.mozilla.org/en-US/kb/pinned-tabs-keep-favorite-websites-open");
-
-			},
+		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/pinned-tabs-keep-favorite-websites-open"},
 		buttonLabel: "Show Me How",
 		id: options.triggerId
 		});
@@ -401,18 +393,7 @@ function pornDetected(){
 		message: "You might want to open view this page in a private window.",
 		header: "Private Page",
 		reactionType: "openlinkinnewtab",
-		reactionCallback: function(){
-
-			// open in a private window
-	 		/*	windows.browserWindows.open({
-	 				url: tabs.activeTab.url,
-	 				isPrivate: true
-	 			});
-	 			tabs.activeTab.close(); */
-
-			tabs.open("https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info");
-
-			},
+		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info#w_how-do-i-open-a-new-private-window"},
 		buttonLabel: "Show Me How",
 		id: triggerId
 		});
@@ -448,11 +429,9 @@ function recommendNewTabShortcut(){
 		ui.showNotification({
 		message: "You can also use " + info.getMetakeyStr() + "+T to open a new tab! Why don't you give it a try?",
 		header: "New Tab",
-		reactionType: "noreaction",
-		reactionCallback: function(){
-
-			},
-		buttonLabel: "Got It",
+		reactionType: "openlinkinnewtab",
+		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
+		buttonLabel: "Show More",
 		id: triggerId
 		});
 
@@ -484,10 +463,8 @@ function recommendCloseTabShortcut(){
 		message: "You can also use " + info.getMetakeyStr() + "+W to close a tab!",
 		header: "Close Tab",
 		reactionType: "noreaction",
-		reactionCallback: function(){
-
-			},
-		buttonLabel: "Got It",
+		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
+		buttonLabel: "Show More",
 		id: triggerId
 		});
 
@@ -532,11 +509,9 @@ function recommendNewBookmarkShortcut(){
 		ui.showNotification({
 		message: "You can also use " + info.getMetakeyStr() + "+D to to bookmark a page! Why don't you give it a try?",
 		header: "New Bookmark",
-		reactionType: "noreaction",
-		reactionCallback: function(){
-
-			},
-		buttonLabel: "Got It",
+		reactionType: "openlinkinnewtab",
+		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_bookmarks"},
+		buttonLabel: "Show More",
 		id: triggerId
 		});
 

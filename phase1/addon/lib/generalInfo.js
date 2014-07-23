@@ -111,11 +111,7 @@ function setDefaultNotification(){
 		message: config.DEFAULT_MESSAGE,
 		header: config.DEFAULT_HEADER,
 		reactionType: "openlinkinnewtab",
-		reactionCallback: function(){
-			
-			tabs.open(config.DEFAULT_MESSAGE_URL);
-
-			},
+		reactionOptions: {url: config.DEFAULT_MESSAGE_URL},
 		
 		buttonLabel: config.DEFAULT_BUTTON_LABEL,
 		id: "defaultmessage",
