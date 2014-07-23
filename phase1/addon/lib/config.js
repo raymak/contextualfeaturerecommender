@@ -4,7 +4,6 @@
  */
 
 "use strict";
-var prefs = require("sdk/preferences/service");
 var system = require("sdk/system");
 var logger = require("./logger");
 

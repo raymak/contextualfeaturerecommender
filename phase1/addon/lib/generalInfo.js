@@ -9,7 +9,8 @@ const {Cu} = require("chrome");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 var config = require("./config");
 var {sendToGA, sendEvent, override} = require("./utils");
-var prefs = require("sdk/preferences/service");
+var genPrefs = require("sdk/preferences/service");
+var prefs = require("sdk/simple-prefs").prefs;
 var system = require("sdk/system");
 var logger = require("./logger");
 var arms = require("./arms");
@@ -25,57 +26,57 @@ function getAddons(callback){
 
 
 function setIsFirstTime(){
-	prefs.set("cfrexp.general.isFirstTime", "false");
+	prefs["general.isFirstTime"] = false;
 }
 
 function isThisFirstTime(){
-	// return !prefs.has("cfrexp.general.expStartDate");
-	return !prefs.has("cfrexp.general.isFirstTime");
+	
+	return (prefs["general.isFirstTime"] || !("general.isFirstTime" in prefs));
 }
 // also sets start date when called for the first time
 function getStartDate(){
 	// prefs["expStartDate"] = Date.now().toString();
 	if (!isThisFirstTime()) //TODO: change this, isThisFirstTime is not a reliable method
-		return prefs.get("cfrexp.general.expStartDate");
+		return prefs["general.expStartDate"];
 	else	{
-		prefs.set("cfrexp.general.expStartDate", Date.now().toString()); //set for the first time
-		return prefs.get("cfrexp.general.expStartDate");
+		prefs["general.expStartDate"] = Date.now().toString(); //set for the first time
+		return prefs["general.expStartDate"];
 	}
 }
 
 function getUserId(){
 	if (!isThisFirstTime()) //TODO: change this, isThisFirstTime is not a reliable method
-		return prefs.get("cfrexp.general.userId");
+		return prefs["general.userId"];
 	else	{
 
-		prefs.set("cfrexp.general.userId", require("sdk/util/uuid").uuid().toString()); //set for the first time
-		return prefs.get("cfrexp.general.userId");
+		prefs["general.userId"] = require("sdk/util/uuid").uuid().toString(); //set for the first time
+		return prefs["general.userId"];
 	}
 
 }
 
 function getTestMode(){
 	//test mode
-	if (system.staticArgs.test_mode && (system.staticArgs.test_mode == "true" || system.staticArgs.test_mode == "false"))
-		prefs.set("cfrexp.config.test_mode", system.staticArgs.test_mode);
+	if ("test_mode" in system.staticArgs && (system.staticArgs.test_mode == "true" || system.staticArgs.test_mode == "false"))
+		prefs["config.test_mode"] =  system.staticArgs.test_mode;
 	else
-		if (!prefs.has("cfrexp.config.test_mode")){
+		if (!( "config.test_mode" in prefs)){
 			// throw Error("test_mode state not specified properly. use --static-args to define set .test_mode to either \"true\" or \"false\"");
-			prefs.set("cfrexp.config.test_mode", "false");
+			prefs["config.test_mode"] = false;
 		}
 
-	logger.log("TEST_MODE = " + prefs.get("cfrexp.config.test_mode"));	
+	logger.log("TEST_MODE = " + prefs["config.test_mode"]);	
 	
-	return prefs.get("cfrexp.config.test_mode");
+	return prefs["config.test_mode"];
 
 }
 
 function getLocale(){
-	return prefs.get("general.useragent.locale");
+	return genPrefs.get("general.useragent.locale");
 }
 
 function getUpdateChannel(){
-	return prefs.get("app.update.channel");
+	return genPrefs.get("app.update.channel");
 }
 
 function getSystemInfo(){
@@ -93,11 +94,11 @@ function getArm(){
 	console.log("in getArm");
 
 	if (!isThisFirstTime())
-		return prefs.get("cfrexp.config.arm");
+		return prefs["config.arm"];
 		
 	else {
-		prefs.set("cfrexp.config.arm", JSON.stringify(arms.assignRandomArm()));
-		return prefs.get("cfrexp.config.arm");
+		prefs["config.arm"] = JSON.stringify(arms.assignRandomArm());
+		return prefs["config.arm"];
 		
 	}
 }
