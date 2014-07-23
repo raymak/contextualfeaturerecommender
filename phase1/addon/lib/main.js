@@ -16,6 +16,9 @@ var {isBrowser} = require("sdk/window/utils");
 var config = require("./config");
 var ui = require("./ui")
 
+const REASON = [ 'unknown', 'startup', 'shutdown', 'enable', 'disable',
+'install', 'uninstall', 'upgrade', 'downgrade' ];
+
 function firstRun(){
 	logger.log("Running for the first time...");
 	info.registerFirstTimePrefs();
