@@ -55,7 +55,7 @@ var main = exports.main = function (options, callbacks){
 		firstRun();
 
 	// death timer, re #71. backstopped by addon update to 'dead' addon.
-	if (Date.now() - info.getStartDate() >= STUDYLIFETIME) {
+	if (Date.now() - info.getStartTimeMs() >= STUDYLIFETIME) {
 		require("sdk/addon/installer").uninstall(require("sdk/self").id);
 	};
 

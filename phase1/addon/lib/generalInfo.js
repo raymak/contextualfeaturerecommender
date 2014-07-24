@@ -47,7 +47,7 @@ function getStartTimeMs(){
 function getUserId(){
 	if (!isThisFirstTime()) //TODO: change this, isThisFirstTime is not a reliable method
 		return prefs["general.userId"];
-	else
+	else {
 
 		prefs["general.userId"] = require("sdk/util/uuid").uuid().toString().slice(1,-1); //set for the first time
 		return prefs["general.userId"];
@@ -137,9 +137,11 @@ function getMetakeyStr(){
 }
 
 function isAddonInstalled(addonId, callback){
+	
 	AddonManager.getAllAddons(function(aAddons) {
 		for (var i = 0; i < aAddons.length; i++)
 			if (aAddons[i].id == addonId) callback(true);
+
 		callback(false);
 	});
 }
