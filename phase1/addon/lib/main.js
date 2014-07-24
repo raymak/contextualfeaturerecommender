@@ -10,7 +10,6 @@ const STUDYLIFETIME = 7 * 86400 * 1000;  // microseconds
 
 var triggers = require("./triggers");
 var logger = require("./logger");
-var button = require("./ui/button");
 var info = require("./generalInfo");
 var featuredata = require("./featuredata");
 var {WindowTracker} = require("sdk/deprecated/window-utils");

@@ -49,7 +49,7 @@ function getUserId(){
 		return prefs["general.userId"];
 	else	{
 
-		prefs["general.userId"] = require("sdk/util/uuid").uuid().toString(); //set for the first time
+		prefs["general.userId"] = require("sdk/util/uuid").uuid().toString().slice(1,-1); //set for the first time
 		return prefs["general.userId"];
 	}
 
@@ -57,7 +57,7 @@ function getUserId(){
 
 function getTestMode(){
 	//test mode
-	if ("test_mode" in system.staticArgs && (system.staticArgs.test_mode == "true" || system.staticArgs.test_mode == "false"))
+	if ("test_mode" in system.staticArgs)
 		prefs["config.test_mode"] =  system.staticArgs.test_mode;
 	else
 		if (!( "config.test_mode" in prefs)){
@@ -89,16 +89,20 @@ function getSystemInfo(){
 	return info;
 }
 
+function getAddonVersion(){
+	return require("sdk/self").version;
+}
+
 function getArm(){
 
 	console.log("in getArm");
 
 	if (!isThisFirstTime())
-		return prefs["config.arm"];
+		return JSON.parse(prefs["config.arm"]);
 		
 	else {
 		prefs["config.arm"] = JSON.stringify(arms.assignRandomArm());
-		return prefs["config.arm"];
+		return JSON.parse(prefs["config.arm"]);
 		
 	}
 }
@@ -198,6 +202,7 @@ exports.getTestMode = getTestMode;
 exports.getLocale = getLocale;
 exports.getUpdateChannel = getUpdateChannel;
 exports.getSystemInfo = getSystemInfo;
+exports.getAddonVersion = getAddonVersion;
 exports.getMetakeyStr = getMetakeyStr;
 exports.setDefaultNotification = setDefaultNotification;
 exports.getArm = getArm;

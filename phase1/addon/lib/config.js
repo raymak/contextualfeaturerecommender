@@ -27,7 +27,7 @@ exports.BOOKMARK_MANAGER_COUNT_THRESHOLD = 2;
 
 
 //notification panel
-exports.HIDE_PANEL_AFTER_REACTION = "true";
+exports.HIDE_PANEL_AFTER_REACTION = true;
 
 //strings
 exports.DEFAULT_MESSAGE = "As you use Firefox we'll show you tips and tricks to get the most out of your browser and favorite websites!"
@@ -38,7 +38,7 @@ exports.DEFAULT_MESSAGE_URL = "https://support.mozilla.org/en-US/products/firefo
 // standard GA payload info
 exports.EXPERIMENT_NAME = "CFR";
 exports.EXPERIMENT_VERSION = "0.0";
-exports.ADDON_VERSION = "0.1";
+
 // exports.TEST_MODE = info.getTestMode(); //set by init()
 // exports.USER_ID = info.getUserId();
 

@@ -9,22 +9,22 @@
 
 var enabled = true;
 var consoleEnabled = true;
-var fileEnabled = true;
+var fileEnabled = false;
 
 const LOG_FILE_NAME  = "CFRLog.txt";
 
-function log(message){
-	logToC(message);
-	logToF(message);
+function log(){
+	logToC(arguments);
+	logToF(arguments);
 }
 
 
-function logToC(message){
-	if (enabled && consoleEnabled) console.log(message);
+function logToC(){
+	if (enabled && consoleEnabled) console.log(arguments);
 }
 
-function logToF(message){
-	if (enabled && fileEnabled) require("./file").appendLineToFile(LOG_FILE_NAME, message);	
+function logToF(){
+	if (enabled && fileEnabled) require("./file").appendLineToFile(LOG_FILE_NAME, arguments[0]);	
 }
 
 exports.logToC = logToC;

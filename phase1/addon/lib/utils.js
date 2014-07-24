@@ -75,7 +75,7 @@ function sendEvent(messType, messVal, messId){
 	var OUT = {ts: Date.now(),
 			 experiment: config.EXPERIMENT_NAME,
 			 experiment_version: config.EXPERIMENT_VERSION,
-			 addon_version: config.ADDON_VERSION,
+			 addon_version: info.getAddonVersion(),
 			 test_mode: info.getTestMode(),
 			 userid: info.getUserId(), 
 			 arm: info.getArm(),
