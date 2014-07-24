@@ -47,48 +47,6 @@ var addonData = {
 }
 
 
-//shows URI of a tab in a panel
-function showNewURI(aBrowser, aWebProgress, aRequest, aLocation){
-	console.log("show new URI");
-	
-	var tab = tabs.activeTab;
-	
-	if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
-		
-		setTimeout(function (){
-  		panel = require("./ui/panel").getPanel();
- 		panel.port.emit("message", URL(tab.url).hostname);
- 		panel.show();
-  			}, 500);
-	}
-}
-
-// removes all images in a webpage
-function loadImageKiller(aBrowser, aWebProgress, aRequest, aLocation){
-
-	var tab = tabs.activeTab;
-	
-	if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
-		tab.on("ready", function (){
-		tab.attach({
-			contentScriptFile: data.url("./ui/imagekiller.js")
-		}); } );
-
-
-	}
-
-}
-
-//TODO
-function showOnToolbar(aBrowser, aWebProgress, aRequest, aLocation){
-	
-	var tab = tabs.activeTab;
-	
-	if (getBrowserForTab(getTabForId(tab.id)) == aBrowser) {
-		
-		frame.postMessage(URL(tab.url).hostname, frame.url);
-	}	
-}
 
 //carries out right action based on (hostname of) current website
 function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
@@ -497,9 +455,6 @@ function recommendNewBookmarkShortcut(){
 
 }
 
-exports.showNewURI = showNewURI;
-exports.loadImageKiller = loadImageKiller;
-exports.showOnToolbar = showOnToolbar;
 exports.mapActiveURLToAction = mapActiveURLToAction;
 exports.recommendDLManager = recommendDLManager;
 exports.recommendNewTabShortcut = recommendNewTabShortcut;

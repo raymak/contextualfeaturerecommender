@@ -92,7 +92,7 @@ function reaction(){
 
 	var options = getLastRecommendationOptions();
 
-	if (config.HIDE_PANEL_AFTER_REACTION == "true")
+	if (config.HIDE_PANEL_AFTER_REACTION)
 		panel.hide();
 
 	options.reactionCount ++;
