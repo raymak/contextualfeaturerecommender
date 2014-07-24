@@ -34,20 +34,20 @@ function isThisFirstTime(){
 	return (prefs["general.isFirstTime"] || !("general.isFirstTime" in prefs));
 }
 // also sets start date when called for the first time
-function getStartDate(){
-	// prefs["expStartDate"] = Date.now().toString();
+function getStartTimeMs(){
+	// prefs["expStartTimeMs"] = Date.now().toString();
 	if (!isThisFirstTime()) //TODO: change this, isThisFirstTime is not a reliable method
-		return prefs["general.expStartDate"];
+		return prefs["general.expStartTimeMs"];
 	else	{
-		prefs["general.expStartDate"] = Date.now().toString(); //set for the first time
-		return prefs["general.expStartDate"];
+		prefs["general.expStartTimeMs"] = Date.now().toString(); //set for the first time
+		return prefs["general.expStartTimeMs"];
 	}
 }
 
 function getUserId(){
 	if (!isThisFirstTime()) //TODO: change this, isThisFirstTime is not a reliable method
 		return prefs["general.userId"];
-	else	{
+	else
 
 		prefs["general.userId"] = require("sdk/util/uuid").uuid().toString().slice(1,-1); //set for the first time
 		return prefs["general.userId"];
@@ -126,7 +126,7 @@ function setDefaultNotification(){
 function registerFirstTimePrefs(){
 	getUserId();
 	getTestMode();
-	getStartDate();
+	getStartTimeMs();
 	getArm();
 	setIsFirstTime();
 
@@ -135,6 +135,15 @@ function registerFirstTimePrefs(){
 function getMetakeyStr(){
 	return (getSystemInfo().os == "darwin" ? "Command" : "CTRL");
 }
+
+function isAddonInstalled(addonId, callback){
+	AddonManager.getAllAddons(function(aAddons) {
+		for (var i = 0; i < aAddons.length; i++)
+			if (aAddons[i].id == addonId) callback(true);
+		callback(false);
+	});
+}
+
 
 function sendInstallInfo(){
 	var OUTtype = config.TYPE_INSTALL;
@@ -168,7 +177,7 @@ function sendInstallInfo(){
 			
 			try {
 			OUTval = require("./utils").override(OUTval, {addonnames: addonNames, addonids: addonIds, addontypes: addonTypes});						
-			OUTval.expstartdate = getStartDate();
+			OUTval.expStartTimeMs = getStartTimeMs();
 			}
 			catch (e){
 				console.log(e.message);
@@ -194,7 +203,7 @@ function sendInstallInfo(){
 
 exports.registerFirstTimePrefs = registerFirstTimePrefs;
 exports.getAddons = getAddons;
-exports.getStartDate = getStartDate;
+exports.getStartTimeMs = getStartTimeMs;
 exports.isThisFirstTime = isThisFirstTime;
 exports.sendInstallInfo = sendInstallInfo;
 exports.getUserId = getUserId;
