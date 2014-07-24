@@ -63,6 +63,16 @@ window.document.getElementById("file-menu").addEventListener("click", function (
 	 			});
 	 			tabs.activeTab.close(); */
 
+
+	 				// setTimeout(function (){
+ //  		var panel = require("./ui/panel").getPanel();
+ // 		panel.port.emit("updateinnerhtml", "Wanna try downloading " + addonData[options.addonID].name + " ?" + "<br>" + "<a href=\'" + addonData[options.addonID].link + "\'> Click here! </a>");
+ // 		panel.port.on("openlinkinnewtab", function(link){
+ // 			tabs.activeTab.url = link; //url reverts back again if it's an extension
+ // 		});
+ // 		panel.show();
+ //  			}, 500);
+
 				
 
 */

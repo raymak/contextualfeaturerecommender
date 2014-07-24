@@ -131,15 +131,6 @@ function recommendAddon(options){
 	
 	logger.log("recommending addon");
 
-	// setTimeout(function (){
- //  		var panel = require("./ui/panel").getPanel();
- // 		panel.port.emit("updateinnerhtml", "Wanna try downloading " + addonData[options.addonID].name + " ?" + "<br>" + "<a href=\'" + addonData[options.addonID].link + "\'> Click here! </a>");
- // 		panel.port.on("openlinkinnewtab", function(link){
- // 			tabs.activeTab.url = link; //url reverts back again if it's an extension
- // 		});
- // 		panel.show();
- //  			}, 500);
-
 	ui.showNotification({
 		message: "Wanna try downloading " + addonData[options.addonID].name + " ?",
 		header: "A Cool Addon",
@@ -387,7 +378,6 @@ function pornDetected(){
 	if (count == config.PRIVATE_WINDOW_PORN_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
-
 
 		ui.showNotification({
 		message: "You might want to open view this page in a private window.",
