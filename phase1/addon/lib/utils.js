@@ -85,7 +85,7 @@ function sendEvent(messType, messVal, messId){
 	OUT = override(OUT, info.getSystemInfo());
 
 	
-	OUT = override(OUT, {type: messType, value: messVal, id: messId});
+	OUT = override(OUT, {type: messType, value: messVal, triggerid: messId});
 
 	sendToGA(OUT);
 

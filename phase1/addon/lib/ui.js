@@ -17,7 +17,7 @@ var prefs = require("sdk/simple-prefs").prefs
 var tabs = require("sdk/tabs");
 var {override} = require("./utils");
 
-
+var showStartTimeMs;
 
 var button = getButton(buttonClick);
 var panel = getPanel(button);
@@ -141,13 +141,39 @@ function onPanelShow(event){
 	var options = getLastRecommendationOptions();
 	options.showCount ++;
 	setLastRecommendationOptions(options);
+
+	showStartTimeMs = Date.now();
+
+	sendShowEvent(getLastRecommendationOptions());
 }
 
 function onPanelHide(event){
 	buttonOff();
+
+	var timeIntervalMs = (Date.now() - showStartTimeMs).toString();
+
+	sendHideEvent(getLastRecommendationOptions(), timeIntervalMs);
 }
 
 //events
+
+function sendShowEvent(options){
+	var OUTtype = config.TYPE_PANEL_SHOW;
+	var OUTval = {id: options.id, showcount: options.showCount, reactioncount: options.reactionCount, reactionType: options.reactionType};
+	var OUTid = options.id;
+
+	require("./utils.js").sendEvent(OUTtype, OUTval, OUTid);
+
+}
+
+function sendHideEvent(options, intervalMs){
+	
+	var OUTtype = config.TYPE_PANEL_HIDE;
+	var OUTval = {id: options.id, timeintervalms: intervalMs, showcount: options.showCount, reactioncount: options.reactionCount, reactionType: options.reactionType};
+	var OUTid = options.id;
+
+	require("./utils.js").sendEvent(OUTtype, OUTval, OUTid);
+}
 
 function sendReactionEvent(options){
 
