@@ -34,40 +34,39 @@ function getLanguage(urlStr, callback){
 	XMLReq.get();
 }
 
+/**
+  * Request to Google Analytics Enabled Page
+  *
+  * note: called mostly by sendEvent.
+  *
+  * args:
+  *    dataObject:  POJO with event related keys
+  *
+  * returns:
+  *	   null / sideffect
+  */
 function sendToGA(dataObject){
-	
 	function requestCompleted(response){
-			// console.log(response.text);
-			logger.log("HTTP REQUEST COMPLETE");
-			appendLineToFile("httpresponse", response.text);
-		}
-
-	
+		console.log("GA REQUEST COMPLETE", response.status);
+	}
 
 	//stringifying the object
 	var str = stringify(dataObject);
+	let url = config.GA_URL;
+	console.log(url+"?"+str);
+	console.log(JSON.stringify(dataObject,null,2));
 
-	appendLineToFile("GA.txt", str);
-	console.log(unescape(parse(str).value));
-
-	 if (config.SEND_REQ_TO_GA == "true"){
-
-		logger.log("sending to GA");
-
-		var newstr = "https://addons.allizom.org/?" + "POST=true&" + "THISISAFAKEMESSAGE=true&" + str;
-		console.log(newstr);
-
+	if (config.SEND_REQ_TO_GA){
+		console.log("sending to GA");
 		var XMLReq = new request.Request({
-
-			url: newstr,
-			onComplete: requestCompleted
-			// content:
+			url: url,
+			onComplete: requestCompleted,
+			content: dataObject
 		});
-
-		XMLReq.post();
+		XMLReq.get();
+	} else {
+		console.log("not sending to GA");
 	}
-	
-
 }
 
 //to add common fields such as timestamp, userid, etc. to event data
@@ -86,7 +85,7 @@ function sendEvent(messType, messVal, messId){
 	OUT = override(OUT, info.getSystemInfo());
 
 	
-	OUT = override(OUT, {type: messType, value: JSON.stringify(messVal), id: messId});
+	OUT = override(OUT, {type: messType, value: messVal, id: messId});
 
 	sendToGA(OUT);
 

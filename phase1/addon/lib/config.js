@@ -59,4 +59,5 @@ exports.TYPE_OFFERING_KEYBOARDSHOTCUT = "KEYBOARDSHORTCUT";
 exports.TYPE_INSTALL = "INSTALL";
 exports.ID_NA = "NA";
 
-exports.SEND_REQ_TO_GA = "false";
+exports.GA_URL = "https://addons.allizom.org/";
+exports.SEND_REQ_TO_GA = true;
