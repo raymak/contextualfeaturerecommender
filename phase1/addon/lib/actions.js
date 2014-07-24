@@ -107,13 +107,20 @@ function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 
 }
 
+function minorTriggerCount(featurename){
+	var count = featuredata.get(featurename, "count");
+	count ++;
+	featuredata.set(featurename, "count", count);
+
+	utils.sendMinorTriggerEvent({count: count}, featurename);
+	
+	return count;
+}
+
 // recommends installing a DL manager to user
 function recommendDLManager(download){
 	
-	var count = featuredata.get("download", "count");
-	count++;
-
-	featuredata.set("download", "count", count);
+	var count = minorTriggerCount("download");
 
 	var triggerId = "newdownload";
 	var name = "newdownload";
@@ -149,15 +156,10 @@ function ytDetected(){
 	
 	logger.log("ytDetect");
 
-	var count = featuredata.get("youtube", "count");
-	count++;
+	var count = minorTriggerCount("youtube");
 
 	var triggerId = "youtube";
 	var name = "youtube";
-
-	console.log(count);
-
-	featuredata.set("youtube", "count", count);
 
 	if (count == config.YOUTUBE_COUNT_THRESHOLD){
 		
@@ -168,13 +170,10 @@ function ytDetected(){
 }
 
 function gmailDetected(){
-	var count = featuredata.get("gmail", "count");
-	count++;
+	var count = minorTriggerCount("gmail");
 
 	var triggerId = "gmail";
 	var name = "gmail";
-
-	featuredata.set("gmail", "count", count);
 
 	if (count == config.GMAIL_COUNT_THRESHOLD){
 
@@ -189,10 +188,7 @@ function soccerDetected(){
 }
 
 function recommendTranslator(){
-	var count = featuredata.get("translator", "count");
-	count++;
-
-	featuredata.set("translator", "count", count);
+	var count = minorTriggerCount("translator");
 
 	var triggerId = "foreignpage";
 	var name = "foreignpage";
@@ -207,10 +203,7 @@ function recommendTranslator(){
 }
 
 function redditDetected(){
-	var count = featuredata.get("reddit", "count");
-	count++;
-
-	featuredata.set("reddit", "count", count);
+	var count = minorTriggerCount("reddit");
 
 	var triggerId = "reddit";
 	var name = "reddit";
@@ -225,10 +218,7 @@ function redditDetected(){
 }
 
 function amazonDetected(){
-	var count = featuredata.get("amazon", "count");
-	count++;
-
-	featuredata.set("amazon", "count", count);
+	var count = minorTriggerCount("amazon");
 
 	var triggerId = "amazon";
 	var name = "amazon";
@@ -341,10 +331,7 @@ function recommendPinTab(){
 
 function facebookDetected(){
 
-	var count = featuredata.get("facebook", "count");
-	count++;
-
-	featuredata.set("facebook", "count", count);
+	var count = minorTriggerCount("facebook");
 
 	var triggerId = "facebook";
 	var name = "facebook";
@@ -358,41 +345,50 @@ function facebookDetected(){
 	}	
 }
 
-function recommendPrivateWindow(){
-	//TODO
+function recommendPrivateWindow(options){
+	
+	ui.showNotification({
+	message: "You might want to view this page in a private window.",
+	header: "Private Page",
+	reactionType: "openlinkinnewtab",
+	reactionOptions: {url: "https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info#w_how-do-i-open-a-new-private-window"},
+	buttonLabel: "Show Me How",
+	id: options.triggerId
+	});
+
+	utils.sendOfferingEvent(config.TYPE_OFFERING_PRIVATEWINDOW, options, triggerId);
+}
+
+
+function blushyPageDetected(){
+	
+	if (!require("sdk/private-browsing").isPrivate(tabs.activeTab)){
+
+		var count = minorTriggerCount("blushypage");
+
+		var triggerId = "blushypage";
+		var name = "blushypage";
+
+		if (count == config.BLUSHYPAGE_COUNT_THRESHOLD){
+
+			utils.sendTriggerEvent({name: name, count: count}, triggerId);
+
+			recommendPrivateWindow({triggerId: triggerId});
+			
+
+		}
+
+	}
+
 }
 
 // TODO: create a recommendPrivateWindow function 
 function pornDetected(){
-	
+
 	logger.log("pornDetected"); 
 
-	var count = featuredata.get("privatewindowporn", "count");
-	count++;
+	blushyPageDetected();
 
-	featuredata.set("privatewindowporn", "count", count);
-
-	var triggerId = "porn";
-	var name = "porn";
-
-	if (count == config.PRIVATE_WINDOW_PORN_COUNT_THRESHOLD){
-
-		utils.sendTriggerEvent({name: name, count: count}, triggerId);
-
-		ui.showNotification({
-		message: "You might want to open view this page in a private window.",
-		header: "Private Page",
-		reactionType: "openlinkinnewtab",
-		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info#w_how-do-i-open-a-new-private-window"},
-		buttonLabel: "Show Me How",
-		id: triggerId
-		});
-
-		var options = {};
-
-		utils.sendOfferingEvent(config.TYPE_OFFERING_PRIVATEWINDOW, {}, triggerId);
-
-	}
 }
 
 function recommendKeyboardShortcut(){
@@ -403,10 +399,7 @@ function recommendKeyboardShortcut(){
 function recommendNewTabShortcut(){
 	logger.log("recommendNewTabShortcut");
 
-	var count = featuredata.get("newtabshortcut", "count");
-	count++;
-
-	featuredata.set("newtabshortcut", "count", count);
+	var count = minorTriggerCount("newtabshortcut");
 
 	var triggerId = "newtab";
 	var name = "newtab";
@@ -437,10 +430,7 @@ function recommendNewTabShortcut(){
 function recommendCloseTabShortcut(){
 	logger.log("recommendCloseTabShortcut");
 
-	var count = featuredata.get("closetabshortcut", "count");
-	count++;
-
-	featuredata.set("closetabshortcut", "count", count);
+	var count = minorTriggerCount("closetabshortcut");
 
 	var triggerId = "closetab";
 	var name = "closetab";
@@ -466,10 +456,7 @@ function recommendCloseTabShortcut(){
 }
 
 function recommendBookmarkManager(){
-	var count = featuredata.get("newbookmark", "count");
-	count++;
-
-	featuredata.set("newbookmark", "count", count);
+	var count = minorTriggerCount("newbookmark");
 
 	var triggerId = "newbookmark";
 	var name = "newbookmark";
@@ -483,10 +470,7 @@ function recommendBookmarkManager(){
 }
 
 function recommendNewBookmarkShortcut(){
-	var count = featuredata.get("newbookmark", "count");
-	count++;
-
-	featuredata.set("newbookmark", "count", count);
+	var count = minorTriggerCount("newbookmark");
 
 	var triggerId = "newbookmarknoshortcut";
 	var name = "newbookmarknoshortcut";

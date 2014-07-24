@@ -16,7 +16,7 @@ var featuredata = {
 	closetabshortcut: {count: 0},
 	newbookmark: {count: 0},
 	newtabshortcut: {count: 0},
-	privatewindowporn: {count: 0},
+	blushypage: {count: 0},
 	facebook: {count: 0},
 	amazon: {count: 0},
 	translator: {count: 0},

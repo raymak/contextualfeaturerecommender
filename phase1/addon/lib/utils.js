@@ -101,6 +101,16 @@ function sendTriggerEvent(value, triggerId){
 	sendEvent(OUTtype, OUTval, OUTid);
 }
 
+function sendMinorTriggerEvent(value, featurename){
+	
+
+	var OUTtype = config.TYPE_MINOR_TRIGGER;
+	var OUTval = value;
+	var OUTid = config.ID_NA;
+
+	sendEvent(OUTtype, OUTval, OUTid);
+}
+
 function sendOfferingEvent(offeringType, value, triggerId){
 	var OUTtype = config.TYPE_OFFERING;
 	var OUTval = override({offeringType: offeringType}, value);
@@ -139,3 +149,4 @@ exports.sendOfferingEvent = sendOfferingEvent;
 exports.sendTriggerEvent = sendTriggerEvent;
 exports.sendLoadEvent = sendLoadEvent;
 exports.sendLastCallEvent = sendLastCallEvent;
+exports.sendMinorTriggerEvent = sendMinorTriggerEvent;

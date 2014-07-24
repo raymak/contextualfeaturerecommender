@@ -14,7 +14,7 @@ var logger = require("./logger");
 // recommendation counts
 exports.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD = 2;
 exports.NEW_TAB_SHORTCUT_COUNT_THRESHOLD = 2;
-exports.PRIVATE_WINDOW_PORN_COUNT_THRESHOLD = 2;
+exports.BLUSHYPAGE_COUNT_THRESHOLD = 2;
 exports.FACEBOOK_COUNT_THRESHOLD = 2;
 exports.YOUTUBE_COUNT_THRESHOLD = 2;
 exports.DOWNLOAD_COUNT_THRESHOLD = 2;
@@ -44,6 +44,7 @@ exports.ADDON_VERSION = "0.1";
 
 // general types
 exports.TYPE_TRIGGER = "TRIGGER";
+exports.TYPE_MINOR_TRIGGER = "MINORTRIGGER";
 exports.TYPE_OFFERING = "OFFERING";
 exports.TYPE_REACTION = "REACTION";
 exports.TYPE_LOAD = "LOAD";
