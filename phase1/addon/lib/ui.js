@@ -16,6 +16,7 @@ var {sendEvent} = require("./utils");
 var prefs = require("sdk/simple-prefs").prefs
 var tabs = require("sdk/tabs");
 var {override} = require("./utils");
+var info = require("./generalInfo");
 
 var showStartTimeMs;
 
@@ -66,6 +67,16 @@ function showNotification(options){
 
 	populatePanel(lastRecommendationOptions);
 
+	switch (info.getArm().ui){
+		case "doorhanger-passive":
+			options.hidePanel = true;
+			buttonOn();
+			break;
+		case "none":
+			options.hidePanel = true;
+			break;
+	}
+
 	if (!options.hidePanel){
 		panel.show({
 			position: button
@@ -108,7 +119,7 @@ function reaction(){
 		break;
 		case "openlinkinactivetab":
 			tabs.activeTab.url = reactionOptions.url;
-		break;
+			break;
 	}
 
 	setLastRecommendationOptions(options);
