@@ -60,7 +60,7 @@ function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 		var hostname = URL(tab.url).hostname;
 		logger.log(hostname);
 
-		if (hostname in URLToActionMapper) URLToActionMapper[hostname]();
+		if (hostname in URLToActionMapper) URLToActionMapper[hostname]({hostname: hostname});
 	}	
 
 }
@@ -83,11 +83,13 @@ function recommendDLManager(download){
 	var triggerId = "newdownload";
 	var name = "newdownload";
 
+	var options = {explanationMessage: "you are a frequent downloader"};
+
 	if (count == config.DOWNLOAD_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "flashgot", triggerId: triggerId});
+		recommendAddon({addonID: "flashgot", triggerId: triggerId, extraOptions: options});
 	}
 }
 
@@ -96,13 +98,16 @@ function recommendAddon(options){
 	
 	logger.log("recommending addon");
 
+	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.hostname);
+
 	ui.showNotification({
 		message: "Wanna try downloading " + addonData[options.addonID].name + " ?",
 		header: "A Cool Addon",
 		reactionType: "openlinkinactivetab",
 		reactionOptions: {url: addonData[options.addonID].link},
 		buttonLabel: "Install Addon",
-		id: options.triggerId
+		id: options.triggerId,
+		explanationMessage: explanationMessage
 		});
 
 
@@ -110,7 +115,7 @@ function recommendAddon(options){
 
 }
 
-function ytDetected(){
+function ytDetected(options){
 	
 	logger.log("ytDetect");
 
@@ -123,11 +128,11 @@ function ytDetected(){
 		
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 		
-		recommendAddon({addonID: "1click-yt-download", triggerId: triggerId});
+		recommendAddon({addonID: "1click-yt-download", triggerId: triggerId, extraOptions: options});
 	}
 }
 
-function gmailDetected(){
+function gmailDetected(options){
 	var count = minorTriggerCount("gmail");
 
 	var triggerId = "gmail";
@@ -137,30 +142,34 @@ function gmailDetected(){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "gmail-notifier", triggerId: triggerId});
+		recommendAddon({addonID: "gmail-notifier", triggerId: triggerId, extraOptions: options});
 	}
 }
 
-function soccerDetected(){
+function soccerDetected(options){
 	
 }
 
-function recommendTranslator(){
+//TODO
+function recommendTranslator(options){
 	var count = minorTriggerCount("translator");
 
 	var triggerId = "foreignpage";
 	var name = "foreignpage";
+
+	//TODO
+	var options = require("./utils").override(options, {explanationMessage: ""});
 
 	if (count == config.TRANSLATOR_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "googletranslator", triggerId: triggerId});
+		recommendAddon({addonID: "googletranslator", triggerId: triggerId, extraOptions: options});
 	}
 }
 
-function redditDetected(){
+function redditDetected(options){
 	var count = minorTriggerCount("reddit");
 
 	var triggerId = "reddit";
@@ -171,11 +180,11 @@ function redditDetected(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "redditenhancement", triggerId: triggerId});
+		recommendAddon({addonID: "redditenhancement", triggerId: triggerId, extraOptions: options});
 	}
 }
 
-function amazonDetected(){
+function amazonDetected(options){
 	var count = minorTriggerCount("amazon");
 
 	var triggerId = "amazon";
@@ -186,26 +195,26 @@ function amazonDetected(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 	
 
-		recommendAddon({addonID: "amazonwishlistbutton", triggerId: triggerId});
+		recommendAddon({addonID: "amazonwishlistbutton", triggerId: triggerId, extraOptions: options});
 	}
 
 	extractSearchQuery("amazon");
 }
 
-function googleDetected(){
+function googleDetected(options){
 
 	extractSearchQuery("google");
 }
 
-function bingDetected(){
+function bingDetected(options){
 	extractSearchQuery("bing");
 }
 
-function yahooDetected(){
+function yahooDetected(options){
 	extractSearchQuery("yahoo");
 }
 
-function wikipediaDetected(){
+function wikipediaDetected(options){
 	extractSearchQuery("wikipedia");
 }
 
@@ -287,7 +296,7 @@ function recommendPinTab(){
 
 }
 
-function facebookDetected(){
+function facebookDetected(options){
 
 	var count = minorTriggerCount("facebook");
 
@@ -304,6 +313,8 @@ function facebookDetected(){
 }
 
 function recommendPrivateWindow(options){
+
+	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.hostname);
 	
 	ui.showNotification({
 	message: "You might want to view this page in a private window.",
@@ -311,14 +322,15 @@ function recommendPrivateWindow(options){
 	reactionType: "openlinkinnewtab",
 	reactionOptions: {url: "https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info#w_how-do-i-open-a-new-private-window"},
 	buttonLabel: "Show Me How",
-	id: options.triggerId
+	id: options.triggerId,
+	explanationMessage: explanationMessage
 	});
 
 	utils.sendOfferingEvent(config.TYPE_OFFERING_PRIVATEWINDOW, options, triggerId);
 }
 
 
-function blushyPageDetected(){
+function blushyPageDetected(options){
 	
 	if (!require("sdk/private-browsing").isPrivate(tabs.activeTab)){
 
@@ -331,7 +343,7 @@ function blushyPageDetected(){
 
 			utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-			recommendPrivateWindow({triggerId: triggerId});
+			recommendPrivateWindow({triggerId: triggerId, extraOptions: options});
 			
 
 		}
@@ -341,11 +353,11 @@ function blushyPageDetected(){
 }
 
 // TODO: create a recommendPrivateWindow function 
-function pornDetected(){
+function pornDetected(options){
 
 	logger.log("pornDetected"); 
 
-	blushyPageDetected();
+	blushyPageDetected(options);
 
 }
 
@@ -362,6 +374,8 @@ function recommendNewTabShortcut(){
 	var triggerId = "newtab";
 	var name = "newtab";
 
+	var explanationMessage = "you frequently close tabs";
+
 	if (count == config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
@@ -373,7 +387,8 @@ function recommendNewTabShortcut(){
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
 		buttonLabel: "Show More",
-		id: triggerId
+		id: triggerId,
+		explanationMessage: explanationMessage
 		});
 
 		var options = {};
@@ -393,6 +408,8 @@ function recommendCloseTabShortcut(){
 	var triggerId = "closetab";
 	var name = "closetab";
 
+	var explanationMessage = "you frequently open new tabs";
+
 	if (count == config.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
@@ -403,7 +420,8 @@ function recommendCloseTabShortcut(){
 		reactionType: "noreaction",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
 		buttonLabel: "Show More",
-		id: triggerId
+		id: triggerId,
+		explanationMessage: explanationMessage
 		});
 
 		var options = {};
@@ -419,11 +437,13 @@ function recommendBookmarkManager(){
 	var triggerId = "newbookmark";
 	var name = "newbookmark";
 
+	var options = {explanationMessage: "you are a frequent bookmark user"};
+
 	if (count == config.BOOKMARK_MANAGER_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);		
 		
-		recommendAddon({addonID: "quickmark", triggerId: triggerId});
+		recommendAddon({addonID: "quickmark", triggerId: triggerId, extraOptions: options});
 	}
 }
 
@@ -432,6 +452,8 @@ function recommendNewBookmarkShortcut(){
 
 	var triggerId = "newbookmarknoshortcut";
 	var name = "newbookmarknoshortcut";
+
+	var explanationMessage = "you frequently add new bookmarks";
 
 	if (count == config.BOOKMARK_SHORTCUT_COUNT_THRESHOLD){
 
@@ -444,7 +466,8 @@ function recommendNewBookmarkShortcut(){
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_bookmarks"},
 		buttonLabel: "Show More",
-		id: triggerId
+		id: triggerId,
+		explanationMessage: explanationMessage
 		});
 
 		var options = {};
