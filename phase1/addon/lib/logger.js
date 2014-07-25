@@ -14,13 +14,13 @@ var fileEnabled = false;
 const LOG_FILE_NAME  = "CFRLog.txt";
 
 function log(){
-	logToC(arguments);
-	logToF(arguments);
+	logToC.apply(this, arguments);
+	logToF.apply(this, arguments);
 }
 
 
 function logToC(){
-	if (enabled && consoleEnabled) console.log(arguments);
+	if (enabled && consoleEnabled) console.log.apply(this, arguments);
 }
 
 function logToF(){

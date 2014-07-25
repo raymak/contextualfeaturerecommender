@@ -15,7 +15,7 @@ var arms = [
 
 function assignRandomArm(){
 	//TODO randomly assign an arm
-	return arms[4];  
+	return arms[0];  
 }
 
 exports.assignRandomArm = assignRandomArm;
