@@ -60,7 +60,7 @@ function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 		var hostname = URL(tab.url).hostname;
 		logger.log(hostname);
 
-		if (hostname in URLToActionMapper) URLToActionMapper[hostname]();
+		if (hostname in URLToActionMapper) URLToActionMapper[hostname]({hostname: hostname});
 	}	
 
 }
@@ -87,7 +87,7 @@ function recommendDLManager(download){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "flashgot", triggerId: triggerId});
+		recommendAddon({addonID: "flashgot", triggerId: triggerId, extraOptions: options}});
 	}
 }
 
@@ -96,13 +96,16 @@ function recommendAddon(options){
 	
 	logger.log("recommending addon");
 
+	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.hostname);
+
 	ui.showNotification({
 		message: "Wanna try downloading " + addonData[options.addonID].name + " ?",
 		header: "A Cool Addon",
 		reactionType: "openlinkinactivetab",
 		reactionOptions: {url: addonData[options.addonID].link},
 		buttonLabel: "Install Addon",
-		id: options.triggerId
+		id: options.triggerId,
+		explanationMessage: explanationMessage
 		});
 
 
@@ -110,7 +113,7 @@ function recommendAddon(options){
 
 }
 
-function ytDetected(){
+function ytDetected(options){
 	
 	logger.log("ytDetect");
 
@@ -123,11 +126,11 @@ function ytDetected(){
 		
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 		
-		recommendAddon({addonID: "1click-yt-download", triggerId: triggerId});
+		recommendAddon({addonID: "1click-yt-download", triggerId: triggerId, extraOptions: options}});
 	}
 }
 
-function gmailDetected(){
+function gmailDetected(options){
 	var count = minorTriggerCount("gmail");
 
 	var triggerId = "gmail";
@@ -137,15 +140,15 @@ function gmailDetected(){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "gmail-notifier", triggerId: triggerId});
+		recommendAddon({addonID: "gmail-notifier", triggerId: triggerId, extraOptions: options}});
 	}
 }
 
-function soccerDetected(){
+function soccerDetected(options){
 	
 }
 
-function recommendTranslator(){
+function recommendTranslator(options){
 	var count = minorTriggerCount("translator");
 
 	var triggerId = "foreignpage";
@@ -156,11 +159,11 @@ function recommendTranslator(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "googletranslator", triggerId: triggerId});
+		recommendAddon({addonID: "googletranslator", triggerId: triggerId, extraOptions: options}});
 	}
 }
 
-function redditDetected(){
+function redditDetected(options){
 	var count = minorTriggerCount("reddit");
 
 	var triggerId = "reddit";
@@ -171,11 +174,11 @@ function redditDetected(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "redditenhancement", triggerId: triggerId});
+		recommendAddon({addonID: "redditenhancement", triggerId: triggerId, extraOptions: options}});
 	}
 }
 
-function amazonDetected(){
+function amazonDetected(options){
 	var count = minorTriggerCount("amazon");
 
 	var triggerId = "amazon";
@@ -186,26 +189,26 @@ function amazonDetected(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 	
 
-		recommendAddon({addonID: "amazonwishlistbutton", triggerId: triggerId});
+		recommendAddon({addonID: "amazonwishlistbutton", triggerId: triggerId, extraOptions: options}});
 	}
 
 	extractSearchQuery("amazon");
 }
 
-function googleDetected(){
+function googleDetected(options){
 
 	extractSearchQuery("google");
 }
 
-function bingDetected(){
+function bingDetected(options){
 	extractSearchQuery("bing");
 }
 
-function yahooDetected(){
+function yahooDetected(options){
 	extractSearchQuery("yahoo");
 }
 
-function wikipediaDetected(){
+function wikipediaDetected(options){
 	extractSearchQuery("wikipedia");
 }
 
@@ -287,7 +290,7 @@ function recommendPinTab(){
 
 }
 
-function facebookDetected(){
+function facebookDetected(options){
 
 	var count = minorTriggerCount("facebook");
 
@@ -318,7 +321,7 @@ function recommendPrivateWindow(options){
 }
 
 
-function blushyPageDetected(){
+function blushyPageDetected(options){
 	
 	if (!require("sdk/private-browsing").isPrivate(tabs.activeTab)){
 
@@ -341,11 +344,11 @@ function blushyPageDetected(){
 }
 
 // TODO: create a recommendPrivateWindow function 
-function pornDetected(){
+function pornDetected(options){
 
 	logger.log("pornDetected"); 
 
-	blushyPageDetected();
+	blushyPageDetected(options);
 
 }
 
@@ -423,7 +426,7 @@ function recommendBookmarkManager(){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);		
 		
-		recommendAddon({addonID: "quickmark", triggerId: triggerId});
+		recommendAddon({addonID: "quickmark", triggerId: triggerId, extraOptions: options}});
 	}
 }
 
