@@ -28,6 +28,9 @@ exports.BOOKMARK_MANAGER_COUNT_THRESHOLD = 2;
 
 //notification panel
 exports.HIDE_PANEL_AFTER_REACTION = true;
+exports.PANEL_SIZE_UNEXPLAINED = {width: 340 + 2, height: 180 + 3};
+exports.PANEL_SIZE_EXPLAINED = {width: 340 + 2, height: 180 + 3};
+
 
 //strings
 exports.DEFAULT_MESSAGE = "As you use Firefox we'll show you tips and tricks to get the most out of your browser and favorite websites!"

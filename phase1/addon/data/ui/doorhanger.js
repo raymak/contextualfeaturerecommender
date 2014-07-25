@@ -6,6 +6,7 @@
 "use strict";
 
 
+
 self.port.on("options", function (options){
 	document.getElementById("textbox").innerHTML = options.message;
 	document.getElementById("header").innerHTML = options.header;
@@ -13,6 +14,9 @@ self.port.on("options", function (options){
 
 	//setting the callback
 	document.getElementById("button").addEventListener("click", buttonClick);
+
+	document.body.width = options.panelSize.width - 2;
+	document.body.height = options.panelSize.height - 3;
 });
 
 function buttonClick(){
