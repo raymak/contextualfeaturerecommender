@@ -34,7 +34,7 @@ exports.experimentInfo = {
   versionNumber: 1,
   duration: 1, //CHANGE TO NUMBER OF DESIRED DAYS
   minTPVersion: "1.2.3",
-  minFXVersion: "29.0",
+  minFXVersion: "30.0",
   optInRequired: false,
 
   randomDeployment: {
