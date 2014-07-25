@@ -45,7 +45,7 @@ function getStartTimeMs(){
 }
 
 function getUserId(){
-	if (!isThisFirstTime()) //TODO: change this, isThisFirstTime is not a reliable method
+	if (!isThisFirstTime()) 
 		return prefs["general.userId"];
 	else {
 
@@ -119,7 +119,8 @@ function setDefaultNotification(){
 		
 		buttonLabel: config.DEFAULT_BUTTON_LABEL,
 		id: "defaultmessage",
-		hidePanel: true
+		hidePanel: true,
+		explanationHide: true
 
 		});
 }

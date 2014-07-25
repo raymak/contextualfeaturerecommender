@@ -48,7 +48,6 @@ var main = exports.main = function (options, callbacks){
 	//sending the load message to GA
 	utils.sendLoadEvent(reason);
 
-	// read button icon state from prefs
 	ui.init();
 	
 

@@ -25,7 +25,9 @@ var panel;
 
 function init(){
 	if (info.getArm().ui == 'none') return;
+	
 	button = getButton(buttonClick);
+	
 	panel = getPanel(button);
 	updateButtonIconState();
 }
@@ -45,8 +47,8 @@ function getButton(clickHandler){
 
 function getPanel(button){
 	return Panel({
-	width: 342,
-	height: 183,
+	width: config.PANEL_SIZE_UNEXPLAINED.width,
+	height: config.PANEL_SIZE_UNEXPLAINED.height,
 	focus: false,
 	contentURL: data.url("./ui/doorhanger.html"),
 	contentScriptFile: data.url("./ui/doorhanger.js"),
@@ -67,8 +69,20 @@ function setLastRecommendationOptions(options){
 function showNotification(options){
 	logger.log("starting to show notification");
 
+	var panelSize;
 
-	var lastRecommendationOptions = require("./utils").override({showCount: 0, reactionCount: 0}, options);
+	switch (info.getArm().explanation){
+		case "explained":
+			panelSize = config.PANEL_SIZE_EXPLAINED;
+		break;
+		case "unexplained":
+			panelSize = config.PANEL_SIZE_UNEXPLAINED;
+		break;
+	}
+
+	var lastRecommendationOptions = require("./utils").override({showCount: 0, reactionCount: 0,
+	 panelSize: panelSize, arm: info.getArm(),
+	 explanationHeader: config.PANEL_EXPLANATIONHEADER}, options);
 
 	setLastRecommendationOptions(lastRecommendationOptions);
 
@@ -93,7 +107,21 @@ function showNotification(options){
 }
 
 function populatePanel(options){
-	
+
+	var panelSize;
+
+	switch (options.arm.explanation){
+		case "explained":
+			panelSize = config.PANEL_SIZE_EXPLAINED;
+		break;
+		case "unexplained":
+			panelSize = config.PANEL_SIZE_UNEXPLAINED;
+		break;
+	}
+
+	panel.resize(panelSize.width, panelSize.height);
+
+
 	var panelOptions = options;
 
 	panel.port.removeListener("buttonClicked", reaction);

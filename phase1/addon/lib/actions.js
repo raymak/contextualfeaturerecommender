@@ -98,7 +98,7 @@ function recommendAddon(options){
 	
 	logger.log("recommending addon");
 
-	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.hostname);
+	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
 
 	ui.showNotification({
 		message: "Wanna try downloading " + addonData[options.addonID].name + " ?",
@@ -278,20 +278,21 @@ function extractSearchQuery(engine){
 	}
 }
 
-function recommendPinTab(){
+function recommendPinTab(options){
 
+	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
+	
 	ui.showNotification({
 		message: "It seems that you frequently visit this page. You might want to pin its tab!",
 		header: "App Page",
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/pinned-tabs-keep-favorite-websites-open"},
 		buttonLabel: "Show Me How",
-		id: options.triggerId
+		id: options.triggerId,
+		explanationMessage: explanationMessage
 		});
 
-		var options = {};
-
-
+		
 		utils.sendOfferingEvent(config.TYPE_OFFERING_PINTAB, options, options.triggerId);
 
 }
@@ -299,6 +300,8 @@ function recommendPinTab(){
 function facebookDetected(options){
 
 	var count = minorTriggerCount("facebook");
+
+	var explanationMessage = "you frequently visit " + options.hostname;
 
 	var triggerId = "facebook";
 	var name = "facebook";
@@ -308,13 +311,13 @@ function facebookDetected(options){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendPinTab({triggerId: triggerId});
+		recommendPinTab({triggerId: triggerId, extraOptions: {explanationMessage: explanationMessage}});
 	}	
 }
 
 function recommendPrivateWindow(options){
 
-	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.hostname);
+	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
 	
 	ui.showNotification({
 	message: "You might want to view this page in a private window.",
@@ -408,7 +411,7 @@ function recommendCloseTabShortcut(){
 	var triggerId = "closetab";
 	var name = "closetab";
 
-	var explanationMessage = "you frequently open new tabs";
+	var explanationMessage = "you frequently close tabs";
 
 	if (count == config.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD){
 
@@ -448,10 +451,10 @@ function recommendBookmarkManager(){
 }
 
 function recommendNewBookmarkShortcut(){
-	var count = minorTriggerCount("newbookmark");
+	var count = minorTriggerCount("newbookmarkshortcut");
 
-	var triggerId = "newbookmarknoshortcut";
-	var name = "newbookmarknoshortcut";
+	var triggerId = "newbookmarkshortcut";
+	var name = "newbookmarkshortcut";
 
 	var explanationMessage = "you frequently add new bookmarks";
 
@@ -461,7 +464,7 @@ function recommendNewBookmarkShortcut(){
 
 
 		ui.showNotification({
-		message: "You can also use " + info.getMetakeyStr() + "+D to to bookmark a page! Why don't you give it a try?",
+		message: "You can also use " + info.getMetakeyStr() + "+D to bookmark a page! Why don't you give it a try?",
 		header: "New Bookmark",
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_bookmarks"},
@@ -471,7 +474,6 @@ function recommendNewBookmarkShortcut(){
 		});
 
 		var options = {};
-
 
 		utils.sendOfferingEvent(config.TYPE_OFFERING_KEYBOARDSHORTCUT, options, triggerId);
 	}	

@@ -33,7 +33,7 @@ var actionTriggerMap = {
 	onNewTabClicked: actions.recommendNewTabShortcut,
 	onCloseTabClicked: actions.recommendCloseTabShortcut,
 	onForeignPageDetected: actions.recommendTranslator, 
-	// onNewBookmark: actions.recommendNewBookmarkShortcut,
+	onNewBookmarkNoShortcut: actions.recommendNewBookmarkShortcut,
 	onNewBookmark: actions.recommendBookmarkManager
 }
 
@@ -153,9 +153,10 @@ function listenForBookmarks(){
 	  },
 	  onItemAdded: function(id, folder, index) {
 	  	//check if keyboard shortcut was used
-	  	// if (!newBookmarkHotkey)
-	  	// 	actionTriggerMap.onNewBookmark();
-	  	// newBookmarkHotkey = false;	//set to true in listenForHotkeys
+	  	if (!newBookmarkHotkey)
+	  		actionTriggerMap.onNewBookmarkNoShortcut();
+	  	newBookmarkHotkey = false;	//set to true in listenForHotkeys
+
 	  	actionTriggerMap.onNewBookmark();
 
 	  },
