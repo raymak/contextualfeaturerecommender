@@ -6,7 +6,7 @@
 
 "use strict";
 
-const STUDYLIFETIME = 7 * 86400 * 1000;  // microseconds
+const STUDYLIFETIME = 7 * 86400 * 1000;  // milliseconds
 
 var triggers = require("./triggers");
 var logger = require("./logger");
@@ -54,8 +54,12 @@ var main = exports.main = function (options, callbacks){
 	if (info.isThisFirstTime())
 		firstRun();
 
+	// read button icon state from prefs
+	ui.init();
+
+
 	// death timer, re #71. backstopped by addon update to 'dead' addon.
-	if (Date.now() - info.getStartTimeMs() >= STUDYLIFETIME) {
+	if (Date.now() - Number(info.getStartTimeMs()) >= STUDYLIFETIME) {
 		require("sdk/addon/installer").uninstall(require("sdk/self").id);
 	};
 

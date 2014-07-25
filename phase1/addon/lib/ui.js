@@ -20,8 +20,15 @@ var info = require("./generalInfo");
 
 var showStartTimeMs;
 
-var button = getButton(buttonClick);
-var panel = getPanel(button);
+var button;
+var panel;
+
+function init(){
+	if (info.getArm().ui == 'none') return;
+	button = getButton(buttonClick);
+	panel = getPanel(button);
+	updateButtonIconState();
+}
 
 function getButton(clickHandler){
 	return ActionButton({
@@ -65,7 +72,6 @@ function showNotification(options){
 
 	setLastRecommendationOptions(lastRecommendationOptions);
 
-	populatePanel(lastRecommendationOptions);
 
 	switch (info.getArm().ui){
 		case "doorhanger-passive":
@@ -73,9 +79,11 @@ function showNotification(options){
 			buttonOn();
 			break;
 		case "none":
-			options.hidePanel = true;
+			return;
 			break;
 	}
+
+	populatePanel(lastRecommendationOptions);
 
 	if (!options.hidePanel){
 		panel.show({
@@ -140,10 +148,12 @@ function buttonChange(state){
 
 function buttonOn(){
 	button.icon = "./ui/icons/lightbulb_gr.png";
+	setButtonIconState(true);
 }
 
 function buttonOff(){
 	button.icon = "./ui/icons/lightbulb_bw.png";
+	setButtonIconState(false);
 }
 
 function onPanelShow(event){
@@ -164,6 +174,18 @@ function onPanelHide(event){
 	var timeIntervalMs = (Date.now() - showStartTimeMs).toString();
 
 	sendHideEvent(getLastRecommendationOptions(), timeIntervalMs);
+}
+
+function updateButtonIconState(){
+	var isOn = !!prefs["ui.isButtonOn"];
+
+	if (isOn){
+		buttonOn();
+	}
+}
+
+function setButtonIconState(isOn){
+	prefs["ui.isButtonOn"] = isOn;
 }
 
 //events
@@ -196,5 +218,6 @@ function sendReactionEvent(options){
 
 }
 
-
+exports.updateButtonIconState = updateButtonIconState;
 exports.showNotification = showNotification;
+exports.init = init;
