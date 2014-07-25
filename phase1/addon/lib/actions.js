@@ -21,6 +21,8 @@ var {sendEvent, sendToGA, override}  = require("./utils");
 var ui = require("./ui");
 var info = require("./generalInfo");
 
+let { blushiness } = require("blush");
+
 //stores what action each webpage should map to 
 var URLToActionMapper = {
 	"www.youtube.com": ytDetected, 
@@ -60,7 +62,16 @@ function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 		var hostname = URL(tab.url).hostname;
 		logger.log(hostname);
 
-		if (hostname in URLToActionMapper) URLToActionMapper[hostname]({hostname: hostname});
+		if (hostname in URLToActionMapper) {
+			URLToActionMapper[hostname]({hostname: hostname});
+		}
+
+		let blushcat = blushiness(hostname).category;
+		console.log('after', hostname, blushcat);
+
+		if (blushcat && (['adult'].indexOf(blushcat)>=0)) {
+			pornDetected();
+		}
 	}	
 
 }
