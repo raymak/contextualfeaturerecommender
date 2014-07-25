@@ -83,11 +83,13 @@ function recommendDLManager(download){
 	var triggerId = "newdownload";
 	var name = "newdownload";
 
+	var options = {explanationMessage: "you are a frequent downloader"};
+
 	if (count == config.DOWNLOAD_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "flashgot", triggerId: triggerId, extraOptions: options}});
+		recommendAddon({addonID: "flashgot", triggerId: triggerId, extraOptions: options});
 	}
 }
 
@@ -126,7 +128,7 @@ function ytDetected(options){
 		
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 		
-		recommendAddon({addonID: "1click-yt-download", triggerId: triggerId, extraOptions: options}});
+		recommendAddon({addonID: "1click-yt-download", triggerId: triggerId, extraOptions: options});
 	}
 }
 
@@ -140,7 +142,7 @@ function gmailDetected(options){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "gmail-notifier", triggerId: triggerId, extraOptions: options}});
+		recommendAddon({addonID: "gmail-notifier", triggerId: triggerId, extraOptions: options});
 	}
 }
 
@@ -148,18 +150,22 @@ function soccerDetected(options){
 	
 }
 
+//TODO
 function recommendTranslator(options){
 	var count = minorTriggerCount("translator");
 
 	var triggerId = "foreignpage";
 	var name = "foreignpage";
 
+	//TODO
+	var options = require("./utils").override(options, {explanationMessage: ""});
+
 	if (count == config.TRANSLATOR_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "googletranslator", triggerId: triggerId, extraOptions: options}});
+		recommendAddon({addonID: "googletranslator", triggerId: triggerId, extraOptions: options});
 	}
 }
 
@@ -174,7 +180,7 @@ function redditDetected(options){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "redditenhancement", triggerId: triggerId, extraOptions: options}});
+		recommendAddon({addonID: "redditenhancement", triggerId: triggerId, extraOptions: options});
 	}
 }
 
@@ -189,7 +195,7 @@ function amazonDetected(options){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 	
 
-		recommendAddon({addonID: "amazonwishlistbutton", triggerId: triggerId, extraOptions: options}});
+		recommendAddon({addonID: "amazonwishlistbutton", triggerId: triggerId, extraOptions: options});
 	}
 
 	extractSearchQuery("amazon");
@@ -307,6 +313,8 @@ function facebookDetected(options){
 }
 
 function recommendPrivateWindow(options){
+
+	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.hostname);
 	
 	ui.showNotification({
 	message: "You might want to view this page in a private window.",
@@ -314,7 +322,8 @@ function recommendPrivateWindow(options){
 	reactionType: "openlinkinnewtab",
 	reactionOptions: {url: "https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info#w_how-do-i-open-a-new-private-window"},
 	buttonLabel: "Show Me How",
-	id: options.triggerId
+	id: options.triggerId,
+	explanationMessage: explanationMessage
 	});
 
 	utils.sendOfferingEvent(config.TYPE_OFFERING_PRIVATEWINDOW, options, triggerId);
@@ -334,7 +343,7 @@ function blushyPageDetected(options){
 
 			utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-			recommendPrivateWindow({triggerId: triggerId});
+			recommendPrivateWindow({triggerId: triggerId, extraOptions: options});
 			
 
 		}
@@ -365,6 +374,8 @@ function recommendNewTabShortcut(){
 	var triggerId = "newtab";
 	var name = "newtab";
 
+	var explanationMessage = "you frequently close tabs";
+
 	if (count == config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
@@ -376,7 +387,8 @@ function recommendNewTabShortcut(){
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
 		buttonLabel: "Show More",
-		id: triggerId
+		id: triggerId,
+		explanationMessage: explanationMessage
 		});
 
 		var options = {};
@@ -396,6 +408,8 @@ function recommendCloseTabShortcut(){
 	var triggerId = "closetab";
 	var name = "closetab";
 
+	var explanationMessage = "you frequently open new tabs";
+
 	if (count == config.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
@@ -406,7 +420,8 @@ function recommendCloseTabShortcut(){
 		reactionType: "noreaction",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
 		buttonLabel: "Show More",
-		id: triggerId
+		id: triggerId,
+		explanationMessage: explanationMessage
 		});
 
 		var options = {};
@@ -422,11 +437,13 @@ function recommendBookmarkManager(){
 	var triggerId = "newbookmark";
 	var name = "newbookmark";
 
+	var options = {explanationMessage: "you are a frequent bookmark user"};
+
 	if (count == config.BOOKMARK_MANAGER_COUNT_THRESHOLD){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);		
 		
-		recommendAddon({addonID: "quickmark", triggerId: triggerId, extraOptions: options}});
+		recommendAddon({addonID: "quickmark", triggerId: triggerId, extraOptions: options});
 	}
 }
 
@@ -435,6 +452,8 @@ function recommendNewBookmarkShortcut(){
 
 	var triggerId = "newbookmarknoshortcut";
 	var name = "newbookmarknoshortcut";
+
+	var explanationMessage = "you frequently add new bookmarks";
 
 	if (count == config.BOOKMARK_SHORTCUT_COUNT_THRESHOLD){
 
@@ -447,7 +466,8 @@ function recommendNewBookmarkShortcut(){
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_bookmarks"},
 		buttonLabel: "Show More",
-		id: triggerId
+		id: triggerId,
+		explanationMessage: explanationMessage
 		});
 
 		var options = {};
