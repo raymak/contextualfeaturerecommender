@@ -48,14 +48,15 @@ var main = exports.main = function (options, callbacks){
 	//sending the load message to GA
 	utils.sendLoadEvent(reason);
 
+	// read button icon state from prefs
+	ui.init();
 	
 
 	//check if this is the first time 
 	if (info.isThisFirstTime())
 		firstRun();
 
-	// read button icon state from prefs
-	ui.init();
+	
 
 
 	// death timer, re #71. backstopped by addon update to 'dead' addon.
