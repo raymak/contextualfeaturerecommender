@@ -22,14 +22,15 @@ exports.GMAIL_COUNT_THRESHOLD = 2;
 exports.REDDIT_COUNT_THRESHOLD = 2;
 exports.AMAZON_COUNT_THRESHOLD = 2;
 exports.NEW_BOOKMARK_COUNT_THRESHOLD = 2;
-exports.BOOKMARK_SHORTCUT_COUNT_THRESHOLD = 2;
+exports.BOOKMARK_SHORTCUT_COUNT_THRESHOLD = 1;
 exports.BOOKMARK_MANAGER_COUNT_THRESHOLD = 2;
 
 
 //notification panel
 exports.HIDE_PANEL_AFTER_REACTION = true;
 exports.PANEL_SIZE_UNEXPLAINED = {width: 340 + 2, height: 180 + 3};
-exports.PANEL_SIZE_EXPLAINED = {width: 340 + 2, height: 180 + 3};
+exports.PANEL_SIZE_EXPLAINED = {width: 340 + 2, height: 210 + 3};
+exports.PANEL_EXPLANATIONHEADER = "Firefox suggests this because: ";
 
 
 //strings
