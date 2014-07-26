@@ -134,6 +134,21 @@ function sendLastCallEvent(reason){
 	sendEvent(OUTtype, OUTval, OUTid);
 }
 
+function weightedRandomInt(weightsArr){
+	var sum = weightsArr.reduce(function(pv, cv) { return pv + cv; }, 0);
+
+	var randInt = Math.floor(Math.random() * sum);
+
+	var index = 0;
+	var cummWeight = weightsArr[0];
+
+	for (var i = 0; i < sum; i++){
+		while (i == cummWeight) {index++; cummWeight += weightsArr[index];}
+		if (randInt == i) return index;
+	}
+	
+}
+
 var override  = function() merge.apply(null, arguments);
 
 
@@ -148,3 +163,4 @@ exports.sendTriggerEvent = sendTriggerEvent;
 exports.sendLoadEvent = sendLoadEvent;
 exports.sendLastCallEvent = sendLastCallEvent;
 exports.sendMinorTriggerEvent = sendMinorTriggerEvent;
+exports.weightedRandomInt = weightedRandomInt;

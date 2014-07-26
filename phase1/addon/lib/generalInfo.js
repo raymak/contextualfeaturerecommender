@@ -97,14 +97,22 @@ function getArm(){
 
 	console.log("in getArm");
 
+	
+
 	if (!isThisFirstTime())
 		return JSON.parse(prefs["config.arm"]);
 		
 	else {
-		prefs["config.arm"] = JSON.stringify(arms.assignRandomArm());
+		if ("arm_weights" in system.staticArgs){
+			prefs["config.arm"] = JSON.stringify(arms.assignRandomArm(system.staticArgs.arm_weights));
+			return JSON.parse(prefs["config.arm"]);
+		}
+
+		prefs["config.arm"] = JSON.stringify(arms.assignRandomArm(config.DEFAULT_ARM_WEIGHTS));
 		return JSON.parse(prefs["config.arm"]);
 		
 	}
+
 }
 
 function setDefaultNotification(){

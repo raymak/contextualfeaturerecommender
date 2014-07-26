@@ -5,6 +5,7 @@
 
 "use strict";
 
+
 var arms = [
 	{basis: "contextual", explanation: "unexplained", ui: "doorhanger-active"}, //0
 	{basis: "contextual", explanation: "unexplained", ui: "doorhanger-passive"},//1
@@ -13,9 +14,10 @@ var arms = [
 	{basis: "contextual", explanation: "explained", ui: "none"}                 //4
 ]
 
-function assignRandomArm(){
-	//TODO randomly assign an arm
-	return arms[1];  
+function assignRandomArm(weightsArr){
+
+	return arms[require("./utils").weightedRandomInt(weightsArr)];  
 }
+
 
 exports.assignRandomArm = assignRandomArm;

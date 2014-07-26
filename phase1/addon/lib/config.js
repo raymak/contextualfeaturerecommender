@@ -32,6 +32,9 @@ exports.PANEL_SIZE_UNEXPLAINED = {width: 340 + 2, height: 180 + 3};
 exports.PANEL_SIZE_EXPLAINED = {width: 340 + 2, height: 210 + 3};
 exports.PANEL_EXPLANATIONHEADER = "Firefox suggests this because: ";
 
+//arm generation
+exports.DEFAULT_ARM_WEIGHTS = [1, 1, 1, 1, 1];
+
 
 //strings
 exports.DEFAULT_MESSAGE = "As you use Firefox we'll show you tips and tricks to get the most out of your browser and favorite websites!"
