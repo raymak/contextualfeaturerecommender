@@ -20,6 +20,7 @@ const {Cu, Cc, Ci} = require("chrome");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/AddonManager.jsm");
 
 var downloadList; 
 var newTabHotkey = false; //used for detecting new tab initiations without keyboard shortcuts	
@@ -63,7 +64,7 @@ function listenForPrivateWindows(){
 			var name = "blushypage";
 			var isrecommended = featuredata.get(name, "triggered");
 			var count = featuredata.get(name, "count");
-			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count});
+			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
 		}
 	});
 }
@@ -79,14 +80,31 @@ function listenForPinnedTabs(){
 				var name = "facebook";
 				var isrecommended = featuredata.get(name, "triggered");
 				var count = featuredata.get(name, "count");
-				utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count});
+				utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
 			}, false);
 		}
 	});
 }
 
+
 function listenForAddonInstalls(){
-	// var installListener = 
+	var installListener = {
+		onInstallEnded: function (install, addon){
+
+			console.log("new addon installed");
+
+			var matchedAddonData = actions.getAddonDataById(addon.id);
+
+			if (matchedAddonData){
+				var name = matchedAddonData.featurename;
+				var isrecommended = featuredata.get(name, "triggered");
+				var count = featuredata.get(name, "count");
+				utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+			}
+		}
+	}
+
+	AddonManager.addInstallListener(installListener);
 }
 
 function listenForURIChanges(){
@@ -166,7 +184,7 @@ function listenForNewTabButton(){
 			var name = "newtabshortcut";
 			var isrecommended = featuredata.get(name, "triggered");
 			var count = featuredata.get(name, "count");
-			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count});
+			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
 		}
 		newTabHotkey = false;	// set to true in listenForHotkeys
 	});
@@ -182,7 +200,7 @@ function listenForCloseTabButton(){
 			var name = "closetabshortcut";
 			var isrecommended = featuredata.get(name, "triggered");
 			var count = featuredata.get(name, "count");
-			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count});
+			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
 		}
 		closeTabHotkey = false; // set to true in listenForHotkeys
 	});
@@ -211,7 +229,7 @@ function listenForBookmarks(){
 	  		var name = "newbookmarkshortcut";
 			var isrecommended = featuredata.get(name, "triggered");
 			var count = featuredata.get(name, "count");
-			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count});
+			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
 	  	}
 	  	newBookmarkHotkey = false;	//set to true in listenForHotkeys
 

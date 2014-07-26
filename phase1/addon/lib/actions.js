@@ -39,15 +39,24 @@ var URLToActionMapper = {
 
 //stores basic information needed when recommending addons
 var addonData = {
-	"1click-yt-download": {name: "1-Click YouTube Video Download", link: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi", id: "YoutubeDownloader@PeterOlayev.com"},
-	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi", id: "jid0-GjwrPchS3Ugt7xydvqVK4DQk8Ls@jetpack"},
-	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi", id: "{19503e42-ca3c-4c27-b1e2-9cdb2170ee34}"},
-	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi", id: "jid1-dgnIBwQga0SIBw@jetpack"},
-	"redditenhancement": {name: "Reddit Enhancement Suite", link: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi", id: "jid1-xUfzOsOFlzSOXg@jetpack"},
-	"amazonwishlistbutton": {name: "Amazon \"Add to Wish List\" Button", link: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi", id: "amznUWL2@amazon.com"},
-	"quickmark": {name: "Quick Mark", link: "https://addons.mozilla.org/firefox/downloads/latest/462572/addon-462572-latest.xpi", id: "jid0-QT2VXewB9xzbRlyapSJjA4ebwoU@jetpack"}
+	"1click-yt-download": {name: "1-Click YouTube Video Download", link: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi", id: "YoutubeDownloader@PeterOlayev.com", featurename: "youtube"},
+	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi", id: "jid0-GjwrPchS3Ugt7xydvqVK4DQk8Ls@jetpack", featurename: "gmail"},
+	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi", id: "{19503e42-ca3c-4c27-b1e2-9cdb2170ee34}", featurename: "download"},
+	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi", id: "jid1-dgnIBwQga0SIBw@jetpack", featurename: "translator"},
+	"redditenhancement": {name: "Reddit Enhancement Suite", link: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi", id: "jid1-xUfzOsOFlzSOXg@jetpack", featurename: "reddit"},
+	"amazonwishlistbutton": {name: "Amazon \"Add to Wish List\" Button", link: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi", id: "amznUWL2@amazon.com", featurename: "amazon"},
+	"quickmark": {name: "Quick Mark", link: "https://addons.mozilla.org/firefox/downloads/latest/462572/addon-462572-latest.xpi", id: "jid0-QT2VXewB9xzbRlyapSJjA4ebwoU@jetpack", featurename: "newbookmark"}
 }
 
+function getAddonDataById(id){
+	for (var prop in addonData) 
+    if (addonData.hasOwnProperty(prop))
+        if (addonData[prop].hasOwnProperty("id"))
+			if (addonData[prop].id == id) return addonData[prop];
+
+	return null;
+
+}
 
 
 //carries out right action based on (hostname of) current website
@@ -93,8 +102,8 @@ function recommendDLManager(download){
 
 	var count = minorTriggerCount(featurename);
 
-	var triggerId = "newdownload";
-	var name = "newdownload";
+	var triggerId = featurename;
+	var name = featurename;
 
 	var options = {explanationMessage: "you are a frequent downloader"};
 
@@ -138,8 +147,8 @@ function ytDetected(options){
 
 	var count = minorTriggerCount(featurename);
 
-	var triggerId = "youtube";
-	var name = "youtube";
+	var triggerId = featurename;
+	var name = featurename;
 
 	if (count == config.YOUTUBE_COUNT_THRESHOLD){
 		
@@ -155,8 +164,8 @@ function gmailDetected(options){
 
 	var count = minorTriggerCount(featurename);
 
-	var triggerId = "gmail";
-	var name = "gmail";
+	var triggerId = featurename;
+	var name = featurename;
 
 	if (count == config.GMAIL_COUNT_THRESHOLD){
 
@@ -177,8 +186,8 @@ function recommendTranslator(options){
 
 	var count = minorTriggerCount(featurename);
 
-	var triggerId = "foreignpage";
-	var name = "foreignpage";
+	var triggerId = featurename; // "foreignpage"
+	var name = featurename;
 
 	//TODO
 	var options = require("./utils").override(options, {explanationMessage: ""});
@@ -198,8 +207,8 @@ function redditDetected(options){
 
 	var count = minorTriggerCount(featurename);
 
-	var triggerId = "reddit";
-	var name = "reddit";
+	var triggerId = featurename;
+	var name = featurename;
 
 	if (count == config.REDDIT_COUNT_THRESHOLD){
 
@@ -215,8 +224,8 @@ function amazonDetected(options){
 
 	var count = minorTriggerCount(featurename);
 
-	var triggerId = "amazon";
-	var name = "amazon";
+	var triggerId = featurename;
+	var name = featurename;
 
 	if (count == config.AMAZON_COUNT_THRESHOLD){
 
@@ -335,8 +344,8 @@ function facebookDetected(options){
 
 	var explanationMessage = "you frequently visit " + options.hostname;
 
-	var triggerId = "facebook";
-	var name = "facebook";
+	var triggerId = featurename;
+	var name = featurename;
 
 	if (count == config.FACEBOOK_COUNT_THRESHOLD){
 
@@ -413,8 +422,8 @@ function recommendNewTabShortcut(){
 	var count = minorTriggerCount(featurename);
 
 
-	var triggerId = "newtab";
-	var name = "newtab";
+	var triggerId = featurename;
+	var name = featurename;
 
 	var explanationMessage = "you frequently close tabs";
 
@@ -451,8 +460,8 @@ function recommendCloseTabShortcut(){
 
 	var count = minorTriggerCount(featurename);
 
-	var triggerId = "closetab";
-	var name = "closetab";
+	var triggerId = featurename;
+	var name = featurename;
 
 	var explanationMessage = "you frequently close tabs";
 
@@ -485,8 +494,8 @@ function recommendBookmarkManager(){
 
 	var count = minorTriggerCount(featurename);
 
-	var triggerId = "newbookmark";
-	var name = "newbookmark";
+	var triggerId = featurename;
+	var name = featurename;
 
 	var options = {explanationMessage: "you are a frequent bookmark user"};
 
@@ -504,8 +513,8 @@ function recommendNewBookmarkShortcut(){
 
 	var count = minorTriggerCount(featurename);
 
-	var triggerId = "newbookmarkshortcut";
-	var name = "newbookmarkshortcut";
+	var triggerId = featurename;
+	var name = featurename;
 
 	var explanationMessage = "you frequently add new bookmarks";
 
@@ -539,3 +548,4 @@ exports.recommendTranslator = recommendTranslator;
 exports.recommendNewBookmarkShortcut = recommendNewBookmarkShortcut;
 exports.recommendBookmarkManager = recommendBookmarkManager;
 exports.recommendCloseTabShortcut = recommendCloseTabShortcut;
+exports.getAddonDataById = getAddonDataById;
