@@ -39,13 +39,13 @@ var URLToActionMapper = {
 
 //stores basic information needed when recommending addons
 var addonData = {
-	"1click-yt-download": {name: "1-Click YouTube Video Download", link: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi"},
-	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi"},
-	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi"},
-	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi"},
-	"redditenhancement": {name: "Reddit Enhancement Suite", link: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi"},
-	"amazonwishlistbutton": {name: "Amazon \"Add to Wish List\" Button", link: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi"},
-	"quickmark": {name: "Quick Mark", link: "https://addons.mozilla.org/firefox/downloads/latest/462572/addon-462572-latest.xpi"}
+	"1click-yt-download": {name: "1-Click YouTube Video Download", link: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi", id: "YoutubeDownloader@PeterOlayev.com"},
+	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi", id: "jid0-GjwrPchS3Ugt7xydvqVK4DQk8Ls@jetpack"},
+	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi", id: "{19503e42-ca3c-4c27-b1e2-9cdb2170ee34}"},
+	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi", id: "jid1-dgnIBwQga0SIBw@jetpack"},
+	"redditenhancement": {name: "Reddit Enhancement Suite", link: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi", id: "jid1-xUfzOsOFlzSOXg@jetpack"},
+	"amazonwishlistbutton": {name: "Amazon \"Add to Wish List\" Button", link: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi", id: "amznUWL2@amazon.com"},
+	"quickmark": {name: "Quick Mark", link: "https://addons.mozilla.org/firefox/downloads/latest/462572/addon-462572-latest.xpi", id: "jid0-QT2VXewB9xzbRlyapSJjA4ebwoU@jetpack"}
 }
 
 
@@ -89,7 +89,9 @@ function minorTriggerCount(featurename){
 // recommends installing a DL manager to user
 function recommendDLManager(download){
 	
-	var count = minorTriggerCount("download");
+	var featurename = "download";
+
+	var count = minorTriggerCount(featurename);
 
 	var triggerId = "newdownload";
 	var name = "newdownload";
@@ -100,7 +102,7 @@ function recommendDLManager(download){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "flashgot", triggerId: triggerId, extraOptions: options});
+		recommendAddon({addonID: "flashgot", triggerId: triggerId, featurename: featurename, extraOptions: options});
 	}
 }
 
@@ -108,6 +110,8 @@ function recommendDLManager(download){
 function recommendAddon(options){
 	
 	logger.log("recommending addon");
+
+	featuredata.set(options.featurename, "triggered", true);
 
 	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
 
@@ -130,7 +134,9 @@ function ytDetected(options){
 	
 	logger.log("ytDetect");
 
-	var count = minorTriggerCount("youtube");
+	var featurename = "youtube";
+
+	var count = minorTriggerCount(featurename);
 
 	var triggerId = "youtube";
 	var name = "youtube";
@@ -139,12 +145,15 @@ function ytDetected(options){
 		
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 		
-		recommendAddon({addonID: "1click-yt-download", triggerId: triggerId, extraOptions: options});
+		recommendAddon({addonID: "1click-yt-download", triggerId: triggerId, featurename: featurename, extraOptions: options});
 	}
 }
 
 function gmailDetected(options){
-	var count = minorTriggerCount("gmail");
+
+	var featurename = "gmail";
+
+	var count = minorTriggerCount(featurename);
 
 	var triggerId = "gmail";
 	var name = "gmail";
@@ -153,7 +162,7 @@ function gmailDetected(options){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-		recommendAddon({addonID: "gmail-notifier", triggerId: triggerId, extraOptions: options});
+		recommendAddon({addonID: "gmail-notifier", triggerId: triggerId, featurename: featurename, extraOptions: options});
 	}
 }
 
@@ -163,7 +172,10 @@ function soccerDetected(options){
 
 //TODO
 function recommendTranslator(options){
-	var count = minorTriggerCount("translator");
+	
+	var featurename = "translator";
+
+	var count = minorTriggerCount(featurename);
 
 	var triggerId = "foreignpage";
 	var name = "foreignpage";
@@ -176,12 +188,15 @@ function recommendTranslator(options){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "googletranslator", triggerId: triggerId, extraOptions: options});
+		recommendAddon({addonID: "googletranslator", triggerId: triggerId, featurename: featurename, extraOptions: options});
 	}
 }
 
 function redditDetected(options){
-	var count = minorTriggerCount("reddit");
+	
+	var featurename = "reddit";
+
+	var count = minorTriggerCount(featurename);
 
 	var triggerId = "reddit";
 	var name = "reddit";
@@ -191,12 +206,14 @@ function redditDetected(options){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendAddon({addonID: "redditenhancement", triggerId: triggerId, extraOptions: options});
+		recommendAddon({addonID: "redditenhancement", triggerId: triggerId, featurename: featurename, extraOptions: options});
 	}
 }
 
 function amazonDetected(options){
-	var count = minorTriggerCount("amazon");
+	var featurename = "amazon";
+
+	var count = minorTriggerCount(featurename);
 
 	var triggerId = "amazon";
 	var name = "amazon";
@@ -206,7 +223,7 @@ function amazonDetected(options){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 	
 
-		recommendAddon({addonID: "amazonwishlistbutton", triggerId: triggerId, extraOptions: options});
+		recommendAddon({addonID: "amazonwishlistbutton", triggerId: triggerId, featurename: featurename, extraOptions: options});
 	}
 
 	extractSearchQuery("amazon");
@@ -292,6 +309,8 @@ function extractSearchQuery(engine){
 function recommendPinTab(options){
 
 	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
+
+	featuredata.set(options.featurename, "triggered", true);
 	
 	ui.showNotification({
 		message: "It seems that you frequently visit this page. You might want to pin its tab!",
@@ -310,7 +329,9 @@ function recommendPinTab(options){
 
 function facebookDetected(options){
 
-	var count = minorTriggerCount("facebook");
+	var featurename = "facebook";
+
+	var count = minorTriggerCount(featurename);
 
 	var explanationMessage = "you frequently visit " + options.hostname;
 
@@ -322,11 +343,13 @@ function facebookDetected(options){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 
-		recommendPinTab({triggerId: triggerId, extraOptions: {explanationMessage: explanationMessage}});
+		recommendPinTab({triggerId: triggerId, featurename: featurename, extraOptions: {explanationMessage: explanationMessage}});
 	}	
 }
 
 function recommendPrivateWindow(options){
+
+	featuredata.set(options.featurename, "triggered", true);
 
 	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
 	
@@ -348,7 +371,9 @@ function blushyPageDetected(options){
 	
 	if (!require("sdk/private-browsing").isPrivate(tabs.activeTab)){
 
-		var count = minorTriggerCount("blushypage");
+		var featurename = "blushypage";
+
+		var count = minorTriggerCount(featurename);
 
 		var triggerId = "blushypage";
 		var name = "blushypage";
@@ -357,7 +382,7 @@ function blushyPageDetected(options){
 
 			utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
-			recommendPrivateWindow({triggerId: triggerId, extraOptions: options});
+			recommendPrivateWindow({triggerId: triggerId, featurename: featurename, extraOptions: options});
 			
 
 		}
@@ -383,7 +408,10 @@ function recommendKeyboardShortcut(){
 function recommendNewTabShortcut(){
 	logger.log("recommendNewTabShortcut");
 
-	var count = minorTriggerCount("newtabshortcut");
+	var featurename = "newtabshortcut";
+
+	var count = minorTriggerCount(featurename);
+
 
 	var triggerId = "newtab";
 	var name = "newtab";
@@ -391,6 +419,8 @@ function recommendNewTabShortcut(){
 	var explanationMessage = "you frequently close tabs";
 
 	if (count == config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD){
+
+		featuredata.set(featurename, "triggered", true);
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
@@ -417,7 +447,9 @@ function recommendNewTabShortcut(){
 function recommendCloseTabShortcut(){
 	logger.log("recommendCloseTabShortcut");
 
-	var count = minorTriggerCount("closetabshortcut");
+	var featurename = "closetabshortcut";
+
+	var count = minorTriggerCount(featurename);
 
 	var triggerId = "closetab";
 	var name = "closetab";
@@ -425,6 +457,8 @@ function recommendCloseTabShortcut(){
 	var explanationMessage = "you frequently close tabs";
 
 	if (count == config.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD){
+
+		featuredata.set(featurename, "triggered", true);
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
@@ -446,7 +480,10 @@ function recommendCloseTabShortcut(){
 }
 
 function recommendBookmarkManager(){
-	var count = minorTriggerCount("newbookmark");
+
+	var featurename = "newbookmark";
+
+	var count = minorTriggerCount(featurename);
 
 	var triggerId = "newbookmark";
 	var name = "newbookmark";
@@ -457,12 +494,15 @@ function recommendBookmarkManager(){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);		
 		
-		recommendAddon({addonID: "quickmark", triggerId: triggerId, extraOptions: options});
+		recommendAddon({addonID: "quickmark", triggerId: triggerId, featurename: featurename, extraOptions: options});
 	}
 }
 
 function recommendNewBookmarkShortcut(){
-	var count = minorTriggerCount("newbookmarkshortcut");
+	
+	var featurename = "newbookmarkshortcut";
+
+	var count = minorTriggerCount(featurename);
 
 	var triggerId = "newbookmarkshortcut";
 	var name = "newbookmarkshortcut";
@@ -473,6 +513,7 @@ function recommendNewBookmarkShortcut(){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
+		featuredata.set(featurename, "triggered", true);
 
 		ui.showNotification({
 		message: "You can also use " + info.getMetakeyStr() + "+D to bookmark a page! Why don't you give it a try?",

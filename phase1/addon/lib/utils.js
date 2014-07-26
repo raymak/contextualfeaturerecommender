@@ -118,6 +118,14 @@ function sendOfferingEvent(offeringType, value, triggerId){
 	sendEvent(OUTtype, OUTval, OUTid);
 }
 
+function sendSecondaryListenerEvent(value){
+	var OUTtype = config.TYPE_SECONDARY_LISTENER;
+	var OUTval = value;
+	var OUTid = config.ID_NA;
+
+	sendEvent(OUTtype, OUTval, OUTid)
+}
+
 function sendLoadEvent(reason){
 	var OUTtype = config.TYPE_LOAD;
 	var OUTval = {reason: reason};
@@ -164,3 +172,4 @@ exports.sendLoadEvent = sendLoadEvent;
 exports.sendLastCallEvent = sendLastCallEvent;
 exports.sendMinorTriggerEvent = sendMinorTriggerEvent;
 exports.weightedRandomInt = weightedRandomInt;
+exports.sendSecondaryListenerEvent = sendSecondaryListenerEvent;
