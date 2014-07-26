@@ -129,7 +129,6 @@ function setDefaultNotification(){
 		id: "defaultmessage",
 		hidePanel: true,
 		explanationHide: true
-
 		});
 }
 function registerFirstTimePrefs(){

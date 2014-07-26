@@ -27,8 +27,8 @@ function init(){
 	if (info.getArm().ui == 'none') return;
 	
 	button = getButton(buttonClick);
-	
 	panel = getPanel(button);
+	
 	updateButtonIconState();
 }
 
@@ -68,6 +68,7 @@ function setLastRecommendationOptions(options){
 
 function showNotification(options){
 	logger.log("starting to show notification");
+
 
 	var panelSize;
 
