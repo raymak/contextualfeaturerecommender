@@ -14,8 +14,8 @@
 
 let { URL } = require("sdk/url");
 
-// let bpUtil = require("thirdparty/blushproof/bpUtil");
-// let blushlist = require("thirdparty/blushproof/blushlist").map;
+let bpUtil = require("thirdparty/blushproof/bpUtil");
+let blushlist = require("thirdparty/blushproof/blushlist").map;
   
 /**
   * return {hash: <key>, category: <if any>}
