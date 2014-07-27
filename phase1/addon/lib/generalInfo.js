@@ -164,6 +164,7 @@ function sendInstallInfo(){
 	var addonNames = [];
 	var addonIds = [];
 	var addonTypes = [];
+	var addonActivities = [];
 	var arr = [];
 
 	AddonManager.getAddonsByTypes(['extension'], function (addons) {
@@ -173,6 +174,8 @@ function sendInstallInfo(){
 			addonNames.push(addons[i].name);
 			addonIds.push(addons[i].id);
 			addonTypes.push(addons[i].type);
+			addonActivities.push(addons[i].isActive);
+
 		}
 
 		AddonManager.getAddonsByTypes(['theme'], function (addons) {
@@ -183,6 +186,7 @@ function sendInstallInfo(){
 				addonNames.push(addons[i].name);
 				addonIds.push(addons[i].id);
 				addonTypes.push(addons[i].type);
+				addonActivities.push(addons[i].isActive);
 			}
 			
 			try {
