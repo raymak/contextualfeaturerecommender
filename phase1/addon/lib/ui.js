@@ -28,7 +28,7 @@ function init(){
 	
 	button = getButton(buttonClick);
 	panel = getPanel(button);
-	
+
 	updateButtonIconState();
 }
 
@@ -69,6 +69,7 @@ function setLastRecommendationOptions(options){
 function showNotification(options){
 	logger.log("starting to show notification");
 
+	if (options.ignore) return;
 
 	var panelSize;
 
@@ -97,6 +98,8 @@ function showNotification(options){
 			return;
 			break;
 	}
+
+	if (options.buttonOff) buttonOff();
 
 	populatePanel(lastRecommendationOptions);
 
@@ -200,9 +203,9 @@ function onPanelShow(event){
 function onPanelHide(event){
 	buttonOff();
 
-	var timeIntervalMs = (Date.now() - showStartTimeMs).toString();
+	var timeLengthMs = (Date.now() - showStartTimeMs).toString();
 
-	sendHideEvent(getLastRecommendationOptions(), timeIntervalMs);
+	sendHideEvent(getLastRecommendationOptions(), timeLengthMs);
 }
 
 function updateButtonIconState(){
@@ -228,10 +231,10 @@ function sendShowEvent(options){
 
 }
 
-function sendHideEvent(options, intervalMs){
+function sendHideEvent(options, timeLengthMs){
 	
 	var OUTtype = config.TYPE_PANEL_HIDE;
-	var OUTval = {id: options.id, timeintervalms: intervalMs, showcount: options.showCount, reactioncount: options.reactionCount, reactionType: options.reactionType};
+	var OUTval = {id: options.id, timelengthms: timeLengthMs, showcount: options.showCount, reactioncount: options.reactionCount, reactionType: options.reactionType};
 	var OUTid = options.id;
 
 	require("./utils.js").sendEvent(OUTtype, OUTval, OUTid);
