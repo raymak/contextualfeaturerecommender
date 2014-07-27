@@ -24,6 +24,15 @@ function getAddons(callback){
 	});
 }
 
+function userHasAddonById(id, callback){
+	AddonManager.getAllAddons(function(aAddons) {
+		
+		for (var i = 0; i < aAddons.length; i++)
+			if (aAddons[i].id == id) {callback(true); return;}
+
+		callback(false);
+	});
+}
 
 function setIsFirstTime(){
 	prefs["general.isFirstTime"] = false;
@@ -128,7 +137,8 @@ function setDefaultNotification(){
 		buttonLabel: config.DEFAULT_BUTTON_LABEL,
 		id: "defaultmessage",
 		hidePanel: true,
-		explanationHide: true
+		explanationHide: true,
+		buttonOff: true
 		});
 }
 function registerFirstTimePrefs(){
@@ -217,6 +227,7 @@ function sendInstallInfo(){
 
 exports.registerFirstTimePrefs = registerFirstTimePrefs;
 exports.getAddons = getAddons;
+exports.userHasAddonById = userHasAddonById;
 exports.getStartTimeMs = getStartTimeMs;
 exports.isThisFirstTime = isThisFirstTime;
 exports.sendInstallInfo = sendInstallInfo;
