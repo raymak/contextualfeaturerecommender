@@ -176,6 +176,13 @@ function sendInstallInfo(){
 	var addonTypes = [];
 	var addonActivities = [];
 	var arr = [];
+	var searchenginename = genPrefs.get("browser.search.defaultenginename");
+	var isdntenabled = genPrefs.get("privacy.donottrackheader.enabled");
+	var dntvalue = genPrefs.get("privacy.donottrackheader.value");
+	var ishistoryenabled = genPrefs.get("places.history.enabled");
+	var uiclutter = JSON.parse(genPrefs.get("browser.uiCustomization.state"));
+	var activeThemeId = "none";
+	var activeThemeName = "none";
 
 	AddonManager.getAddonsByTypes(['extension'], function (addons) {
 	
@@ -197,11 +204,13 @@ function sendInstallInfo(){
 				addonIds.push(addons[i].id);
 				addonTypes.push(addons[i].type);
 				addonActivities.push(addons[i].isActive);
+				if (addons[i].isActive) {activeThemeId = addons[i].id; activeThemeName = addons[i].name;}
 			}
 			
 			try {
-			OUTval = require("./utils").override(OUTval, {addonnames: addonNames, addonids: addonIds, addontypes: addonTypes});						
-			OUTval.expStartTimeMs = getStartTimeMs();
+				
+				OUTval = require("./utils").override(OUTval, {addonnames: addonNames, addonids: addonIds, addontypes: addonTypes, activeThemeId: activeThemeId, activeThemeName: activeThemeName, searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled, uiclutter: uiclutter});						
+				OUTval.expStartTimeMs = getStartTimeMs();
 			}
 			catch (e){
 				console.log(e.message);
@@ -209,14 +218,14 @@ function sendInstallInfo(){
 
 
 			try {
-			require("./utils").sendEvent(OUTtype, OUTval, OUTid);			
-		}
-		catch (e){
-			console.log(e.message);
-		}
+				require("./utils").sendEvent(OUTtype, OUTval, OUTid);			
+			}
+			catch (e){
+				console.log(e.message);
+			}
 			
 
-			});
+		});
 
 		
 	}); 
