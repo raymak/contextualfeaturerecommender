@@ -79,7 +79,7 @@ function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 		console.log('after', hostname, blushcat);
 
 		if (blushcat && (['adult'].indexOf(blushcat)>=0)) {
-			pornDetected();
+			pornDetected({hostname: hostname});
 		}
 	}	
 

@@ -17,6 +17,7 @@ var {isBrowser} = require("sdk/window/utils");
 var config = require("./config");
 var ui = require("./ui")
 var utils = require("./utils");
+var {blushiness} = require("./blush");
 
 const REASON = [ 'unknown', 'startup', 'shutdown', 'enable', 'disable',
 'install', 'uninstall', 'upgrade', 'downgrade' ];
@@ -74,5 +75,3 @@ var onUnload = exports.onUnload = function (reason){
 	}
 
 }
-
-
