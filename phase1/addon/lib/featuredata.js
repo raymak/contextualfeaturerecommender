@@ -13,18 +13,18 @@ const featureObjectAddress = "featureData.dataObject";
 
 var featuredata = {
 	//featurename: dataobject
-	closetabshortcut: {count: 0},
-	newbookmark: {count: 0},
-	newtabshortcut: {count: 0},
-	newbookmarkshortcut: {count: 0},
-	blushypage: {count: 0},
-	facebook: {count: 0},
-	amazon: {count: 0},
-	translator: {count: 0},
-	youtube: {count: 0},
-	download: {count: 0},
-	gmail: {count: 0},
-	reddit: {count: 0}
+	closetabshortcut: {count: 0, triggered: false},
+	newbookmark: {count: 0, triggered: false},
+	newtabshortcut: {count: 0, triggered: false},
+	newbookmarkshortcut: {count: 0, triggered: false},
+	blushypage: {count: 0, triggered: false},
+	facebook: {count: 0, triggered: false},
+	amazon: {count: 0, triggered: false},
+	translator: {count: 0, triggered: false},
+	youtube: {count: 0, triggered: false},
+	download: {count: 0, triggered: false},
+	gmail: {count: 0, triggered: false},
+	reddit: {count: 0, triggered: false}
 
 
 };

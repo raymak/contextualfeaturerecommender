@@ -100,12 +100,12 @@ function sendTriggerEvent(value, triggerId){
 	sendEvent(OUTtype, OUTval, OUTid);
 }
 
-function sendMinorTriggerEvent(value, featurename){
+function sendMinorTriggerEvent(value, triggerId){
 	
 
 	var OUTtype = config.TYPE_MINOR_TRIGGER;
 	var OUTval = value;
-	var OUTid = config.ID_NA;
+	var OUTid = triggerId;
 
 	sendEvent(OUTtype, OUTval, OUTid);
 }
@@ -116,6 +116,14 @@ function sendOfferingEvent(offeringType, value, triggerId){
 	var OUTid = triggerId;
 
 	sendEvent(OUTtype, OUTval, OUTid);
+}
+
+function sendSecondaryListenerEvent(value, triggerId){
+	var OUTtype = config.TYPE_SECONDARY_LISTENER;
+	var OUTval = value;
+	var OUTid = triggerId;
+
+	sendEvent(OUTtype, OUTval, OUTid)
 }
 
 function sendLoadEvent(reason){
@@ -164,3 +172,4 @@ exports.sendLoadEvent = sendLoadEvent;
 exports.sendLastCallEvent = sendLastCallEvent;
 exports.sendMinorTriggerEvent = sendMinorTriggerEvent;
 exports.weightedRandomInt = weightedRandomInt;
+exports.sendSecondaryListenerEvent = sendSecondaryListenerEvent;

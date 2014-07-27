@@ -11,13 +11,16 @@ var hotkeys = require("sdk/hotkeys");
 var tabs = require("sdk/tabs");
 var actions = require("./actions");
 var logger = require("./logger");
+var windows = require("sdk/windows");
 var chrome = require("chrome");
 var {WindowTracker} = require("sdk/deprecated/window-utils");
 var utils = require("./utils");
+var featuredata = require("./featuredata");
 const {Cu, Cc, Ci} = require("chrome");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/AddonManager.jsm");
 
 var downloadList; 
 var newTabHotkey = false; //used for detecting new tab initiations without keyboard shortcuts	
@@ -47,8 +50,63 @@ function init(){
 	// listenForForeignPages();
 	listenForBookmarks();
 
+	listenForPrivateWindows(); //blush pages
+	listenForPinnedTabs();
+	listenForAddonInstalls();
+
 }
-//TODO: listen for all windows (use tabs.on?)
+
+// secondary reaction listeners
+
+function listenForPrivateWindows(){
+	windows.browserWindows.on('open', function (window){
+		if (require("sdk/private-browsing").isPrivate(window)){
+			var name = "blushypage";
+			var isrecommended = featuredata.get(name, "triggered");
+			var count = featuredata.get(name, "count");
+			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+		}
+	});
+}
+
+function listenForPinnedTabs(){
+	var windowTracker = new WindowTracker({
+		onTrack: function (window){
+
+			if (!isBrowser(window)) return;
+
+			var tabBrowser = window.gBrowser;
+			tabBrowser.tabContainer.addEventListener("TabPinned", function(event){
+				var name = "facebook";
+				var isrecommended = featuredata.get(name, "triggered");
+				var count = featuredata.get(name, "count");
+				utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+			}, false);
+		}
+	});
+}
+
+
+function listenForAddonInstalls(){
+	var installListener = {
+		onInstallEnded: function (install, addon){
+
+			console.log("new addon installed");
+
+			var matchedAddonData = actions.getAddonDataById(addon.id);
+
+			if (matchedAddonData){
+				var name = matchedAddonData.featurename;
+				var isrecommended = featuredata.get(name, "triggered");
+				var count = featuredata.get(name, "count");
+				utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+			}
+		}
+	}
+
+	AddonManager.addInstallListener(installListener);
+}
+
 function listenForURIChanges(){
 	logger.log("listening forURI Change");
 	// tabs.on("ready", actionTriggerMap.onURIChange);
@@ -122,6 +180,12 @@ function listenForNewTabButton(){
 	tabs.on("open", function (tab) { 
 		if (!newTabHotkey) 
 			actionTriggerMap.onNewTabClicked();
+		else {
+			var name = "newtabshortcut";
+			var isrecommended = featuredata.get(name, "triggered");
+			var count = featuredata.get(name, "count");
+			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+		}
 		newTabHotkey = false;	// set to true in listenForHotkeys
 	});
 }
@@ -132,6 +196,12 @@ function listenForCloseTabButton(){
 	tabs.on("close", function (tab) {
 		if (!closeTabHotkey)
 			actionTriggerMap.onCloseTabClicked();
+		else {
+			var name = "closetabshortcut";
+			var isrecommended = featuredata.get(name, "triggered");
+			var count = featuredata.get(name, "count");
+			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+		}
 		closeTabHotkey = false; // set to true in listenForHotkeys
 	});
 }
@@ -155,6 +225,12 @@ function listenForBookmarks(){
 	  	//check if keyboard shortcut was used
 	  	if (!newBookmarkHotkey)
 	  		actionTriggerMap.onNewBookmarkNoShortcut();
+	  	else {
+	  		var name = "newbookmarkshortcut";
+			var isrecommended = featuredata.get(name, "triggered");
+			var count = featuredata.get(name, "count");
+			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+	  	}
 	  	newBookmarkHotkey = false;	//set to true in listenForHotkeys
 
 	  	actionTriggerMap.onNewBookmark();
