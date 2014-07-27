@@ -16,6 +16,7 @@ var logger = require("./logger");
 var arms = require("./arms");
 var ui = require("./ui");
 var tabs = require("sdk/tabs");
+var FHR = require("./FHR");
 
 
 function getAddons(callback){
@@ -146,6 +147,20 @@ function isAddonInstalled(addonId, callback){
 	});
 }
 
+function getFHRdata(){
+	if (!FHR.reporter) return;
+
+  	FHR.reporter.onInit().then(function() {
+    	return FHR.reporter.collectAndObtainJSONPayload(true)
+    }).then(function(data) {
+    	return parseFHRpayload(data);
+    });
+}
+
+function parseFHRpayload(data){
+    console.log(JSON.stringify(data, null, 2));
+    // return usage statistic
+}
 
 function sendInstallInfo(){
 	var OUTtype = config.TYPE_INSTALL;
