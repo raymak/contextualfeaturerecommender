@@ -1,7 +1,5 @@
 #Instructions
 
-<br>
-
 ## Running
 
 ### Using cfx tool from addon sdk
