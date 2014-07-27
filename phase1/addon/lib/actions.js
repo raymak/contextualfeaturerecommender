@@ -124,18 +124,26 @@ function recommendAddon(options){
 
 	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
 
-	ui.showNotification({
+	info.userHasAddonById(addonData[options.addonID].id, function (alreadyHasAddon){
+
+	 	ui.showNotification({
 		message: "Wanna try downloading " + addonData[options.addonID].name + " ?",
 		header: "A Cool Addon",
 		reactionType: "openlinkinactivetab",
 		reactionOptions: {url: addonData[options.addonID].link},
 		buttonLabel: "Install Addon",
 		id: options.triggerId,
-		explanationMessage: explanationMessage
+		explanationMessage: explanationMessage,
+		ignore: alreadyHasAddon
 		});
 
 
-	utils.sendOfferingEvent(config.TYPE_OFFERING_ADDON, options, options.triggerId);
+		var type = alreadyHasAddon ? config.TYPE_OFFERING_ADDON_IGNORED : config.TYPE_OFFERING_ADDON;
+		utils.sendOfferingEvent(type, options, options.triggerId);
+
+	});
+
+	
 
 }
 
