@@ -50,24 +50,24 @@ function sendToGA(dataObject){
 		console.log("GA REQUEST COMPLETE", response.status);
 	}
 
-	//stringifying the object
+	var gaFields = {"v": 1, "tid": "UA-35433268-28", "cid": "be74c5a0-143a-11e4-8c21-0800200c9a66", "t": "pageview", "experiment": "CFR", "dh": "caravela.mozillalabs.com", "custom": "newprotocol"}
+	for (var attrname in gaFields) { dataObject[attrname] = gaFields[attrname]; }
+	
 	var str = stringify(dataObject);
-	let url = config.GA_URL;
+	let url = config.GA_URL;  
 	console.log(url+"?"+str);
+	console.log("GA REQUEST")
 	console.log(JSON.stringify(dataObject,null,2));
 
-	if (config.SEND_REQ_TO_GA){
-		console.log("sending to GA");
-		var XMLReq = new request.Request({
-			url: url,
-			onComplete: requestCompleted,
-			content: dataObject
-		});
-		XMLReq.get();
-	} else {
-		console.log("not sending to GA");
-	}
+	var XMLReq = new request.Request({
+		url: "http://www.google-analytics.com/collect",
+		onComplete: requestCompleted,
+		content: dataObject
+	});
+
+	XMLReq.get();	
 }
+
 
 //to add common fields such as timestamp, userid, etc. to event data
 function sendEvent(messType, messVal, messId){
