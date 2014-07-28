@@ -433,7 +433,7 @@ function recommendNewTabShortcut(){
 	var triggerId = featurename;
 	var name = featurename;
 
-	var explanationMessage = "you frequently close tabs";
+	var explanationMessage = "you frequently open tabs";
 
 	if (count == config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD){
 
