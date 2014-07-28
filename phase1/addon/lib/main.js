@@ -6,7 +6,7 @@
 
 "use strict";
 
-const STUDYLIFETIME = 7 * 86400 * 1000;  // milliseconds
+const STUDYLIFETIME = 14 * 86400 * 1000;  // milliseconds
 
 var triggers = require("./triggers");
 var logger = require("./logger");
