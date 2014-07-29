@@ -162,7 +162,15 @@ function listenForHotkeys(){
 			if (!isBrowser(window)) return;		
 			
 			// CTRL + T (new tab)
-			window.addEventListener("keydown", function(e) {if (e.keyCode == 'T'.charCodeAt(0) && e.metaKey == true) newTabHotkey = true;});
+			window.addEventListener("keydown", function(e) {
+				if (e.keyCode == 'T'.charCodeAt(0) && e.metaKey == true){
+					newTabHotkey = true;
+					var name = "newtabshortcut";
+					var isrecommended = featuredata.get(name, "triggered");
+					var count = featuredata.get(name, "count");
+					utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+				}
+			});
 			// CTRL + W  (close tab)
 			window.addEventListener("keydown", function(e) {if (e.keyCode == 'W'.charCodeAt(0) && e.metaKey == true) closeTabHotkey = true;});
 			// CTRL + D (new bookmark)
@@ -183,26 +191,14 @@ function listenForNewTabButton(){
 
 			let tabbar = window.document.getElementById("tabbrowser-tabs");
 			tabbar.addEventListener("click", (e) => {
- 			if (e.originalTarget.classList.contains("tabs-newtab-button") || e.originalTarget.getAttribute("anonid") == "tabs-newtab-button") {
-	   			console.log("new tab button click");
-	   			actionTriggerMap.onNewTabClicked();
+	 			if (e.originalTarget.classList.contains("tabs-newtab-button") || e.originalTarget.getAttribute("anonid") == "tabs-newtab-button") {
+		   			console.log("new tab button click");
+		   			actionTriggerMap.onNewTabClicked();
+ 				}
+ 			});
  		}
 	});
-		}
-	});
-	
 
-	// tabs.on("open", function (tab) { 
-	// 	if (!newTabHotkey) 
-	// 		actionTriggerMap.onNewTabClicked();
-	// 	else {
-	// 		var name = "newtabshortcut";
-	// 		var isrecommended = featuredata.get(name, "triggered");
-	// 		var count = featuredata.get(name, "count");
-	// 		utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
-	// 	}
-	// 	newTabHotkey = false;	// set to true in listenForHotkeys
-	// });
 }
 
 function listenForCloseTabButton(){
