@@ -43,10 +43,10 @@ function lastRun(reason){
 
 
 function reset(){
-	console.log("resetting");
+	console.log("Resetting...");
+	
 	for (var key in prefs)
-		if (prefs.hasOwnProperty(key))
-			delete prefs[key];
+		delete prefs[key];
 }
 
 //start listening when button is clicked
