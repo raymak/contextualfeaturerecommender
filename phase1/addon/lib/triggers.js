@@ -176,18 +176,33 @@ function listenForHotkeys(){
 //listen for when new tab button is clicked
 function listenForNewTabButton(){
 	logger.log("listeningForNewTabButton");
+	var windowTracker = new WindowTracker({
+		onTrack: function (window){
 
-	tabs.on("open", function (tab) { 
-		if (!newTabHotkey) 
-			actionTriggerMap.onNewTabClicked();
-		else {
-			var name = "newtabshortcut";
-			var isrecommended = featuredata.get(name, "triggered");
-			var count = featuredata.get(name, "count");
-			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
-		}
-		newTabHotkey = false;	// set to true in listenForHotkeys
+			if (!isBrowser(window)) return;
+
+			let tabbar = window.document.getElementById("tabbrowser-tabs");
+			tabbar.addEventListener("click", (e) => {
+ 			if (e.originalTarget.classList.contains("tabs-newtab-button") || e.originalTarget.getAttribute("anonid") == "tabs-newtab-button") {
+	   			console.log("new tab button click");
+	   			actionTriggerMap.onNewTabClicked();
+ 		}
 	});
+		}
+	});
+	
+
+	// tabs.on("open", function (tab) { 
+	// 	if (!newTabHotkey) 
+	// 		actionTriggerMap.onNewTabClicked();
+	// 	else {
+	// 		var name = "newtabshortcut";
+	// 		var isrecommended = featuredata.get(name, "triggered");
+	// 		var count = featuredata.get(name, "count");
+	// 		utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+	// 	}
+	// 	newTabHotkey = false;	// set to true in listenForHotkeys
+	// });
 }
 
 function listenForCloseTabButton(){
