@@ -18,6 +18,8 @@ var config = require("./config");
 var ui = require("./ui")
 var utils = require("./utils");
 var {blushiness} = require("./blush");
+var system = require("sdk/system");
+var prefs = require("sdk/simple-prefs").prefs;
 
 const REASON = [ 'unknown', 'startup', 'shutdown', 'enable', 'disable',
 'install', 'uninstall', 'upgrade', 'downgrade' ];
@@ -40,11 +42,20 @@ function lastRun(reason){
 }
 
 
+function reset(){
+	console.log("resetting");
+	for (var key in prefs)
+		if (prefs.hasOwnProperty(key))
+			delete prefs[key];
+}
 
 //start listening when button is clicked
 var main = exports.main = function (options, callbacks){
+
 	
 	var reason = options.loadReason;
+
+	if (system.staticArgs.reset) reset();
 
 	//sending the load message to GA
 	utils.sendLoadEvent(reason);
@@ -66,6 +77,8 @@ var main = exports.main = function (options, callbacks){
 
 	//start triggers
 	triggers.init();
+
+
 }
 
 var onUnload = exports.onUnload = function (reason){
@@ -75,3 +88,4 @@ var onUnload = exports.onUnload = function (reason){
 	}
 
 }
+
