@@ -12,11 +12,14 @@ self.port.on("options", function (options){
 	document.getElementById("button").innerHTML = options.buttonLabel;
 	
 	if (!options.explanationMessage) options.explanationMessage = "";
-	document.getElementById("explanationsection").innerHTML = options.explanationHeader + capitalize(options.explanationMessage);
+	document.getElementById("explanationsection").innerHTML = options.explanationHeader + " " + options.explanationMessage;
 
 	//setting the callback
 	document.getElementById("button").addEventListener("click", buttonClick);
 
+	/*if (options.icon) {   // #134 decided against this.
+		document.getElementById("icon").src = options.icon;
+	}*/
 	changeBodySize(options.panelSize);
 
 	try {
