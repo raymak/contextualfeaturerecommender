@@ -5,7 +5,7 @@
 "use strict";
 
 const { Cc, Ci } = require("chrome");
-let querystring = require("querystring");
+let querystring = require("sdk/querystring");
 
 let eTLDService = Cc["@mozilla.org/network/effective-tld-service;1"]
                     .getService(Ci.nsIEffectiveTLDService);
