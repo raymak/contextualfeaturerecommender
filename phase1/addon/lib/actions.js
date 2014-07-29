@@ -105,7 +105,7 @@ function recommendDLManager(download){
 	var triggerId = featurename;
 	var name = featurename;
 
-	var options = {explanationMessage: "you are a frequent downloader"};
+	var options = {explanationMessage: "you download a lot of files."};
 
 	if (count == config.DOWNLOAD_COUNT_THRESHOLD){
 
@@ -325,12 +325,12 @@ function extractSearchQuery(engine){
 
 function recommendPinTab(options){
 
-	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
+	var explanationMessage = "You visit Facebook a lot."
 
 	featuredata.set(options.featurename, "triggered", true);
 	
 	ui.showNotification({
-		message: "It seems that you frequently visit this page. You might want to pin its tab!",
+		message: "Use Pinned Tabs to keep your favorite websites open.",
 		header: "App Page",
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/pinned-tabs-keep-favorite-websites-open"},
@@ -368,10 +368,11 @@ function recommendPrivateWindow(options){
 
 	featuredata.set(options.featurename, "triggered", true);
 
-	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
+	// var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
+	var explanationMessage = "you visit adult websites a lot."
 	
 	ui.showNotification({
-	message: "You might want to view this page in a private window.",
+	message: "Viewing pages like this in a Private Window lets you avoid saving information about them.",
 	header: "Private Page",
 	reactionType: "openlinkinnewtab",
 	reactionOptions: {url: "https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info#w_how-do-i-open-a-new-private-window"},
@@ -433,7 +434,7 @@ function recommendNewTabShortcut(){
 	var triggerId = featurename;
 	var name = featurename;
 
-	var explanationMessage = "you frequently open tabs";
+	var explanationMessage = "you open tabs a lot";
 
 	if (count == config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD){
 
@@ -443,7 +444,7 @@ function recommendNewTabShortcut(){
 
 
 		ui.showNotification({
-		message: "You can also use " + info.getMetakeyStr() + "+T to open a new tab! Why don't you give it a try?",
+		message: "You can also use <strong>" + info.getMetakeyStr() + "+T</strong> to open a new tab. It's faster!",
 		header: "New Tab",
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
@@ -471,7 +472,7 @@ function recommendCloseTabShortcut(){
 	var triggerId = featurename;
 	var name = featurename;
 
-	var explanationMessage = "you frequently close tabs";
+	var explanationMessage = "you close tabs a lot.";
 
 	if (count == config.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD){
 
@@ -480,7 +481,7 @@ function recommendCloseTabShortcut(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 		ui.showNotification({
-		message: "You can also use " + info.getMetakeyStr() + "+W to close a tab!",
+		message: "You can also use <strong>" + info.getMetakeyStr() + "+W</strong> to close a tab. It's faster!",
 		header: "Close Tab",
 		reactionType: "noreaction",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
@@ -505,7 +506,7 @@ function recommendBookmarkManager(){
 	var triggerId = featurename;
 	var name = featurename;
 
-	var options = {explanationMessage: "you are a frequent bookmark user"};
+	var options = {explanationMessage: "you use bookmarks a lot."};
 
 	if (count == config.BOOKMARK_MANAGER_COUNT_THRESHOLD){
 
@@ -524,7 +525,7 @@ function recommendNewBookmarkShortcut(){
 	var triggerId = featurename;
 	var name = featurename;
 
-	var explanationMessage = "you frequently add new bookmarks";
+	var explanationMessage = "you bookmark a lot.";
 
 	if (count == config.BOOKMARK_SHORTCUT_COUNT_THRESHOLD){
 
@@ -533,7 +534,7 @@ function recommendNewBookmarkShortcut(){
 		featuredata.set(featurename, "triggered", true);
 
 		ui.showNotification({
-		message: "You can also use " + info.getMetakeyStr() + "+D to bookmark a page! Why don't you give it a try?",
+		message: "You can also use <strong>" + info.getMetakeyStr() + "+D</strong> to bookmark a page. It's faster!",
 		header: "New Bookmark",
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_bookmarks"},

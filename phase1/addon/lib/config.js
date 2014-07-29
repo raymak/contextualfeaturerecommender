@@ -30,7 +30,7 @@ exports.BOOKMARK_MANAGER_COUNT_THRESHOLD = 2;
 exports.HIDE_PANEL_AFTER_REACTION = true;
 exports.PANEL_SIZE_UNEXPLAINED = {width: 340 + 2, height: 180 + 3};
 exports.PANEL_SIZE_EXPLAINED = {width: 340 + 2, height: 210 + 3};
-exports.PANEL_EXPLANATIONHEADER = "Firefox suggests this because: ";
+exports.PANEL_EXPLANATIONHEADER = "<strong> Why? </strong>";
 
 //arm generation
 exports.DEFAULT_ARM_WEIGHTS = [1, 1, 1, 1, 1];

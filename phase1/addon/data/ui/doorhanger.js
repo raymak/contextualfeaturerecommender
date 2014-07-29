@@ -11,7 +11,8 @@ self.port.on("options", function (options){
 	document.getElementById("header").innerHTML = options.header;
 	document.getElementById("button").innerHTML = options.buttonLabel;
 	
-	document.getElementById("explanationsection").innerHTML = options.explanationHeader + options.explanationMessage;
+	if (!options.explanationMessage) options.explanationMessage = "";
+	document.getElementById("explanationsection").innerHTML = options.explanationHeader + capitalize(options.explanationMessage);
 
 	//setting the callback
 	document.getElementById("button").addEventListener("click", buttonClick);
@@ -32,6 +33,10 @@ self.port.on("options", function (options){
 
 	
 });
+
+function capitalize(string){
+	return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 function buttonClick(){
 	self.port.emit("buttonClicked");
