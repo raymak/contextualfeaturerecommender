@@ -44,28 +44,44 @@ function getLanguage(urlStr, callback){
   *
   * returns:
   *	   null / sideffect
-  */
+  *
+  * Google analytics account managed by Gareth Cull (garethc)
+  *
+  * documentation for using GA to post events:
+  * https://developers.google.com/analytics/devguides/collection/protocol/v1/devguide
+  *
+  * parameter documentation:
+  * https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#hit
+  *
+  * Note: payloads limited to 2048 bytes
+  **/
 function sendToGA(dataObject){
 	function requestCompleted(response){
 		console.log("GA REQUEST COMPLETE", response.status);
 	}
 
-	var gaFields = {"v": 1, "tid": "UA-35433268-28", "cid": "be74c5a0-143a-11e4-8c21-0800200c9a66", "t": "pageview", "experiment": "CFR", "dh": "caravela.mozillalabs.com", "custom": "newprotocol"}
-	for (var attrname in gaFields) { dataObject[attrname] = gaFields[attrname]; }
-	
-	var str = stringify(dataObject);
-	let url = config.GA_URL;  
-	console.log(url+"?"+str);
-	console.log("GA REQUEST")
-	console.log(JSON.stringify(dataObject,null,2));
+	var gaFields = {"v": 1, //static
+					"tid": "UA-35433268-28", //id of ga account for mozillalabs
+					"cid": "be74c5a0-143a-11e4-8c21-0800200c9a66", //randomly generated uuid
+					"t": "pageview", //type of hit. keep static
+					"dh": "caravela.mozillalabs.com", //subpage of mozillalabs account to get data
+					"dp": stringify(dataObject), //subpage to register pageview. required for view
+					}
 
-	var XMLReq = new request.Request({
-		url: "http://www.google-analytics.com/collect",
-		onComplete: requestCompleted,
-		content: dataObject
-	});
+	if (config.SEND_REQ_TO_GA){
+		console.log("GA REQUEST")
+		console.log(JSON.stringify(gaFields,null,2));
 
-	XMLReq.get();	
+		var XMLReq = new request.Request({
+			url: "http://www.google-analytics.com/collect",
+			onComplete: requestCompleted,
+			content: gaFields
+		});
+
+		XMLReq.get();	
+	} else {
+		console.log("not sending to GA");
+	}
 }
 
 
