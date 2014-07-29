@@ -246,7 +246,7 @@ function sendInstallInfo(){
 	var isdntenabled = genPrefs.get("privacy.donottrackheader.enabled");
 	var dntvalue = genPrefs.get("privacy.donottrackheader.value");
 	var ishistoryenabled = genPrefs.get("places.history.enabled");
-	var uiclutter = JSON.parse(genPrefs.get("browser.uiCustomization.state"));
+	// var uiclutter = JSON.parse(genPrefs.get("browser.uiCustomization.state"));
 	var activeThemeId = "none";
 	var activeThemeName = "none";
 
@@ -282,7 +282,6 @@ function sendInstallInfo(){
 						{addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
 						 activeThemeId: activeThemeId, activeThemeName: activeThemeName,
 						 searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
-						 uiclutter: uiclutter,
 						 profileAgeDays: profileAgeDays, totalActiveMs: totalActiveMs});	
 
 					OUTval.expStartTimeMs = getStartTimeMs();
