@@ -121,10 +121,6 @@ function listenForURIChanges(){
 		}
 	});
 
-	// recentWindow = getMostRecentBrowserWindow();
-	// tabBrowser = getTabBrowser(recentWindow);
-
-	// tabBrowser.addTabsProgressListener({onLocationChange: actionTriggerMap.onURIChange});
 	
 }
 
@@ -172,7 +168,15 @@ function listenForHotkeys(){
 				}
 			});
 			// CTRL + W  (close tab)
-			window.addEventListener("keydown", function(e) {if (e.keyCode == 'W'.charCodeAt(0) && e.metaKey == true) closeTabHotkey = true;});
+			window.addEventListener("keydown", function(e) {
+				if (e.keyCode == 'W'.charCodeAt(0) && e.metaKey == true) {
+					closeTabHotkey = true;
+					var name = "closetabshortcut";
+					var isrecommended = featuredata.get(name, "triggered");
+					var count = featuredata.get(name, "count");
+					utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+				}
+			});
 			// CTRL + D (new bookmark)
 			window.addEventListener("keydown", function(e) {if (e.keyCode == 'D'.charCodeAt(0) && e.metaKey == true) newBookmarkHotkey = true;});
 
@@ -204,17 +208,23 @@ function listenForNewTabButton(){
 function listenForCloseTabButton(){
 	logger.log("listeningForCloseTabButton");
 
-	tabs.on("close", function (tab) {
-		if (!closeTabHotkey)
-			actionTriggerMap.onCloseTabClicked();
-		else {
-			var name = "closetabshortcut";
-			var isrecommended = featuredata.get(name, "triggered");
-			var count = featuredata.get(name, "count");
-			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
-		}
-		closeTabHotkey = false; // set to true in listenForHotkeys
+	var windowTracker = new WindowTracker({
+		onTrack: function (window){
+
+			if (!isBrowser(window)) return;
+
+			let tabbar = window.document.getElementById("tabbrowser-tabs");
+            tabbar.addEventListener("click", function(evt){
+                if (evt.originalTarget.getAttribute("anonid") == "close-button"){
+                    console.log("close tab button click");  // do something.
+                    actionTriggerMap.onCloseTabClicked();
+ 
+                }
+            });
+
+ 		}
 	});
+
 }
 
 
