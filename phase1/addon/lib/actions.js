@@ -539,7 +539,7 @@ function recommendCloseTabShortcut(){
 		ui.showNotification({
 		message: "You can also use <strong>" + info.getMetakeyStr() + "+W</strong> to close a tab. It's faster!",
 		header: "Close Tab",
-		reactionType: "noreaction",
+		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
 		buttonLabel: "Show More",
 		id: triggerId,
