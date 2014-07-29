@@ -35,12 +35,12 @@ function userHasAddonById(id, callback){
 	});
 }
 
-function setIsFirstTime(){
-	prefs["general.isFirstTime"] = false;
+function setIsFirstTime(value){
+	prefs["general.isFirstTime"] = value;
 }
 
 function isThisFirstTime(){
-	
+
 	return (prefs["general.isFirstTime"] || !("general.isFirstTime" in prefs));
 }
 // also sets start date when called for the first time
@@ -143,11 +143,12 @@ function setDefaultNotification(){
 		});
 }
 function registerFirstTimePrefs(){
+
 	getUserId();
 	getTestMode();
 	getStartTimeMs();
 	getArm();
-	setIsFirstTime();
+	setIsFirstTime(false);
 
 }
 
@@ -165,18 +166,64 @@ function isAddonInstalled(addonId, callback){
 	});
 }
 
-function getFHRdata(){
+function getFHRdata(callback){
+
+	console.log("starting to get FHR data");
+
 	if (!FHR.reporter) return;
+
+	console.log("getting FHR data");
 
   	FHR.reporter.onInit().then(function() {
     	return FHR.reporter.collectAndObtainJSONPayload(true)
     }).then(function(data) {
-    	return parseFHRpayload(data);
+    	return parseFHRpayload(data, callback);
     });
 }
 
-function parseFHRpayload(data){
-    console.log(JSON.stringify(data, null, 2));
+function parseFHRpayload(data, callback){
+	console.log("parsing FHR payload");
+
+	var days = data.data.days;
+
+	var nowDate = new Date();
+	
+	var todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0 ,0, 0);
+	console.log(todayDate.toString());
+
+	var aMonthAgoDate = new Date(todayDate.getTime() - 30 * 24 * 3600 * 1000);
+	console.log(aMonthAgoDate.toString());
+
+	var sumMs = 0;
+	
+	var profileAgeDays = Date.now()/(86400*1000) - data.data.last["org.mozilla.profile.age"].profileCreation;
+
+	for (var key in days){
+		if (days.hasOwnProperty(key)){
+
+			var dateRegExp = new RegExp("(.*)-(.*)-(.*)");
+			var allQs = dateRegExp.exec(key);
+			// console.log(allQs[1], allQs[2], allQs[3]);
+
+			let tmpDate = new Date(days[key]);
+			let date = new Date(parseInt(allQs[1], 10), parseInt(allQs[2] - 1, 10), parseInt(allQs[3], 10), 0, 0, 0, 0);
+			// console.log(date.toString());
+
+			if (date >= aMonthAgoDate && date < todayDate)
+				if (days[key]["org.mozilla.appSessions.previous"])
+					if (days[key]["org.mozilla.appSessions.previous"].cleanActiveTicks)
+						days[key]["org.mozilla.appSessions.previous"].cleanActiveTicks.forEach(function (elm){
+									sumMs = sumMs + elm * 5 * 1000;
+						});
+
+
+		}
+	}
+	console.log("sumMs", sumMs);
+
+	callback(profileAgeDays, sumMs);
+
+    // console.log(JSON.stringify(data.data, null, 2));
     // return usage statistic
 }
 
@@ -221,23 +268,34 @@ function sendInstallInfo(){
 				addonActivities.push(addons[i].isActive);
 				if (addons[i].isActive) {activeThemeId = addons[i].id; activeThemeName = addons[i].name;}
 			}
-			
-			try {
+
+			//fhr
+			getFHRdata(function (profileAgeDays, totalActiveMs){
 				
-				OUTval = require("./utils").override(OUTval, {addonnames: addonNames, addonids: addonIds, addontypes: addonTypes, activeThemeId: activeThemeId, activeThemeName: activeThemeName, searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled, uiclutter: uiclutter});						
-				OUTval.expStartTimeMs = getStartTimeMs();
-			}
-			catch (e){
-				console.log(e.message);
-			}
+				try {
+					
+					OUTval = require("./utils").override(OUTval, 
+						{addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
+						 activeThemeId: activeThemeId, activeThemeName: activeThemeName,
+						 searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
+						 uiclutter: uiclutter,
+						 profileAgeDays: profileAgeDays, totalActiveMs: totalActiveMs});	
+
+					OUTval.expStartTimeMs = getStartTimeMs();
+				}
+				catch (e){
+					console.log(e.message);
+				}
 
 
-			try {
-				require("./utils").sendEvent(OUTtype, OUTval, OUTid);			
-			}
-			catch (e){
-				console.log(e.message);
-			}
+				try {
+					require("./utils").sendEvent(OUTtype, OUTval, OUTid);			
+				}
+				catch (e){
+					console.log(e.message);
+				}
+
+			});
 			
 
 		});
@@ -263,4 +321,5 @@ exports.getSystemInfo = getSystemInfo;
 exports.getAddonVersion = getAddonVersion;
 exports.getMetakeyStr = getMetakeyStr;
 exports.setDefaultNotification = setDefaultNotification;
+exports.setIsFirstTime = setIsFirstTime;
 exports.getArm = getArm;
