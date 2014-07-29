@@ -151,7 +151,6 @@ function listenForDownloads(){
 }
 
 //listen for when specific hotkeys are pressed
-//FLAWED: replaces the original functionlity of the hotkey 
 function listenForHotkeys(){
  	var keyTracker = new WindowTracker({
 		onTrack: function (window){
