@@ -24,8 +24,9 @@ var button;
 var panel;
 
 function init(){
+
 	if (info.getArm().ui == 'none') return;
-	
+
 	button = getButton(buttonClick);
 	panel = getPanel(button);
 

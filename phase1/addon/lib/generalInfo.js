@@ -45,8 +45,8 @@ function isThisFirstTime(){
 }
 // also sets start date when called for the first time
 function getStartTimeMs(){
-	// prefs["expStartTimeMs"] = Date.now().toString();
-	if (!isThisFirstTime()) //TODO: change this, isThisFirstTime is not a reliable method
+	
+	if (prefs["general.expStartTimeMs"]) 
 		return prefs["general.expStartTimeMs"];
 	else	{
 		prefs["general.expStartTimeMs"] = Date.now().toString(); //set for the first time
@@ -55,7 +55,7 @@ function getStartTimeMs(){
 }
 
 function getUserId(){
-	if (!isThisFirstTime()) 
+	if (prefs["general.userId"]) 
 		return prefs["general.userId"];
 	else {
 
@@ -109,7 +109,7 @@ function getArm(){
 
 	
 
-	if (!isThisFirstTime())
+	if (prefs["config.arm"])
 		return JSON.parse(prefs["config.arm"]);
 		
 	else {

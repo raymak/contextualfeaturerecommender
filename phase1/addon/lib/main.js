@@ -44,7 +44,7 @@ function lastRun(reason){
 
 function reset(){
 	console.log("Resetting...");
-	
+
 	for (var key in prefs)
 		delete prefs[key];
 }
