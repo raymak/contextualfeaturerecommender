@@ -1,4 +1,4 @@
-# Scripts and Code for Evaluation of Firefox Contextual Feature Recommender Project
+## Scripts and Code for Evaluation of Firefox Contextual Feature Recommender Project
 
 ### Description
 
