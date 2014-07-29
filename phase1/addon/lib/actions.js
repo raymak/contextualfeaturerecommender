@@ -39,13 +39,50 @@ var URLToActionMapper = {
 
 //stores basic information needed when recommending addons
 var addonData = {
-	"1click-yt-download": {name: "1-Click YouTube Video Download", link: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi", id: "YoutubeDownloader@PeterOlayev.com", featurename: "youtube"},
-	"gmail-notifier": {name: "Gmail Notifier", link: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi", id: "jid0-GjwrPchS3Ugt7xydvqVK4DQk8Ls@jetpack", featurename: "gmail"},
-	"flashgot": {name: "FlashGot Mass Downloader", link: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi", id: "{19503e42-ca3c-4c27-b1e2-9cdb2170ee34}", featurename: "download"},
-	"googletranslator": {name: "Google™ Translator", link: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi", id: "jid1-dgnIBwQga0SIBw@jetpack", featurename: "translator"},
-	"redditenhancement": {name: "Reddit Enhancement Suite", link: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi", id: "jid1-xUfzOsOFlzSOXg@jetpack", featurename: "reddit"},
-	"amazonwishlistbutton": {name: "Amazon \"Add to Wish List\" Button", link: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi", id: "amznUWL2@amazon.com", featurename: "amazon"},
-	"quickmark": {name: "Quick Mark", link: "https://addons.mozilla.org/firefox/downloads/latest/462572/addon-462572-latest.xpi", id: "jid0-QT2VXewB9xzbRlyapSJjA4ebwoU@jetpack", featurename: "newbookmark"}
+	"1click-yt-download": {
+		icon: "https://addons.cdn.mozilla.net/img/uploads/addon_icons/13/13990-64.png?modified=1393302027",
+		name: "1-Click YouTube Video Download",
+		link: "https://addons.mozilla.org/en-US/firefox/addon/1-click-youtube-video-downl/?src=featurerecommender",
+		directlink: "https://addons.mozilla.org/firefox/downloads/latest/13990/addon-13990-latest.xpi",
+		id: "YoutubeDownloader@PeterOlayev.com",
+		featurename: "youtube"
+	},
+	"gmail-notifier": {
+		name: "Gmail Notifier",
+		directlink: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi",
+		id: "jid0-GjwrPchS3Ugt7xydvqVK4DQk8Ls@jetpack",
+		featurename: "gmail"
+	},
+	"flashgot": {
+		name: "FlashGot Mass Downloader",
+		directlink: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi",
+		id: "{19503e42-ca3c-4c27-b1e2-9cdb2170ee34}",
+		featurename: "download"
+	},
+	"googletranslator": {
+		name: "Google™ Translator",
+		directlink: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi",
+		id: "jid1-dgnIBwQga0SIBw@jetpack",
+		featurename: "translator"
+	},
+	"redditenhancement": {
+		name: "Reddit Enhancement Suite",
+		directlink: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi",
+		id: "jid1-xUfzOsOFlzSOXg@jetpack",
+		featurename: "reddit"
+	},
+	"amazonwishlistbutton": {
+		name: "Amazon \"Add to Wish List\" Button",
+		directlink: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi",
+		id: "amznUWL2@amazon.com",
+		featurename: "amazon"
+	},
+	"quickmark": {
+		name: "Quick Mark",
+		directlink: "https://addons.mozilla.org/firefox/downloads/latest/462572/addon-462572-latest.xpi",
+		id: "jid0-QT2VXewB9xzbRlyapSJjA4ebwoU@jetpack",
+		featurename: "newbookmark"
+	}
 }
 
 function getAddonDataById(id){
@@ -124,16 +161,17 @@ function recommendAddon(options){
 
 	featuredata.set(options.featurename, "triggered", true);
 
-	var explanationMessage = options.extraOptions.explanationMessage || ("you visited " + options.extraOptions.hostname);
+	var explanationMessage = options.extraOptions.explanationMessage || ("you visit " + options.extraOptions.hostname);
 
 	info.userHasAddonById(addonData[options.addonID].id, function (alreadyHasAddon){
 
 	 	ui.showNotification({
-		message: "Wanna try downloading " + addonData[options.addonID].name + " ?",
-		header: "A Cool Addon",
-		reactionType: "openlinkinactivetab",
+		message: addonData[options.addonID].name + " can help you.",
+		header: "Make Firefox Yours",
+		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: addonData[options.addonID].link},
-		buttonLabel: "Install Addon",
+		buttonLabel: "tell me more",
+		icon: addonData[options.addonID].icon,
 		id: options.triggerId,
 		explanationMessage: explanationMessage,
 		ignore: alreadyHasAddon

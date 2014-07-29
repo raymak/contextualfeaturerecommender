@@ -12,12 +12,12 @@ var logger = require("./logger");
 // exports.ARM = info.getArm(); 
 
 // recommendation counts
-exports.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD = 2;
-exports.NEW_TAB_SHORTCUT_COUNT_THRESHOLD = 2;
+exports.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD = 6;
+exports.NEW_TAB_SHORTCUT_COUNT_THRESHOLD = 6;
 exports.BLUSHYPAGE_COUNT_THRESHOLD = 2;
 exports.FACEBOOK_COUNT_THRESHOLD = 2;
-exports.YOUTUBE_COUNT_THRESHOLD = 2;
-exports.DOWNLOAD_COUNT_THRESHOLD = 2;
+exports.YOUTUBE_COUNT_THRESHOLD = 4;
+exports.DOWNLOAD_COUNT_THRESHOLD = 4;
 exports.GMAIL_COUNT_THRESHOLD = 2;
 exports.REDDIT_COUNT_THRESHOLD = 2;
 exports.AMAZON_COUNT_THRESHOLD = 2;
@@ -30,7 +30,7 @@ exports.BOOKMARK_MANAGER_COUNT_THRESHOLD = 2;
 exports.HIDE_PANEL_AFTER_REACTION = true;
 exports.PANEL_SIZE_UNEXPLAINED = {width: 340 + 2, height: 180 + 3};
 exports.PANEL_SIZE_EXPLAINED = {width: 340 + 2, height: 210 + 3};
-exports.PANEL_EXPLANATIONHEADER = "<strong> Why? </strong>";
+exports.PANEL_EXPLANATIONHEADER = "<span id='whylabel'>Because </span> ";
 
 //arm generation
 exports.DEFAULT_ARM_WEIGHTS = [1, 1, 1, 1, 1];
