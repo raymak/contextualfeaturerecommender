@@ -17,9 +17,9 @@ self.port.on("options", function (options){
 	//setting the callback
 	document.getElementById("button").addEventListener("click", buttonClick);
 
-	if (options.icon) {
+	/*if (options.icon) {   // #134 decided against this.
 		document.getElementById("icon").src = options.icon;
-	}
+	}*/
 	changeBodySize(options.panelSize);
 
 	try {

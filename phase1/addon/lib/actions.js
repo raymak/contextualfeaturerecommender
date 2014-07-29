@@ -37,9 +37,11 @@ var URLToActionMapper = {
 	"en.wikipedia.org": wikipediaDetected, "search.yahoo.com": yahooDetected, "search.yahoo.ca": yahooDetected
 };
 
+
 //stores basic information needed when recommending addons
 var addonData = {
 	"1click-yt-download": {
+		header: "Download Videos Easily",
 		icon: "https://addons.cdn.mozilla.net/img/uploads/addon_icons/13/13990-64.png?modified=1393302027",
 		name: "1-Click YouTube Video Download",
 		link: "https://addons.mozilla.org/en-US/firefox/addon/1-click-youtube-video-downl/?src=featurerecommender",
@@ -48,42 +50,54 @@ var addonData = {
 		featurename: "youtube"
 	},
 	"gmail-notifier": {
+		header: "Make Gmail Easier",
 		name: "Gmail Notifier",
+		link: "https://addons.mozilla.org/en-US/firefox/addon/gmail-notifier-restartless/?src=featurerecommender",
 		directlink: "https://addons.mozilla.org/firefox/downloads/latest/406178/addon-406178-latest.xpi",
 		id: "jid0-GjwrPchS3Ugt7xydvqVK4DQk8Ls@jetpack",
 		featurename: "gmail"
 	},
 	"flashgot": {
+		header: "Downloads Made Easy",
 		name: "FlashGot Mass Downloader",
+		link: "https://addons.mozilla.org/en-US/firefox/addon/flashgot/?src=featurerecommender",
 		directlink: "https://addons.mozilla.org/firefox/downloads/latest/220/addon-220-latest.xpi",
 		id: "{19503e42-ca3c-4c27-b1e2-9cdb2170ee34}",
 		featurename: "download"
 	},
 	"googletranslator": {
+		header: "Translate It",
 		name: "Google™ Translator",
+		link: "https://addons.mozilla.org/en-US/firefox/addon/google-translator/?src=featurerecommender",
 		directlink: "https://addons.mozilla.org/firefox/downloads/latest/493406/addon-493406-latest.xpi",
 		id: "jid1-dgnIBwQga0SIBw@jetpack",
 		featurename: "translator"
 	},
 	"redditenhancement": {
+		header: "Awesome Up Reddit",
 		name: "Reddit Enhancement Suite",
+		link: "https://addons.mozilla.org/en-US/firefox/addon/reddit-enhancement-suite/?src=featurerecommender",
 		directlink: "https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi",
 		id: "jid1-xUfzOsOFlzSOXg@jetpack",
 		featurename: "reddit"
 	},
 	"amazonwishlistbutton": {
+		header: "Wish List Everywhere",
 		name: "Amazon \"Add to Wish List\" Button",
+		link: "https://addons.mozilla.org/en-US/firefox/addon/add-to-amazon-wish-list-button/?src=featurerecommender",
 		directlink: "https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi",
 		id: "amznUWL2@amazon.com",
 		featurename: "amazon"
 	},
 	"quickmark": {
+		header: "Easier Bookmarking",
 		name: "Quick Mark",
+		link: "https://addons.mozilla.org/en-US/firefox/addon/quickmark/?src=featurerecommender",
 		directlink: "https://addons.mozilla.org/firefox/downloads/latest/462572/addon-462572-latest.xpi",
 		id: "jid0-QT2VXewB9xzbRlyapSJjA4ebwoU@jetpack",
 		featurename: "newbookmark"
 	}
-}
+};
 
 function getAddonDataById(id){
 	for (var prop in addonData) 
@@ -165,16 +179,18 @@ function recommendAddon(options){
 
 	info.userHasAddonById(addonData[options.addonID].id, function (alreadyHasAddon){
 
+		let info = addonData[options.addonID];
+
 	 	ui.showNotification({
-		message: addonData[options.addonID].name + " can help you.",
-		header: "Make Firefox Yours",
-		reactionType: "openlinkinnewtab",
-		reactionOptions: {url: addonData[options.addonID].link},
-		buttonLabel: "tell me more",
-		icon: addonData[options.addonID].icon,
-		id: options.triggerId,
-		explanationMessage: explanationMessage,
-		ignore: alreadyHasAddon
+		 	message: '<span id="addonname">'+info.name+'</span>' + " can help you.",
+			header: info.header || "Make Firefox Yours",
+			reactionType: "openlinkinnewtab",
+			reactionOptions: {url: addonData[options.addonID].link},
+			buttonLabel: "Show More",
+			icon: addonData[options.addonID].icon,
+			id: options.triggerId,
+			explanationMessage: explanationMessage,
+			ignore: alreadyHasAddon
 		});
 
 
@@ -370,7 +386,7 @@ function recommendPinTab(options){
 	featuredata.set(options.featurename, "triggered", true);
 	
 	ui.showNotification({
-		message: "Use Pinned Tabs to keep your favorite websites open.",
+		message: "Use Pinned Tabs to keep your favorite sites just a click away.",
 		header: "App Page",
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/pinned-tabs-keep-favorite-websites-open"},
