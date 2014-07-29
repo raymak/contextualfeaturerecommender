@@ -44,14 +44,9 @@ function lastRun(reason){
 
 function reset(){
 	console.log("resetting");
-
-	delete prefs["config.test_mode"];
-	delete prefs["featureData.dataObject"];
-	delete prefs["general.expStartTimeMs"];
-	delete prefs["general.isFirstTime"];
-	delete prefs["general.userId"];
-	delete prefs["lastRecommendation"];
-	delete prefs["config.arm"];
+	for (var key in prefs)
+		if (prefs.hasOwnProperty(key))
+			delete prefs[key];
 }
 
 //start listening when button is clicked

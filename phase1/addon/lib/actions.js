@@ -71,7 +71,7 @@ function mapActiveURLToAction(aBrowser, aWebProgress, aRequest, aLocation){
 		var hostname = URL(tab.url).hostname;
 		logger.log(hostname);
 
-		if (!hostname) return;
+		if (!hostname) return;  //to handle new tabs and blank pages
 
 		if (hostname in URLToActionMapper) {
 			URLToActionMapper[hostname]({hostname: hostname});

@@ -177,9 +177,13 @@ function getFHRdata(callback){
   	FHR.reporter.onInit().then(function() {
     	return FHR.reporter.collectAndObtainJSONPayload(true)
     }).then(function(data) {
-    	return parseFHRpayload(data, callback);
+    	parseFHRpayload(data, callback);
     });
 }
+
+// parses the fhr 'data' object and calls the callback function when the result is ready.
+// callback(profileAgeDays, sumMs)
+// https://github.com/raymak/contextualfeaturerecommender/issues/136
 
 function parseFHRpayload(data, callback){
 	console.log("parsing FHR payload");
@@ -289,6 +293,9 @@ function sendInstallInfo(){
 
 
 				try {
+
+					//Actually sending the GA Message
+
 					require("./utils").sendEvent(OUTtype, OUTval, OUTid);			
 				}
 				catch (e){
