@@ -437,7 +437,7 @@ function recommendPrivateWindow(options){
 	explanationMessage: explanationMessage
 	});
 
-	utils.sendOfferingEvent(config.TYPE_OFFERING_PRIVATEWINDOW, options, triggerId);
+	utils.sendOfferingEvent(config.TYPE_OFFERING_PRIVATEWINDOW, options, options.triggerId);
 }
 
 
