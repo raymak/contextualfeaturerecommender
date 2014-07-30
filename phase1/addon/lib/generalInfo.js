@@ -246,6 +246,9 @@ function sendInstallInfo(){
 	var isdntenabled = genPrefs.get("privacy.donottrackheader.enabled");
 	var dntvalue = genPrefs.get("privacy.donottrackheader.value");
 	var ishistoryenabled = genPrefs.get("places.history.enabled");
+	var browsertabsremote = genPrefs.get("browser.tabs.remote");
+	var browsertabsremoteautostart = genPrefs.get("browser.tabs.remote.autostart");
+
 	// var uiclutter = JSON.parse(genPrefs.get("browser.uiCustomization.state"));
 	var activeThemeId = "none";
 	var activeThemeName = "none";
@@ -282,7 +285,9 @@ function sendInstallInfo(){
 						{addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
 						 activeThemeId: activeThemeId, activeThemeName: activeThemeName,
 						 searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
-						 profileAgeDays: profileAgeDays, totalActiveMs: totalActiveMs});	
+						 profileAgeDays: profileAgeDays, totalActiveMs: totalActiveMs,
+						 browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart
+						});	
 
 					OUTval.expStartTimeMs = getStartTimeMs();
 				}
