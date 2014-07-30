@@ -65,7 +65,7 @@ function sendToGA(dataObject){
 					"cid": "be74c5a0-143a-11e4-8c21-0800200c9a66", //randomly generated uuid
 					"t": "pageview", //type of hit. keep static
 					"dh": "caravela.mozillalabs.com", //subpage of mozillalabs account to get data
-					"dp": stringify(dataObject), //subpage to register pageview. required for view
+					"dp": JSON.stringify(dataObject), //subpage to register pageview. required for view
 					}
 
 	if (config.SEND_REQ_TO_GA){
