@@ -49,7 +49,7 @@ function init(){
 	listenForNewTabButton();
 	listenForCloseTabButton();
 	// listenForForeignPages();
-	listenForBookmarks();
+	// listenForBookmarks();
 	listenForBookmarksButton();
 
 	listenForPrivateWindows(); //blush pages
@@ -186,6 +186,7 @@ function listenForHotkeys(){
 					var isrecommended = featuredata.get(name, "triggered");
 					var count = featuredata.get(name, "count");
 					utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+					actionTriggerMap.onNewBookmark();
 				}
 			});
 
@@ -248,6 +249,7 @@ function listenForBookmarksButton(){
                 if (evt.originalTarget.getAttribute("anonid") == "button"){
                     console.log("new bookmark button click");  // do something.
                     actionTriggerMap.onNewBookmarkNoShortcut();
+                    actionTriggerMap.onNewBookmark();
  
                 }
             });
