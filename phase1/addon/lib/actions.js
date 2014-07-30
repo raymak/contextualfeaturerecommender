@@ -428,7 +428,7 @@ function recommendPrivateWindow(options){
 	var explanationMessage = "you visit adult websites a lot."
 	
 	ui.showNotification({
-	message: "Viewing pages like this in a Private Window lets you avoid saving information about them.",
+	message: "Viewing pages in a Private Window lets you avoid saving information about them.",
 	header: "Private Page",
 	reactionType: "openlinkinnewtab",
 	reactionOptions: {url: "https://support.mozilla.org/en-US/kb/private-browsing-browse-web-without-saving-info#w_how-do-i-open-a-new-private-window"},

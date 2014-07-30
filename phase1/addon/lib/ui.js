@@ -40,7 +40,7 @@ function getButton(clickHandler){
 		icon: {
 			"16": "./ui/icons/lightbulb_bw.png"
 		},
-		onClick: buttonClick
+		onClick: clickHandler
 		// onChange: buttonChange
 	});
 }
