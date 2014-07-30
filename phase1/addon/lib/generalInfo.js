@@ -152,7 +152,7 @@ function registerFirstTimePrefs(){
 
 }
 
-function getMetakeyStr(){
+function getCommandkeyStr(){
 	return (getSystemInfo().os == "darwin" ? "Command" : "CTRL");
 }
 
@@ -325,7 +325,7 @@ exports.getLocale = getLocale;
 exports.getUpdateChannel = getUpdateChannel;
 exports.getSystemInfo = getSystemInfo;
 exports.getAddonVersion = getAddonVersion;
-exports.getMetakeyStr = getMetakeyStr;
+exports.getCommandkeyStr = getCommandkeyStr;
 exports.setDefaultNotification = setDefaultNotification;
 exports.setIsFirstTime = setIsFirstTime;
 exports.getArm = getArm;

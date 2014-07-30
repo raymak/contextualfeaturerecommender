@@ -500,7 +500,7 @@ function recommendNewTabShortcut(){
 
 
 		ui.showNotification({
-		message: "You can also use <strong>" + info.getMetakeyStr() + "+T</strong> to open a new tab. It's faster!",
+		message: "You can also use <strong>" + info.getCommandkeyStr() + "+T</strong> to open a new tab. It's faster!",
 		header: "New Tab",
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
@@ -537,7 +537,7 @@ function recommendCloseTabShortcut(){
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
 		ui.showNotification({
-		message: "You can also use <strong>" + info.getMetakeyStr() + "+W</strong> to close a tab. It's faster!",
+		message: "You can also use <strong>" + info.getCommandkeyStr() + "+W</strong> to close a tab. It's faster!",
 		header: "Close Tab",
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"},
@@ -590,7 +590,7 @@ function recommendNewBookmarkShortcut(){
 		featuredata.set(featurename, "triggered", true);
 
 		ui.showNotification({
-		message: "You can also use <strong>" + info.getMetakeyStr() + "+D</strong> to bookmark a page. It's faster!",
+		message: "You can also use <strong>" + info.getCommandkeyStr() + "+D</strong> to bookmark a page. It's faster!",
 		header: "New Bookmark",
 		reactionType: "openlinkinnewtab",
 		reactionOptions: {url: "https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_bookmarks"},

@@ -16,6 +16,7 @@ var chrome = require("chrome");
 var {WindowTracker} = require("sdk/deprecated/window-utils");
 var utils = require("./utils");
 var featuredata = require("./featuredata");
+var info = require("./generalInfo");
 const {Cu, Cc, Ci} = require("chrome");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
@@ -159,7 +160,7 @@ function listenForHotkeys(){
 			
 			// CTRL + T (new tab)
 			window.addEventListener("keydown", function(e) {
-				if (e.keyCode == 'T'.charCodeAt(0) && e.metaKey == true){
+				if (e.keyCode == 'T'.charCodeAt(0) && (info.getSystemInfo().os == "darwin" && e.metaKey == true || info.getSystemInfo().os != "darwin" && e.ctrlKey == true)){
 					newTabHotkey = true;
 					var name = "newtabshortcut";
 					var isrecommended = featuredata.get(name, "triggered");
@@ -169,7 +170,7 @@ function listenForHotkeys(){
 			});
 			// CTRL + W  (close tab)
 			window.addEventListener("keydown", function(e) {
-				if (e.keyCode == 'W'.charCodeAt(0) && e.metaKey == true) {
+				if (e.keyCode == 'W'.charCodeAt(0) && (info.getSystemInfo().os == "darwin" && e.metaKey == true || info.getSystemInfo().os != "darwin" && e.ctrlKey == true)) {
 					closeTabHotkey = true;
 					var name = "closetabshortcut";
 					var isrecommended = featuredata.get(name, "triggered");
@@ -179,7 +180,7 @@ function listenForHotkeys(){
 			});
 			// CTRL + D (new bookmark)
 			window.addEventListener("keydown", function(e) {
-				if (e.keyCode == 'D'.charCodeAt(0) && e.metaKey == true){
+				if (e.keyCode == 'D'.charCodeAt(0) && (info.getSystemInfo().os == "darwin" && e.metaKey == true || info.getSystemInfo().os != "darwin" && e.ctrlKey == true)){
 					newBookmarkHotkey = true;
 					var name = "newbookmarkshortcut";
 					var isrecommended = featuredata.get(name, "triggered");
