@@ -49,6 +49,7 @@ function init(){
 	listenForCloseTabButton();
 	// listenForForeignPages();
 	listenForBookmarks();
+	listenForBookmarksButton();
 
 	listenForPrivateWindows(); //blush pages
 	listenForPinnedTabs();
@@ -177,7 +178,15 @@ function listenForHotkeys(){
 				}
 			});
 			// CTRL + D (new bookmark)
-			window.addEventListener("keydown", function(e) {if (e.keyCode == 'D'.charCodeAt(0) && e.metaKey == true) newBookmarkHotkey = true;});
+			window.addEventListener("keydown", function(e) {
+				if (e.keyCode == 'D'.charCodeAt(0) && e.metaKey == true){
+					newBookmarkHotkey = true;
+					var name = "newbookmarkshortcut";
+					var isrecommended = featuredata.get(name, "triggered");
+					var count = featuredata.get(name, "count");
+					utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
+				}
+			});
 
 
 		}
@@ -226,6 +235,25 @@ function listenForCloseTabButton(){
 
 }
 
+function listenForBookmarksButton(){
+	var windowTracker = new WindowTracker({
+		onTrack: function (window){
+
+			if (!isBrowser(window)) return;
+
+			let tabbar = window.document.getElementById("bookmarks-menu-button");
+            tabbar.addEventListener("click", function(evt){
+
+                if (evt.originalTarget.getAttribute("anonid") == "button"){
+                    console.log("new bookmark button click");  // do something.
+                    actionTriggerMap.onNewBookmarkNoShortcut();
+ 
+                }
+            });
+
+ 		}
+	});
+}
 
 function listenForBookmarks(){
 
@@ -242,16 +270,6 @@ function listenForBookmarks(){
 	    this._inBatch = false;
 	  },
 	  onItemAdded: function(id, folder, index) {
-	  	//check if keyboard shortcut was used
-	  	if (!newBookmarkHotkey)
-	  		actionTriggerMap.onNewBookmarkNoShortcut();
-	  	else {
-	  		var name = "newbookmarkshortcut";
-			var isrecommended = featuredata.get(name, "triggered");
-			var count = featuredata.get(name, "count");
-			utils.sendSecondaryListenerEvent({name: name, recommended: isrecommended, count: count}, name);
-	  	}
-	  	newBookmarkHotkey = false;	//set to true in listenForHotkeys
 
 	  	actionTriggerMap.onNewBookmark();
 
