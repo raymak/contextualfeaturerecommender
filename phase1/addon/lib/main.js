@@ -51,7 +51,7 @@ function reset(){
 
 //start listening when button is clicked
 var main = exports.main = function (options, callbacks){
-
+	console.log(require("sdk/self").data.url());
 	
 	var reason = options.loadReason;
 
