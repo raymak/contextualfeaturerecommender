@@ -19,7 +19,7 @@ const RANDOM_DEPLOY_PREFIX = "extensions.testpilot.deploymentRandomizer";
 const RANDOM = "up-research";
 // Configure the Installer
 const ADDON_ID = "featurerecommender@insights.mozilla.com";
-const ADDON_URL = "https://testpilot.mozillalabs.com/addons/featurerecommender.xpi"; //CHANGE TO PROPER HOST
+const ADDON_URL = "https://testpilot.mozillalabs.com/addons/featurerecommender-testpilot.xpi"; //CHANGE TO PROPER HOST
 
 let modules = {};
 Cu.import("resource://gre/modules/AddonManager.jsm", modules);
