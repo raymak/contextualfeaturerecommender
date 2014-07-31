@@ -105,9 +105,11 @@ function showNotification(options){
 	populatePanel(lastRecommendationOptions);
 
 	if (!options.hidePanel){
-		panel.show({
-			position: button
-		});
+		require("sdk/timers").setTimeout(function (){ 
+			panel.show({
+				position: button
+			});
+		}, 0);
 	}
 }
 
