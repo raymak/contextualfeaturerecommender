@@ -6,6 +6,7 @@ VERSION ?= $(shell python -c "import json;print json.load(open('package.json'))[
 TOP ?= $(shell pwd)
 FOX=Aurora
 NAME=featurerecommender
+TPNAME=featurerecommender-testpilot
 
 REMOTEMACHINE=testpilot1.webapp.scl3.mozilla.com
 REMOTEDIR=/data/www/testpilotweb/addons
@@ -50,17 +51,20 @@ deps:
 
 addon: deps
 	cd $(TOP)
-	rm -f $(NAME).xpi $(NAME).update.rdf
+	rm -f $(TPNAME).xpi $(TPNAME).update.rdf
 	cfx xpi \
-		--update-link https://testpilot.mozillalabs.com/addons/$(NAME).xpi \
-		--update-url https://testpilot.mozillalabs.com/addons/$(NAME).rdf $(OPTS)
+		--update-link https://testpilot.mozillalabs.com/addons/$(TPNAME).xpi \
+		--update-url https://testpilot.mozillalabs.com/addons/$(TPNAME).rdf $(OPTS)
+	mv $(NAME).xpi $(TPNAME).xpi
+	mv $(NAME).update.rdf $(TPNAME).update.rdf
 
 backup:
-	ssh $(WHO)$(REMOTEMACHINE) 'cd $(REMOTEDIR); if [ -e "$(NAME).xpi" ]; then mv "$(NAME).xpi" "$(NAME).xpi.old"; fi;  if [ -e "$(NAME).update.rdf" ]; then mv "$(NAME).update.rdf" "$(NAME).update.rdf.old"; fi;'
+	ssh $(WHO)$(REMOTEMACHINE) 'cd $(REMOTEDIR); if [ -e "$(NAME).xpi" ]; then mv "$(TPNAME).xpi" "$(TPNAME).xpi.old"; fi;  if [ -e "$(TPNAME).update.rdf" ]; then mv "$(TPNAME).update.rdf" "$(TPNAME).update.rdf.old"; fi;'
 
 deploy: addon backup
 	cd $(TOP)
-	scp -rp $(NAME).update.rdf $(NAME).xpi $(WHO)$(REMOTEMACHINE):$(REMOTEDIR)/
+	scp -rp $(TPNAME).update.rdf $(TPNAME).xpi $(WHO)$(REMOTEMACHINE):$(REMOTEDIR)/
+
 
 
 # doesn't quite work (permissions)
