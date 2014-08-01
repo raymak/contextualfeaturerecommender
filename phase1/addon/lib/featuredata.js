@@ -11,7 +11,11 @@ const featureObjectAddress = "featureData.dataObject";
 
 
 
-var featuredata = {
+
+
+function firstTimeInitialize(){
+	
+	var featuredata = {
 	//featurename: dataobject
 	closetabshortcut: {count: 0, triggered: false},
 	newbookmark: {count: 0, triggered: false},
@@ -26,12 +30,12 @@ var featuredata = {
 	gmail: {count: 0, triggered: false},
 	reddit: {count: 0, triggered: false}
 
+	};
+	writeToPrefs(featuredata);
+}
 
-};
 
-writeToPrefs();
-
-function writeToPrefs(){
+function writeToPrefs(featuredata){
 	prefs[featureObjectAddress] = JSON.stringify(featuredata);
 }
 
@@ -41,7 +45,7 @@ function getFromPrefs(){
 
 function get(feat, prop){
 	
-	featuredata = getFromPrefs();
+	var featuredata = getFromPrefs();
 
 	if (!featuredata.hasOwnProperty(feat))
 		throw new Error("feature " + feat + " does not exist in featuredata");
@@ -51,11 +55,13 @@ function get(feat, prop){
 
 function set(feat, prop, val){
 
+	var featuredata = getFromPrefs();
+
 	if (!featuredata.hasOwnProperty(feat))
 		throw new Error("feature " + feat + " does not exist in featuredata");
 	else {
 		featuredata[feat][prop] = val;
-		writeToPrefs();
+		writeToPrefs(featuredata);
 	}
 		
 }
@@ -65,3 +71,4 @@ function set(feat, prop, val){
 // exports.getFromPrefs = getFromPrefs;
 exports.get = get;
 exports.set = set;
+exports.firstTimeInitialize = firstTimeInitialize;
