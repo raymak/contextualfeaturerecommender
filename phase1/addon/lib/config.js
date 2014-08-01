@@ -71,4 +71,4 @@ exports.TYPE_INSTALL = "INSTALL";
 exports.ID_NA = "NA";
 
 exports.GA_URL = "https://addons.allizom.org/";
-exports.SEND_REQ_TO_GA = false;
+exports.SEND_REQ_TO_GA = true;
