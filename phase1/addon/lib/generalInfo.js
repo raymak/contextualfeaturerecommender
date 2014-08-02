@@ -17,6 +17,7 @@ var arms = require("./arms");
 var ui = require("./ui");
 var tabs = require("sdk/tabs");
 var FHR = require("./FHR");
+var featuredata = require("./featuredata");
 
 
 function getAddons(callback){
@@ -148,6 +149,7 @@ function registerFirstTimePrefs(){
 	getTestMode();
 	getStartTimeMs();
 	getArm();
+	featuredata.firstTimeInitialize();
 	setIsFirstTime(false);
 
 }
