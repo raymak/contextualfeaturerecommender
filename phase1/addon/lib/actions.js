@@ -143,6 +143,8 @@ function minorTriggerCount(featurename){
 	count ++;
 	featuredata.set(featurename, "count", count);
 
+	var isrecommended = featuredata.get(featurename, "triggered");
+
 	utils.sendMinorTriggerEvent({count: count}, featurename);
 	
 	return count;
