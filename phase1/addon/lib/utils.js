@@ -68,7 +68,7 @@ function sendToGA(dataObject){
 					"dp": JSON.stringify(dataObject), //subpage to register pageview. required for view
 					}
 
-	if (config.SEND_REQ_TO_GA){
+	if (info.getSendData()){
 		console.log("GA REQUEST")
 		console.log(JSON.stringify(gaFields,null,2));
 

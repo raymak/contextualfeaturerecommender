@@ -73,13 +73,26 @@ function getTestMode(){
 	else
 		if (!( "config.test_mode" in prefs)){
 			// throw Error("test_mode state not specified properly. use --static-args to define set .test_mode to either \"true\" or \"false\"");
-			prefs["config.test_mode"] = false;
+			prefs["config.test_mode"] = true;  //true by default
 		}
 
 	logger.log("TEST_MODE = " + prefs["config.test_mode"]);	
 	
 	return prefs["config.test_mode"];
 
+}
+
+function getSendData(){
+	if ("send_data" in system.staticArgs)
+		prefs["config.send_data"] = system.staticArgs.send_data;
+	else
+		if (!("config.send_data" in prefs)){
+			prefs["config.send_data"] = true;   //true by default 
+	}
+
+	logger.log("SEND_DATA = " + prefs["config.send_data"]);
+
+	return prefs["config.send_data"];
 }
 
 function getLocale(){
@@ -147,6 +160,7 @@ function registerFirstTimePrefs(){
 
 	getUserId();
 	getTestMode();
+	getSendData();
 	getStartTimeMs();
 	getArm();
 	featuredata.firstTimeInitialize();
@@ -328,6 +342,7 @@ exports.isThisFirstTime = isThisFirstTime;
 exports.sendInstallInfo = sendInstallInfo;
 exports.getUserId = getUserId;
 exports.getTestMode = getTestMode;
+exports.getSendData = getSendData;
 exports.getLocale = getLocale;
 exports.getUpdateChannel = getUpdateChannel;
 exports.getSystemInfo = getSystemInfo;
