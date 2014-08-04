@@ -34,11 +34,11 @@ function firstRun(){
 	
 }
 
-function lastRun(reason){
+function lastRun(reason, lastTriggerId){
 
 	//send last call
 	logger.log("lastRun called");
-	utils.sendLastCallEvent(reason);
+	utils.sendLastCallEvent(reason, lastTriggerId);
 }
 
 
@@ -84,7 +84,7 @@ var main = exports.main = function (options, callbacks){
 var onUnload = exports.onUnload = function (reason){
 	utils.sendLoadEvent(reason);
 	if (reason == 'uninstall' || reason == 'disable'){
-		lastRun(reason);
+		lastRun(reason, ui.getLastRecommendationOptions().id);
 	}
 
 }

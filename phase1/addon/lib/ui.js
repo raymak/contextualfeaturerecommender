@@ -31,12 +31,14 @@ function init(){
 	panel = getPanel(button);
 
 	updateButtonIconState();
+
+	require("./buttonMove").init();
 }
 
 function getButton(clickHandler){
 	return ActionButton({
-		id: "init-button",
-		label: "Press Me!",
+		id: "panel-button",
+		label: "Recommend Feature",
 		icon: {
 			"16": "./ui/icons/lightbulb_bw.png"
 		},
@@ -255,4 +257,5 @@ function sendReactionEvent(options){
 
 exports.updateButtonIconState = updateButtonIconState;
 exports.showNotification = showNotification;
+exports.getLastRecommendationOptions = getLastRecommendationOptions;
 exports.init = init;

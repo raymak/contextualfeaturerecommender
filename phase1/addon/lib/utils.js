@@ -150,10 +150,10 @@ function sendLoadEvent(reason){
 	sendEvent(OUTtype, OUTval, OUTid);
 }
 
-function sendLastCallEvent(reason){
+function sendLastCallEvent(reason, lastTriggerId){
 	var OUTtype = config.TYPE_LAST_CALL;
 	var OUTval = {reason: reason};
-	var OUTid = config.ID_NA;
+	var OUTid = lastTriggerId;
 
 	sendEvent(OUTtype, OUTval, OUTid);
 }
