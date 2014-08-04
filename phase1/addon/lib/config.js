@@ -4,7 +4,7 @@
  */
 
 "use strict";
-var system = require("sdk/system");
+var system = require("sdk/system");	
 var logger = require("./logger");
 
 
@@ -14,11 +14,11 @@ var logger = require("./logger");
 // recommendation counts
 exports.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD = 6;
 exports.NEW_TAB_SHORTCUT_COUNT_THRESHOLD = 6;
-exports.BLUSHYPAGE_COUNT_THRESHOLD = 2;
-exports.FACEBOOK_COUNT_THRESHOLD = 2;
+exports.BLUSHYPAGE_COUNT_THRESHOLD = 8;
+exports.FACEBOOK_COUNT_THRESHOLD = 6;
 exports.YOUTUBE_COUNT_THRESHOLD = 4;
 exports.DOWNLOAD_COUNT_THRESHOLD = 4;
-exports.GMAIL_COUNT_THRESHOLD = 2;
+exports.GMAIL_COUNT_THRESHOLD = 4;
 exports.REDDIT_COUNT_THRESHOLD = 2;
 exports.AMAZON_COUNT_THRESHOLD = 2;
 exports.NEW_BOOKMARK_COUNT_THRESHOLD = 2;
