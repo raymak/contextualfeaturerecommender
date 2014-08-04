@@ -8,6 +8,8 @@ FOX=Aurora
 NAME=featurerecommender
 TPNAME=featurerecommender-testpilot
 
+ADDONFORTESTNAME=featurerecommender-testaddon
+
 REMOTEMACHINE=testpilot1.webapp.scl3.mozilla.com
 REMOTEDIR=/data/www/testpilotweb/addons
 
@@ -23,6 +25,9 @@ define HELPDOC
   test      - calls both 'simple' and 'complex' tests
   addon     - make the addon, and the update.rdf
   deploy    - push the addon to testpilot server
+
+  test-complex - complicated tests with setup
+  test-code-only - simple tests
 
 = variables =
 
@@ -58,6 +63,15 @@ addon: deps
 	mv $(NAME).xpi $(TPNAME).xpi
 	mv $(NAME).update.rdf $(TPNAME).update.rdf
 
+addon-for-tests: deps
+	cd $(TOP)
+	rm -f $(ADDONFORTESTNAME).xpi $(ADDONFORTESTNAME).update.rdf
+	cfx xpi \
+		--static-args='{"test_mode": true, "arm_weights":[0,0,1,0,0]}' \
+		$(OPTS)
+	mv $(NAME).xpi $(ADDONFORTESTNAME).xpi
+	@#mv $(NAME).update.rdf $(ADDONFORTESTNAME).update.rdf
+
 backup:
 	ssh $(WHO)$(REMOTEMACHINE) 'cd $(REMOTEDIR); if [ -e "$(NAME).xpi" ]; then mv "$(TPNAME).xpi" "$(TPNAME).xpi.old"; fi;  if [ -e "$(TPNAME).update.rdf" ]; then mv "$(TPNAME).update.rdf" "$(TPNAME).update.rdf.old"; fi;'
 
@@ -72,10 +86,15 @@ deploy: addon backup
 #	ssh $(WHO)$(REMOTEMACHINE) 'cd $(REMOTEDIR); if [ -e "$(NAME).xpi.#old" ]; then mv "$(NAME).xpi.old" "$(NAME).xpi"; fi;  if [ -e "$#(NAME).update.rdf.old" ]; then mv "$(NAME).update.rdf.old" "$(#NAME).update.rdf"; fi;'
 
 
-#.phony test-complex: test-all-arms-work test-study-dies test-mutex-timing test-elig-claimed
-#
-#
+.phony test-complex: test-contracts-across-restart
+
+
 ## NOTE: some of these 'include' the addon at startup, some don't.
+test-contracts-across-restart:  addon-for-tests
+	cd $(TOP)/test/contracts-across-restart &&\
+	(cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox \
+	--static-args '{"addon":"$(TOP)/$(ADDONFORTESTNAME).xpi"}')
+
 #test-all-arms-work:  addon
 #	cd $(TOP)/test/all-arms-work &&\
 #	ln -fs $(TOP)/lib/arms.js . &&\
@@ -98,12 +117,13 @@ deploy: addon backup
 #	--static-args '{"addon":"$(TOP)/search-test-phase-1.xpi"}' ;
 #
 #
-#test: deps test-complex test-code-only
-#
-#test-code-only:
-#	cd $(TOP) &&\
-#	(cfx test $(OPTS)  -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox)
-#
+
+test: deps test-complex test-code-only
+
+test-code-only:
+	cd $(TOP) &&\
+	cfx test $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox
+
 #experiment:
 #	cat $(TOP)/../experiment/deploy.txt
 #
