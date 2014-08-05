@@ -95,6 +95,8 @@ function listenForAddonInstalls(){
 
 			console.log("new addon installed");
 
+			utils.sendAddonInstallEvent({id: addon.id});
+
 			var matchedAddonData = actions.getAddonDataById(addon.id);
 
 			if (matchedAddonData){

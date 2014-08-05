@@ -139,7 +139,15 @@ function sendSecondaryListenerEvent(value, triggerId){
 	var OUTval = value;
 	var OUTid = triggerId;
 
-	sendEvent(OUTtype, OUTval, OUTid)
+	sendEvent(OUTtype, OUTval, OUTid);
+}
+
+function sendAddonInstallEvent(value){
+	var OUTtype = config.TYPE_ADDON_INSTALL;
+	var OUTval = value;
+	var OUTid = config.ID_NA;
+
+	sendEvent(OUTtype, OUTval, OUTid);
 }
 
 function sendLoadEvent(reason){
@@ -184,6 +192,7 @@ exports.override = override;
 exports.sendEvent = sendEvent;
 exports.sendOfferingEvent = sendOfferingEvent;
 exports.sendTriggerEvent = sendTriggerEvent;
+exports.sendAddonInstallEvent = sendAddonInstallEvent;
 exports.sendLoadEvent = sendLoadEvent;
 exports.sendLastCallEvent = sendLastCallEvent;
 exports.sendMinorTriggerEvent = sendMinorTriggerEvent;

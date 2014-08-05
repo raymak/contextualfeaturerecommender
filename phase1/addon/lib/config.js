@@ -61,6 +61,7 @@ exports.TYPE_PANEL_SHOW = "PANELSHOW";
 exports.TYPE_PANEL_HIDE = "PANELHIDE";
 exports.TYPE_LOAD = "LOAD";
 exports.TYPE_LAST_CALL = "LASTCALL";
+exports.TYPE_ADDON_INSTALL = "ADDONINSTALL";
 
 // offering types
 exports.TYPE_OFFERING_ADDON = "ADDON";
