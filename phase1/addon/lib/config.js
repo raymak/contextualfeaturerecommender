@@ -20,6 +20,7 @@ exports.COUNT_THRESHOLDS = {
 	facebook: 6,
 	youtube: 4,
 	download: 4,
+	translator: 2,
 	gmail: 4,
 	reddit: 2,
 	amazon: 2,
