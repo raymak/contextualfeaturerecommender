@@ -74,7 +74,7 @@ addon-tp: deps
 	cfx xpi \
 		--static-args='{"send_data": true, "test_mode": false}' \
 		--update-link https://testpilot.mozillalabs.com/addons/$(TPNAME).xpi \
-		--update-url https://testpilot.mozillalabs.com/addons/$(TPNAME).rdf $(OPTS)
+		--update-url https://testpilot.mozillalabs.com/addons/$(TPNAME).update.rdf $(OPTS)
 	mv $(NAME).xpi $(TPNAME).xpi
 	mv $(NAME).update.rdf $(TPNAME).update.rdf
 
