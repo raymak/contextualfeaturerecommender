@@ -6,7 +6,7 @@ VERSION ?= $(shell python -c "import json;print json.load(open('package.json'))[
 TOP ?= $(shell pwd)
 FOX=Aurora
 NAME=featurerecommender
-TPNAME=featurerecommender-testpilot
+TPNAME=featurerecommender2-testpilot
 
 ADDONFORTESTNAME=featurerecommender-testaddon
 
@@ -24,6 +24,8 @@ define HELPDOC
   deps      - get dependencies, if any
   test      - calls both 'simple' and 'complex' tests
   addon     - make the addon, and the update.rdf
+  addon-tp     - make the addon, and the update.rdf
+
   deploy    - push the addon to testpilot server
 
   test-complex - complicated tests with setup
@@ -54,10 +56,23 @@ deps:
 	@# wget bwclarks thing
 	@#curl https://raw.github.com/gregglind/browser-search-engine/master/lib/browser-search-engine.js > lib/browser-search-engine.js
 
+# this is the addon for tp distribution.
 addon: deps
 	cd $(TOP)
 	rm -f $(TPNAME).xpi $(TPNAME).update.rdf
 	cfx xpi \
+		--update-link https://testpilot.mozillalabs.com/addons/$(TPNAME).xpi \
+		--update-url https://testpilot.mozillalabs.com/addons/$(TPNAME).rdf $(OPTS)
+	mv $(NAME).xpi $(TPNAME).xpi
+	mv $(NAME).update.rdf $(TPNAME).update.rdf
+
+# this is the addon for tp distribution.
+addon-tp: deps
+	echo "addon-tp"
+	cd $(TOP)
+	rm -f $(TPNAME).xpi $(TPNAME).update.rdf
+	cfx xpi \
+		--static-args='{"send_data": true, "test_mode": false}' \
 		--update-link https://testpilot.mozillalabs.com/addons/$(TPNAME).xpi \
 		--update-url https://testpilot.mozillalabs.com/addons/$(TPNAME).rdf $(OPTS)
 	mv $(NAME).xpi $(TPNAME).xpi
@@ -75,7 +90,7 @@ addon-for-tests: deps
 backup:
 	ssh $(WHO)$(REMOTEMACHINE) 'cd $(REMOTEDIR); if [ -e "$(NAME).xpi" ]; then mv "$(TPNAME).xpi" "$(TPNAME).xpi.old"; fi;  if [ -e "$(TPNAME).update.rdf" ]; then mv "$(TPNAME).update.rdf" "$(TPNAME).update.rdf.old"; fi;'
 
-deploy: addon backup
+deploy: addon-tp backup
 	cd $(TOP)
 	scp -rp $(TPNAME).update.rdf $(TPNAME).xpi $(WHO)$(REMOTEMACHINE):$(REMOTEDIR)/
 
@@ -95,23 +110,23 @@ test-contracts-across-restart:  addon-for-tests
 	(cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox \
 	--static-args '{"addon":"$(TOP)/$(ADDONFORTESTNAME).xpi"}')
 
-#test-all-arms-work:  addon
+#test-all-arms-work:  addon-for-tests
 #	cd $(TOP)/test/all-arms-work &&\
 #	ln -fs $(TOP)/lib/arms.js . &&\
 #	cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox --addon $(TOP)/search-test-phase-1.xpi \
 #	--static-args '{"addon":"$(TOP)/search-test-phase-1.xpi"}' ;
 #
-#test-study-dies:  addon
+#test-study-dies:  addon-for-tests
 #	cd $(TOP)/test/study-dies &&\
 #	cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox \
 #	--static-args '{"addon":"$(TOP)/search-test-phase-1.xpi"}' ;
 #
-#test-mutex-timing:  addon
+#test-mutex-timing:  addon-for-tests
 #	cd $(TOP)/test/mutex-timing &&\
 #	cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox --addon $(TOP)/search-test-phase-1.xpi \
 #	--static-args '{"addon":"$(TOP)/search-test-phase-1.xpi"}' ;
 #
-#test-elig-claimed:  addon
+#test-elig-claimed:  addon-for-tests
 #	cd $(TOP)/test/elig-claimed &&\
 #	cfx run $(OPTS) -b /Applications/Firefox$(FOX).app/Contents/MacOS/firefox \
 #	--static-args '{"addon":"$(TOP)/search-test-phase-1.xpi"}' ;
