@@ -12,19 +12,20 @@ var logger = require("./logger");
 // exports.ARM = info.getArm(); 
 
 // recommendation counts
-exports.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD = 6;
-exports.NEW_TAB_SHORTCUT_COUNT_THRESHOLD = 6;
-exports.BLUSHYPAGE_COUNT_THRESHOLD = 8;
-exports.FACEBOOK_COUNT_THRESHOLD = 6;
-exports.YOUTUBE_COUNT_THRESHOLD = 4;
-exports.DOWNLOAD_COUNT_THRESHOLD = 4;
-exports.GMAIL_COUNT_THRESHOLD = 4;
-exports.REDDIT_COUNT_THRESHOLD = 2;
-exports.AMAZON_COUNT_THRESHOLD = 2;
-exports.NEW_BOOKMARK_COUNT_THRESHOLD = 2;
-exports.BOOKMARK_SHORTCUT_COUNT_THRESHOLD = 4;
-exports.BOOKMARK_MANAGER_COUNT_THRESHOLD = 2;
 
+exports.COUNT_THRESHOLDS = {
+	closetabshortcut: 6,
+	newtabshortcut: 6,
+	blushypage: 8,
+	facebook: 6,
+	youtube: 4,
+	download: 4,
+	gmail: 4,
+	reddit: 2,
+	amazon: 2,
+	newbookmarkshortcut: 4,
+	newbookmark: 2
+}
 
 //notification panel
 exports.HIDE_PANEL_AFTER_REACTION = true;
