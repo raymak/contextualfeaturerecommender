@@ -46,7 +46,7 @@ exports.DEFAULT_MESSAGE_URL = "https://support.mozilla.org/en-US/products/firefo
 
 // standard GA payload info
 exports.EXPERIMENT_NAME = "CFR";
-exports.EXPERIMENT_VERSION = "1.0.0";
+exports.EXPERIMENT_VERSION = "2.0.0";
 
 // exports.TEST_MODE = info.getTestMode(); //set by init()
 // exports.USER_ID = info.getUserId();
