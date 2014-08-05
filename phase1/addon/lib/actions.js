@@ -143,7 +143,14 @@ function minorTriggerCount(featurename){
 	count ++;
 	featuredata.set(featurename, "count", count);
 
-	utils.sendMinorTriggerEvent({count: count}, featurename);
+	var isrecommended = featuredata.get(featurename, "triggered");
+
+	if (isrecommended)
+		if (count > featuredata.get(featurename, "threshold") + 10)
+			if ((count - featuredata.get(featurename, "threshold")) % 10 != 0)
+				return;
+
+	utils.sendMinorTriggerEvent({count: count, isrecommended: isrecommended}, featurename);
 	
 	return count;
 }
@@ -160,7 +167,7 @@ function recommendDLManager(download){
 
 	var options = {explanationMessage: "you download a lot of files."};
 
-	if (count == config.DOWNLOAD_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
@@ -214,7 +221,7 @@ function ytDetected(options){
 	var triggerId = featurename;
 	var name = featurename;
 
-	if (count == config.YOUTUBE_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 		
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 		
@@ -231,7 +238,7 @@ function gmailDetected(options){
 	var triggerId = featurename;
 	var name = featurename;
 
-	if (count == config.GMAIL_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
@@ -256,7 +263,7 @@ function recommendTranslator(options){
 	//TODO
 	var options = require("./utils").override(options, {explanationMessage: ""});
 
-	if (count == config.TRANSLATOR_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
@@ -274,7 +281,7 @@ function redditDetected(options){
 	var triggerId = featurename;
 	var name = featurename;
 
-	if (count == config.REDDIT_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
@@ -291,7 +298,7 @@ function amazonDetected(options){
 	var triggerId = featurename;
 	var name = featurename;
 
-	if (count == config.AMAZON_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 	
@@ -411,7 +418,7 @@ function facebookDetected(options){
 	var triggerId = featurename;
 	var name = featurename;
 
-	if (count == config.FACEBOOK_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
@@ -452,7 +459,7 @@ function blushyPageDetected(options){
 		var triggerId = "blushypage";
 		var name = "blushypage";
 
-		if (count == config.BLUSHYPAGE_COUNT_THRESHOLD){
+		if (count == featuredata.get(featurename, "threshold")){
 
 			utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
@@ -492,7 +499,7 @@ function recommendNewTabShortcut(){
 
 	var explanationMessage = "you open tabs a lot";
 
-	if (count == config.NEW_TAB_SHORTCUT_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		featuredata.set(featurename, "triggered", true);
 
@@ -530,7 +537,7 @@ function recommendCloseTabShortcut(){
 
 	var explanationMessage = "you close tabs a lot.";
 
-	if (count == config.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		featuredata.set(featurename, "triggered", true);
 
@@ -564,7 +571,7 @@ function recommendBookmarkManager(){
 
 	var options = {explanationMessage: "you use bookmarks a lot."};
 
-	if (count == config.BOOKMARK_MANAGER_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);		
 		
@@ -583,7 +590,7 @@ function recommendNewBookmarkShortcut(){
 
 	var explanationMessage = "you bookmark a lot.";
 
-	if (count == config.BOOKMARK_SHORTCUT_COUNT_THRESHOLD){
+	if (count == featuredata.get(featurename, "threshold")){
 
 		utils.sendTriggerEvent({name: name, count: count}, triggerId);
 
