@@ -9,7 +9,7 @@
   	"Gregg Lind <glind@mozilla.com"],
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "license": "MPL 2.0",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "permissions": {
   	"private-browsing": true
   },
