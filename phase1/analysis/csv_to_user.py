@@ -11,9 +11,13 @@ from collections import defaultdict
 
 inds = {}
 
+counter = 0
+
 def main():
     # print inds
     parseMessages()
+
+    print counter
 
 
 
@@ -44,7 +48,6 @@ def parseMessages():
             for i in range(len(fields)):
                 inds[fields[i]] = i
                 
-            print inds
 
         else: 
             jsonrow = [json.loads(val) for val in line.split('\t')]
@@ -64,7 +67,8 @@ def parseMessages():
 
 
 def processUser(userMessages, userId):
-    print hasUserSeenRecommendation(userMessages, 'gmail')
+    
+    hasUserSeenRecommendation(userMessages, 'newbookmark')
 
 
 
@@ -93,13 +97,16 @@ def basicFilter(messagesArr):
 
     return messagesArr
 
-
+def count():
+    global counter
+    counter += 1
 
 
 def hasUserSeenRecommendation(messagesArr, featurename):
+
     for message in messagesArr:
         if message[inds['triggerid']] == featurename and message[inds['type']] == 'PANELSHOW': return True
-
+    count()
     return False
 
 
