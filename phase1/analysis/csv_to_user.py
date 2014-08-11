@@ -13,11 +13,11 @@ inds = {}
 
 counter = 0
 
+FEATURE_NAMES = ['closetabshotcut', 'newbookmar', 'newtabshortcut', 'newbookmarkshortcut', 'blushypage', 'facebook', 'amazon', 'youtube', 'download', 'gmail', 'reddit']
+
 def main():
     # print inds
     parseMessages()
-
-    print counter
 
 
 
@@ -66,9 +66,18 @@ def parseMessages():
 
 
 
-def processUser(userMessages, userId):
+def processUser(userMessagesArr, userId):
     
-    hasUserSeenRecommendation(userMessages, 'newbookmark')
+    record = {}
+
+    record['userid'] = userId
+
+    # if user has been recommended each of the features
+    
+    for featureName in FEATURE_NAMES:
+        record[featureName + '_recommended'] = hasUserSeenRecommendation(userMessagesArr, featureName)
+
+    print record
 
 
 
@@ -106,7 +115,6 @@ def hasUserSeenRecommendation(messagesArr, featurename):
 
     for message in messagesArr:
         if message[inds['triggerid']] == featurename and message[inds['type']] == 'PANELSHOW': return True
-    count()
     return False
 
 
