@@ -91,7 +91,7 @@ def parseMessages():
                 
 
         else: 
-            jsonrow = [json.loads(val) for val in line.split('\t')]
+            jsonrow = [json.loads(val) for val in line.strip().split('\t')]
             
             userId = jsonrow[inds['userid']]
             currUserId = currUserId or userId
