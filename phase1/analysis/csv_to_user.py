@@ -13,11 +13,52 @@ inds = {}
 
 counter = 0
 
-FEATURE_NAMES = ['closetabshotcut', 'newbookmar', 'newtabshortcut', 'newbookmarkshortcut', 'blushypage', 'facebook', 'amazon', 'youtube', 'download', 'gmail', 'reddit']
+
+FEATURE_NAMES = [
+'closetabshortcut',
+ 'newbookmark',
+  'newtabshortcut',
+   'newbookmarkshortcut',
+    'blushypage', 'facebook',
+     'amazon',
+      'youtube',
+       'download',
+        'gmail',
+         'reddit']
+
+RECORD_KEYS_ARR = [
+'userid',
+ 'experiment_name',
+  'addon_ver',
+   'test_mode_enabled',
+    'experiment_ver',
+     'locale',
+      'system_name',
+       'system_ver',
+        'os',
+         'arm_name',
+          'num_of_extensions',
+           'DNT_enabled',
+            'history_enabled',
+             'browsertabsremote_enabled',
+              'expstarttime_ms',
+              'theme_changed',
+               'active_theme_name',
+                'active_theme_id' 
+] + [featureName + suffix for featureName in FEATURE_NAMES 
+    for suffix in ['_recommended',
+     '_secondary_used_after',
+      '_secondary_used_before',
+       '_minor_used_after']
+       ]
+
+
 
 def main():
     # print inds
+    printHeader()
     parseMessages()
+    
 
 
 
@@ -72,27 +113,117 @@ def processUser(userMessagesArr, userId):
 
     record['userid'] = userId
 
-    # if user has been recommended each of the features
+    # common fields
+    firstMessage = userMessagesArr[0]
+    record['experiment_name'] = firstMessage[inds['experiment']]
+    record['addon_ver'] = firstMessage[inds['addon_version']]
+    record['test_mode_enabled'] = firstMessage[inds['test_mode']]
+    record['experiment_ver'] = firstMessage[inds['experiment_version']]
+    record['locale'] = firstMessage[inds['locale']]
+    record['system_name'] = firstMessage[inds['systemname']]
+    record['system_ver'] = firstMessage[inds['systemversion']]
+    record['os'] = firstMessage[inds['os']]
     
+    ##arm
+    armDict = firstMessage[inds['arm']]
+    if armDict == {'basis': 'contextual', 'explanation': 'explained', 'ui': 'doorhanger-active'}:
+        record['arm_name'] = 'explained-doorhanger-active'
+    elif armDict == {'basis': 'contextual', 'explanation': 'explained', 'ui': 'doorhanger-passive'}:
+        record['arm_name'] = 'explained-doorhanger-passive'
+    elif armDict == {'basis': 'contextual', 'explanation': 'unexplained', 'ui': 'doorhanger-active'}:
+        record['arm_name'] = 'unexplained-doorhanger-active'
+    elif armDict == {'basis': 'contextual', 'explanation': 'unexplained', 'ui': 'doorhanger-passive'}:
+        record['arm_name'] = 'unexplained-doorhanger-passive'
+    elif armDict == {'basis': 'contextual', 'explanation': 'explained', 'ui': 'none'}:
+        record['arm_name'] = 'control'
+
+
+    # first run
+    try:
+        value = getMessagesByType(userMessagesArr, 'INSTALL')[0][inds['value']]
+
+        record['num_of_extensions'] = value['addontypes'].count('extension')
+        record['DNT_enabled'] = value['isdntenabled']
+        record['history_enabled'] = value['ishistoryenabled']
+        record['browsertabsremote_enabled'] = value['browsertabsremote']
+        record['expstarttime_ms'] = value['expStartTimeMs']
+        #activity
+        record['theme_changed'] = (value['activeThemeName'] != 'Default')
+        record['active_theme_name'] = value['activeThemeName']
+        record['active_theme_id'] = value['activeThemeId']
+
+    except IndexError:
+        #TODO: filter the user
+        pass
+
+
+    # for each feature
     for featureName in FEATURE_NAMES:
-        record[featureName + '_recommended'] = hasUserSeenRecommendation(userMessagesArr, featureName)
 
-    print record
+        # get only the messsages related to this feature
+        featMessagesArr = getMessagesByTriggerId(userMessagesArr, featureName)
+
+        # if user has been recommended the feature
+        record[featureName + '_recommended'] = hasUserSeenRecommendation(featMessagesArr, featureName)
+
+        # if secondary listeners have been triggered before and after recommendation
+        record[featureName + '_secondary_used_after'] = len(getMessagesByPropertyInValue(
+            getMessagesByType(featMessagesArr, 'SECONDARYLISTENER'),
+            'recommended',
+            True)) > 0
+
+        record[featureName + '_secondary_used_before'] = len(
+            getMessagesByPropertyInValue(getMessagesByType(
+            featMessagesArr, 'SECONDARYLISTENER'),
+            'recommended',
+            False)) > 0
+
+        # number of minor triggers after recommendation
+        record[featureName + '_minor_used_after'] = len(getMessagesByPropertyInValue(
+            getMessagesByType(featMessagesArr, 'MINORTRIGGER'), 
+            'isrecommended',
+            True)) > 0
+
+    printRow(record)   
+
+def printHeader():
+    print '\t'.join(RECORD_KEYS_ARR)
+
+def printRow(rowDict):
+
+    rowStr = ""
+    
+    for key in RECORD_KEYS_ARR:
+        elm = rowDict.get(key)
+        rowStr += json.dumps(elm) + '\t'
+
+    print rowStr
 
 
 
+def getMessagesByType(messagesArr, type):
+
+    result = [message for message in messagesArr 
+        if message[inds['type']] == type]
+
+    return result
 
 
+def getMessagesByPropertyInValue(messagesArr, propName, propValue):
 
-# returns a dictionary with the userid as its key and the array of messages of
-# a user as its value
-def getMessagesByUserIds(messagesArr):
-    messagesDict = defaultdict(list)
+    result = [message for message in messagesArr 
+        if message[inds['value']][propName] == propValue]
 
-    for message in messagesArr:
-        messagesDict[message['userid']].append(message)
+    return result
 
-    return messagesDict
+def getMessagesByTriggerId(messagesArr, triggerId):
+
+    result = [message for message in messagesArr 
+        if message[inds['triggerid']] == triggerId]
+
+    return result
+
+
 
 
 # filters by: experiment version, test_mode
@@ -111,10 +242,10 @@ def count():
     counter += 1
 
 
-def hasUserSeenRecommendation(messagesArr, featurename):
+def hasUserSeenRecommendation(messagesArr, featureName):
 
     for message in messagesArr:
-        if message[inds['triggerid']] == featurename and message[inds['type']] == 'PANELSHOW': return True
+        if message[inds['triggerid']] == featureName and message[inds['type']] == 'PANELSHOW': return True
     return False
 
 
