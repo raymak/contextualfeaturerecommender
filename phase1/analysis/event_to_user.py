@@ -44,12 +44,18 @@ RECORD_KEYS_ARR = [
               'expstarttime_ms',
               'theme_changed',
                'active_theme_name',
-                'active_theme_id' 
+                'active_theme_id',
+                 'has_disabled',
+                   'has_moved_button'
 ] + [featureName + suffix for featureName in FEATURE_NAMES 
-    for suffix in ['_recommended',
-     '_secondary_used_after',
-      '_secondary_used_before',
-       '_minor_used_after']
+    for suffix in [
+    '_recommended',
+     '_recommended_seen',
+      '_secondary_used_after',
+       '_secondary_used_before',
+        '_minor_used_after',
+         '_reaction_used',
+          '_addon_ignored'] 
        ]
 
 
@@ -123,6 +129,16 @@ def processUser(userMessagesArr, userId):
     record['system_name'] = firstMessage[inds['systemname']]
     record['system_ver'] = firstMessage[inds['systemversion']]
     record['os'] = firstMessage[inds['os']]
+
+    #uninstalling and disabling
+    record['has_disabled'] = len(getMessagesByPropertyInValue(
+            getMessagesByType(userMessagesArr, 'LASTCALL'), 
+            'reason',
+            'disable')) > 0
+    record['has_moved_button'] = len(getMessagesByPropertyInValue(
+            getMessagesByType(userMessagesArr, 'LASTCALL'), 
+            'reason',
+            'button moved')) > 0
     
     ##arm
     armDict = firstMessage[inds['arm']]
@@ -163,8 +179,11 @@ def processUser(userMessagesArr, userId):
         # get only the messsages related to this feature
         featMessagesArr = getMessagesByTriggerId(userMessagesArr, featureName)
 
+        # if user has received recommendation
+        record[featureName + '_recommended'] = hasUserReceivedRecommendation(featMessagesArr, featureName)
+
         # if user has been recommended the feature
-        record[featureName + '_recommended'] = hasUserSeenRecommendation(featMessagesArr, featureName)
+        record[featureName + '_recommended_seen'] = hasUserSeenRecommendation(featMessagesArr, featureName)
 
         # if secondary listeners have been triggered before and after recommendation
         record[featureName + '_secondary_used_after'] = len(getMessagesByPropertyInValue(
@@ -183,6 +202,18 @@ def processUser(userMessagesArr, userId):
             getMessagesByType(featMessagesArr, 'MINORTRIGGER'), 
             'isrecommended',
             True)) > 0
+
+        # number of direct reactions (clicking the button)
+        record[featureName + '_reaction_used'] = len(
+            getMessagesByType(featMessagesArr, 'REACTION')
+            ) > 0
+
+        #any ignored addon recommendations
+        record[featureName + '_addon_ignored'] = len(getOfferingMessagesByType(
+            getMessagesByType(featMessagesArr, 'OFFERING'),
+        'ADDON_IGNORED')) > 0
+
+    # print record
 
     printRow(record)   
 
@@ -223,8 +254,19 @@ def getMessagesByTriggerId(messagesArr, triggerId):
 
     return result
 
+# a special case of getMessagesByPropertyInValue, had to do this because of 
+# https://github.com/raymak/contextualfeaturerecommender/issues/202
+def getOfferingMessagesByType(messagesArr,  offeringType):
+
+    if offeringType == 'NEWWINDOW':
+        result = [message for message in messagesArr 
+            if not 'offeringType' in message[inds['value']]]
+    else:
+        result = [message for message in messagesArr 
+            if 'offeringType' in message[inds['value']] and message[inds['value']]['offeringType'] == offeringType]
 
 
+    return result
 
 # filters by: experiment version, test_mode
 def basicFilter(messagesArr):
@@ -240,6 +282,13 @@ def basicFilter(messagesArr):
 def count():
     global counter
     counter += 1
+
+def hasUserReceivedRecommendation(messagesArr, featureName):
+
+    for message in messagesArr:
+        if message[inds['triggerid']] == featureName and message[inds['type']] == 'OFFERING': return True
+    
+    return False
 
 
 def hasUserSeenRecommendation(messagesArr, featureName):

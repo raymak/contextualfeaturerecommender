@@ -9,21 +9,148 @@ import json
 
 rev_inds = {}
 
+FEATURE_NAMES = [
+'closetabshortcut',
+ 'newbookmark',
+  'newtabshortcut',
+   'newbookmarkshortcut',
+    'blushypage', 'facebook',
+     'amazon',
+      'youtube',
+       'download',
+        'gmail',
+         'reddit']
+
+RECORD_KEYS_ARR = [
+'userid',
+ 'experiment_name',
+  'addon_ver',
+   'test_mode_enabled',
+    'experiment_ver',
+     'locale',
+      'system_name',
+       'system_ver',
+        'os',
+         'arm_name',
+          'num_of_extensions',
+           'DNT_enabled',
+            'history_enabled',
+             'browsertabsremote_enabled',
+              'expstarttime_ms',
+              'theme_changed',
+               'active_theme_name',
+                'active_theme_id',
+                 'has_disabled',    
+                   'has_moved_button' 
+] + [featureName + suffix for featureName in FEATURE_NAMES 
+    for suffix in ['_recommended_seen',
+     '_recommended',
+      '_secondary_used_after',
+       '_secondary_used_before',
+        '_minor_used_after',
+         '_reaction_used',
+          '_addon_ignored']
+       ]
+
 def main(): 
-    
+
     table = readInput()
-    table = getTableByColumnValue(table, 'arm_name', 'explained-doorhanger-active')
-    print len(table['arm_name'])
+    table = basicFilter(table)
+    print len(table)
+    generateAggregateData(table)
+
+
+def basicFilter(table):
+
+
+    selected_indices = [i for i in range(len(table['userid']))
+        if table['experiment_ver'][i] == '2.0.0'
+        and table['num_of_extensions'][i] is not None
+        and not table['test_mode_enabled'][i]
+        and not table['browsertabsremote_enabled'][i]
+    ]
+
+    new_table = {key: [table[key][i] for i in selected_indices] for key in table }
+
+    return new_table
+
 
 def getTableByColumnValue(table, column_name, column_value):
-    new_table = {}
 
     selected_indices = [i for i in range(len(table[column_name])) if table[column_name][i] == column_value]
 
-    for key in table:
-        new_table[key] = [table[key][i] for i in selected_indices]
+    new_table = {key: [table[key][i] for i in selected_indices] for key in table}
 
     return new_table
+
+def generateAggregateData(table):
+
+    armsTables = {
+        'explained-doorhanger-active': {},
+        'explained-doorhanger-passive': {},
+        'unexplained-doorhanger-active': {},
+        'unexplained-doorhanger-passive': {},
+        'control': {}
+        }
+
+    for arm in armsTables:
+        armsTables[arm] = getTableByColumnValue(table, 'arm_name', arm)
+
+    # print armsTables['control']['arm_name']
+
+    armsRows = {arm: {'name': arm} for arm in armsTables.keys()}
+
+    #feature secondary listener after
+
+    for arm in armsRows:
+        print arm
+        
+        armsRows[arm]['user_num'] = len(armsTables[arm]['userid'])
+        print 'user_num', armsRows[arm]['user_num']
+
+        userNum = armsRows[arm]['user_num']
+
+        col_name  = 'has_disabled'
+        armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
+        print arm, col_name, armsRows[arm][col_name]
+
+        col_name  = 'has_moved_button'
+        armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
+        print arm, col_name, armsRows[arm][col_name]
+
+        col_name = 'median_num_of_extensions'
+        armsRows[arm][col_name] = sorted(armsTables[arm]['num_of_extensions'])[userNum // 2]
+        print arm, col_name, armsRows[arm][col_name]
+        
+        for featureName in FEATURE_NAMES:
+           
+
+            col_name  = featureName +'_recommended'
+            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
+            print arm, col_name, armsRows[arm][col_name]
+
+            col_name  = featureName +'_recommended_seen'
+            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
+            print arm, col_name, armsRows[arm][col_name]
+
+            col_name  = featureName +'_secondary_used_before'
+            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
+            print arm, col_name, armsRows[arm][col_name]
+            
+            col_name  = featureName +'_secondary_used_after'
+            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
+            print arm, col_name, armsRows[arm][col_name]
+           
+
+            col_name  = featureName +'_reaction_used'
+            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
+            print arm, col_name, armsRows[arm][col_name]
+
+            col_name  = featureName +'_addon_ignored'
+            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
+            print arm, col_name, armsRows[arm][col_name]
+
+
 
 
 
