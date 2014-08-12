@@ -21,37 +21,6 @@ FEATURE_NAMES = [
         'gmail',
          'reddit']
 
-RECORD_KEYS_ARR = [
-'userid',
- 'experiment_name',
-  'addon_ver',
-   'test_mode_enabled',
-    'experiment_ver',
-     'locale',
-      'system_name',
-       'system_ver',
-        'os',
-         'arm_name',
-          'num_of_extensions',
-           'DNT_enabled',
-            'history_enabled',
-             'browsertabsremote_enabled',
-              'expstarttime_ms',
-              'theme_changed',
-               'active_theme_name',
-                'active_theme_id',
-                 'has_disabled',    
-                   'has_moved_button',
-                    'total_recommendations' 
-] + [featureName + suffix for featureName in FEATURE_NAMES 
-    for suffix in ['_recommended_seen',
-     '_recommended',
-      '_secondary_used_after',
-       '_secondary_used_before',
-        '_minor_used_after',
-         '_reaction_used',
-          '_addon_ignored']
-       ]
 
 ARMS_ROWS_KEYS_ARR = [
   'name',
@@ -120,60 +89,47 @@ def generateAggregateData(table):
     #feature secondary listener after
 
     for arm in armsRows:
-        # print arm
         
         armsRows[arm]['user_num'] = len(armsTables[arm]['userid'])
-        # print 'user_num', armsRows[arm]['user_num']
 
         userNum = armsRows[arm]['user_num']
 
         col_name  = 'has_disabled'
         armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-        # print arm, col_name, armsRows[arm][col_name]
 
         col_name  = 'has_moved_button'
         armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-        # print arm, col_name, armsRows[arm][col_name]
 
         col_name = 'median_num_of_extensions'
         armsRows[arm][col_name] = sorted(armsTables[arm]['num_of_extensions'])[userNum // 2]
-        # print arm, col_name, armsRows[arm][col_name]
 
         col_name = 'median_total_recommendations'
         armsRows[arm][col_name] = sorted(armsTables[arm]['total_recommendations'])[userNum // 2]
-        # print arm, col_name, armsRows[arm][col_name]
         
         for featureName in FEATURE_NAMES:
            
 
             col_name  = featureName +'_recommended'
             armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-            # print arm, col_name, armsRows[arm][col_name]
 
             col_name  = featureName +'_recommended_seen'
             armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-            # print arm, col_name, armsRows[arm][col_name]
 
             col_name  = featureName +'_secondary_used_before'
             armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-            # print arm, col_name, armsRows[arm][col_name]
             
             col_name  = featureName +'_secondary_used_after'
             armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-            # print arm, col_name, armsRows[arm][col_name]
 
             col_name  = featureName +'_minor_used_after'
             armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-            # print arm, col_name, armsRows[arm][col_name]
            
 
             col_name  = featureName +'_reaction_used'
             armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-            # print arm, col_name, armsRows[arm][col_name]
 
             col_name  = featureName +'_addon_ignored'
             armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-            # print arm, col_name, armsRows[arm][col_name]
 
     printArmsRows(armsRows)
 
