@@ -46,7 +46,8 @@ RECORD_KEYS_ARR = [
                'active_theme_name',
                 'active_theme_id',
                  'has_disabled',
-                   'has_moved_button'
+                   'has_moved_button',
+                    'total_recommendations'
 ] + [featureName + suffix for featureName in FEATURE_NAMES 
     for suffix in [
     '_recommended',
@@ -172,6 +173,7 @@ def processUser(userMessagesArr, userId):
         #TODO: filter the user
         pass
 
+    total_recommendations = 0
 
     # for each feature
     for featureName in FEATURE_NAMES:
@@ -181,6 +183,8 @@ def processUser(userMessagesArr, userId):
 
         # if user has received recommendation
         record[featureName + '_recommended'] = hasUserReceivedRecommendation(featMessagesArr, featureName)
+
+        total_recommendations += int(record[featureName + '_recommended'])
 
         # if user has been recommended the feature
         record[featureName + '_recommended_seen'] = hasUserSeenRecommendation(featMessagesArr, featureName)
@@ -212,6 +216,9 @@ def processUser(userMessagesArr, userId):
         record[featureName + '_addon_ignored'] = len(getOfferingMessagesByType(
             getMessagesByType(featMessagesArr, 'OFFERING'),
         'ADDON_IGNORED')) > 0
+
+    # total recommendations received
+    record['total_recommendations'] = total_recommendations
 
     # print record
 

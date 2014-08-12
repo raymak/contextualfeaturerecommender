@@ -41,7 +41,8 @@ RECORD_KEYS_ARR = [
                'active_theme_name',
                 'active_theme_id',
                  'has_disabled',    
-                   'has_moved_button' 
+                   'has_moved_button',
+                    'total_recommendations' 
 ] + [featureName + suffix for featureName in FEATURE_NAMES 
     for suffix in ['_recommended_seen',
      '_recommended',
@@ -120,6 +121,10 @@ def generateAggregateData(table):
 
         col_name = 'median_num_of_extensions'
         armsRows[arm][col_name] = sorted(armsTables[arm]['num_of_extensions'])[userNum // 2]
+        print arm, col_name, armsRows[arm][col_name]
+
+        col_name = 'median_total_recommendations'
+        armsRows[arm][col_name] = sorted(armsTables[arm]['total_recommendations'])[userNum // 2]
         print arm, col_name, armsRows[arm][col_name]
         
         for featureName in FEATURE_NAMES:
