@@ -1,0 +1,2 @@
+experiment	addon_version	test_mode	locale	experiment_version	systemversion	os	systemname	userid	ts	arm	type	value	triggerid
+"CFR"	"2.0.0"	false	"en-US"	"2.0.0"	"31.0"	"winnt"	"Firefox"	"ffda1889-493f-4ede-828d-53f85dagc4fe"	1407282563544	{"explanation": "explained", "ui": "doorhanger-active", "basis": "contextual"}	"LOAD"	{"reason": "install"}	"NA"

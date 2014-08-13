@@ -25,10 +25,11 @@ FEATURE_SUFFIXES = [
     '_recommended',
      '_recommended_seen',
       '_secondary_used_after',
-       '_secondary_used_before',
-        '_minor_used_after',
-         '_reaction_used',
-          '_addon_ignored']
+       '_secondary_used_after_to_seen',
+        '_secondary_used_before',
+         '_minor_used_after',
+          '_reaction_used',
+           '_addon_ignored']
 
 FEATURE_OFFERING_TYPES = {
     'closetabshortcut': 'ADDON',
@@ -143,9 +144,23 @@ def generateArmFeatureReport(table):
             recordDict['FEATURE_feature_name'] = featureName
             recordDict['FEATURE_offering_type'] = FEATURE_OFFERING_TYPES[featureName]
 
-            for featureSuffix in FEATURE_SUFFIXES:
+            for featureSuffix in [
+                    '_recommended',
+                     '_recommended_seen',
+                      '_secondary_used_after',
+                       '_secondary_used_before',
+                        '_minor_used_after',
+                         '_reaction_used',
+                          '_addon_ignored']:
+
                 col_name  = featureName + featureSuffix
                 recordDict['FEATURE' + featureSuffix] = armsTables[arm][col_name].count(True)
+
+            col_name = featureName + '_secondary_used_after_to_seen'
+            secondaryUsedAfter = recordDict['FEATURE' + '_secondary_used_after']
+            recommendedSeen = recordDict['FEATURE' + '_recommended_seen']
+
+            recordDict['FEATURE' + '_secondary_used_after_to_seen'] = 0 if recommendedSeen == 0 else int(100* secondaryUsedAfter / recommendedSeen)
 
             appendRecordDictToTable(armsFeaturesTable, recordDict)
 
@@ -266,11 +281,6 @@ def parseCSVtoTable(headerLine, rows):
             table[rev_inds[i]].append(jsonrow[i])
             
     return table
-
-
-
-
-
 
 
 if __name__ == "__main__":

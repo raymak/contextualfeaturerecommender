@@ -1,0 +1,7 @@
+
+
+#event_to_user tests
+
+>>> from event_to_user import parseHeader
+>>> parseHeader("col1\tcol2\tcol3\n") == {'col1': 0, 'col2': 1, 'col3': 2}
+True

@@ -88,18 +88,6 @@ def parseHeader(line):
 
 # returns an array of parsed messages
 def parseMessages(lines, inds):
-    fieldsnames = [u'experiment',
-        u'addon_version', 
-        u'test_mode', 
-        u'locale', 
-        u'experiment_version', 
-        u'systemversion', 
-        u'os',
-        u'systemname',
-        u'userid',  
-        u'arm',
-        u'ts',
-        u'type', u'value',   u'triggerid']
 
     
     currUserId = None
