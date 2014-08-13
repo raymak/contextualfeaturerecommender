@@ -13,20 +13,20 @@ fields = [u'experiment',
 		u'os',
 		u'systemname',
 		u'userid',  
-		u'arm',
 		u'ts',
+		u'arm',
 		u'type', u'value',   u'triggerid']
 
+print "\t".join(fields)
+
 with open('firstpass.csv', 'wb') as csvfile:
-	writer = csv.writer(csvfile)
+	writer = csv.writer(csvfile, delimiter="\t")
 	writer.writerow(fields)
 
 	for line in fileinput.input():
-		id, payload = line.split("\t",1)
-		payload = json.loads(json.loads(payload)["dp"])
+		payload = json.loads(json.loads(line)["dp"])
 		entry = []
 		for f in fields:
-			entry.append(payload[f])
-		writer.writerow(entry)
-
+			entry.append(json.dumps(payload[f]))
+		print "\t".join(str(e) for e in entry)
 
