@@ -23,7 +23,7 @@ FEATURE_NAMES = [
 
 
 ARMS_ROWS_KEYS_ARR = [
-  'name',
+  'name', 
    'user_num',
     'has_disabled',
      'has_moved_button',
@@ -41,7 +41,7 @@ ARMS_ROWS_KEYS_ARR = [
 
 def main(): 
 
-    table = readInput()
+    table = readInput(fileinput.input(), fileinput.isfirstline)
     table = basicFilter(table)
     generateAggregateData(table)
 
@@ -154,12 +154,12 @@ def printRow(rowDict, keysArr):
 
     print rowStr
 
-def readInput():
+def readInput(lines, isfirstline):
 
     table = {}
 
-    for line in fileinput.input():   
-        if fileinput.isfirstline():
+    for line in lines:   
+        if isfirstline():
             fields = line.strip().split('\t')
             
             for i in range(len(fields)):

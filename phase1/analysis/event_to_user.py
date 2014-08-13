@@ -61,16 +61,27 @@ RECORD_KEYS_ARR = [
 
 
 
-def main():
-    # print inds
+def main(lines):
+
+    inds = parseHeader(lines.next())
+
     printHeader()
-    parseMessages()
+    for (messages, userId) in parseMessages(lines, inds):
+        printRow(processUser(messages, userId)) 
     
 
+def parseHeader(line):
+
+    fields = line.strip().split('\t')
+            
+    for i in range(len(fields)):
+        inds[fields[i]] = i
+
+    return inds
 
 
 # returns an array of parsed messages
-def parseMessages():
+def parseMessages(lines, inds):
     fieldsnames = [u'experiment',
         u'addon_version', 
         u'test_mode', 
@@ -88,29 +99,21 @@ def parseMessages():
     currUserId = None
     userMessages = []
 
+    for line in lines:   
+        
+        jsonrow = [json.loads(val) for val in line.strip().split('\t')]
+        
+        userId = jsonrow[inds['userid']]
+        currUserId = currUserId or userId
 
-    for line in fileinput.input():   
-        if fileinput.isfirstline():
-            fields = line.strip().split('\t')
-            
-            for i in range(len(fields)):
-                inds[fields[i]] = i
-                
+        if userId != currUserId:
+            yield (userMessages, currUserId)
+            currUserId = userId
+            userMessages = []
 
-        else: 
-            jsonrow = [json.loads(val) for val in line.strip().split('\t')]
-            
-            userId = jsonrow[inds['userid']]
-            currUserId = currUserId or userId
+        userMessages.append(jsonrow)
 
-            if userId != currUserId:
-                processUser(userMessages, currUserId)
-                currUserId = userId
-                userMessages = []
-
-            userMessages.append(jsonrow)
-
-    processUser(userMessages, currUserId)   # last line 
+    yield (userMessages, currUserId)   # last line 
 
 
 
@@ -222,7 +225,7 @@ def processUser(userMessagesArr, userId):
 
     # print record
 
-    printRow(record)   
+    return record  
 
 def printHeader():
     print '\t'.join(RECORD_KEYS_ARR)
@@ -308,4 +311,5 @@ def hasUserSeenRecommendation(messagesArr, featureName):
 
 
 if __name__ == "__main__":
-    main()
+    lines = fileinput.input()
+    main(lines)
