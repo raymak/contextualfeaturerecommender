@@ -2,14 +2,14 @@
   "name": "featurerecommender",
   "title": "Contextual Feature Recommender",
   "id": "featurerecommender@insights.mozilla.com",
-  "description": "Recommends interface features when they are needed.",
+  "description": "This addon recommends Firefox interface features when they are needed. It is a temporary experimental feature installed through the Mozilla Test Pilot platform (https://testpilot.mozillalabs.com/). The goal of the study is to understand what the best way to present these recommendations is.",
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "contributors": [
   	"Ilana Segall <isegall@mozilla.com>",
   	"Gregg Lind <glind@mozilla.com"],
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "license": "MPL 2.0",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "permissions": {
   	"private-browsing": true
   },

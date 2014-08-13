@@ -18,7 +18,18 @@ To explicitly force the test_mode flag to true or false, set the "test_mode" pro
 
 	cfx run --static-args="{\"test_mode\": true}"
 
-Once the flag is set, it's stored in preferences and is automatically retrieved when it's not explicitly set. If the flag has not been set before and is not explicitly set as well, by default test_mode=false is used.
+Once the flag is set, it's stored in preferences and is automatically retrieved when it's not explicitly set. If the flag has not been set before and is not explicitly set as well, by default test_mode=true is used.
+
+## Send Data Mode
+
+Determines if the data is sent to the Google Analytics server for collection.
+
+### Usage
+
+To explicitly force the data to be sent to the server, set the "send_data" property to "true" or "false" using static-args:
+	cfx run --static-args="{\"send_data\": true}"
+
+Once the flag is set, it's stored in preferences and is automatically retrieved when it's not explicitly set. If the flag has not been set before and is not explicitly set as well, by default send_data=true is used.
 
 ---
 ## Arms of the Experiment

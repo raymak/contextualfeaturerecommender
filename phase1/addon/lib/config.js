@@ -12,19 +12,21 @@ var logger = require("./logger");
 // exports.ARM = info.getArm(); 
 
 // recommendation counts
-exports.CLOSE_TAB_SHORTCUT_COUNT_THRESHOLD = 6;
-exports.NEW_TAB_SHORTCUT_COUNT_THRESHOLD = 6;
-exports.BLUSHYPAGE_COUNT_THRESHOLD = 8;
-exports.FACEBOOK_COUNT_THRESHOLD = 6;
-exports.YOUTUBE_COUNT_THRESHOLD = 4;
-exports.DOWNLOAD_COUNT_THRESHOLD = 4;
-exports.GMAIL_COUNT_THRESHOLD = 4;
-exports.REDDIT_COUNT_THRESHOLD = 2;
-exports.AMAZON_COUNT_THRESHOLD = 2;
-exports.NEW_BOOKMARK_COUNT_THRESHOLD = 2;
-exports.BOOKMARK_SHORTCUT_COUNT_THRESHOLD = 4;
-exports.BOOKMARK_MANAGER_COUNT_THRESHOLD = 2;
 
+exports.COUNT_THRESHOLDS = {
+	closetabshortcut: 6,
+	newtabshortcut: 6,
+	blushypage: 8,
+	facebook: 6,
+	youtube: 4,
+	download: 4,
+	translator: 2,
+	gmail: 4,
+	reddit: 2,
+	amazon: 2,
+	newbookmarkshortcut: 4,
+	newbookmark: 2
+}
 
 //notification panel
 exports.HIDE_PANEL_AFTER_REACTION = true;
@@ -44,7 +46,7 @@ exports.DEFAULT_MESSAGE_URL = "https://support.mozilla.org/en-US/products/firefo
 
 // standard GA payload info
 exports.EXPERIMENT_NAME = "CFR";
-exports.EXPERIMENT_VERSION = "1.0.0";
+exports.EXPERIMENT_VERSION = "2.0.0";
 
 // exports.TEST_MODE = info.getTestMode(); //set by init()
 // exports.USER_ID = info.getUserId();
@@ -59,6 +61,7 @@ exports.TYPE_PANEL_SHOW = "PANELSHOW";
 exports.TYPE_PANEL_HIDE = "PANELHIDE";
 exports.TYPE_LOAD = "LOAD";
 exports.TYPE_LAST_CALL = "LASTCALL";
+exports.TYPE_ADDON_INSTALL = "ADDONINSTALL";
 
 // offering types
 exports.TYPE_OFFERING_ADDON = "ADDON";

@@ -6,6 +6,7 @@
 "use strict";
 
 var prefs = require("sdk/simple-prefs").prefs;
+var config = require("./config");
 
 const featureObjectAddress = "featureData.dataObject";
 
@@ -31,6 +32,10 @@ function firstTimeInitialize(){
 	reddit: {count: 0, triggered: false}
 
 	};
+
+	for (var featurename in featuredata)
+		featuredata[featurename]["threshold"] = config.COUNT_THRESHOLDS[featurename];
+
 	writeToPrefs(featuredata);
 }
 

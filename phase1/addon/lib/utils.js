@@ -35,7 +35,7 @@ function getLanguage(urlStr, callback){
 }
 
 /**
-  * Request to Google Analytics Enabled Page
+  * Request to Google Analytics Enabled Page (and to Test Pilot!)
   *
   * note: called mostly by sendEvent.
   *
@@ -54,13 +54,17 @@ function getLanguage(urlStr, callback){
   * https://developers.google.com/analytics/devguides/collection/protocol/v1/parameters#hit
   *
   * Note: payloads limited to 2048 bytes
+  *
+  * Note: also sends to TestPilot / bagheera re #188
   **/
 function sendToGA(dataObject){
-	function requestCompleted(response){
-		console.log("GA REQUEST COMPLETE", response.status);
+	function requestCompleted(which, response) {
+		console.log("REQUEST COMPLETE", which, response.status);
 	}
 
-	var gaFields = {"v": 1, //static
+	var gaFields = {
+					"userid": dataObject.userid, // for easy sorting at TP
+					"v": 1, //static
 					"tid": "UA-35433268-28", //id of ga account for mozillalabs
 					"cid": "be74c5a0-143a-11e4-8c21-0800200c9a66", //randomly generated uuid
 					"t": "pageview", //type of hit. keep static
@@ -69,20 +73,40 @@ function sendToGA(dataObject){
 					}
 
 	if (info.getSendData()){
-		console.log("GA REQUEST")
+		console.log("GA and TP REQUESTS");
 		console.log(JSON.stringify(gaFields,null,2));
 
-		var XMLReq = new request.Request({
+		var XMLReqGA = new request.Request({
 			url: "http://www.google-analytics.com/collect",
-			onComplete: requestCompleted,
+			onComplete: requestCompleted.bind(null,"GA"),
 			content: gaFields
 		});
 
-		XMLReq.get();	
+		XMLReqGA.get();
+
+		/** TP packet
+		  * - special url
+		  * - POST instead of get
+		  * - explicit about content type.
+		  * - will autogen a record at /bagheera end
+		  */
+		let TP_URL = "https://testpilot.mozillalabs.com/submit/" + "contextfeaturerecommender";
+
+		// belt and suspenders here #184
+		var XMLReqTP = new request.Request({
+			url: TP_URL,
+			headers: {},
+			onComplete: requestCompleted.bind(null,"TP"),
+			content: JSON.stringify(gaFields),
+			contentType: "application/json",
+		});
+
+		XMLReqTP.post();
+
 	} else {
 		console.log("not sending to GA");
 	}
-}
+};
 
 
 //to add common fields such as timestamp, userid, etc. to event data
@@ -139,7 +163,15 @@ function sendSecondaryListenerEvent(value, triggerId){
 	var OUTval = value;
 	var OUTid = triggerId;
 
-	sendEvent(OUTtype, OUTval, OUTid)
+	sendEvent(OUTtype, OUTval, OUTid);
+}
+
+function sendAddonInstallEvent(value){
+	var OUTtype = config.TYPE_ADDON_INSTALL;
+	var OUTval = value;
+	var OUTid = config.ID_NA;
+
+	sendEvent(OUTtype, OUTval, OUTid);
 }
 
 function sendLoadEvent(reason){
@@ -184,6 +216,7 @@ exports.override = override;
 exports.sendEvent = sendEvent;
 exports.sendOfferingEvent = sendOfferingEvent;
 exports.sendTriggerEvent = sendTriggerEvent;
+exports.sendAddonInstallEvent = sendAddonInstallEvent;
 exports.sendLoadEvent = sendLoadEvent;
 exports.sendLastCallEvent = sendLastCallEvent;
 exports.sendMinorTriggerEvent = sendMinorTriggerEvent;
