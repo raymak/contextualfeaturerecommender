@@ -21,6 +21,29 @@ FEATURE_NAMES = [
         'gmail',
          'reddit']
 
+FEATURE_SUFFIXES = [
+    '_recommended',
+     '_recommended_seen',
+      '_secondary_used_after',
+       '_secondary_used_before',
+        '_minor_used_after',
+         '_reaction_used',
+          '_addon_ignored']
+
+FEATURE_OFFERING_TYPES = {
+    'closetabshortcut': 'ADDON',
+     'newbookmark': 'ADDON',
+      'newtabshortcut': 'KEYSHORTCUT',
+       'newbookmarkshortcut': 'KEYSHORTCUT',
+        'blushypage': 'PRIVATEWINDOW',
+         'facebook': 'PINTAB',
+          'amazon': 'ADDON',
+           'youtube': 'ADDON',
+            'download': 'ADDON',
+             'gmail': 'ADDON',
+              'reddit': 'ADDON'
+}
+
 
 ARMS_ROWS_KEYS_ARR = [
   'name', 
@@ -30,20 +53,34 @@ ARMS_ROWS_KEYS_ARR = [
       'median_num_of_extensions',
        'median_total_recommendations' 
 ] + [featureName + suffix for featureName in FEATURE_NAMES
-      for suffix in ['_recommended_seen',
-     '_recommended',
-      '_secondary_used_after',
-       '_secondary_used_before',
-        '_minor_used_after',
-         '_reaction_used',
-          '_addon_ignored']
-          ]
+      for suffix in FEATURE_SUFFIXES]
 
-def main(): 
+ARMS_FEATURES_KEYS_ARR = [
+    'ARM_arm_name',
+     'ARM_basis',
+      'ARM_explanation',
+       'ARM_ui',
+         'ARM_user_num',
+          'ARM_has_disabled',
+           'ARM_has_moved_button',
+            'ARM_median_num_of_extensions',
+             'ARM_median_total_recommendations',
+               'FEATURE_feature_name',
+                'FEATURE_offering_type'
+] + ['FEATURE' + suffix for suffix in FEATURE_SUFFIXES]
 
-    table = readInput(fileinput.input(), fileinput.isfirstline)
+ARM_NAMES = ['explained-doorhanger-active',
+              'explained-doorhanger-passive',
+               'unexplained-doorhanger-active',
+                'unexplained-doorhanger-passive',
+                 'control']
+
+def main(headerLine, userLines): 
+
+    table = parseCSVtoTable(headerLine, userLines)
     table = basicFilter(table)
-    generateAggregateData(table)
+
+    printTableToCSV(generateArmFeatureReport(table), ARMS_FEATURES_KEYS_ARR)
 
 
 def basicFilter(table):
@@ -69,15 +106,56 @@ def getTableByColumnValue(table, column_name, column_value):
 
     return new_table
 
+
+
+def appendRecordDictToTable(table, recordDict):
+
+    for col_name in table:
+        table[col_name].append(recordDict[col_name])
+
+# mutates the given table
+def generateArmFeatureReport(table):
+
+    armsFeaturesTable = {armsFeaturesKey: [] for armsFeaturesKey in ARMS_FEATURES_KEYS_ARR}
+
+    armsTables = {arm: {} for arm in ARM_NAMES}
+
+    for arm in armsTables:
+        armsTables[arm] = getTableByColumnValue(table, 'arm_name', arm)
+
+    recordDict = {}
+
+    for arm in ARM_NAMES:
+      
+        userNum = len(armsTables[arm]['userid'])
+        recordDict['ARM_user_num'] = userNum
+        recordDict['ARM_arm_name'] = arm
+        recordDict['ARM_basis'] = armsTables[arm]['arm_basis'][0]
+        recordDict['ARM_explanation'] = armsTables[arm]['arm_explanation'][0]
+        recordDict['ARM_ui'] = armsTables[arm]['arm_ui'][0]
+        recordDict['ARM_has_disabled'] =  armsTables[arm]['has_disabled'].count(True) 
+        recordDict['ARM_has_moved_button'] = armsTables[arm]['has_moved_button'].count(True)
+        recordDict['ARM_median_num_of_extensions'] = sorted(armsTables[arm]['num_of_extensions'])[userNum // 2]
+        recordDict['ARM_median_total_recommendations'] = sorted(armsTables[arm]['total_recommendations'])[userNum //2]
+
+        for featureName in FEATURE_NAMES:
+
+            recordDict['FEATURE_feature_name'] = featureName
+            recordDict['FEATURE_offering_type'] = FEATURE_OFFERING_TYPES[featureName]
+
+            for featureSuffix in FEATURE_SUFFIXES:
+                col_name  = featureName + featureSuffix
+                recordDict['FEATURE' + featureSuffix] = armsTables[arm][col_name].count(True)
+
+            appendRecordDictToTable(armsFeaturesTable, recordDict)
+
+
+    return armsFeaturesTable
+
+
 def generateAggregateData(table):
 
-    armsTables = {
-        'explained-doorhanger-active': {},
-        'explained-doorhanger-passive': {},
-        'unexplained-doorhanger-active': {},
-        'unexplained-doorhanger-passive': {},
-        'control': {}
-        }
+    armsTables = {arm: {} for arm in ARM_NAMES}
 
     for arm in armsTables:
         armsTables[arm] = getTableByColumnValue(table, 'arm_name', arm)
@@ -133,7 +211,23 @@ def generateAggregateData(table):
 
     printArmsRows(armsRows)
 
+def printTableToCSV(table, columnNamesArr):
+    printHeader(columnNamesArr)
 
+    rowNum = len(table[columnNamesArr[0]])
+
+    for i in range(rowNum):
+        printTableRow(table, i, columnNamesArr)
+
+
+def printTableRow(table, rowNum, columnNamesArr):
+
+    rowStr = ""
+
+    for colName in columnNamesArr:
+        rowStr += json.dumps(table[colName][rowNum]) + '\t'
+
+    print rowStr
 
 def printArmsRows(armsRows):
   printHeader(ARMS_ROWS_KEYS_ARR)
@@ -154,24 +248,22 @@ def printRow(rowDict, keysArr):
 
     print rowStr
 
-def readInput(lines, isfirstline):
+def parseCSVtoTable(headerLine, rows):
 
     table = {}
 
-    for line in lines:   
-        if isfirstline():
-            fields = line.strip().split('\t')
+    fields = headerLine.strip().split('\t')
             
-            for i in range(len(fields)):
-                table[fields[i]] = []
-                rev_inds[i] = fields[i]
+    for i in range(len(fields)):
+        table[fields[i]] = []
+        rev_inds[i] = fields[i]
 
-        else: 
+    for line in rows:  
 
-            jsonrow = [json.loads(val) for val in line.strip().split('\t')]
+        jsonrow = [json.loads(val) for val in line.strip().split('\t')]
 
-            for i in range(len(jsonrow)):
-                table[rev_inds[i]].append(jsonrow[i])
+        for i in range(len(jsonrow)):
+            table[rev_inds[i]].append(jsonrow[i])
             
     return table
 
@@ -182,4 +274,5 @@ def readInput(lines, isfirstline):
 
 
 if __name__ == "__main__":
-    main()
+    lines = fileinput.input()
+    main(lines.next(), lines)

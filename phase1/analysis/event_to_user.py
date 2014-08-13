@@ -26,6 +26,15 @@ FEATURE_NAMES = [
         'gmail',
          'reddit']
 
+FEATURE_SUFFIXES = [
+    '_recommended',
+     '_recommended_seen',
+      '_secondary_used_after',
+       '_secondary_used_before',
+        '_minor_used_after',
+         '_reaction_used',
+          '_addon_ignored']
+
 RECORD_KEYS_ARR = [
 'userid',
  'experiment_name',
@@ -37,36 +46,33 @@ RECORD_KEYS_ARR = [
        'system_ver',
         'os',
          'arm_name',
-          'num_of_extensions',
-           'DNT_enabled',
-            'history_enabled',
-             'browsertabsremote_enabled',
-              'expstarttime_ms',
-              'theme_changed',
-               'active_theme_name',
-                'active_theme_id',
-                 'has_disabled',
-                   'has_moved_button',
-                    'total_recommendations'
+          'arm_basis',
+           'arm_explanation',
+            'arm_ui', 
+              'num_of_extensions',
+               'DNT_enabled',
+                'history_enabled',
+                 'browsertabsremote_enabled',
+                  'expstarttime_ms',
+                   'theme_changed',
+                    'active_theme_name',
+                     'active_theme_id',
+                      'has_disabled',
+                        'has_moved_button',
+                         'total_recommendations'
 ] + [featureName + suffix for featureName in FEATURE_NAMES 
-    for suffix in [
-    '_recommended',
-     '_recommended_seen',
-      '_secondary_used_after',
-       '_secondary_used_before',
-        '_minor_used_after',
-         '_reaction_used',
-          '_addon_ignored'] 
+    for suffix in FEATURE_SUFFIXES
        ]
 
 
 
-def main(lines):
 
-    inds = parseHeader(lines.next())
+def main(headerLine, messageLines):
+
+    inds = parseHeader(headerLine)
 
     printHeader()
-    for (messages, userId) in parseMessages(lines, inds):
+    for (messages, userId) in parseMessages(messageLines, inds):
         printRow(processUser(messages, userId)) 
     
 
@@ -156,6 +162,10 @@ def processUser(userMessagesArr, userId):
         record['arm_name'] = 'unexplained-doorhanger-passive'
     elif armDict == {'basis': 'contextual', 'explanation': 'explained', 'ui': 'none'}:
         record['arm_name'] = 'control'
+
+    record['arm_basis'] = armDict['basis']
+    record['arm_explanation'] = armDict['explanation']
+    record['arm_ui'] = armDict['ui']
 
 
     # first run
@@ -312,4 +322,4 @@ def hasUserSeenRecommendation(messagesArr, featureName):
 
 if __name__ == "__main__":
     lines = fileinput.input()
-    main(lines)
+    main(lines.next(), lines)
