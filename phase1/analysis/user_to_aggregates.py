@@ -25,11 +25,12 @@ FEATURE_SUFFIXES = [
     '_recommended',
      '_recommended_seen',
       '_secondary_used_after',
-       '_secondary_used_after_to_seen',
-        '_secondary_used_before',
-         '_minor_used_after',
-          '_reaction_used',
-           '_addon_ignored']
+       '_secondary_used_only_after',
+        '_secondary_used_after_to_seen',
+         '_secondary_used_before',
+          '_minor_used_after',
+           '_reaction_used',
+            '_addon_ignored']
 
 FEATURE_OFFERING_TYPES = {
     'closetabshortcut': 'ADDON',
@@ -156,11 +157,16 @@ def generateArmFeatureReport(table):
                 col_name  = featureName + featureSuffix
                 recordDict['FEATURE' + featureSuffix] = armsTables[arm][col_name].count(True)
 
-            col_name = featureName + '_secondary_used_after_to_seen'
             secondaryUsedAfter = recordDict['FEATURE' + '_secondary_used_after']
             recommendedSeen = recordDict['FEATURE' + '_recommended_seen']
 
+            # 0 could mean real 0 or 0/0
             recordDict['FEATURE' + '_secondary_used_after_to_seen'] = 0 if recommendedSeen == 0 else int(100* secondaryUsedAfter / recommendedSeen)
+            recordDict['FEATURE' + '_secondary_used_only_after'] = [
+                                    armsTables[arm][featureName + '_secondary_used_after'][i] 
+                                    and not armsTables[arm][featureName + '_secondary_used_before'][i]
+                                    for i in range(userNum)
+                                    ].count(True)
 
             appendRecordDictToTable(armsFeaturesTable, recordDict)
 
@@ -237,11 +243,11 @@ def printTableToCSV(table, columnNamesArr):
 
 def printTableRow(table, rowNum, columnNamesArr):
 
-    rowStr = ""
-
-    for colName in columnNamesArr:
-        rowStr += json.dumps(table[colName][rowNum]) + '\t'
-
+    elms = [json.dumps(table[colName][rowNum])
+             for colName in columnNamesArr]
+    
+    rowStr = '\t'.join(elms)
+ 
     print rowStr
 
 def printArmsRows(armsRows):

@@ -1,0 +1,2 @@
+#ignore .csv report files
+*.csv

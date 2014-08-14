@@ -230,11 +230,9 @@ def printHeader():
 
 def printRow(rowDict):
 
-    rowStr = ""
-    
-    for key in RECORD_KEYS_ARR:
-        elm = rowDict.get(key)
-        rowStr += json.dumps(elm) + '\t'
+    elms = [json.dumps(rowDict.get(key))
+             for key in RECORD_KEYS_ARR]
+    rowStr = '\t'.join(elms)
 
     print rowStr
 
