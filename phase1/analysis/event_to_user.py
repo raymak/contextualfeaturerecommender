@@ -94,11 +94,16 @@ def parseMessages(lines, inds):
     userMessages = []
 
     for line in lines:   
-        
-        jsonrow = [json.loads(val) for val in line.strip().split('\t')]
-        
-        userId = jsonrow[inds['userid']]
-        currUserId = currUserId or userId
+        try:
+
+            jsonrow = [json.loads(val) for val in line.strip().split('\t')]
+            
+            userId = jsonrow[inds['userid']]
+            currUserId = currUserId or userId
+
+        except IndexError:
+            print jsonrow
+
 
         if userId != currUserId:
             yield (userMessages, currUserId)

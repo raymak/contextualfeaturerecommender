@@ -1,7 +1,13 @@
 
 
+#event to arms-features report test
+ 
+cat event_to_user_test.in | python event_to_user.py | python user_to_aggregates.py > event_to_user_test.out
+diff event_to_user_test.out event_to_user_test.out.gold
+
 #event_to_user tests
 
 >>> from event_to_user import parseHeader
 >>> parseHeader("col1\tcol2\tcol3\n") == {'col1': 0, 'col2': 1, 'col3': 2}
 True
+
