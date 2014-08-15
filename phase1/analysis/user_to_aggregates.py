@@ -27,13 +27,17 @@ FEATURE_SUFFIXES = [
       '_secondary_used_after',
        '_secondary_used_only_after',
         '_secondary_used_after_to_seen',
-         '_secondary_used_before',
-          '_minor_used_after',
-           '_reaction_used',
-            '_addon_ignored']
+         '_secondary_used_after_seen',
+          '_secondary_used_after_seen_to_seen',
+           '_secondary_used_before',
+            '_minor_used_after',
+             '_reaction_used',
+              '_reaction_used_after_seen',
+               '_reaction_used_after_seen_to_seen',
+                '_addon_ignored']
 
 FEATURE_OFFERING_TYPES = {
-    'closetabshortcut': 'ADDON',
+    'closetabshortcut': 'KEYSHORTCUT',
      'newbookmark': 'ADDON',
       'newtabshortcut': 'KEYSHORTCUT',
        'newbookmarkshortcut': 'KEYSHORTCUT',
@@ -161,12 +165,28 @@ def generateArmFeatureReport(table):
             recommendedSeen = recordDict['FEATURE' + '_recommended_seen']
 
             # 0 could mean real 0 or 0/0
-            recordDict['FEATURE' + '_secondary_used_after_to_seen'] = 0 if recommendedSeen == 0 else int(100* secondaryUsedAfter / recommendedSeen)
+            recordDict['FEATURE' + '_secondary_used_after_to_seen'] = 0 if recommendedSeen == 0 else (100* secondaryUsedAfter) / recommendedSeen
             recordDict['FEATURE' + '_secondary_used_only_after'] = [
                                     armsTables[arm][featureName + '_secondary_used_after'][i] 
                                     and not armsTables[arm][featureName + '_secondary_used_before'][i]
                                     for i in range(userNum)
                                     ].count(True)
+            recordDict['FEATURE' + '_secondary_used_after_seen'] = [
+                                    armsTables[arm][featureName + '_secondary_used_after'][i]
+                                    and armsTables[arm][featureName + '_recommended_seen'][i]
+                                    for i in range(userNum)
+                                    ].count(True)
+            secondaryUsedAfterSeen =  recordDict['FEATURE' + '_secondary_used_after_seen']
+            recordDict['FEATURE' + '_secondary_used_after_seen_to_seen'] = 0 if recommendedSeen == 0 else (100 * secondaryUsedAfterSeen) / recommendedSeen
+            recordDict['FEATURE' + '_reaction_used_after_seen'] = [
+                                    armsTables[arm][featureName + '_reaction_used'][i]
+                                    and armsTables[arm][featureName + '_recommended_seen'][i]
+                                    for i in range(userNum)
+                                    ].count(True)
+            reactionUsedAfterSeen = recordDict['FEATURE' + '_reaction_used_after_seen']
+            recordDict['FEATURE' + '_reaction_used_after_seen_to_seen'] = 0 if recommendedSeen == 0 else (100 * reactionUsedAfterSeen) / recommendedSeen
+
+
 
             appendRecordDictToTable(armsFeaturesTable, recordDict)
 

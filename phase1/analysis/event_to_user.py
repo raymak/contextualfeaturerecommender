@@ -63,8 +63,19 @@ RECORD_KEYS_ARR = [
 ] + [featureName + suffix for featureName in FEATURE_NAMES 
     for suffix in FEATURE_SUFFIXES
        ]
-
-
+FEATURE_OFFERING_TYPES = {
+    'closetabshortcut': 'KEYSHORTCUT',
+     'newbookmark': 'ADDON',
+      'newtabshortcut': 'KEYSHORTCUT',
+       'newbookmarkshortcut': 'KEYSHORTCUT',
+        'blushypage': 'PRIVATEWINDOW',
+         'facebook': 'PINTAB',
+          'amazon': 'ADDON',
+           'youtube': 'ADDON',
+            'download': 'ADDON',
+             'gmail': 'ADDON',
+              'reddit': 'ADDON'
+}
 
 
 def main(headerLine, messageLines):
@@ -135,7 +146,7 @@ def processUser(userMessagesArr, userId):
 
     #uninstalling and disabling
     record['has_disabled'] = len(getMessagesByPropertyInValue(
-            getMessagesByType(userMessagesArr, 'LASTCALL'), 
+            getMessagesByType(userMessagesArr, 'LOAD'), 
             'reason',
             'disable')) > 0
     record['has_moved_button'] = len(getMessagesByPropertyInValue(
@@ -219,9 +230,9 @@ def processUser(userMessagesArr, userId):
             ) > 0
 
         #any ignored addon recommendations
-        record[featureName + '_addon_ignored'] = len(getOfferingMessagesByType(
-            getMessagesByType(featMessagesArr, 'OFFERING'),
-        'ADDON_IGNORED')) > 0
+        record[featureName + '_addon_ignored'] = len(getAddonIgnoredMessages(
+            getMessagesByType(featMessagesArr, 'OFFERING')
+            )) > 0
 
     # total recommendations received
     record['total_recommendations'] = total_recommendations
@@ -265,16 +276,19 @@ def getMessagesByTriggerId(messagesArr, triggerId):
 
     return result
 
+#TODO: merge with getAddonIgnoredOfferings
+def getAddonIgnoredMessages(messagesArr):
+    result = [message for message in messagesArr 
+        if 'offeringType' in message[inds['value']] and message[inds['value']]['offeringType'] == 'ADDON_IGNORED']
+
 # a special case of getMessagesByPropertyInValue, had to do this because of 
 # https://github.com/raymak/contextualfeaturerecommender/issues/202
-def getOfferingMessagesByType(messagesArr,  offeringType):
+#def getOfferingMessagesByType(messagesArr,  offeringType):
 
-    if offeringType == 'NEWWINDOW':
-        result = [message for message in messagesArr 
-            if not 'offeringType' in message[inds['value']]]
-    else:
-        result = [message for message in messagesArr 
-            if 'offeringType' in message[inds['value']] and message[inds['value']]['offeringType'] == offeringType]
+    # result = [message for message in messagesArr 
+    #     if 'offeringType' in message[inds['value']] and message[inds['value']]['offeringType'] == offeringType]
+
+
 
 
     return result
