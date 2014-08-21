@@ -13,6 +13,10 @@ ADDONFORTESTNAME=featurerecommender-testaddon
 REMOTEMACHINE=testpilot1.webapp.scl3.mozilla.com
 REMOTEDIR=/data/www/testpilotweb/addons
 
+
+PEOPLEREMOTEMACHINE=people.mozilla.com
+PEOPLEREMOTEDIR=~glind/wwwa/featurerecommender
+
 # see http://stackoverflow.com/questions/649246/is-it-possible-to-create-a-multi-line-string-variable-in-a-makefile
 define HELPDOC
 
@@ -56,15 +60,13 @@ deps:
 	@# wget bwclarks thing
 	@#curl https://raw.github.com/gregglind/browser-search-engine/master/lib/browser-search-engine.js > lib/browser-search-engine.js
 
-# this is the addon for tp distribution.
+# this is the addon for safe distribution
 addon: deps
 	cd $(TOP)
-	rm -f $(TPNAME).xpi $(TPNAME).update.rdf
 	cfx xpi \
-		--update-link https://testpilot.mozillalabs.com/addons/$(TPNAME).xpi \
-		--update-url https://testpilot.mozillalabs.com/addons/$(TPNAME).rdf $(OPTS)
-	mv $(NAME).xpi $(TPNAME).xpi
-	mv $(NAME).update.rdf $(TPNAME).update.rdf
+		--static-args='{"send_data": false, "test_mode": true, "arm_weights":[1,1,1,1,0]}' \
+		--update-link https://people.mozilla.com/~glind/all/featurerecommender/$(NAME).xpi \
+		--update-url https://people.mozilla.com/~glind/all/featurerecommender/$(NAME).update.rdf $(OPTS)
 
 # this is the addon for tp distribution.
 addon-tp: deps
@@ -89,6 +91,12 @@ addon-for-tests: deps
 
 backup:
 	ssh $(WHO)$(REMOTEMACHINE) 'cd $(REMOTEDIR); if [ -e "$(NAME).xpi" ]; then mv "$(TPNAME).xpi" "$(TPNAME).xpi.old"; fi;  if [ -e "$(TPNAME).update.rdf" ]; then mv "$(TPNAME).update.rdf" "$(TPNAME).update.rdf.old"; fi;'
+
+
+people-deploy: addon
+	cd $(TOP)
+	scp -rp $(NAME).update.rdf $(NAME).xpi $(WHO)$(PEOPLEREMOTEMACHINE):$(PEOPLEREMOTEDIR)/
+	# would be nice if then curled.
 
 deploy: addon-tp backup
 	cd $(TOP)
