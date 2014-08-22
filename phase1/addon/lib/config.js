@@ -44,10 +44,10 @@ exports.DEFAULT_HEADER = "Awesomeness Ahead";
 exports.DEFAULT_BUTTON_LABEL = "Show Me";
 exports.DEFAULT_MESSAGE_URL = "https://support.mozilla.org/en-US/products/firefox/get-started/tips";
 
-// standard GA payload info
+// standard GA payload info44
 exports.EXPERIMENT_NAME = "CFR";
 exports.EXPERIMENT_VERSION = "2.0.0";
-
+	
 // exports.TEST_MODE = info.getTestMode(); //set by init()
 // exports.USER_ID = info.getUserId();
 

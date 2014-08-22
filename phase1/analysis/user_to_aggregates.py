@@ -28,13 +28,14 @@ FEATURE_SUFFIXES = [
        '_secondary_used_only_after',
         '_secondary_used_after_to_seen',
          '_secondary_used_after_seen',
-          '_secondary_used_after_seen_to_seen',
-           '_secondary_used_before',
-            '_minor_used_after',
-             '_reaction_used',
-              '_reaction_used_after_seen',
-               '_reaction_used_after_seen_to_seen',
-                '_addon_ignored']
+          '_secondary_used',        
+           '_secondary_used_after_seen_to_seen',
+            '_secondary_used_before',
+             '_minor_used_after',
+              '_reaction_used',
+               '_reaction_used_after_seen',
+                '_reaction_used_after_seen_to_seen',
+                 '_addon_ignored']
 
 FEATURE_OFFERING_TYPES = {
     'closetabshortcut': 'KEYSHORTCUT',
@@ -152,11 +153,12 @@ def generateArmFeatureReport(table):
             for featureSuffix in [
                     '_recommended',
                      '_recommended_seen',
-                      '_secondary_used_after',
-                       '_secondary_used_before',
-                        '_minor_used_after',
-                         '_reaction_used',
-                          '_addon_ignored']:
+                      '_secondary_used',
+                       '_secondary_used_after',
+                        '_secondary_used_before',
+                         '_minor_used_after',
+                          '_reaction_used',
+                           '_addon_ignored']:
 
                 col_name  = featureName + featureSuffix
                 recordDict['FEATURE' + featureSuffix] = armsTables[arm][col_name].count(True)
@@ -192,68 +194,11 @@ def generateArmFeatureReport(table):
 
 
     return armsFeaturesTable
-
-
-def generateAggregateData(table):
-
-    armsTables = {arm: {} for arm in ARM_NAMES}
-
-    for arm in armsTables:
-        armsTables[arm] = getTableByColumnValue(table, 'arm_name', arm)
-
-    # print armsTables['control']['arm_name']
-
-    armsRows = {arm: {'name': arm} for arm in armsTables.keys()}
-
-    #feature secondary listener after
-
-    for arm in armsRows:
-        
-        armsRows[arm]['user_num'] = len(armsTables[arm]['userid'])
-
-        userNum = armsRows[arm]['user_num']
-
-        col_name  = 'has_disabled'
-        armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-
-        col_name  = 'has_moved_button'
-        armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-
-        col_name = 'median_num_of_extensions'
-        armsRows[arm][col_name] = sorted(armsTables[arm]['num_of_extensions'])[userNum // 2]
-
-        col_name = 'median_total_recommendations'
-        armsRows[arm][col_name] = sorted(armsTables[arm]['total_recommendations'])[userNum // 2]
-        
-        for featureName in FEATURE_NAMES:
            
 
-            col_name  = featureName +'_recommended'
-            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-
-            col_name  = featureName +'_recommended_seen'
-            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-
-            col_name  = featureName +'_secondary_used_before'
-            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-            
-            col_name  = featureName +'_secondary_used_after'
-            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-
-            col_name  = featureName +'_minor_used_after'
-            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-           
-
-            col_name  = featureName +'_reaction_used'
-            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-
-            col_name  = featureName +'_addon_ignored'
-            armsRows[arm][col_name] = armsTables[arm][col_name].count(True)
-
-    printArmsRows(armsRows)
 
 def printTableToCSV(table, columnNamesArr):
-    printHeader(columnNamesArr)
+    printCSVTableHeader(columnNamesArr)
 
     rowNum = len(table[columnNamesArr[0]])
 
@@ -270,24 +215,8 @@ def printTableRow(table, rowNum, columnNamesArr):
  
     print rowStr
 
-def printArmsRows(armsRows):
-  printHeader(ARMS_ROWS_KEYS_ARR)
-
-  for arm in armsRows:
-    printRow(armsRows[arm], ARMS_ROWS_KEYS_ARR)
-
-def printHeader(keysArr):
+def printCSVTableHeader(keysArr):
     print '\t'.join(keysArr)
-
-def printRow(rowDict, keysArr):
-
-    rowStr = ""
-    
-    for key in keysArr:
-        elm = rowDict.get(key)
-        rowStr += json.dumps(elm) + '\t'
-
-    print rowStr
 
 def parseCSVtoTable(headerLine, rows):
 

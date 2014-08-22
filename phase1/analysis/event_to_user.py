@@ -31,9 +31,10 @@ FEATURE_SUFFIXES = [
      '_recommended_seen',
       '_secondary_used_after',
        '_secondary_used_before',
-        '_minor_used_after',
-         '_reaction_used',
-          '_addon_ignored']
+        '_secondary_used',
+         '_minor_used_after',
+          '_reaction_used',
+           '_addon_ignored']
 
 RECORD_KEYS_ARR = [
 'userid',
@@ -217,6 +218,8 @@ def processUser(userMessagesArr, userId):
             featMessagesArr, 'SECONDARYLISTENER'),
             'recommended',
             False)) > 0
+
+        record[featureName + '_secondary_used'] = record[featureName + '_secondary_used_before'] or record[featureName + '_secondary_used_after']
 
         # number of minor triggers after recommendation
         record[featureName + '_minor_used_after'] = len(getMessagesByPropertyInValue(
