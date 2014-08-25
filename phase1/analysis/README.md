@@ -2,7 +2,8 @@
 
 ## Pull from bagheera
 
-Data is being kept on HDFS on the peach cluster. 
+Data is being kept on HDFS on the peach cluster. To pull, run:
+
 	hadoop dfs -text /bagheera/testpilot_contextfeaturerecommender/*/*> out
 	cat out | python cfr_decorate_sort.py | sort -k 3,2 | cut -f 4 > raw_data_sorted_by_user
 
