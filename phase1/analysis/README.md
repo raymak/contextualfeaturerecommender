@@ -1,5 +1,15 @@
 # Instructions
 
+## Pull from bagheera
+
+Data is being kept on HDFS on the peach cluster. 
+hadoop dfs -text /bagheera/testpilot_contextfeaturerecommender/*/*> out
+cat out | python cfr_decorate_sort.py | sort -k 3,2 | cut -f 4 > raw_data_sorted_by_user
+
+### cfr_decorate_sort.py
+
+Takes in the raw hdfs text output and appends fields to the outside of the payload to enable sorting by these. Returns a json object per line of events, sorted first by user_id and then by timestamp (where the order of events does not necessarily correspond to timestamp order). 
+
 ## Pipeline
 
 The full pipeline can be used by
