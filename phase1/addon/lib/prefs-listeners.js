@@ -34,7 +34,8 @@ sp.on("config.armnumber", function (pref) {
 
 sp.on("action-resetaddon", function (pref) {
 	console.log("resetting addon");
-    generalInfo.registerFirstTimePrefs();
+  generalInfo.registerFirstTimePrefs();
+  generalInfo.setDefaultNotification();
 });
 
 
