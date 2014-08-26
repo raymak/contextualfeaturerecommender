@@ -117,27 +117,27 @@ function getAddonVersion(){
 	return require("sdk/self").version;
 }
 
-function getArm(){
 
-	console.log("in getArm");
-
-	
-
-	if (prefs["config.arm"])
-		return JSON.parse(prefs["config.arm"]);
-		
-	else {
-		if ("arm_weights" in system.staticArgs){
-			prefs["config.arm"] = JSON.stringify(arms.assignRandomArm(system.staticArgs.arm_weights));
-			return JSON.parse(prefs["config.arm"]);
-		}
-
-		prefs["config.arm"] = JSON.stringify(arms.assignRandomArm(config.DEFAULT_ARM_WEIGHTS));
-		return JSON.parse(prefs["config.arm"]);
-		
-	}
-
+function setArm (weights) {
+	weights = weights || system.staticArgs.arm_weights || config.DEFAULT_ARM_WEIGHTS;
+	let armint = require("./utils").weightedRandomInt(weights);
+	let arm = arms.arms[armint];
+	prefs["config.armnumber"] = armint;
+	prefs["config.arm"] = JSON.stringify(arm);
+	return arm;
 }
+
+/**
+  * Returns existing arm or null.  No side effects.
+  */
+function getArm () {
+	console.log("in getArm");
+	if (prefs["config.arm"]) {
+		return JSON.parse(prefs["config.arm"]);
+	} else {
+		return null;
+	}
+};
 
 function setDefaultNotification(){
 
@@ -157,12 +157,12 @@ function setDefaultNotification(){
 		});
 }
 function registerFirstTimePrefs(){
-
+    console.log("running first time sequence");
 	getUserId();
 	getTestMode();
 	getSendData();
 	getStartTimeMs();
-	getArm();
+	setArm();
 	featuredata.firstTimeInitialize();
 	setIsFirstTime(false);
 

@@ -12,12 +12,11 @@ var arms = [
 	{basis: "contextual", explanation: "explained", ui: "doorhanger-active"},   //2
 	{basis: "contextual", explanation: "explained", ui: "doorhanger-passive"},  //3
 	{basis: "contextual", explanation: "explained", ui: "none"}                 //4
-]
+];
 
-function assignRandomArm(weightsArr){
-
+function assignRandomArm(weightsArr) {
 	return arms[require("./utils").weightedRandomInt(weightsArr)];  
 }
 
-
+exports.arms = arms;
 exports.assignRandomArm = assignRandomArm;

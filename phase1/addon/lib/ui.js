@@ -3,8 +3,16 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-"use strict";
 
+/*jshint forin:true, noarg:false, noempty:true, eqeqeq:true, bitwise:true,
+  strict:true, undef:true, curly:false, browser:true,
+  unused:true,
+  indent:2, maxerr:50, devel:true, node:true, boss:true, white:true,
+  globalstrict:true, nomen:false, newcap:true, moz: true */
+
+/*global */
+
+"use strict";
 
 var {ToggleButton} = require("sdk/ui/button/toggle");
 var {ActionButton} = require("sdk/ui/button/action");
@@ -24,10 +32,18 @@ var button;
 var panel;
 
 function init(){
+	let arm = info.getArm();
+	console.log(arm);
 
-	if (info.getArm().ui == 'none') return;
+    if (! arm) return;  // no arm defined yet, such as initial state.
 
-	button = getButton(buttonClick);
+	if (button) {
+		button.destroy();
+	}
+
+    if (arm.ui == 'none') return;  // control arm
+
+    button = getButton(buttonClick);
 	panel = getPanel(button);
 
 	updateButtonIconState();
@@ -61,7 +77,9 @@ function getPanel(button){
 }
 
 function getLastRecommendationOptions(){
-	return JSON.parse(prefs["lastRecommendation"]);
+	let r = prefs["lastRecommendation"];
+	if (!r || r === "") return null;
+	return JSON.parse(r);
 }
 
 function setLastRecommendationOptions(options){
@@ -107,7 +125,7 @@ function showNotification(options){
 	populatePanel(lastRecommendationOptions);
 
 	if (!options.hidePanel){
-		require("sdk/timers").setTimeout(function (){ 
+		require("sdk/timers").setTimeout(function (){
 			panel.show({
 				position: button
 			});
@@ -136,9 +154,9 @@ function populatePanel(options){
 	panel.port.removeListener("buttonClicked", reaction);
 
 	panel.port.on("buttonClicked", reaction);
-	
+
 	panel.port.emit("options", panelOptions);
-	
+
 
 }
 
@@ -237,7 +255,7 @@ function sendShowEvent(options){
 }
 
 function sendHideEvent(options, timeLengthMs){
-	
+
 	var OUTtype = config.TYPE_PANEL_HIDE;
 	var OUTval = {id: options.id, timelengthms: timeLengthMs, showcount: options.showCount, reactioncount: options.reactionCount, reactionType: options.reactionType};
 	var OUTid = options.id;
@@ -255,7 +273,31 @@ function sendReactionEvent(options){
 
 }
 
+// tangled with prefs, gross.
+function remakeUI () {
+	// reset last recommendation, hackish and gross!
+	// also, relies on config by side effect
+	init();
+	let r = getLastRecommendationOptions();
+	if (r) {
+		let arm = r.arm = info.getArm();
+		let panelSize;
+		switch ( arm.explanation ) {
+			case "explained":
+				panelSize = config.PANEL_SIZE_EXPLAINED;
+			break;
+			case "unexplained":
+				panelSize = config.PANEL_SIZE_UNEXPLAINED;
+		 	break;
+		}
+		r.panelSize = panelSize;
+		setLastRecommendationOptions(r);
+	}
+}
+
 exports.updateButtonIconState = updateButtonIconState;
 exports.showNotification = showNotification;
 exports.getLastRecommendationOptions = getLastRecommendationOptions;
 exports.init = init;
+
+exports.remakeUI = remakeUI;

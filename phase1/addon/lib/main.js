@@ -21,6 +21,8 @@ var {blushiness} = require("./blush");
 var system = require("sdk/system");
 var prefs = require("sdk/simple-prefs").prefs;
 
+require("./prefs-listeners");
+
 const REASON = [ 'unknown', 'startup', 'shutdown', 'enable', 'disable',
 'install', 'uninstall', 'upgrade', 'downgrade' ];
 
@@ -42,44 +44,33 @@ function lastRun(reason, lastTriggerId){
 }
 
 
-function reset(){
-	console.log("Resetting...");
-
-	for (var key in prefs)
-		delete prefs[key];
-}
-
 //start listening when button is clicked
 var main = exports.main = function (options, callbacks){
 	console.log(require("sdk/self").data.url());
 	
 	var reason = options.loadReason;
 
-	if (system.staticArgs.reset) reset();
+	//check if this is the first time 
+	if (info.isThisFirstTime()) {
+		firstRun();
+	}
 
+	ui.init();
 	//sending the load message to GA
 	utils.sendLoadEvent(reason);
 
-	ui.init();
-	
-
-	//check if this is the first time 
-	if (info.isThisFirstTime())
-		firstRun();
-
-	
-
-
-	// death timer, re #71. backstopped by addon update to 'dead' addon.
-	if (Date.now() - Number(info.getStartTimeMs()) >= STUDYLIFETIME) {
-		require("sdk/addon/installer").uninstall(require("sdk/self").id);
-	};
+	// die, unless live
+	prefs.liveforever = !(options.staticArgs || {}).liveforever;
+	if (!(options.staticArgs || {}).liveforever) {
+		// death timer, re #71. backstopped by addon update to 'dead' addon.
+		if (Date.now() - Number(info.getStartTimeMs()) >= STUDYLIFETIME) {
+			require("sdk/addon/installer").uninstall(require("sdk/self").id);
+		}
+	}
 
 	//start triggers
 	triggers.init();
-
-
-}
+};
 
 var onUnload = exports.onUnload = function (reason){
 	utils.sendLoadEvent(reason);
@@ -87,5 +78,5 @@ var onUnload = exports.onUnload = function (reason){
 		lastRun(reason, ui.getLastRecommendationOptions().id);
 	}
 
-}
+};
 

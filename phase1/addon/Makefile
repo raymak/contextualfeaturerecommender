@@ -64,7 +64,7 @@ deps:
 addon: deps
 	cd $(TOP)
 	cfx xpi \
-		--static-args='{"send_data": false, "test_mode": true, "arm_weights":[1,1,1,1,0]}' \
+		--static-args='{"send_data": false, "test_mode": true, "liveforever": true, "arm_weights":[1,1,1,1,0]}' \
 		--update-link https://people.mozilla.com/~glind/all/featurerecommender/$(NAME).xpi \
 		--update-url https://people.mozilla.com/~glind/all/featurerecommender/$(NAME).update.rdf $(OPTS)
 
