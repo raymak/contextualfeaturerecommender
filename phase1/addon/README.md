@@ -6,7 +6,7 @@
 
 In the root addon directory, enter:
 	
-	cfx run
+	cfx run 
 
 ## Test Mode
 
@@ -81,6 +81,13 @@ Example 2: Always the control arm is selected. in general, any of the weights co
 	cfx run --static-args="{\"arm_weights\":[0,0,0,0,1]}"
 
 
+## Switch and Reset via Addon Panel 
+
+`about:addons > Feature Recommender > preferences`
+
+- switch arm
+- reset data
+- show collected data
 
 
 

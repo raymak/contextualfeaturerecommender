@@ -16,3 +16,8 @@ Contextual Feature Recommender (CFR) is a temporary Firefox extension that recom
 Part of the [Blushproof project](https://github.com/mozilla/blushproof) is used for detecting adult websites.
 
 
+### More info
+
+For usage, reset info, etc, see `phase1/addon/README.md`.
+
+
