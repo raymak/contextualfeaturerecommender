@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import fileinput
-import json
+import simplejson as json
 import csv
 import sys
 
@@ -16,7 +16,7 @@ fields = [u'experiment',
 		u'userid',  
 		u'ts',
 		u'arm',
-		u'type', u'value',   u'triggerid']
+		u'type', u'value', u'triggerid']
 
 print "\t".join(fields)
 
@@ -25,5 +25,4 @@ for line in fileinput.input():
 	entry = []
 	for f in fields:
 		entry.append(json.dumps(payload[f]))
-	print "\t".join(str(e) for e in entry)
-
+	print "\t".join(str(e) for e in entry).strip()
