@@ -31,13 +31,14 @@ def parseHeader(line):
 def submit_user_group(user_group, id):
     final_stages = defaultdict(lambda: defaultdict(int))
     demoinfo = "NOT SET"
+    arm = "NOT SET"
     for line in user_group:
         if line[inds["type"]] == "INSTALL":
             arm = line[inds["arm"]]
             if arm["ui"] == "none":
                 #disambiguate - if no ui, make everything "None"
                 arm["explanation"] = "none"
-            demoinfo = arm["explanation"]+"-"+arm["ui"]
+            arm = arm["explanation"]+"-"+arm["ui"]
 
         if line[inds["triggerid"]] != "NA":
             ttype = line[inds["type"]]
@@ -70,15 +71,17 @@ def submit_user_group(user_group, id):
         if "reacted" in final_stages[key] and "panelhidden" in final_stages[key]:
             del final_stages[key]["panelhidden"]
 
-    for key,stat in final_stages.items():
-        for statname, val in stat.items():
-            print id, demoinfo, key, statname, val
+    with open("to_analyze.csv", 'wb') as csvfile:
+        writer = csv.writer(csvfile, delimiter="\t")
+        writer.writerow(["userid", "demographics", "arm", "triggerid", "stage", "count"])
+
+        for key,stat in final_stages.items():
+            for statname, val in stat.items():
+                writer.writerow([id, demoinfo, arm, key, statname, val])
 
 def main(headerLine, messageLines):
     global inds
     inds = parseHeader(headerLine)
-    print headerLine.strip()
-    #print some headers
 
     first_block = True
 
