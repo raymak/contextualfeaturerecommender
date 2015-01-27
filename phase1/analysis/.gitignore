@@ -1,2 +1,3 @@
 #ignore .csv report files
 *.csv
+*.ods

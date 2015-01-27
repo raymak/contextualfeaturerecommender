@@ -52,7 +52,7 @@ function init(){
 	// listenForBookmarks();
 	listenForBookmarksButton();
 
-	listenForPrivateWindows(); //blush pages
+	//listenForPrivateWindows(); //blush pages
 	listenForPinnedTabs();
 	listenForAddonInstalls();
 

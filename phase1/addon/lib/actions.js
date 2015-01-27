@@ -21,7 +21,7 @@ var {sendEvent, sendToGA, override}  = require("./utils");
 var ui = require("./ui");
 var info = require("./generalInfo");
 
-let { blushiness } = require("blush");
+// let { blushiness } = require("blush");
 
 //stores what action each webpage should map to 
 var URLToActionMapper = {

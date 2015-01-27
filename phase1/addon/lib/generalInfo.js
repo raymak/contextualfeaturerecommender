@@ -87,7 +87,7 @@ function getSendData(){
 		prefs["config.send_data"] = system.staticArgs.send_data;
 	else
 		if (!("config.send_data" in prefs)){
-			prefs["config.send_data"] = true;   //true by default 
+			prefs["config.send_data"] = false;   //false by default 
 	}
 
 	logger.log("SEND_DATA = " + prefs["config.send_data"]);

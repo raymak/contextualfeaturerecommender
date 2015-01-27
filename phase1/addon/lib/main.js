@@ -17,7 +17,7 @@ var {isBrowser} = require("sdk/window/utils");
 var config = require("./config");
 var ui = require("./ui")
 var utils = require("./utils");
-var {blushiness} = require("./blush");
+//var {blushiness} = require("./blush");
 var system = require("sdk/system");
 var prefs = require("sdk/simple-prefs").prefs;
 
