@@ -1,4 +1,6 @@
 
+"use strict";
+
 const {Recommendation} = require("recommendation")
 const controller = require("controller")
 
@@ -9,10 +11,10 @@ const start = function () {
 	// test recommendation creation
 	const gmailNotifier = Recommendation({
 		id: "gmailNotifier",
-		trigBehavior: "url visit www.google.ca",
+		trigBehavior: "hostname visit www.google.ca 2",
 		feature: "gmail notifier",
 		classTags: "extension low-priority",
-		delivContext: "url visit www.gmail.com",
+		delivContext: "hostname visit www.gmail.ca",
 		presentationData: "log: yay! gmail-notifier;",
 		respCommandMap: ""
 	});
@@ -21,7 +23,7 @@ const start = function () {
 
 	// console.log(gmailNotifier.toString());
 
-	controller.listener.init();
+	controller.listener.start();
 
 	
 
