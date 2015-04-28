@@ -1,33 +1,33 @@
 
 "use strict";
 
-const {Recommendation} = require("recommendation")
-const controller = require("controller")
+const {Recommendation} = require("recommendation");
+const controller = require("controller");
+const {data} = require("sdk/self");
+const {WindowTracker} = require("sdk/deprecated/window-utils");
 
-const start = function () {
+require("presentation/splitpage").init();  //TODO: move somewhere more meaningful
+require("presentation/doorhanger").init();
+require("experiment").init();
+require("timer").init();
+require("debug").init();
 
-	console.log("Hello World! I am alive :)");
 
-	// test recommendation creation
-	const gmailNotifier = Recommendation({
-		id: "gmailNotifier",
-		trigBehavior: "hostname visit www.google.ca 2",
-		feature: "gmail notifier",
-		classTags: "extension low-priority",
-		delivContext: "hostname visit www.gmail.ca",
-		presentationData: "log: yay! gmail-notifier;",
-		respCommandMap: ""
-	});
+const start = function(){
 
-	controller.recommendations.add(gmailNotifier);
+  console.log("Hello World! I am alive :)");
 
-	// console.log(gmailNotifier.toString());
+  let recommendations = JSON.parse(data.load("recommendations.json")).map(function(recData){
+    return Recommendation(recData);
+  });
 
-	controller.listener.start();
+  controller.recommendations.add.apply(controller.recommendations, recommendations);
 
-	
-
+  // console.log(gmailNotifier.toString());
+  
+  controller.init();
 }
 
-start()
+
+start();
 

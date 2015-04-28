@@ -1,0 +1,72 @@
+[ 
+  {
+  "id": "gmailNotifier",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.google.ca -c 3",
+    "delivContext": "visit hostname www.google.ca",
+    "featUseBehavior": "null",
+    "feature": "gmail notifier",
+    "classTags": "extension low-priority",
+    "presentationData": {
+      "all": {"message": "yay! gmail-notifier", "title": "Gmail Notifier Extension!", "rationale": "because gmail-notifier!"},
+      "log": {},
+      "splitpage": {"message": "yay! gmail-notifier for splitpage"},
+      "desktopnotification": {},
+      "doorhanger": {"primaryButtonLabel": "Look! a Button.", "secondaryButtonLabel": "Try it"}
+    },
+    "respCommandMap": ""
+  },
+
+  {
+  "id": "downloadManager",
+    "priority": 1,
+    "trigBehavior": "download added -c 2",
+    "delivContext": "download",
+    "featUseBehavior": "null",
+    "feature": "download manager",
+    "classTags": "extension med-priority",
+    "presentationData": {
+      "all": {"message": "yo! downloadManager"},
+      "log": {},
+      "splitpage": {"rationale": "because... you know!"},
+      "desktopnotification": {"title": "Download Manager!"}
+    },
+    "respCommandMap": ""
+  },
+
+  {
+  "id": "newTabShortcut",
+    "priority": 1,
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid tabs-newtab-button -c 3",
+    "delivContext": "chrome click tabbrowser-tabs -anonid tabs-newtab-button",
+    "featUseBehavior":"hotkey t -cmd -c 2",
+    "presentationData": {
+      "all": {
+        "message": "You can use <strong>CTRL+T</strong> to open a new tab faster!",
+        "title": "New tab shortcut",
+        "rationale": "Because you open tabs a lot. sdsssss ssgdgsd sgsdgsdg  sda  gdg"},
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {"primaryButtonLabel": "Learn more", "secondaryButtonLabel": "Try it!"}
+    },
+    "respCommandMap": ""
+  },
+
+  {"id": "closeTabShortcut",
+    "priority": 1,
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c 50",
+    "delivContext": "chrome click tabbrowser-tabs -anonid close-button",
+    "featUseBehavior": "hotkey w -cmd -c 2",
+    "presentationData": {
+      "all": {
+        "message": "You can use <strong>CTRL+W</strong> to close a tab faster!",
+        "title": "Close tab shortcut",
+        "rationale": "Because you open tabs a lot."},
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {"primaryButtonLabel": "Learn more", "secondaryButtonLabel": "Try it!"}
+    },
+    "respCommandMap": ""
+  }
+
+ ]  
