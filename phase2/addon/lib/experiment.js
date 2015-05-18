@@ -8,6 +8,8 @@ const expData = PersistentObject("simplePref", {address: expDataAddress});
 
 const init = function(){
   expData.mode = {rateLimit: true, moment: 'interruptible'};
+  //rate limit {true, false}
+  //moment {'interruptible', 'random', 'in-context'}
 };
 
 exports.expData = expData;
