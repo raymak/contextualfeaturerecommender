@@ -1,10 +1,12 @@
 "use strict";
 
 const {ActionButton} = require("sdk/ui/button/action");
+const {ToggleButton} = require("sdk/ui/button/toggle");
 const {Panel} = require("../panel");
 const {setTimeout, clearTimeout} = require("timers");
 const {PersistentObject} = require("utils");
 const {extractPresentationData} = require("recommendation");
+const tabs = require("sdk/tabs");
 const data = require("sdk/self").data;
 
 const dhDataAddress = "presentation.dhData";
@@ -18,20 +20,16 @@ const FADE_TIME_MS = 2000;
 let panel;
 let button;
 let hideTimeout;
+let buttonState = false;
 
 function init(){
   button = initButton(buttonClick);
   panel = initPanel(button);
 
-  panel.port.on("buttonClicked", function(){});
-  panel.port.on("hide", pHide);
-  panel.port.on("mouseenter", pMouseenter);
-  panel.port.on("mouseleave", pMouseleave);
-  panel.port.on("resize", resize);
 }
 
 function initPanel(button){
-  return Panel({
+  let nPanel =  Panel({
   autosize: true,
   autohide: false,
   focus: false,
@@ -40,19 +38,31 @@ function initPanel(button){
   onShow: onPanelShow,
   onHide: onPanelHide
   });
+
+  nPanel.port.on("buttonClicked", function(){});
+  nPanel.port.on("hide", pHide);
+  nPanel.port.on("mouseenter", pMouseenter);
+  nPanel.port.on("mouseleave", pMouseleave);
+  nPanel.port.on("resize", resize);
+  nPanel.port.on("infoPage", openInfoPage);
+
+  return nPanel;
+
 }
 
 function initButton(clickHandler){
-  return ActionButton({
+  return ToggleButton({
       id: "dh-button",
-      label: "Recommend Feature",
+      label: "Feature Recommender",
       icon: {
           "16": "./ui/icons/lightbulb_bw.png"
       },
-      onClick: clickHandler
+      onClick: clickHandler,
+      onChange: buttonChange
       // onChange: buttonChange
   });
 }
+
 
 function present(aRecommendation){
   dhData.currentRec = aRecommendation;
@@ -62,6 +72,7 @@ function present(aRecommendation){
 }
 
 function updateEntry(){
+  panel = initPanel(button);
   panel.port.emit("updateEntry", extractPresentationData.call(dhData.currentRec, "doorhanger"));
 }
 
@@ -74,23 +85,61 @@ function updateShow(){
     });
   }, 150);
 
-  
 
   clearTimeout(hideTimeout);
   hideTimeout = setTimeout(function(){
     hide(true);
   }, AUTO_FADE_TIME_MS);
+
+  buttonOn();
 } 
 
 function hide(fadeOut){
+
+  clearTimeout(hideTimeout);
+
   if (fadeOut)
     panel.fadeOut();
   else
     panel.hide();
+
+  buttonOff();
+}
+
+function buttonChange(state){
+  if (state.checked){
+    if (!panel.isShowing)
+    updateShow();
+  }
+  else
+    hide(true);
+
 }
 
 function buttonClick(state){
-  updateShow();
+
+}
+
+function buttonSwitch(state){
+  if (state)
+    buttonOn();
+  else
+    buttonOff();
+
+}
+function buttonOn(){
+  button.icon = "./ui/icons/lightbulb_gr.png";
+  if (buttonState) return;
+  //when sate is changed as below, button.state does not change, it only changes by button.click()
+  button.state("window", {checked: true}); 
+  buttonState = true;
+}
+
+function buttonOff(){
+  button.icon = "./ui/icons/lightbulb_bw.png";
+  if (!buttonState) return;
+  button.state("window", {checked: false});
+  buttonState = false;
 }
 
 function onPanelShow(){
@@ -101,9 +150,9 @@ function onPanelHide(){
 
 }
 
-function pHide(reason){
+function pHide(reason, fadeOut){
   console.log(reason);
-  hide();
+  hide(fadeOut);
 }
 
 function pMouseenter(){
@@ -115,6 +164,10 @@ function pMouseleave(){
   hideTimeout = setTimeout(function(){
     hide(true);
   }, FADE_TIME_MS);
+}
+
+function openInfoPage(){
+  tabs.open(data.url("infopage.html"));
 }
 
 function resize(size){

@@ -1,0 +1,404 @@
+
+* {
+  box-sizing: border-box;
+}
+
+  /* mostly from https://github.com/johngruen/project-dfa/tree/master/src */
+body {
+  color: #333333;
+  background: transparent;
+  font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+   }
+
+/*=====MINIMAL RESETS, ADJUSTMENTS, ETC =====*/
+h1, h2, h3, h4, h5, h6 {
+  color: #424f5a;
+}
+
+h1, h2, h3 {
+  /*padding-bottom:20px;
+  margin-bottom: 1em;*/ }
+
+
+h4, h5, h6 {
+  margin-bottom: 1.66em; }
+
+h1, h2 {
+  font-family: 'fira_sanslight'; }
+
+h3, h4, h5, h6 {
+  font-family: 'clear_sansregular'; }
+
+ul, ol, p {
+  line-height: 20px;
+  margin: .5em 0 0em 0; 
+}
+
+/* specific heights we like */
+
+h1 {
+  font-size:15px;
+}
+
+p {
+  font-size:15px;
+}
+
+/*div {border: solid 1px black}*/
+body {
+  /*position: relative;*/
+  width: 350px;
+  /*left: -10px;
+  top: -10px;*/
+  padding: 0 0;
+  margin: 0 0;
+  /*overflow: hidden;*/
+  
+}
+
+#topbar{
+  height: 20px; /*10%*/
+  margin-bottom: 5px;
+}
+
+#topbar:hover > #top-left-links {
+  opacity: 1;
+}
+
+#top-left-links{
+  opacity: 0;
+  margin-top: 6px;
+  margin-left: 10px;
+  font-size: 11px;
+  float: left;
+  display: inline;
+  transition: opacity 0.5s cubic-bezier(0.05,0.27,0.27,1) 0s;
+}
+
+
+#top-left-links.visible{
+  opacity: 1;
+}
+
+.top-left-link:hover{
+  text-decoration: underline;
+  color: rgba(10, 10, 10,  0.9);
+
+}
+
+.top-left-link.active{
+  text-decoration: none !important;
+  color: black !important;
+  transition: color 0.5s;
+  cursor: default;
+  font-weight: bold;
+}
+
+.top-left-link{
+  color: rgba(34, 34, 34, 0.69);
+  text-decoration: none;
+}
+
+#interpunct{
+  color: #3FB8E8;
+  font-size: 8px;
+  padding-right: 3px;
+  padding-left: 3px;
+}
+
+#interpunct.invisible{
+  visibility: hidden;
+}
+
+#neg-feedback{
+  transition: color 0.5s;
+}
+
+#neg-feeback.active{
+  color: black;
+  text-decoration: none !important;
+}
+
+
+#info-page.invisible{
+  visibility: hidden;
+}
+
+#close-button{
+  margin-top: 5px;
+  margin-right: 5px;
+  padding: 0px 5px;
+  float:right;
+  background: transparent;
+  color: #aaa;
+  cursor: default;
+  font-size: 17px;
+  border-radius: 20%;
+  background-image: url(chrome://global/skin/icons/close.png);
+  background-position: 0 0;
+  height: 16px;
+  width: 16px
+
+}
+
+#close-button:hover{
+  background-image: url(chrome://global/skin/icons/close.png);
+  background-position: 48px 0;
+  
+}
+
+#close-button:hover:active{
+  background-image: url(chrome://global/skin/icons/close.png);
+  background-position: 32px 0;
+}
+
+#topsection{
+  display:flex;
+  padding-right: 10px;
+  margin-bottom: 15px;
+  min-height: 112px;
+}
+
+#recommcontainer{
+  display: flex;
+  transition: opacity 0.5s visibility 0s ease 0.5s;
+  opacity: 1;
+}
+
+#recommcontainer.invisible{
+  visibility: hidden;
+  opacity: 0;
+}
+
+#picture {
+  /*position: absolute;*/
+  width: 30%;
+  height: 100%;
+  
+}
+#icon {
+  margin-left: 15px;
+  margin-top: 5px;
+  width: 60px;
+  height: 60px;
+
+}
+
+#textsection {
+  width: 70%;
+  height: 100%;
+}
+
+#header{
+  text-align: left;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  /*top: -5px;*/
+  /*position: relative;*/
+  font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+    /*border: solid 1px black;*/
+
+}
+#messagesection {
+  text-align: left;
+  font-family:  'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+#bottomsection{
+  /*position: relative;   */
+  height: 50px;
+  background: #DFE9E9;
+  border-top: solid 1px #9CA3A3;
+}
+
+#rationaleopener{
+  color: #666565;
+  margin-top: 5px;
+  display:block;
+  cursor: default;
+  font-size: 14px;
+}
+
+#rationalesection {
+  /*display:none;*/
+  max-height: 0px;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.2s;
+  overflow:hidden;
+  color: #666565;
+}
+
+#rationalesection.visible {
+  /*display: block;*/
+  max-height: 60px;
+  /*margin-bottom: 15px;*/
+  opacity: 1;
+}
+
+#rationalesection p {
+  font-size: 12px;
+  line-height: 14px;
+  margin-top: 0px;
+  padding-top: 5px;
+}
+
+#radiosection {
+ 
+  font-size: 11px;
+}
+
+#feedbackcontainer {
+  display:block;
+  margin-left: 20px;
+  position:absolute;
+  left: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+#feedbackcontainer.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+#apologysection {
+  font-size: 14px;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+/* radio button style from http://code.stephenmorley.org/html-and-css/styling-checkboxes-and-radio-buttons/ */
+
+input[type=checkbox]:not(old),
+input[type=radio]:not(old) {
+  width     : 2em;
+  margin    : 0;
+  padding   : 0;
+  font-size : 1em;
+  opacity   : 0;
+}
+
+input[type=checkbox]:not(old) + label,
+input[type=radio]:not(old) + label {
+  display      : inline-block;
+  margin-left  : -2em;
+  line-height  : 1.5em;
+}
+
+input[type=checkbox]:not(old) + label > span,
+input[type=radio   ]:not(old) + label > span{
+  display          : inline-block;
+  width            : 0.875em;
+  height           : 0.875em;
+  margin           : 0.25em 0.5em 0.25em 0.25em;
+  border           : 0.0625em solid rgb(192,192,192);
+  border-radius    : 0.25em;
+  background       : rgb(224,224,224);
+  background-image :         linear-gradient(rgb(240,240,240),rgb(224,224,224));
+  vertical-align   : bottom;
+}
+
+/*input[type=checkbox]:not(old):checked + label > span > span{
+  display          : block;
+  width            : 100%;
+  height           : 100%;
+  margin           : 0.125em;
+  border           : 0.0625em solid rgb(115,153,77);
+  border-radius    : 0.125em;
+  background       : linear-gradient(#8CD9D9, #66C1CC) repeat scroll 0% 0% #6CC;
+}*/
+
+input[type=checkbox]:not(old):checked + label > span:before{
+  content     : '\2713';
+  display     : block;
+  width       : 1em;
+  color       : rgb(153,204,102);
+  font-size   : 0.875em;
+  line-height : 1em;
+  text-align  : center;
+  text-shadow : 0 0 0.0714em rgb(115,153,77);
+  font-weight : bold;
+}
+
+
+
+#thankscontainer {
+  display:block;
+  margin-left: 20px;
+  position:absolute;
+  left: 0;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
+#thankscontainer.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+#thankscontainer p {
+  text-align: center;
+  vertical-align: middle;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#whylabel {
+  font-variant: small-caps; 
+  text-transform: lowercase;
+}
+
+#button-container{
+  width:70%;
+  float:right;
+  display:inline-block;
+  position: relative;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+#button-container.feedback{
+  float: none;
+  width: auto;
+  margin-left: 20px;
+}
+
+.button-style {
+  /*font-family: 'Helvetica Neue', Helvetica, sans-serif;*/
+  height: 60%;
+  width: 100px;
+  padding: 16px 0px;
+  /*margin: 8px auto;*/
+  font-size: 12px;
+  line-height: 0px;
+  display: inline-block;
+  text-align: center;
+  cursor: pointer;
+  font-weight: bold;
+  /*text-shadow: 0px 1px rgba(0, 0, 0, 0.3);*/
+  color: #FFF;
+  background-color: #3FB8E8;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.button-style.invisible{
+  display:none;
+}
+
+.button-style.feedback{
+  width: auto;
+}
+
+#prim-button{
+  margin-left:10px;
+}
+
+#sec-button{
+  background-color: transparent;
+  color: grey;
+  border-color: transparent;
+}
