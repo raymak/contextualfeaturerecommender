@@ -114,9 +114,9 @@ function openNegFeedback(){
   document.getElementById("prim-button").classList.add("invisible");
   document.getElementById("sec-button").classList.add("feedback");
   document.getElementById("sec-button").innerHTML = "Learn more about Feature Recommender";
-  document.getElementById("sec-button").addEventListener("click", function(e){
-    self.port.emit("infoPage");
-  });
+  // document.getElementById("sec-button").addEventListener("click", function(e){
+  //   self.port.emit("moreInfo");
+  // });
 }
 
 function expandRationale(){

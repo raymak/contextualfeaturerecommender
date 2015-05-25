@@ -219,8 +219,8 @@ function show(panel, options, anchor) {
   panel.setAttribute("id", "fr-panel");
 
   //no fade-in
-  // panel.style.transition = "none";
-  // panel.firstChild.style.transition = "none";
+  panel.style.transition = "none";
+  panel.firstChild.style.transition = "none";
 
   if (options.opacity)
    panel.style.opacity = String(options.opacity);
