@@ -14,12 +14,10 @@ module.metadata = {
 
 const { Ci } = require("chrome");
 const { setTimeout } = require('sdk/timers');
-const { isPrivateBrowsingSupported } = require('sdk/self');
-const { isWindowPBSupported } = require('sdk/private-browsing/utils');
 const { Class } = require("sdk/core/heritage");
 const { merge } = require("sdk/util/object");
 const { WorkerHost } = require("sdk/content/utils");
-const { Worker } = require("sdk/content/worker");
+const { Worker } = require("sdk/deprecated/sync-worker");
 const { Disposable } = require("sdk/core/disposable");
 const { WeakReference } = require('sdk/core/reference');
 const { contract: loaderContract } = require("sdk/content/loader");
@@ -291,25 +289,48 @@ let hides = filter(panelEvents, ({type}) => type === "popuphidden");
 let ready = filter(panelEvents, ({type, target}) =>
   getAttachEventType(modelFor(panelFor(target))) === type);
 
+// Panel event emitted when the contents of the panel has been loaded.
+let readyToShow = filter(panelEvents, ({type}) => type === "DOMContentLoaded");
+
 // Styles should be always added as soon as possible, and doesn't makes them
 // depends on `contentScriptWhen`
 let start = filter(panelEvents, ({type}) => type === "document-element-inserted");
 
 // Forward panel show / hide events to panel's own event listeners.
-on(shows, "data", ({target}) => emit(panelFor(target), "show"));
+on(shows, "data", ({target}) => {
+  let panel = panelFor(target);
+  if (modelFor(panel).ready)
+    emit(panel, "show");
+});
 
-on(hides, "data", ({target}) => emit(panelFor(target), "hide"));
+on(hides, "data", ({target}) => {
+  let panel = panelFor(target);
+  if (modelFor(panel).ready)
+    emit(panel, "hide");
+});
 
 on(ready, "data", ({target}) => {
   let panel = panelFor(target);
   let window = domPanel.getContentDocument(target).defaultView;
-  
+
   workerFor(panel).attach(window);
+});
+
+on(readyToShow, "data", ({target}) => {
+  let panel = panelFor(target);
+
+  if (!modelFor(panel).ready) {
+    modelFor(panel).ready = true;
+
+    if (viewFor(panel).state == "open")
+      emit(panel, "show");
+  }
 });
 
 on(start, "data", ({target}) => {
   let panel = panelFor(target);
   let window = domPanel.getContentDocument(target).defaultView;
-  
+
   attach(styleFor(panel), window);
 });
+

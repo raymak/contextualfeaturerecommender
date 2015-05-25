@@ -430,5 +430,18 @@ exports.getContentFrame = getContentFrame;
 function getContentDocument(panel) getContentFrame(panel).contentDocument
 exports.getContentDocument = getContentDocument;
 
-function setURL(panel, url) getContentFrame(panel).setAttribute("src", url)
+function setURL(panel, url) {
+  getContentFrame(panel).setAttribute("src", url ? require("self").data.url(url) : url);
+}
+
 exports.setURL = setURL;
+
+function allowContextMenu(panel, allow) {
+  if (allow) {
+    panel.setAttribute("context", "contentAreaContextMenu");
+  }
+  else {
+    panel.removeAttribute("context");
+  }
+}
+exports.allowContextMenu = allowContextMenu;
