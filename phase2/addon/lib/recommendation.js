@@ -3,6 +3,7 @@
 const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("utils");
 const {Route, equals, matches} = require("route");
+const logger = require("logger");
 
 const Recommendation = function(data) {
   let nRecommendation = {
@@ -77,10 +78,19 @@ const recSet = {
         return;
       }
 
+      let oldStatus = that[aRecommendation.id].status;
+
       that.remove(aRecommendation);
       that.add(aRecommendation);
 
+      let newStatus = that[aRecommendation.id].status;
+
       console.log("recommendation updated: id -> " + aRecommendation.id + ", status -> " + aRecommendation.status);
+
+      if (oldStatus != newStatus){
+        logger.logRecommUpdate(oldStatus, newStatus);
+      }
+
     });
   },
   getByRouteIndex: function(indexTable, route, status){

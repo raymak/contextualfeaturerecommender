@@ -20,12 +20,14 @@ self.port.on("updateEntry", function(entry, options){
   document.getElementById("prim-button").innerHTML = primButtonLabel;
   document.getElementById("sec-button").innerHTML = secButtonLabel;
   document.querySelector("#rationalesection p").innerHTML = rationale;
+
   
   updatePanelSize();
 
   //setting the callback
   document.getElementById("sec-button").addEventListener("click", buttonClick);
   document.getElementById("close-button").addEventListener("click", closeButtonClick);
+
 
   document.body.addEventListener("mouseenter", function(e){
     self.port.emit("mouseenter");
@@ -34,7 +36,7 @@ self.port.on("updateEntry", function(entry, options){
     self.port.emit("mouseleave");
   });
 
-
+  
   document.getElementById("neg-feedback").addEventListener("click", openNegFeedback);
 
   let rsTimeout;
@@ -66,17 +68,16 @@ self.port.on("updateEntry", function(entry, options){
 
   document.getElementById("info-page").addEventListener("click", function(e){
     self.port.emit("infoPage");
+    console.log(self.port);
   });
+
 
   window.addEventListener("keydown", function(e){
     if (e.key === "Escape")
       self.port.emit("hide", "escape");
   });
-  /*if (options.icon) {   // #134 decided against this.
-    document.getElementById("icon").src = options.icon;
-  }*/
-  if (options && options.panelSize)
-   changeBodySize(options.panelSize);
+
+  self.port.emit("conntest", "load");
 });
 
 
@@ -98,11 +99,11 @@ function changeBodySize(panelSize){
 }
 
 function updatePanelSize(width, height){
-    self.port.emit("resize", {height: height || Number(getComputedStyle(document.body).height.slice(0,-2)),
-     width: width || Number(getComputedStyle(document.body).width.slice(0,-2))});
+  self.port.emit("resize", {height: height || Number(getComputedStyle(document.body).height.slice(0,-2)),
+    width: width || Number(getComputedStyle(document.body).width.slice(0,-2))});
 }
 
-function openNegFeedback(){
+function openNegFeedback(){  
   collapseRationale();
   document.getElementById("feedbackcontainer").classList.add("visible");
   document.getElementById("recommcontainer").classList.add("invisible");
@@ -120,11 +121,13 @@ function openNegFeedback(){
 }
 
 function expandRationale(){
+  self.port.emit("conntest", "expand");
   document.getElementById("rationalesection").classList.add('visible');
   updatePanelSize();
 }
 
 function collapseRationale(){
+
   document.getElementById("rationalesection").addEventListener("transitionend", function hideRationale(e){
     document.getElementById("rationalesection").removeEventListener("transitionend", hideRationale);
     document.getElementById("rationalesection").classList.remove('visible');

@@ -10,7 +10,7 @@ require("presentation/splitpage").init();  //TODO: move somewhere more meaningfu
 require("presentation/doorhanger").init();
 require("experiment").init();
 require("timer").init();
-require("debug").init();
+// require("debug").init();
 
 
 const start = function(){
