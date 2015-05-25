@@ -53,6 +53,8 @@ exports.PersistentObject = function(type, options){
           }
           else
             target[name] = value;
+
+          return true;
         },
         ownKeys: function(target){
           return Object.getOwnPropertyNames(target).concat(Object.keys(JSON.parse(prefs[options.address])));
