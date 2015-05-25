@@ -9,11 +9,11 @@ const {getBrowserForTab, getTabForId} = require("sdk/tabs/utils");
 const tabs = require("sdk/tabs");
 const {Event, eventData, eventDataAddress} = require("event");
 const {Cu, Cc, Ci} = require("chrome");
-const prefs = require("sdk/simple-prefs").prefs;
+const {prefs} = require("sdk/simple-prefs");
 const presenter = require("presenter");
 const {PersistentRecSet} = require("recommendation");
 const timer = require("timer");
-const exp = require("experiment").expData;
+const exp = require("experiment");
 const system = require("sdk/system");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
@@ -23,8 +23,6 @@ Cu.import("resource://gre/modules/AddonManager.jsm");
 const NEWTAB_URL = 'about:newtab';
 const HOME_URL = 'about:home';
 const BLANK_URL = 'about:blank';
-
-const RANDOM_INTERVAL_TICK = 20;
 
 const recSetAddress = "controller.recommData";
 
@@ -76,7 +74,7 @@ const listener = {
       });
 
       interruptibeMomentEvent.checkPreconditions = function(){
-        return exp.mode.moment === 'interruptible';
+        return exp.mode().moment === 'interruptible';
       }
 
       interruptibeMomentEvent.effect = function(){
@@ -321,11 +319,11 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
-    if (exp.mode.rateLimit){
+    if (exp.mode().rateLimit){
       if (timer.isSilent()){
         console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
 
-        if (exp.mode.moment === "random"){
+        if (exp.mode().moment === "random"){
           console.log("rescheduling delivery time: id -> " + aRecommendation.id);
           this.rescheduleDelivery(aRecommendation);
           recommendations.update(aRecommendation);
@@ -355,7 +353,7 @@ const deliverer = {
   },
   scheduleDelivery: function(aRecommendation){
     let time = timer.elapsedTime();
-    let deliveryTime = timer.randomTime(time, time + RANDOM_INTERVAL_TICK);
+    let deliveryTime = timer.randomTime(time, time + prefs["random_interval_length_tick"]);
     aRecommendation.deliveryTime = deliveryTime;
 
     console.log("recommendation delivery scheduled: id -> " + aRecommendation.id + ", time -> " + deliveryTime + " ticks");
@@ -378,7 +376,7 @@ listener.behavior = function(route){
   if (recomms.length === 0)
     return;
 
-  let random = (exp.mode.moment === "random");
+  let random = (exp.mode().moment === "random");
 
   recomms.forEach(function(aRecommendation){
     aRecommendation.status = 'outstanding';
@@ -394,7 +392,7 @@ listener.behavior = function(route){
 
 listener.context = function(route){
 
-  if ((exp.mode.moment === 'interruptible' && route != '*') || exp.mode.moment === 'random')
+  if ((exp.mode().moment === 'interruptible' && route != '*') || exp.mode().moment === 'random')
     return;
 
   console.log("context -> route: " + route);

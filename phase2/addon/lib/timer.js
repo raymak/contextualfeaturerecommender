@@ -2,11 +2,10 @@
 
 const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
 const {PersistentObject} = require("utils");
+const {prefs} = require("sdk/simple-prefs");
 
 const timerDataAddress = "timer.data";
 const timerData = PersistentObject("simplePref", {address: timerDataAddress});
-const TICK_MS = 5000;
-const SILENCE_LENGTH_TICK = 20;
 
 const tickHandlers = [];
 
@@ -17,15 +16,17 @@ const init = function(){
   if (!timerData.silence)
     timerData.silenceStart = -1;
 
-  setInterval(tick, TICK_MS);
+  setInterval(tick, prefs["tick_length_s"]*1000);
 }
 
 const tick = function(){
+  const SILENCE_LENGTH_TICK = prefs["silence_length_s"] / prefs["tick_length_s"];
+
   let elapsedTime = timerData.elapsedTime + 1;
   timerData.elapsedTime = elapsedTime;
-  console.log("elapsed time: " + elapsedTime + " ticks = " + elapsedTime*TICK_MS/60000 + " minutes");
+  console.log("elapsed time: " + elapsedTime + " ticks = " + elapsedTime*prefs["tick_length_s"]/60000 + " minutes");
 
-  if (timerData.silenceStart != -1 && elapsedTime - timerData.silenceStart > SILENCE_LENGTH_TICK)
+  if (timerData.silenceStart != -1 && elapsedTime - timerData.silenceStart > silence_length_tick())
     endSilence();
 
   tickHandlers.forEach(function(callback){
@@ -55,11 +56,15 @@ const endSilence = function(){
 
 const isSilent = function(){
   let time = elapsedTime();
-  return (timerData.silenceStart != -1 && (time - timerData.silenceStart <= SILENCE_LENGTH_TICK));
+  return (timerData.silenceStart != -1 && (time - timerData.silenceStart <= silence_length_tick()));
 }
 
 const randomTime = function(start, end){
   return Math.floor(Math.random()*(end-start) + start + 1);
+}
+
+const silence_length_tick = function(){
+  return prefs["silence_length_s"] / prefs["tick_length_s"];
 }
 
 exports.elapsedTime = elapsedTime;
