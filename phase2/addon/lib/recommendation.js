@@ -2,18 +2,13 @@
 
 const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("utils");
-const {Route, equals, matches} = require("route");
-const logger = require("logger");
 
 const Recommendation = function(data) {
   let nRecommendation = {
     id: data.id,
     trigBehavior: data.trigBehavior || "null",
-    trigBehaviorRoute: Route(data.trigBehavior),
     featUseBehavior: data.featUseBehavior || "null",
-    featUseBehaviorRoute: Route(data.featUseBehavior),
     delivContext: data.delivContext || "null",
-    delivContextRoute: Route(data.delivContext),
     feature: data.feature,
     classTags: data.classTags,
     presentationData: data.presentationData,
@@ -42,10 +37,10 @@ const recSet = {
       that.routeIndexTables.forEach(function(indexTable){
         let currIndexTable = that[indexTable];
 
-        if (currIndexTable[aRecommendation[indexTable + "Route"].header])
-          currIndexTable[aRecommendation[indexTable + "Route"].header].push(aRecommendation.id);
+        if (currIndexTable[aRecommendation[indexTable]])
+          currIndexTable[aRecommendation[indexTable]].push(aRecommendation.id);
         else
-         currIndexTable[aRecommendation[indexTable + "Route"].header] = [aRecommendation.id];
+         currIndexTable[aRecommendation[indexTable]] = [aRecommendation.id];
 
         that[indexTable] = currIndexTable;
       });
@@ -61,7 +56,7 @@ const recSet = {
 
       that.routeIndexTables.forEach(function(indexTable){
         let currIndexTable = that[indexTable];
-        currIndexTable[aRecommendation[indexTable + "Route"].header] = currIndexTable[aRecommendation[indexTable + "Route"].header]
+        currIndexTable[aRecommendation[indexTable]] = currIndexTable[aRecommendation[indexTable]]
           .filter(function(id){return id!==aRecommendation.id});
 
         that[indexTable] = currIndexTable;
@@ -78,24 +73,14 @@ const recSet = {
         return;
       }
 
-      let oldStatus = that[aRecommendation.id].status;
-
       that.remove(aRecommendation);
       that.add(aRecommendation);
 
-      let newStatus = that[aRecommendation.id].status;
-
       console.log("recommendation updated: id -> " + aRecommendation.id + ", status -> " + aRecommendation.status);
-
-      if (oldStatus != newStatus){
-        logger.logRecommUpdate(oldStatus, newStatus);
-      }
-
     });
   },
   getByRouteIndex: function(indexTable, route, status){
     let that = this;
-    console.log(route);
 
     if (route === "*"){
       let recomms = [];
@@ -108,17 +93,10 @@ const recSet = {
       return recomms;
     }
 
-    if (typeof route === "string")
-      route = Route(route);
-
-    if (this[indexTable][route.header]){
-      console.log(this[indexTable][route.header]);
-      let recomms = this[indexTable][route.header].map(function(id){
+    if (this[indexTable][route]){
+      let recomms = this[indexTable][route].map(function(id){
         return that[id];
-      }).filter(function(aRecommendation){
-        return matches.call(aRecommendation[indexTable + "Route"], route);
       });
-
       if (status)
         recomms = recomms.filter(function(aRecommendation){return aRecommendation.status === status});
 
