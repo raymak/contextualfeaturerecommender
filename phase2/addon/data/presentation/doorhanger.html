@@ -8,7 +8,250 @@
   
   <head>
 
-    <link  rel="stylesheet" type="text/css" href="doorhanger.css">
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+    
+      /* mostly from https://github.com/johngruen/project-dfa/tree/master/src */
+    body {
+      color: #333333;
+      background: transparent;
+      font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+       }
+
+    /*=====MINIMAL RESETS, ADJUSTMENTS, ETC =====*/
+    h1, h2, h3, h4, h5, h6 {
+      color: #424f5a;
+    }
+
+    h1, h2, h3 {
+      /*padding-bottom:20px;
+      margin-bottom: 1em;*/ }
+
+    
+    h4, h5, h6 {
+      margin-bottom: 1.66em; }
+
+    h1, h2 {
+      font-family: 'fira_sanslight'; }
+
+    h3, h4, h5, h6 {
+      font-family: 'clear_sansregular'; }
+
+    ul, ol, p {
+      line-height: 20px;
+      margin: .5em 0 0em 0; 
+    }
+
+    /* specific heights we like */
+
+    h1 {
+      font-size:15px;
+    }
+
+    p {
+      font-size:15px;
+    }
+
+    /*div {border: solid 1px black}*/
+    body {
+      /*position: relative;*/
+      width: 350px;
+      /*left: -10px;
+      top: -10px;*/
+      padding: 0 0;
+      margin: 0 0;
+      /*overflow: hidden;*/
+      
+    }
+
+    #topbar{
+      height: 20px; /*10%*/
+      margin-bottom: 5px;
+    }
+
+    #topbar:hover > #top-left-links {
+      opacity: 1;
+    }
+
+    #top-left-links{
+      opacity: 0;
+      margin-top: 6px;
+      margin-left: 10px;
+      font-size: 12px;
+      float: left;
+      display: inline;
+      transition: opacity 0.5s cubic-bezier(0.05,0.27,0.27,1) 0s;
+    }
+
+
+    .top-left-link:hover{
+      text-decoration: underline;
+      color: rgba(10, 10, 10,  0.9);
+    }
+
+    .top-left-link{
+      color: rgba(34, 34, 34, 0.69);
+      text-decoration: none;
+    }
+
+    #interpunct{
+      color: #3FB8E8;
+      font-size: 8px;
+      padding-right: 3px;
+      padding-left: 3px;
+    }
+
+    #info-page{
+      /*margin-left: 10px;*/
+    }
+
+    #close-button{
+      margin-top: 2px;
+      margin-right: 5px;
+      padding: 0px 5px;
+      float:right;
+      background: transparent;
+      color: #aaa;
+      cursor: default;
+      font-size: 17px;
+      border-radius: 20%;
+
+    }
+
+    #close-button:hover{
+      background:#ccc;
+      color:#fff;
+      cursor: default;
+    }
+
+    #topsection{
+      display:flex;
+      padding-right: 10px;
+      margin-bottom: 15px;
+      min-height: 112px;
+    }
+
+    
+
+    #picture {
+      /*position: absolute;*/
+      width: 30%;
+      height: 100%;
+      
+    }
+    #icon {
+
+      margin-left: 15px;
+      margin-top: 5px;
+      width: 60px;
+      height: 60px;
+
+    }
+
+    #textsection {
+      width: 70%;
+      height: 100%;
+    }
+    
+    #header{
+      text-align: left;
+      margin-top: 5px;
+      margin-bottom: 5px;
+      /*top: -5px;*/
+      /*position: relative;*/
+      font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+        /*border: solid 1px black;*/
+
+    }
+    #messagesection {
+        text-align: left;
+        font-family:  'Helvetica Neue', Helvetica, sans-serif;
+        font-size: 14px;
+    }
+
+    #bottomsection{
+      /*position: relative;   */
+      height: 50px;
+      background: #DFE9E9;
+      border-top: solid 1px #9CA3A3;
+    }
+
+    #rationaleopener{
+      color: grey;
+      margin-top: 5px;
+      display:block;
+    }
+
+    #rationalesection {
+      /*display:none;*/
+      max-height: 0px;
+      opacity: 0;
+      transition: opacity 0.25s ease 0.25s;
+      overflow:hidden;
+    }
+
+    #rationalesection.visible {
+      /*display: block;*/
+      max-height: 60px;
+      /*margin-bottom: 15px;*/
+      opacity: 1;
+    }
+
+    #rationalesection p {
+      font-size: 12px;
+      line-height: 14px;
+      margin-top: 0px;
+      padding-top: 5px;
+    }
+
+    
+
+    #whylabel {
+      font-variant: small-caps; 
+        text-transform: lowercase;
+    }
+    
+    #button-container{
+      width:70%;
+      float:right;
+      display:inline-block;
+      position: relative;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .button-style {
+      /*font-family: 'Helvetica Neue', Helvetica, sans-serif;*/
+      height: 60%;
+      width: 100px;
+      padding: 16px 0px;
+      /*margin: 8px auto;*/
+      font-size: 12px;
+      line-height: 0px;
+      display: inline-block;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
+      /*text-shadow: 0px 1px rgba(0, 0, 0, 0.3);*/
+      color: #FFF;
+      background-color: #3FB8E8;
+      border-style: solid;
+      border-width: 1px;
+    }
+
+    #prim-button{
+      margin-left:10px;
+    }
+
+    #sec-button{
+      background-color: transparent;
+      color: grey;
+      border-color: transparent;
+    }
+    </style>  
+
 
   </head>
 
@@ -21,55 +264,29 @@
         <a href="#" id="info-page" class="top-left-link"> what's this? </a>
       </div>  
       <div id="close-button">
+        &#10006;
       </div>
     </div>
 
     <div id="topsection">
-      <div id="recommcontainer">
-        <div id="picture">
-          
-          <img id="icon" src="images/firefox-highres.png" />
+      <div id="picture">
+        
+        <img id="icon" src="images/firefox-highres.png" />
 
-        </div>
-
-        <div id="textsection">
-          <div id="messagesection">
-            <h1 id="header"> Recommendation for you </h1>
-
-            <p id="textbox"> <span id="addonname">Some Addon </span> can help you do what you want to do more efficiently. Try it to see for yourself! </p>
-            
-          </div>
-          <div id="rationalecontainer">
-            <a href="#" id="rationaleopener">why?</a>
-            <div id="rationalesection">
-              <p>
-                Because.... you know... you do that thing that you do pretty inefficiently. Just saying!
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
-      <div id="feedbackcontainer">
-        <div id="apologysection">
-          Oops! Can you tell us why?
-        </div>
-        <div id="radiosection">
-          <form id="feedback-form" action="">
-            <input id="choice1" type="checkbox" name="choice" value="choice1" />
-            <label for="choice1"><span><span></span></span>The recommended feature is irrelevant to me</label><br>
-            <input id="choice2" type="checkbox" name="choice" value="choice2" />
-            <label for="choice2"><span><span></span></span>I was interrupted at an inappropriate time</label><br>
-            <input id="choice3" type="checkbox" name="choice" value="choice3" />
-            <label for="choice3"><span><span></span></span>I am already familiar with the recommended feature</label><br>
-            <input id="choice4" type="checkbox" name="choice" value="choice4" />
-            <label for="choice4"><span><span></span></span>I already use the recommended feature</label><br>
-          </form>
-        </div>
-      </div>
+      <div id="textsection">
+        <div id="messagesection">
+          <h1 id="header"> Recommendation for you </h1>
 
-      <div id="thankscontainer">
-        <p> Thanks for your feedback! </p>
+          <p id="textbox"> <span id="addonname">Some Addon </span> can help you do what you want to do more efficiently. Try it to see for yourself! </p>
+          <a href="#" id="rationaleopener">why?</a>
+        </div>
+        <div id="rationalesection">
+          <p>
+            Because.... you know... you do that thing that you do pretty inefficiently. Just saying!
+          </p>
+        </div>
       </div>
 
     </div>
