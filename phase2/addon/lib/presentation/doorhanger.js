@@ -1,17 +1,21 @@
 "use strict";
 
+const {ActionButton} = require("sdk/ui/button/action");
 const {ToggleButton} = require("sdk/ui/button/toggle");
 const {Panel} = require("../panel");
-const {setTimeout, clearTimeout} = require("sdk/timers");
+const {setTimeout, clearTimeout} = require("timers");
 const {PersistentObject} = require("utils");
 const {extractPresentationData} = require("recommendation");
-const {prefs} = require("sdk/simple-prefs");
 const tabs = require("sdk/tabs");
-const {data} = require("sdk/self");
+const data = require("sdk/self").data;
 
 const dhDataAddress = "presentation.dhData";
 
 const dhData = PersistentObject("simplePref", {address: dhDataAddress});
+
+const AUTO_FADE_TIME_MS = 5000;
+const FADE_TIME_MS = 2000;
+
 
 let panel;
 let button;
@@ -41,7 +45,6 @@ function initPanel(button){
   nPanel.port.on("mouseleave", pMouseleave);
   nPanel.port.on("resize", resize);
   nPanel.port.on("infoPage", openInfoPage);
-  nPanel.port.on("conntest", function(m){console.log("conntest - " + m);});
 
   return nPanel;
 
@@ -86,7 +89,7 @@ function updateShow(){
   clearTimeout(hideTimeout);
   hideTimeout = setTimeout(function(){
     hide(true);
-  }, prefs["dh_autofade_time_ms"]);
+  }, AUTO_FADE_TIME_MS);
 
   buttonOn();
 } 
@@ -122,8 +125,8 @@ function buttonSwitch(state){
     buttonOn();
   else
     buttonOff();
-}
 
+}
 function buttonOn(){
   button.icon = "./ui/icons/lightbulb_gr.png";
   if (buttonState) return;
@@ -160,7 +163,7 @@ function pMouseleave(){
   clearTimeout(hideTimeout);
   hideTimeout = setTimeout(function(){
     hide(true);
-  }, prefs["dh_exitfade_time_ms"]);
+  }, FADE_TIME_MS);
 }
 
 function openInfoPage(){

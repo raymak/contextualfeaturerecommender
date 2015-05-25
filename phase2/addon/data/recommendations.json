@@ -66,17 +66,12 @@
         "secondaryButtonLabel": "Try it!"
       }
     },
-    "respCommandMap": {
-      "doorhanger": {
-        "primaryButton": "open link ",
-        "secondaryButton": "open link "
-      }
-    }
+    "respCommandMap": ""
   },
   {
     "id": "closeTabShortcut",
     "priority": 1,
-    "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c 4",
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c 50",
     "delivContext": "chrome click tabbrowser-tabs -anonid close-button",
     "featUseBehavior": "hotkey w -cmd -c 2",
     "presentationData": {
