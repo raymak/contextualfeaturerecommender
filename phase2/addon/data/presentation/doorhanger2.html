@@ -12,45 +12,18 @@
 
   </head>
 
-
   <body>
     <div id="topbar">
-      <div id="top-left-links">
+      <div id="top-left-links" style="opacity:1">
         <a href="#" id="neg-feedback" class="top-left-link"> I don't like this</a>
-        <span id="interpunct"> &#8226; </span>
-        <a href="#" id="info-page" class="top-left-link"> what's this? </a>
-      </div>  
+      </div> 
       <div id="close-button">
+        
       </div>
     </div>
 
     <div id="topsection">
-      <div id="recommcontainer">
-        <div id="picture">
-          
-          <img id="icon" src="images/firefox-highres.png" />
-
-        </div>
-
-        <div id="textsection">
-          <div id="messagesection">
-            <h1 id="header"> Recommendation for you </h1>
-
-            <p id="textbox"> <span id="addonname">Some Addon </span> can help you do what you want to do more efficiently. Try it to see for yourself! </p>
-            
-          </div>
-          <div id="rationalecontainer">
-            <a href="#" id="rationaleopener">why?</a>
-            <div id="rationalesection">
-              <p>
-                Because.... you know... you do that thing that you do pretty inefficiently. Just saying!
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="feedbackcontainer">
+      <div id="feedbackcontainer" class="visible">
         <div id="apologysection">
           Oops! Can you tell us why?
         </div>
@@ -71,13 +44,12 @@
       <div id="thankscontainer">
         <p> Thanks for your feedback! </p>
       </div>
-
     </div>
 
-    <div id="bottomsection">
-    <div id="button-container">
-      <button id="sec-button" class="button-style">Secondary</button>
-      <button id="prim-button" class="button-style">Primary</button>
+    <div id="bottomsection" >
+    <div id="button-container" class="feedback">
+      <button id="sec-button" class="button-style feedback">Learn more about Feature Recommender</button>
+      <button id="prim-button" class="button-style invisible">Primary</button>
     </div>
 
     </div>

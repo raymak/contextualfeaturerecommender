@@ -9,5 +9,68 @@
     "Gregg Lind <glind@mozilla.com"],
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "license": "MPL 2.0",
-  "version": "0.1"
+  "version": "0.1",
+  "preferences": [
+    {
+      "name": "tick_length_s",
+      "type": "integer",
+      "title": "Length of a tick in milliseconds",
+      "value": 5
+    },
+    {
+      "name": "silence_length_s",
+      "type": "integer",
+      "title": "Length of the silence period in milliseconds",
+      "value": 10
+    },
+    {
+      "name": "random_interval_length_tick",
+      "type": "integer",
+      "title": "Maximum length of the random time interval",
+      "value": 20
+    },
+    {
+      "name": "exp_mode_moment",
+      "type": "radio",
+      "title": "",
+      "value": "interruptible",
+      "options": [
+        {
+          "value": "random",
+          "label": "Random"
+        },
+        {
+          "value": "interruptible",
+          "label": "Interruptible"
+        },
+        {
+          "value": "in-context",
+          "label": "In-context"
+        }
+      ]
+    },
+    {
+      "name": "exp_mode_rate",
+      "type": "bool",
+      "title": "",
+      "value": false
+    },
+
+
+
+    {
+      "name": "dh_autofade_time_ms",
+      "type": "integer",
+      "title": "",
+      "value": 5000
+    },
+    {
+      "name": "dh_exitfade_time_ms",
+      "type": "integer",
+      "title": "",
+      "value": 2500
+    }
+
+
+  ]
 }
