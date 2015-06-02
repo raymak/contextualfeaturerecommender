@@ -4,16 +4,17 @@
 
 const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
+const {Route} = require("./route");
 const {URL} = require("sdk/url");
 const {getBrowserForTab, getTabForId} = require("sdk/tabs/utils");
 const tabs = require("sdk/tabs");
-const {Event, eventData, eventDataAddress} = require("event");
+const {Event, eventData, eventDataAddress} = require("./event");
 const {Cu, Cc, Ci} = require("chrome");
 const {prefs} = require("sdk/simple-prefs");
-const presenter = require("presenter");
-const {PersistentRecSet} = require("recommendation");
-const timer = require("timer");
-const exp = require("experiment");
+const presenter = require("./presenter");
+const {PersistentRecSet} = require("./recommendation");
+const timer = require("./timer");
+const exp = require("./experiment");
 const system = require("sdk/system");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
@@ -74,7 +75,7 @@ const listener = {
       });
 
       interruptibeMomentEvent.checkPreconditions = function(){
-        return exp.mode().moment === 'interruptible';
+        return exp.mode.moment === 'interruptible';
       }
 
       interruptibeMomentEvent.effect = function(){
@@ -319,11 +320,11 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
-    if (exp.mode().rateLimit){
+    if (exp.mode.rateLimit){
       if (timer.isSilent()){
         console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
 
-        if (exp.mode().moment === "random"){
+        if (exp.mode.moment === "random"){
           console.log("rescheduling delivery time: id -> " + aRecommendation.id);
           this.rescheduleDelivery(aRecommendation);
           recommendations.update(aRecommendation);
@@ -333,7 +334,7 @@ const deliverer = {
     }
 
     console.log("delivering " + aRecommendation.id);
-    presenter.present(aRecommendation);
+    presenter.present(aRecommendation, listener.command.bind(listener));
 
     aRecommendation.status = "delivered";
     recommendations.update(aRecommendation);
@@ -376,7 +377,7 @@ listener.behavior = function(route){
   if (recomms.length === 0)
     return;
 
-  let random = (exp.mode().moment === "random");
+  let random = (exp.mode.moment === "random");
 
   recomms.forEach(function(aRecommendation){
     aRecommendation.status = 'outstanding';
@@ -392,7 +393,7 @@ listener.behavior = function(route){
 
 listener.context = function(route){
 
-  if ((exp.mode().moment === 'interruptible' && route != '*') || exp.mode().moment === 'random')
+  if ((exp.mode.moment === 'interruptible' && route != '*') || exp.mode.moment === 'random')
     return;
 
   console.log("context -> route: " + route);
@@ -421,6 +422,22 @@ listener.featureUse = function(route){
       recommendations.update(aRecommendation);
     }
   });
+}
+
+listener.command = function(cmd){
+  let cmdRoute = Route(cmd);
+
+  switch(cmdRoute.header){
+    case "open url":
+      if (cmdRoute.l) 
+        tabs.open(cmdRoute.l);
+      else
+        console.log("no url provided for command: " + cmd);
+      break;
+    default:
+      console.log("command not recognized: " + cmd);
+  }
+
 }
 
 listener.dispatchRoute = function(route, options){

@@ -8,25 +8,25 @@
   "license": "MPL 2.0",
   "preferences": [
     {
-      "name": "tick_length_s",
+      "name": "timer.tick_length_s",
       "type": "integer",
       "title": "Length of a tick in milliseconds",
       "value": 5
     },
     {
-      "name": "silence_length_s",
+      "name": "timer.silence_length_s",
       "type": "integer",
       "title": "Length of the silence period in milliseconds",
       "value": 10
     },
     {
-      "name": "random_interval_length_tick",
+      "name": "timer.random_interval_length_tick",
       "type": "integer",
       "title": "Maximum length of the random time interval",
       "value": 20
     },
     {
-      "name": "exp_mode_moment",
+      "name": "experiment.mode_moment",
       "type": "radio",
       "title": " ",
       "value": "interruptible",
@@ -46,22 +46,26 @@
       ]
     },
     {
-      "name": "exp_mode_rate",
+      "name": "experiment.mode_rate",
       "type": "bool",
       "title": " ",
       "value": false
     },
-
-
+    {
+      "name": "experiment.default_mode_weights",
+      "type": "string",
+      "title": "Weigths based on which the user is randomly put into an experimental mode",
+      "value": "[1, 1, 1, 1, 1, 1]"
+    },
 
     {
-      "name": "dh_autofade_time_ms",
+      "name": "presentation.doorhanger.autofade_time_ms",
       "type": "integer",
       "title": " ",
       "value": 5000
     },
     {
-      "name": "dh_exitfade_time_ms",
+      "name": "presentation.doorhanger.exitfade_time_ms",
       "type": "integer",
       "title": " ",
       "value": 2500

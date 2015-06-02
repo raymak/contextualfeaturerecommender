@@ -1,0 +1,129 @@
+[
+  {
+    "id": "newTabShortcut",
+    "priority": 1,
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid tabs-newtab-button -c >3",
+    "delivContext": "chrome click tabbrowser-tabs -anonid tabs-newtab-button",
+    "featUseBehavior": "hotkey t -cmd -c 2",
+    "presentationData": {
+      "all": {
+        "message": "You can use <strong>CTRL+T</strong> to open a new tab faster!",
+        "title": "New tab shortcut",
+        "rationale": "Because you open tabs a lot."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"
+      }
+    }
+  },
+  {
+    "id": "",
+    "priority": 1,
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c 4",
+    "delivContext": "chrome click tabbrowser-tabs -anonid close-button",
+    "featUseBehavior": "hotkey w -cmd -c 2",
+    "presentationData": {
+      "all": {
+        "message": "You can use <strong>CTRL+W</strong> to open a new tab faster!",
+        "title": "New tab shortcut",
+        "rationale": "Because you close tabs a lot."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"
+      }
+    }
+  },
+  {
+    "id": "downloadManager",
+    "priority": 1,
+    "trigBehavior": "download added -c 2",
+    "delivContext": "download",
+    "featUseBehavior": "addon has ",
+    "presentationData": {
+      "all": {
+        "message": "Download Manager lets you view and manage your downloads easier and faster!",
+        "title": "Download Manager (S3)",
+        "rationale": "Because you download lots of files."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/s3download-statusbar/",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/477770/addon-477770-latest.xpi?src=dp-btn-primary"
+      }
+    }
+  },
+  {
+    "id": "turnOffTheLights",
+    "priority": 1,
+    "trigBehavior": "",
+    "delivContext": "",
+    "featUseBehavior": "addon has {ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
+    "presentationData": {
+      "all": {
+        "message": "You can use <strong>CTRL+T</strong> to open a new tab faster!",
+        "title": "New tab shortcut",
+        "rationale": "Because you open tabs a lot. sdsssss ssgdgsd sgsdgsdg  sda  gdg"
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": ""
+      }
+    }
+  },
+  {
+    "id": "closeTabShortcut",
+    "priority": 1,
+    "trigBehavior": "",
+    "delivContext": "",
+    "featUseBehavior": "",
+    "presentationData": {
+      "all": {
+        "message": "You can use <strong>CTRL+T</strong> to open a new tab faster!",
+        "title": "New tab shortcut",
+        "rationale": "Because you open tabs a lot. sdsssss ssgdgsd sgsdgsdg  sda  gdg"
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": ""
+      }
+    }
+  },
+
+]

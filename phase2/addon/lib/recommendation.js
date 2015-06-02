@@ -1,9 +1,9 @@
 "use strict";
 
 const {merge} = require("sdk/util/object");
-const {PersistentObject} = require("utils");
-const {Route, equals, matches} = require("route");
-const logger = require("logger");
+const {PersistentObject} = require("./utils");
+const {Route, equals, matches} = require("./route");
+const logger = require("./logger");
 
 const Recommendation = function(data) {
   let nRecommendation = {
@@ -157,6 +157,10 @@ const extractPresentationData = function(channel){
   return merge({}, this.presentationData["all"] || {}, this.presentationData[channel] || {});
 }
 
+const extractResponseCommandMap = function(channel){
+  return merge({}, this.respCommandMap["all"] || {}, this.respCommandMap[channel] || {});
+}
+
 const recommendationToString = function(){
     let that = this;
     return Object.keys(this).reduce(function(previousValue, currentValue, index, array) {
@@ -172,3 +176,4 @@ exports.extractPresentationData = extractPresentationData;
 exports.RecSet = RecSet;
 exports.PersistentRecSet = PersistentRecSet;
 exports.Recommendation = Recommendation;
+exports.extractResponseCommandMap = extractResponseCommandMap;

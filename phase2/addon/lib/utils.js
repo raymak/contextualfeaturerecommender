@@ -79,6 +79,21 @@ exports.PersistentObject = function(type, options){
   }
 }
 
+function weightedRandomInt(weightsArr){
+  let sum = weightsArr.reduce(function(pv, cv) { return pv + cv; }, 0);
+
+  let randInt = Math.floor(Math.random() * sum);
+
+  let index = 0;
+  let cummWeight = weightsArr[0];
+
+  for (let i = 0; i < sum; i++){
+    while (i == cummWeight) {index++; cummWeight += weightsArr[index];}
+    if (randInt == i) return index;
+  }
+}
+
 
 exports.override  = function() merge.apply(null, arguments);
+exports.weightedRandomInt = weightedRandomInt;
 

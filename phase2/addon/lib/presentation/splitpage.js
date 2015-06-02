@@ -3,8 +3,8 @@
 const {PageMod} = require("sdk/page-mod");
 const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
-const {PersistentObject} = require("utils");
-const {extractPresentationData} = require("recommendation");
+const {PersistentObject} = require("./utils");
+const {extractPresentationData} = require("./recommendation");
 
 const HTML_URL = data.url("./presentation/splitpage.html");
 const JS_URL = data.url("./presentation/splitpage.js");

@@ -5,7 +5,7 @@
 
 "use strict";
 
-var prefs = require("sdk/simple-prefs").prefs;
+
 var config = require("./config");
 
 const featureObjectAddress = "featureData.dataObject";

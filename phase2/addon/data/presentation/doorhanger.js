@@ -19,13 +19,18 @@ self.port.on("updateEntry", function(entry, options){
   document.getElementById("header").innerHTML = title;
   document.getElementById("prim-button").innerHTML = primButtonLabel;
   document.getElementById("sec-button").innerHTML = secButtonLabel;
+  if (!primButtonLabel)
+    document.getElementById("prim-button").classList.add('disabled');
+  if (!secButtonLabel)
+    document.getElementById("sec-button").classList.add('disabled');
   document.querySelector("#rationalesection p").innerHTML = rationale;
 
   
   updatePanelSize();
 
   //setting the callback
-  document.getElementById("sec-button").addEventListener("click", buttonClick);
+  document.getElementById("sec-button").addEventListener("click", secButtonClick);
+  document.getElementById("prim-button").addEventListener("click", primButtonClick);
   document.getElementById("close-button").addEventListener("click", closeButtonClick);
 
 
@@ -85,8 +90,14 @@ function capitalize(string){
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
-function buttonClick(){
-  self.port.emit("buttonClicked");
+function secButtonClick(){
+  self.port.emit("response", "secondaryButton");
+  self.port.emit("hide", "response", true);
+}
+
+function primButtonClick(){
+  self.port.emit("response", "primaryButton")
+  self.port.emit("hide", "response", true);
 }
 
 function closeButtonClick(){
@@ -115,14 +126,16 @@ function openNegFeedback(){
   document.getElementById("prim-button").classList.add("invisible");
   document.getElementById("sec-button").classList.add("feedback");
   document.getElementById("sec-button").innerHTML = "Learn more about Feature Recommender";
+  document.getElementById("sec-button").classList.remove("disabled");
+  document.getElementById("sec-button").removeEventListener("click", secButtonClick);
   document.getElementById("sec-button").addEventListener("click", function(e){
-    self.port.emit("infoPage");
+    self.port.emit("infoPage"); 
   });
 }
 
 function expandRationale(){
-  self.port.emit("conntest", "expand");
   document.getElementById("rationalesection").classList.add('visible');
+  document.getElementById("rationalesection").style.opacity = 1;
   updatePanelSize();
 }
 

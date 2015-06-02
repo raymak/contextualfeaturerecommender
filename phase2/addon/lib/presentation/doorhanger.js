@@ -4,7 +4,7 @@ const {ToggleButton} = require("sdk/ui/button/toggle");
 const {Panel} = require("../panel");
 const {setTimeout, clearTimeout} = require("sdk/timers");
 const {PersistentObject} = require("utils");
-const {extractPresentationData} = require("recommendation");
+const {extractPresentationData, extractResponseCommandMap} = require("recommendation");
 const {prefs} = require("sdk/simple-prefs");
 const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
@@ -17,6 +17,7 @@ let panel;
 let button;
 let hideTimeout;
 let buttonState = false;
+let command;
 
 function init(){
   button = initButton(buttonClick);
@@ -41,7 +42,7 @@ function initPanel(button){
   nPanel.port.on("mouseleave", pMouseleave);
   nPanel.port.on("resize", resize);
   nPanel.port.on("infoPage", openInfoPage);
-  nPanel.port.on("conntest", function(m){console.log("conntest - " + m);});
+  nPanel.port.on("response", response)
 
   return nPanel;
 
@@ -61,8 +62,9 @@ function initButton(clickHandler){
 }
 
 
-function present(aRecommendation){
+function present(aRecommendation, cmdCallback){
   dhData.currentRec = aRecommendation;
+  command = cmdCallback;
   console.log("showing " + aRecommendation.id);
   
   updateShow();  
@@ -86,7 +88,7 @@ function updateShow(){
   clearTimeout(hideTimeout);
   hideTimeout = setTimeout(function(){
     hide(true);
-  }, prefs["dh_autofade_time_ms"]);
+  }, prefs["presentation.doorhanger.autofade_time_ms"]);
 
   buttonOn();
 } 
@@ -160,7 +162,7 @@ function pMouseleave(){
   clearTimeout(hideTimeout);
   hideTimeout = setTimeout(function(){
     hide(true);
-  }, prefs["dh_exitfade_time_ms"]);
+  }, prefs["presentation.doorhanger.exitfade_time_ms"]);
 }
 
 function openInfoPage(){
@@ -169,6 +171,11 @@ function openInfoPage(){
 
 function resize(size){
   panel.resize(size.width+2, size.height+3);
+}
+
+function response(element, options){
+  let respCmdMap = extractResponseCommandMap.call(dhData.currentRec, "doorhanger");
+  command(respCmdMap[element]);
 }
 
 exports.init = init;

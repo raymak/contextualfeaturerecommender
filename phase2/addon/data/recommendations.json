@@ -63,13 +63,12 @@
       "desktopnotification": {},
       "doorhanger": {
         "primaryButtonLabel": "Learn more",
-        "secondaryButtonLabel": "Try it!"
+        "secondaryButtonLabel": null
       }
     },
     "respCommandMap": {
       "doorhanger": {
-        "primaryButton": "open link ",
-        "secondaryButton": "open link "
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"
       }
     }
   },

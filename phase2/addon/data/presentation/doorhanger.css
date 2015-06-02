@@ -349,6 +349,12 @@ input[type=checkbox]:not(old):checked + label > span:before{
   margin-right: auto;
 }
 
+#tp-logo {
+  height: 110px;
+  margin-top: 5px;
+  margin-left: 60px;
+}
+
 #whylabel {
   font-variant: small-caps; 
   text-transform: lowercase;
@@ -392,8 +398,13 @@ input[type=checkbox]:not(old):checked + label > span:before{
   display:none;
 }
 
+.button-style.disabled{
+  display:none;
+}
+
 .button-style.feedback{
   width: auto;
+  visibility: visible;
 }
 
 #prim-button{

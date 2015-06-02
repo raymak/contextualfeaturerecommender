@@ -431,7 +431,7 @@ function getContentDocument(panel) getContentFrame(panel).contentDocument
 exports.getContentDocument = getContentDocument;
 
 function setURL(panel, url) {
-  getContentFrame(panel).setAttribute("src", url ? require("self").data.url(url) : url);
+  getContentFrame(panel).setAttribute("src", url ? require("sdk/self").data.url(url) : url);
 }
 
 exports.setURL = setURL;
