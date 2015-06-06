@@ -46,7 +46,7 @@ self.port.on("updateEntry", function(entry, options){
 
   let rsTimeout;
 
-  document.getElementById("rationalecontainer").addEventListener("mouseenter", function(e){
+  document.getElementById("clickarea").addEventListener("mouseenter", function(e){
     if (document.getElementById("recommcontainer").classList.contains("invisible"))
       return;
 
@@ -73,7 +73,6 @@ self.port.on("updateEntry", function(entry, options){
 
   document.getElementById("info-page").addEventListener("click", function(e){
     self.port.emit("infoPage");
-    console.log(self.port);
   });
 
 
@@ -135,6 +134,7 @@ function openNegFeedback(){
 
 function expandRationale(){
   document.getElementById("rationalesection").classList.add('visible');
+  document.getElementById("triangle").classList.add('open');
   document.getElementById("rationalesection").style.opacity = 1;
   updatePanelSize();
 }
@@ -144,6 +144,7 @@ function collapseRationale(){
   document.getElementById("rationalesection").addEventListener("transitionend", function hideRationale(e){
     document.getElementById("rationalesection").removeEventListener("transitionend", hideRationale);
     document.getElementById("rationalesection").classList.remove('visible');
+    document.getElementById("triangle").classList.remove('open');
     updatePanelSize();
   });
 

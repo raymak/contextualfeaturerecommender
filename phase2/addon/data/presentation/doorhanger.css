@@ -7,7 +7,7 @@
 body {
   color: #333333;
   background: transparent;
-  font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+  font-family: Helvetica, Geneva, Arial, sans-serif;
    }
 
 /*=====MINIMAL RESETS, ADJUSTMENTS, ETC =====*/
@@ -56,7 +56,7 @@ body {
   
 }
 
-#topbar{
+#topbar {
   height: 20px; /*10%*/
   margin-bottom: 5px;
 }
@@ -65,7 +65,7 @@ body {
   opacity: 1;
 }
 
-#top-left-links{
+#top-left-links {
   opacity: 0;
   margin-top: 6px;
   margin-left: 10px;
@@ -76,17 +76,17 @@ body {
 }
 
 
-#top-left-links.visible{
+#top-left-links.visible {
   opacity: 1;
 }
 
-.top-left-link:hover{
+.top-left-link:hover {
   text-decoration: underline;
   color: rgba(10, 10, 10,  0.9);
 
 }
 
-.top-left-link.active{
+.top-left-link.active { 
   text-decoration: none !important;
   color: black !important;
   transition: color 0.5s;
@@ -94,37 +94,37 @@ body {
   font-weight: bold;
 }
 
-.top-left-link{
+.top-left-link {
   color: rgba(34, 34, 34, 0.69);
   text-decoration: none;
 }
 
-#interpunct{
+#interpunct {
   color: #3FB8E8;
   font-size: 8px;
   padding-right: 3px;
   padding-left: 3px;
 }
 
-#interpunct.invisible{
+#interpunct.invisible {
   visibility: hidden;
 }
 
-#neg-feedback{
+#neg-feedback {
   transition: color 0.5s;
 }
 
-#neg-feeback.active{
+#neg-feeback.active {
   color: black;
   text-decoration: none !important;
 }
 
 
-#info-page.invisible{
+#info-page.invisible {
   visibility: hidden;
 }
 
-#close-button{
+#close-button {
   margin-top: 5px;
   margin-right: 5px;
   padding: 0px 5px;
@@ -134,38 +134,38 @@ body {
   cursor: default;
   font-size: 17px;
   border-radius: 20%;
-  background-image: url(chrome://global/skin/icons/close.png);
+  background-image: url(chrome://global/skin/icons/close@2x.png);
   background-position: 0 0;
   height: 16px;
   width: 16px
 
 }
 
-#close-button:hover{
-  background-image: url(chrome://global/skin/icons/close.png);
+#close-button:hover {
+  background-image: url(chrome://global/skin/icons/close@2x.png);
   background-position: 48px 0;
   
 }
 
-#close-button:hover:active{
-  background-image: url(chrome://global/skin/icons/close.png);
+#close-button:hover:active {
+  background-image: url(chrome://global/skin/icons/close@2x.png);
   background-position: 32px 0;
 }
 
-#topsection{
+#topsection {
   display:flex;
   padding-right: 10px;
   margin-bottom: 15px;
   min-height: 112px;
 }
 
-#recommcontainer{
+#recommcontainer {
   display: flex;
   transition: opacity 0.5s visibility 0s ease 0.5s;
   opacity: 1;
 }
 
-#recommcontainer.invisible{
+#recommcontainer.invisible {
   visibility: hidden;
   opacity: 0;
 }
@@ -188,36 +188,52 @@ body {
   width: 70%;
   height: 100%;
 }
-
-#header{
+ 
+#header {
   text-align: left;
   margin-top: 5px;
   margin-bottom: 5px;
   /*top: -5px;*/
   /*position: relative;*/
-  font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+  /*font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;*/
+  font-family: Helvetica, Geneva, Arial, sans-serif;
     /*border: solid 1px black;*/
 
 }
 #messagesection {
   text-align: left;
-  font-family:  'Helvetica Neue', Helvetica, sans-serif;
+  font-family:  Helvetica, Geneva, Arial, sans-serif;
   font-size: 14px;
 }
 
-#bottomsection{
+#bottomsection {
   /*position: relative;   */
   height: 50px;
   background: #DFE9E9;
   border-top: solid 1px #9CA3A3;
 }
 
-#rationaleopener{
-  color: #666565;
+#rationalecontainer {
   margin-top: 5px;
-  display:block;
+}
+
+#clickarea {
+  width: 50px;
+}
+
+#rationaleopener {
+  color: #666565;
   cursor: default;
   font-size: 14px;
+  text-decoration: none;
+}
+
+#triangle {
+  width: 7px;
+}
+
+#triangle.open {
+  transform: rotate(90deg);
 }
 
 #rationalesection {
@@ -240,7 +256,7 @@ body {
   font-size: 12px;
   line-height: 14px;
   margin-top: 0px;
-  padding-top: 5px;
+  padding-top: 2px;
 }
 
 #radiosection {
@@ -360,7 +376,7 @@ input[type=checkbox]:not(old):checked + label > span:before{
   text-transform: lowercase;
 }
 
-#button-container{
+#button-container {
   width:70%;
   float:right;
   display:inline-block;
@@ -369,7 +385,7 @@ input[type=checkbox]:not(old):checked + label > span:before{
   transform: translateY(-50%);
 }
 
-#button-container.feedback{
+#button-container.feedback {
   float: none;
   width: auto;
   margin-left: 20px;
@@ -394,24 +410,24 @@ input[type=checkbox]:not(old):checked + label > span:before{
   border-width: 1px;
 }
 
-.button-style.invisible{
+.button-style.invisible 
   display:none;
 }
 
-.button-style.disabled{
+.button-style.disabled {
   display:none;
 }
 
-.button-style.feedback{
+.button-style.feedback {
   width: auto;
   visibility: visible;
 }
 
-#prim-button{
+#prim-button { 
   margin-left:10px;
 }
 
-#sec-button{
+#sec-button {
   background-color: transparent;
   color: grey;
   border-color: transparent;
