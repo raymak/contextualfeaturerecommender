@@ -10,12 +10,28 @@ const tabs = require("sdk/tabs");
 const override  = function() merge.apply(null, arguments);
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
+const modes = [
+  {rateLimit: false, moment: 'random'}, //0
+  {rateLimit: false, moment: 'interruptible'}, //1
+  {rateLimit: false, moment: 'in-context'}, //2
+  {rateLimit: true, moment: 'random'}, //3
+  {rateLimit: true, moment: 'interruptible'}, //4
+  {rateLimit: true, moment: 'in-context'} //5
+]
+
 const self = {
   get isInitialized(){
-    return !!prefs["self.isInitialized"];
+    return !!prefs["isInitialized"];
     },
   setInitialized: function(){
-    prefs["self.isInitialized"] = true;
+    prefs["isInitialized"] = true;
+  },
+  modes: modes,
+  get delMode(){
+    return {
+      rateLimit: prefs["delivery.mode.rate"],
+      moment: prefs["delivery.mode.moment"]
+    }
   },
   // also sets user id for the first tiem
   get userId(){

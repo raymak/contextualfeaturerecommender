@@ -26,7 +26,7 @@
       "value": 20
     },
     {
-      "name": "experiment.mode_moment",
+      "name": "delivery.mode.moment",
       "type": "radio",
       "title": " ",
       "value": "interruptible",
@@ -46,13 +46,13 @@
       ]
     },
     {
-      "name": "experiment.mode_rate",
+      "name": "delivery.mode.rate",
       "type": "bool",
       "title": " ",
       "value": false
     },
     {
-      "name": "experiment.default_mode_weights",
+      "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weigths based on which the user is randomly put into an experimental mode",
       "value": "[1, 1, 1, 1, 1, 1]"

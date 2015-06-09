@@ -409,8 +409,8 @@ input[type=checkbox]:not(old):checked + label > span:before{
   border-width: 1px;
 }
 
-.button-style.invisible 
-  display:none;
+.button-style.invisible { 
+  display: none;
 }
 
 .button-style.disabled {

@@ -14,25 +14,10 @@ const experiment = {
   //rate limit {true, false}
   //moment {'interruptible', 'random', 'in-context'}
   },
-  get mode(){
-    return {
-      rateLimit: prefs["experiment.mode_rate"],
-      moment: prefs["experiment.mode_moment"]
-    }
-  },
   get info(){
-    return merge({}, this.mode, {startTimeMs: startTimeMs()});
+    return {startTimeMs: startTimeMs()};
   }
 }
-
-const modes = [
-  {rateLimit: false, moment: 'random'}, //0
-  {rateLimit: false, moment: 'interruptible'}, //1
-  {rateLimit: false, moment: 'in-context'}, //2
-  {rateLimit: true, moment: 'random'}, //3
-  {rateLimit: true, moment: 'interruptible'}, //4
-  {rateLimit: true, moment: 'in-context'} //5
-]
 
 function assignRandomMode(weightsArr){
   return modes[require("./utils").weightedRandomInt(weightsArr)];  
@@ -49,7 +34,7 @@ function startTimeMs(){
 }
 
 function setMode(weights){
-  weights = weights || system.staticArgs.mode_weights || JSON.parse(prefs["experiment.default_mode_weights"]);
+  weights = weights || system.staticArgs.delMode_weights || JSON.parse(prefs["experiment.default_delMode_weights"]);
   // let modeint = require("./utils").weightedRandomInt(weights);
   // let mode = arms.arms[armint];
   // prefs["config.armnumber"] = armint;

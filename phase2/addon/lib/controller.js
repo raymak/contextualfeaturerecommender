@@ -14,7 +14,7 @@ const {prefs} = require("sdk/simple-prefs");
 const presenter = require("./presenter");
 const {PersistentRecSet} = require("./recommendation");
 const timer = require("./timer");
-const exp = require("./experiment");
+const {delMode} = require("./self");
 const system = require("sdk/system");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
@@ -75,7 +75,7 @@ const listener = {
       });
 
       interruptibeMomentEvent.checkPreconditions = function(){
-        return exp.mode.moment === 'interruptible';
+        return delMode.moment === 'interruptible';
       }
 
       interruptibeMomentEvent.effect = function(){
@@ -320,11 +320,11 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
-    if (exp.mode.rateLimit){
+    if (delMode.rateLimit){
       if (timer.isSilent()){
         console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
 
-        if (exp.mode.moment === "random"){
+        if (delMode.moment === "random"){
           console.log("rescheduling delivery time: id -> " + aRecommendation.id);
           this.rescheduleDelivery(aRecommendation);
           recommendations.update(aRecommendation);
@@ -377,7 +377,7 @@ listener.behavior = function(route){
   if (recomms.length === 0)
     return;
 
-  let random = (exp.mode.moment === "random");
+  let random = (delMode.moment === "random");
 
   recomms.forEach(function(aRecommendation){
     aRecommendation.status = 'outstanding';
@@ -393,7 +393,7 @@ listener.behavior = function(route){
 
 listener.context = function(route){
 
-  if ((exp.mode.moment === 'interruptible' && route != '*') || exp.mode.moment === 'random')
+  if ((delMode.moment === 'interruptible' && route != '*') || delMode.moment === 'random')
     return;
 
   console.log("context -> route: " + route);
