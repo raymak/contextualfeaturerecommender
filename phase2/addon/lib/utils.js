@@ -20,7 +20,7 @@ exports.partial = function(fn /*, arguments */) {
   return function(){
     return fn.apply(this, args.concat(Array.prototype.slice.call(arguments, 0)));
   };
-}
+};
 
 
 //TODO: add simpleStorage
@@ -77,9 +77,10 @@ exports.PersistentObject = function(type, options){
         }
     });
   }
-}
+};
 
-function weightedRandomInt(weightsArr){
+
+exports.weightedRandomInt = function(weightsArr){
   let sum = weightsArr.reduce(function(pv, cv) { return pv + cv; }, 0);
 
   let randInt = Math.floor(Math.random() * sum);
@@ -91,9 +92,27 @@ function weightedRandomInt(weightsArr){
     while (i == cummWeight) {index++; cummWeight += weightsArr[index];}
     if (randInt == i) return index;
   }
-}
+};
+
+//http://stackoverflow.com/a/20392392/4015333
+exports.tryParseJSON  = function(jsonString){
+  try {
+      var o = JSON.parse(jsonString);
+
+      // Handle non-exception-throwing cases:
+      // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+      // but... JSON.parse(null) returns 'null', and typeof null === "object", 
+      // so we must check for that, too.
+      if (o && typeof o === "object" && o !== null) {
+          return o;
+      }
+  }
+  catch (e) { }
+
+  return false;
+};
 
 
 exports.override  = function() merge.apply(null, arguments);
-exports.weightedRandomInt = weightedRandomInt;
+
 

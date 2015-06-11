@@ -4,7 +4,7 @@
 const {prefs} = require("sdk/simple-prefs");
 const {PersistentObject} = require("./utils");
 
-const eventDataAddress = "eventData";
+const eventDataAddress = "event.data";
 
 //TOTHINK: could potentially have multiple effect handlers (like in DOM), but is it necessary/good idea?
 //TOTHINK: to use the event API from the SDK to emit and listen

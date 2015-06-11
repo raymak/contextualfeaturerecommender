@@ -15,7 +15,7 @@ require("presentation/doorhanger").init();
 require("experiment").init();
 require("timer").init();
 require("logger").init();
-// require("debug").init();
+require("debug").init();
 
 
 exports.main = function(options, callbacks){
