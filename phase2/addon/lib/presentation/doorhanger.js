@@ -9,7 +9,7 @@ const {prefs} = require("sdk/simple-prefs");
 const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 
-const dhDataAddress = "presentation.dhData";
+const dhDataAddress = "presentation.doorhaanger.data";
 
 const dhData = PersistentObject("simplePref", {address: dhDataAddress});
 
@@ -20,6 +20,7 @@ let buttonState = false;
 let command;
 
 function init(){
+  console.log("initializing doorhanger");
   button = initButton(buttonClick);
   panel = initPanel(button);
 
@@ -36,7 +37,7 @@ function initPanel(button){
   onHide: onPanelHide
   });
 
-  nPanel.port.on("buttonClicked", function(){});
+  nPanel.port.on("log", function(m){console.log(m)});
   nPanel.port.on("hide", pHide);
   nPanel.port.on("mouseenter", pMouseenter);
   nPanel.port.on("mouseleave", pMouseleave);

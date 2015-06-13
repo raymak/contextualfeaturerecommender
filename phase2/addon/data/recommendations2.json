@@ -2,13 +2,13 @@
   {
     "id": "newTabShortcut",
     "priority": 1,
-    "trigBehavior": "chrome click tabbrowser-tabs -anonid tabs-newtab-button -c >3",
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid tabs-newtab-button -c >50 -if >2",
     "delivContext": "chrome click tabbrowser-tabs -anonid tabs-newtab-button",
-    "featUseBehavior": "hotkey t -cmd -c 2",
+    "featUseBehavior": "hotkey t -cmd -c >1",
     "presentationData": {
       "all": {
-        "message": "You can use <strong>CTRL+T</strong> to open a new tab faster!",
-        "title": "New tab shortcut",
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
+        "title": "New Tab shortcut",
         "rationale": "Because you open tabs a lot."
       },
       "log": {},
@@ -25,15 +25,15 @@
     }
   },
   {
-    "id": "",
+    "id": "closeTabShortcut",
     "priority": 1,
-    "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c 4",
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c >50 -if >1",
     "delivContext": "chrome click tabbrowser-tabs -anonid close-button",
-    "featUseBehavior": "hotkey w -cmd -c 2",
+    "featUseBehavior": "hotkey w -cmd -c >1",
     "presentationData": {
       "all": {
-        "message": "You can use <strong>CTRL+W</strong> to open a new tab faster!",
-        "title": "New tab shortcut",
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>W</span> keyboard shortcut to close a tab faster!",
+        "title": "Close Tab shortcut",
         "rationale": "Because you close tabs a lot."
       },
       "log": {},
@@ -50,42 +50,16 @@
     }
   },
   {
-    "id": "downloadManager",
+    "id": "reloadShortcut",
     "priority": 1,
-    "trigBehavior": "download added -c 2",
-    "delivContext": "download",
-    "featUseBehavior": "addon has ",
+    "trigBehavior": "chrome click urlbar-reload-button -c >10 -if >30",
+    "delivContext": "chrome click urlbar-reload-button",
+    "featUseBehavior": "hotkey r -cmd -c >1",
     "presentationData": {
       "all": {
-        "message": "Download Manager lets you view and manage your downloads easier and faster!",
-        "title": "Download Manager (S3)",
-        "rationale": "Because you download lots of files."
-      },
-      "log": {},
-      "desktopnotification": {},
-      "doorhanger": {
-        "primaryButtonLabel": "Learn more",
-        "secondaryButtonLabel": "Install it"
-      }
-    },
-    "respCommandMap": {
-      "doorhanger": {
-        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/s3download-statusbar/",
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/477770/addon-477770-latest.xpi?src=dp-btn-primary"
-      }
-    }
-  },
-  {
-    "id": "turnOffTheLights",
-    "priority": 1,
-    "trigBehavior": "",
-    "delivContext": "",
-    "featUseBehavior": "addon has {ec8030f7-c20a-464f-9b0e-13a3a9e97384}",
-    "presentationData": {
-      "all": {
-        "message": "You can use <strong>CTRL+T</strong> to open a new tab faster!",
-        "title": "New tab shortcut",
-        "rationale": "Because you open tabs a lot. sdsssss ssgdgsd sgsdgsdg  sda  gdg"
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>R</span> keyboard shortcut to reload the page faster!",
+        "title": "Page Reload shortcut",
+        "rationale": "Because you reload the page frequently."
       },
       "log": {},
       "desktopnotification": {},
@@ -96,7 +70,162 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "primaryButton": ""
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation"
+      }
+    }
+  },
+  {
+    "id": "fullScreenShortcut",
+    "priority": 1,
+    "trigBehavior": "chrome click titlebar-placeholder-on-TabsToolbar-for-fullscreen-button -c >10 -if >120",
+    "delivContext": "chrome click titlebar-placeholder-on-TabsToolbar-for-fullscreen-button",
+    "featUseBehavior": "hotkey f -cmd -shift -c >1",
+    "presentationData": {
+      "all": {
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>SHIFT</span>+<span class='key'>F</span> keyboard shortcut to toggle the full screen view quickly!",
+        "title": "Full Screen shortcut",
+        "rationale": "Because you toggle the full screen view a lot."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_miscellaneous"
+      }
+    }
+  },
+  {
+    "id": "downThemAll",
+    "priority": 1,
+    "trigBehavior": "download added -c >10 -if >60",
+    "delivContext": "download",
+    "featUseBehavior": "addon has {DDC359D1-844A-42a7-9AA1-88A850A938A8}",
+    "presentationData": {
+      "all": {
+        "message": "The DownThemAll lets you view and manage your downloads easier and faster!",
+        "title": "Download Them All!",
+        "rationale": "Because you download files frequently."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/downthemall/",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/201/addon-201-latest.xpi?src=dp-btn-primary"
+      }
+    }
+  },
+  {
+    "id": "turnOffTheLights",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.youtube.com -c >20 -if >20",
+    "delivContext": "visit hostname www.youtube.com",
+    "featUseBehavior": "addon has stefanvandamme@stefanvd.net",
+    "presentationData": {
+      "all": {
+        "message": "The Turn Off the Lights extension lets you watch videos as if you were in the cinema.",
+        "title": "Turn Off the Lights and enjoy!",
+        "rationale": "Because you like watching videos in Firefox."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/turn-off-the-lights/?src=ss",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/255270/addon-255270-latest.xpi?src=ss"
+      }
+    }
+  },
+  {
+    "id": "redditEnhancementSuite",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.reddit.com -c >4 -if >180",
+    "delivContext": "visit hostname www.reddit.com",
+    "featUseBehavior": "addon has jid1-xUfzOsOFlzSOXg@jetpack",
+    "presentationData": {
+      "all": {
+        "message": "The Reddit Enhancement Suite extension gives you the tools to enhance your reddit browsing experience.",
+        "title": "Enhance your reddit experience!",
+        "rationale": "Because you frequently visit reddit."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/reddit-enhancement-suite/",
+        "secondaryButton": "open url -l  https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=dp-btn-primary"
+      }
+    }
+  },
+  {
+    "id": "amazonWishListBtn",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.amazon.com -c >4 -if >720",
+    "delivContext": "visit hostname www.amazon.com",
+    "featUseBehavior": "addon has amznUWL2@amazon.com ",
+    "presentationData": {
+      "all": {
+        "message": "Provides a handy \"Add to Wish List\" button that lets you add any product from any website to your Amazon wish list with just a few clicks.",
+        "title": "Amazon Add to Wish List Button",
+        "rationale": "Because you visit the Amazon website frequently."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/add-to-amazon-wish-list-button/",
+        "secondaryButton": "open url -l  https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi?src=dp-btn-primary"
+      }
+    }
+  },
+  {
+    "id": "pinterestPinBtn",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.pinterest.com -c >4 -if >120",
+    "delivContext": "visit hostname www.pinterest.com",
+    "featUseBehavior": "addon has {677a8f98-fd64-40b0-a883-b8c95d0cbf17}",
+    "presentationData": {
+      "all": {
+        "message": "lets you pin images and upload your Pins to Pinterest quickly and easily with a special toolbar button.  ",
+        "title": "Pinterest Pin Button",
+        "rationale": "Because you visit the Pinterest website frequently."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/pinterest-pin-button/",
+        "secondaryButton": "open url -l  https://addons.mozilla.org/firefox/downloads/latest/428922/addon-428922-latest.xpi?src=dp-btn-primary"
       }
     }
   },
@@ -124,6 +253,5 @@
         "primaryButton": ""
       }
     }
-  },
-
+  }
 ]

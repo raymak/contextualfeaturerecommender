@@ -12,6 +12,7 @@ const JS_URL = data.url("./debug.js");
 const DEBUG_URL = "about:fr-d";
 
 function init(){
+  console.log("initializing debug")
   tabs.on('ready', function(tab){
   	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
   });

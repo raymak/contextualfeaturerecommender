@@ -6,6 +6,8 @@ const {Route, equals, matches} = require("./route");
 const logger = require("./logger");
 
 const Recommendation = function(data) {
+
+  data.presentationData.all = merge({}, {icon: ["images/icons/", data.id, ".png"].join("")}, data.presentationData.all);
   let nRecommendation = {
     id: data.id,
     trigBehavior: data.trigBehavior || "null",
@@ -22,6 +24,8 @@ const Recommendation = function(data) {
     priority: data.priority || 1,
     deliveryTime:undefined
   }
+
+
 
   return nRecommendation;
 }

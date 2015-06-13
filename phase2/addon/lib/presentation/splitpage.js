@@ -10,7 +10,7 @@ const HTML_URL = data.url("./presentation/splitpage.html");
 const JS_URL = data.url("./presentation/splitpage.js");
 const PAGE_URL = "about:fr-sp";
 
-const spDataAddress = "presentation.spData";
+const spDataAddress = "presentation.splitpage.data";
 
 const spData = PersistentObject("simplePref", {address: spDataAddress});
 

@@ -57,7 +57,33 @@
       "all": {
         "message": "You can use <strong>CTRL+T</strong> to open a new tab faster!",
         "title": "New tab shortcut",
-        "rationale": "Because you open tabs a lot. sdsssss ssgdgsd sgsdgsdg  sda  gdg"
+        "rationale": "Because you open tabs a lot."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      },
+      "splitpage": {}
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"
+      }
+    }
+  },
+  {
+    "id": "closeTabShortcut",
+    "priority": 1,
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c 10",
+    "delivContext": "chrome click tabbrowser-tabs -anonid close-button",
+    "featUseBehavior": "hotkey w -cmd -c 2",
+    "presentationData": {
+      "all": {
+        "message": "You can use <strong>CTRL+W</strong> to close a tab faster!",
+        "title": "Close tab shortcut",
+        "rationale": "Because you close tabs a lot."
       },
       "log": {},
       "desktopnotification": {},
@@ -73,24 +99,30 @@
     }
   },
   {
-    "id": "closeTabShortcut",
+    "id": "redditEnhancementSuite",
     "priority": 1,
-    "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c 4",
-    "delivContext": "chrome click tabbrowser-tabs -anonid close-button",
-    "featUseBehavior": "hotkey w -cmd -c 2",
+    "trigBehavior": "visit hostname www.reddit.com -c >1",
+    "delivContext": "visit hostname www.reddit.com",
+    "featUseBehavior": "addon has jid1-xUfzOsOFlzSOXg@jetpack",
     "presentationData": {
       "all": {
-        "message": "You can use <strong>CTRL+W</strong> to close a tab faster!",
-        "title": "Close tab shortcut",
-        "rationale": "Because you open tabs a lot."
+        "icon": "images/icons/alien-glow.png",
+        "message": "The Reddit Enhancement Suite extension gives you the tools to enhance your reddit browsing experience.",
+        "title": "Enhance your reddit experience!",
+        "rationale": "Because you frequently visit reddit."
       },
       "log": {},
       "desktopnotification": {},
       "doorhanger": {
         "primaryButtonLabel": "Learn more",
-        "secondaryButtonLabel": "Try it!"
+        "secondaryButtonLabel": "Install it"
       }
     },
-    "respCommandMap": ""
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/reddit-enhancement-suite/",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=dp-btn-primary"
+      }
+    }
   }
 ]

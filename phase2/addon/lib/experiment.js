@@ -13,6 +13,7 @@ const experiment = {
   // expData.mode = {rateLimit: true, moment: 'interruptible'};
   //rate limit {true, false}
   //moment {'interruptible', 'random', 'in-context'}
+  console.log("initializing experiment");
   },
   get info(){
     return {startTimeMs: startTimeMs()};

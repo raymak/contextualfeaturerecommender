@@ -10,13 +10,13 @@
     {
       "name": "timer.tick_length_s",
       "type": "integer",
-      "title": "Length of a tick in milliseconds",
-      "value": 5
+      "title": "Length of a tick in seconds",
+      "value": 60
     },
     {
       "name": "timer.silence_length_s",
       "type": "integer",
-      "title": "Length of the silence period in milliseconds",
+      "title": "Length of the silence period in seconds",
       "value": 10
     },
     {
@@ -62,13 +62,13 @@
       "name": "presentation.doorhanger.autofade_time_ms",
       "type": "integer",
       "title": " ",
-      "value": 5000
+      "value": 8000
     },
     {
       "name": "presentation.doorhanger.exitfade_time_ms",
       "type": "integer",
       "title": " ",
-      "value": 2500
+      "value": 5000
     }
 
 

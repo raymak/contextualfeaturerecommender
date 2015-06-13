@@ -55,7 +55,6 @@ function mapJsType2JsonViewClass(type){
     "json": "json"
   }
 
-  console.log(type);
   //unknown type is treated as null
   return map[type] || "null";
 }

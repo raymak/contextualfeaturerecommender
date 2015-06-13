@@ -229,6 +229,7 @@ body {
 
 #triangle {
   width: 7px;
+  transition: transform 0.3s;
 }
 
 #triangle.open {

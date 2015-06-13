@@ -8,13 +8,18 @@
 
 self.port.on("updateEntry", function(entry, options){
 
-
   let message = entry.message;
   let title = entry.title;
   let primButtonLabel = entry.primaryButtonLabel;
   let secButtonLabel = entry.secondaryButtonLabel;
   let rationale = entry.rationale || "";
+  let iconSrc = entry.icon;
+  self.port.emit("log", iconSrc);
 
+  document.getElementById("icon").src = iconSrc;
+  document.getElementById("icon").onerror = function(){
+    this.src = "images/firefox-highres.png";
+  };
   document.getElementById("textbox").innerHTML = message;
   document.getElementById("header").innerHTML = title;
   document.getElementById("prim-button").innerHTML = primButtonLabel;
