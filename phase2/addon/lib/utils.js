@@ -4,7 +4,6 @@
 const prefs = require("sdk/simple-prefs").prefs;
 const {merge} = require("sdk/util/object");
 
-
 /**
  * Applies partial arguments to a function
  *
@@ -24,6 +23,7 @@ exports.partial = function(fn /*, arguments */) {
 
 
 //TODO: add simpleStorage
+////TODO: add function definition capabilities using closures
 exports.PersistentObject = function(type, options){
   if (type === "simplePref"){
     //create if pref does not exist
@@ -110,6 +110,10 @@ exports.tryParseJSON  = function(jsonString){
   catch (e) { }
 
   return false;
+};
+
+exports.wordCount = function(str){
+  return str.split(" ").length;
 };
 
 

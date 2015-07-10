@@ -6,7 +6,7 @@
 "use strict";
 
 
-self.port.on("updateEntry", function(entry, options){
+self.port.on("updateEntry", function(entry, state, options){
 
   let message = entry.message;
   let title = entry.title;
@@ -20,6 +20,14 @@ self.port.on("updateEntry", function(entry, options){
   document.getElementById("icon").onerror = function(){
     this.src = "images/firefox-highres.png";
   };
+
+  if (state.like)
+    document.getElementById("likesection").classList.add("checked");
+
+  if (state.dontlike){
+    document.getElementById("neg-feedback").classList.add("checked");
+  }
+
   document.getElementById("textbox").innerHTML = message;
   document.getElementById("header").innerHTML = title;
   document.getElementById("prim-button").innerHTML = primButtonLabel;
@@ -37,6 +45,7 @@ self.port.on("updateEntry", function(entry, options){
   document.getElementById("sec-button").addEventListener("click", secButtonClick);
   document.getElementById("prim-button").addEventListener("click", primButtonClick);
   document.getElementById("close-button").addEventListener("click", closeButtonClick);
+  document.getElementById("like").addEventListener("click", likeClick);
 
 
   document.body.addEventListener("mouseenter", function(e){
@@ -47,7 +56,17 @@ self.port.on("updateEntry", function(entry, options){
   });
 
   
-  document.getElementById("neg-feedback").addEventListener("click", openNegFeedback);
+  document.getElementById("neg-feedback").addEventListener("click", function(e){
+    let nf = document.getElementById("neg-feedback");
+    if (nf.classList.contains("active")) return;
+
+    if (nf.classList.contains("checked"))
+      nf.classList.toggle("checked");
+    else
+      openNegFeedback();
+
+    self.port.emit("dontliketoggle");
+  });
 
   let rsTimeout;
 
@@ -58,6 +77,17 @@ self.port.on("updateEntry", function(entry, options){
     let rs = document.getElementById("rationalesection");
     if (rs.classList.contains('visible'))
       clearTimeout(rsTimeout);
+    else
+      expandRationale();
+  });
+
+  document.getElementById("clickarea").addEventListener("click", function(e){
+    if (document.getElementById("recommcontainer").classList.contains("invisible"))
+      return;
+
+    let rs = document.getElementById("rationalesection");
+    if (rs.classList.contains('visible'))
+      collapseRationale();
     else
       expandRationale();
   });
@@ -75,6 +105,8 @@ self.port.on("updateEntry", function(entry, options){
       rsTimeout = setTimeout(collapseRationale, 500);
     }
   });
+
+
 
   document.getElementById("info-page").addEventListener("click", function(e){
     self.port.emit("infoPage");
@@ -135,21 +167,22 @@ function openNegFeedback(){
   document.getElementById("sec-button").addEventListener("click", function(e){
     self.port.emit("infoPage"); 
   });
+  document.getElementById("neg-feedback").innerHTML = "I don't like this (New Tab shortcut)";
 }
 
 function expandRationale(){
   document.getElementById("rationalesection").classList.add('visible');
-  document.getElementById("triangle").classList.add('open');
+  document.getElementById("rationalecontainer").classList.add('open');
   document.getElementById("rationalesection").style.opacity = 1;
   updatePanelSize();
 }
 
 function collapseRationale(){
 
+  document.getElementById("rationalecontainer").classList.remove('open');
   document.getElementById("rationalesection").addEventListener("transitionend", function hideRationale(e){
     document.getElementById("rationalesection").removeEventListener("transitionend", hideRationale);
     document.getElementById("rationalesection").classList.remove('visible');
-    document.getElementById("triangle").classList.remove('open');
     updatePanelSize();
   });
 
@@ -164,4 +197,14 @@ function submitFeedback(){
       self.port.emit("hide", "feedbacksubmission", true);
     }, 3000);
   }, 500);
+}
+
+function likeClick(){
+  let likesection = document.getElementById("likesection");
+  let like = document.getElementById("like");
+
+  likesection.classList.toggle("checked");
+
+  self.port.emit("liketoggle");
+  
 }

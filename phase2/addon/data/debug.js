@@ -39,7 +39,7 @@ function updateObject(key){
     item.innerHTML = "<span class='prop'>"+ key + "</span>" + ": " +
        "<div id='key-" + key + "' class='value json'>" +  "</div>";
 
-    $("#key-" + key.replace(".", "\\.")).JSONView(data[key], { collapsed: true, nl2br: true, recursive_collapser: true });
+    $("#key-" + key.replace(/\./g, "\\.")).JSONView(data[key], { collapsed: true, nl2br: true, recursive_collapser: true });
   }
   else
     item.innerHTML = "<span class='prop'>"+ key + "</span>" + ": " + 
@@ -58,6 +58,5 @@ function mapJsType2JsonViewClass(type){
   //unknown type is treated as null
   return map[type] || "null";
 }
-
 
 

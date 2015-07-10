@@ -10,12 +10,15 @@ const {tryParseJSON} = require("./utils");
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
 const DEBUG_URL = "about:fr-d";
+let workers = [];
 
 function init(){
   console.log("initializing debug")
   tabs.on('ready', function(tab){
   	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
   });
+  registerPrefListeners();
+  
 
   PageMod({
     include: HTML_URL,
@@ -23,12 +26,13 @@ function init(){
     contentStyleFile: data.url('./css/jquery.jsonview.css'),
     contentScriptWhen: 'ready',
     onAttach: function(worker){
+       workers.push(worker);
+      worker.on('detach', function(){
+        detachWorker(worker, workers);
+      });
+      worker.port.on("log", function(m){console.log(m);});
       worker.port.emit("create");
       printPrefs(worker);
-      registerPrefListeners(worker);
-      worker.port.on("view-prefs", function(){
-        tabs.open("http://www.bodurov.com/JsonFormatter/view.aspx?json=" + JSON.stringify(sp.prefs));
-      });
     }
   });
 }
@@ -51,16 +55,27 @@ function printPrefs(worker){
   update(worker, types, data);
 };
 
-function registerPrefListeners(worker){
+function registerPrefListeners(){
+
   Object.keys(sp.prefs).sort().forEach(function(pref){
     sp.on(pref, function(pref){
       let types = {}, data = {};
       //does not update the type
       types[pref] = null;
       data[pref] = sp.prefs[pref];
-      update(worker, types, data);
+
+      workers.forEach(function(worker){
+        update(worker, types, data);
+      });
     });
   });
+}
+
+function detachWorker(worker, workerArray) {
+  let index = workerArray.indexOf(worker);
+  if(index != -1) {
+    workerArray.splice(index, 1);
+  }
 }
 
 exports.init = init;

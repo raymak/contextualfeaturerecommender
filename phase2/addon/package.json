@@ -57,20 +57,17 @@
       "title": "Weigths based on which the user is randomly put into an experimental mode",
       "value": "[1, 1, 1, 1, 1, 1]"
     },
-
     {
-      "name": "presentation.doorhanger.autofade_time_ms",
+      "name": "presentation.doorhanger.autofade_time_ms_per_word",
       "type": "integer",
       "title": " ",
-      "value": 8000
+      "value": 600
     },
     {
-      "name": "presentation.doorhanger.exitfade_time_ms",
+      "name": "presentation.doorhanger.exitfade_time_ms_per_word",
       "type": "integer",
       "title": " ",
-      "value": 5000
+      "value": 300
     }
-
-
   ]
 }

@@ -3,19 +3,21 @@
 const {ToggleButton} = require("sdk/ui/button/toggle");
 const {Panel} = require("../panel");
 const {setTimeout, clearTimeout} = require("sdk/timers");
-const {PersistentObject} = require("utils");
-const {extractPresentationData, extractResponseCommandMap} = require("recommendation");
+const {PersistentObject, wordCount} = require("../utils");
+const {extractPresentationData, extractResponseCommandMap} = require("../recommendation");
 const {prefs} = require("sdk/simple-prefs");
 const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
+const {merge} = require("sdk/util/object");
 
-const dhDataAddress = "presentation.doorhaanger.data";
+const dhDataAddress = "presentation.doorhanger.data";
 
 const dhData = PersistentObject("simplePref", {address: dhDataAddress});
 
 let panel;
 let button;
 let hideTimeout;
+let wrdCnt; //for auto-adjuting fading time
 let buttonState = false;
 let command;
 
@@ -44,6 +46,8 @@ function initPanel(button){
   nPanel.port.on("resize", resize);
   nPanel.port.on("infoPage", openInfoPage);
   nPanel.port.on("response", response)
+  nPanel.port.on("liketoggle", likeToggle);
+  nPanel.port.on("dontliketoggle", dontLikeToggle);
 
   return nPanel;
 
@@ -56,7 +60,7 @@ function initButton(clickHandler){
       icon: {
           "16": "./ui/icons/lightbulb_bw.png"
       },
-      onClick: clickHandler,
+      onClick: buttonClick,
       onChange: buttonChange
       // onChange: buttonChange
   });
@@ -64,7 +68,7 @@ function initButton(clickHandler){
 
 
 function present(aRecommendation, cmdCallback){
-  dhData.currentRec = aRecommendation;
+  dhData.currentRec = {recomm: aRecommendation, state:{like: false, dontlike: false, count: 0}};
   command = cmdCallback;
   console.log("showing " + aRecommendation.id);
   
@@ -73,28 +77,50 @@ function present(aRecommendation, cmdCallback){
 
 function updateEntry(){
   panel = initPanel(button);
-  panel.port.emit("updateEntry", extractPresentationData.call(dhData.currentRec, "doorhanger"));
+
+  let entry = extractPresentationData.call(dhData.currentRec.recomm, "doorhanger");
+  panel.port.emit("updateEntry", entry, dhData.currentRec.state);
+
+  wrdCnt = wordCount(entry.message);
+
 }
 
-function updateShow(){
+function updateShow(options, panelOptions){
   updateEntry();
 
-  setTimeout(function(){
-    panel.show({
-    position: button
-    });
-  }, 150);
+  showPanel(150, panelOptions);
 
+  let noSchedule = options && options.noschedule;
 
-  clearTimeout(hideTimeout);
-  hideTimeout = setTimeout(function(){
-    hide(true);
-  }, prefs["presentation.doorhanger.autofade_time_ms"]);
+  if (!noSchedule)
+    scheduleHide(prefs["presentation.doorhanger.autofade_time_ms_per_word"]*wrdCnt);
 
   buttonOn();
 } 
 
-function hide(fadeOut){
+function scheduleHide(time_ms){
+  clearTimeout(hideTimeout);
+  hideTimeout = setTimeout(function(){
+    hidePanel(true);
+  }, time_ms);
+}
+
+function showPanel(delay_ms, panelOptions){
+
+  //increment count
+  let currRec = dhData.currentRec;
+  let state = currRec.state;
+  merge(state, {count: state.count+1});
+  dhData.currentRec = merge({}, currRec, {state: state});
+
+  //delay to make sure the layout has been loaded
+  setTimeout(function(){
+    panel.show(merge({position: button}, panelOptions));
+  }, delay_ms || 0);
+
+}
+
+function hidePanel(fadeOut){
 
   clearTimeout(hideTimeout);
 
@@ -103,20 +129,19 @@ function hide(fadeOut){
   else
     panel.hide();
 
-  buttonOff();
 }
 
 function buttonChange(state){
   if (state.checked){
     if (!panel.isShowing)
-    updateShow();
+     updateShow({noschedule: true}, {autohide: true, focus: true});
   }
   else
-    hide(true);
-
+    hidePanel(true);
 }
 
 function buttonClick(state){
+
 
 }
 
@@ -147,12 +172,14 @@ function onPanelShow(){
 }
 
 function onPanelHide(){
+  buttonOff();
 
+  clearTimeout(hideTimeout);
 }
 
 function pHide(reason, fadeOut){
   console.log(reason);
-  hide(fadeOut);
+  hidePanel(fadeOut);
 }
 
 function pMouseenter(){
@@ -161,9 +188,8 @@ function pMouseenter(){
 
 function pMouseleave(){
   clearTimeout(hideTimeout);
-  hideTimeout = setTimeout(function(){
-    hide(true);
-  }, prefs["presentation.doorhanger.exitfade_time_ms"]);
+
+  scheduleHide(prefs["presentation.doorhanger.exitfade_time_ms_per_word"]*wrdCnt);
 }
 
 function openInfoPage(){
@@ -175,8 +201,24 @@ function resize(size){
 }
 
 function response(element, options){
-  let respCmdMap = extractResponseCommandMap.call(dhData.currentRec, "doorhanger");
+  let respCmdMap = extractResponseCommandMap.call(dhData.currentRec.recomm, "doorhanger");
   command(respCmdMap[element]);
+}
+
+function likeToggle(){
+  console.log("liketoggle");
+  let currRec = dhData.currentRec;
+  let state = currRec.state;
+  merge(state, {like: !state.like});
+  dhData.currentRec = merge({}, currRec, {state: state});
+}
+
+function dontLikeToggle(){
+  console.log("dontliketoggle");
+  let currRec = dhData.currentRec;
+  let state = currRec.state;
+  merge(state, {dontlike: !state.dontlike});
+  dhData.currentRec = merge({}, currRec, {state: state});
 }
 
 exports.init = init;

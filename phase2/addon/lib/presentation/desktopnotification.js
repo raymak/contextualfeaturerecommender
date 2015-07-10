@@ -1,7 +1,7 @@
 "use strict";
 
 const {notify} = require("sdk/notifications");
-const {extractPresentationData} = require("./recommendation");
+const {extractPresentationData} = require("../recommendation");
 
 function getData(aRecommendation){
 	return merge({}, aRecommendation.presentationData.all, aRecommendation.presentationData.desktopnotification);

@@ -55,7 +55,7 @@
     "featUseBehavior": "hotkey t -cmd -c 2",
     "presentationData": {
       "all": {
-        "message": "You can use <strong>CTRL+T</strong> to open a new tab faster!",
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
         "title": "New tab shortcut",
         "rationale": "Because you open tabs a lot."
       },
