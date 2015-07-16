@@ -9,7 +9,7 @@
       "all": {
         "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
         "title": "New Tab shortcut",
-        "rationale": "Because you open tabs a lot."
+        "rationale": "You open tabs a lot."
       },
       "log": {},
       "desktopnotification": {},
@@ -34,7 +34,7 @@
       "all": {
         "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>W</span> keyboard shortcut to close a tab faster!",
         "title": "Close Tab shortcut",
-        "rationale": "Because you close tabs a lot."
+        "rationale": "You close tabs a lot."
       },
       "log": {},
       "desktopnotification": {},
@@ -59,7 +59,7 @@
       "all": {
         "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>R</span> keyboard shortcut to reload the page faster!",
         "title": "Page Reload shortcut",
-        "rationale": "Because you reload the page frequently."
+        "rationale": "You reload the page frequently."
       },
       "log": {},
       "desktopnotification": {},
@@ -84,7 +84,7 @@
       "all": {
         "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>SHIFT</span>+<span class='key'>F</span> keyboard shortcut to toggle the full screen view quickly!",
         "title": "Full Screen shortcut",
-        "rationale": "Because you toggle the full screen view a lot."
+        "rationale": "You toggle the full screen view a lot."
       },
       "log": {},
       "desktopnotification": {},
@@ -109,7 +109,7 @@
       "all": {
         "message": "The DownThemAll lets you view and manage your downloads easier and faster!",
         "title": "Download Them All!",
-        "rationale": "Because you download files frequently."
+        "rationale": "You download files frequently."
       },
       "log": {},
       "desktopnotification": {},
@@ -135,7 +135,7 @@
       "all": {
         "message": "The Turn Off the Lights extension lets you watch videos as if you were in the cinema.",
         "title": "Turn Off the Lights and enjoy!",
-        "rationale": "Because you like watching videos in Firefox."
+        "rationale": "You like watching videos in Firefox."
       },
       "log": {},
       "desktopnotification": {},
@@ -161,7 +161,7 @@
       "all": {
         "message": "The Reddit Enhancement Suite extension gives you the tools to enhance your reddit browsing experience.",
         "title": "Enhance your reddit experience!",
-        "rationale": "Because you frequently visit reddit."
+        "rationale": "You frequently visit reddit."
       },
       "log": {},
       "desktopnotification": {},
@@ -187,7 +187,7 @@
       "all": {
         "message": "Provides a handy \"Add to Wish List\" button that lets you add any product from any website to your Amazon wish list with just a few clicks.",
         "title": "Amazon Add to Wish List Button",
-        "rationale": "Because you visit the Amazon website frequently."
+        "rationale": "You visit the Amazon website frequently."
       },
       "log": {},
       "desktopnotification": {},
@@ -213,7 +213,7 @@
       "all": {
         "message": "lets you pin images and upload your Pins to Pinterest quickly and easily with a special toolbar button.  ",
         "title": "Pinterest Pin Button",
-        "rationale": "Because you visit the Pinterest website frequently."
+        "rationale": "You visit the Pinterest website frequently."
       },
       "log": {},
       "desktopnotification": {},

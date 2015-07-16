@@ -24,7 +24,7 @@ let command;
 function init(){
   console.log("initializing doorhanger");
   button = initButton(buttonClick);
-  panel = initPanel(button);
+  // panel = initPanel(button);
 
 }
 

@@ -16,6 +16,9 @@ self.port.on("updateEntry", function(entry, state, options){
   let iconSrc = entry.icon;
   self.port.emit("log", iconSrc);
 
+  //schedule panel hide
+  self.port.emit("scheduleHideWord", entry.message.length)
+
   document.getElementById("icon").src = iconSrc;
   document.getElementById("icon").onerror = function(){
     this.src = "images/firefox-highres.png";
@@ -195,7 +198,7 @@ function submitFeedback(){
     document.getElementById("thankscontainer").classList.add("visible");
     setTimeout(function(){
       self.port.emit("hide", "feedbacksubmission", true);
-    }, 3000);
+    }, 1000);
   }, 500);
 }
 
