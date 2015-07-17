@@ -16,10 +16,12 @@ const {PersistentRecSet} = require("./recommendation");
 const timer = require("./timer");
 const {delMode} = require("./self");
 const system = require("sdk/system");
+const windows = require("sdk/windows");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
+Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 
 const NEWTAB_URL = 'about:newtab';
 const HOME_URL = 'about:home';
@@ -200,7 +202,66 @@ const listener = {
 
     }, {fresh: true});
 
+    this.listenForPrivateBrowsing(function(reason){
+      let privateBrowse = Event("privateBrowse", {
+        reason: reason,
+        route: ["private browse", reason].join(" ")
+      });
+
+      privateBrowse.effect = function(){
+        let route = this.options.route;
+        listener.dispatchRoute(route);
+      }
+
+      let multiplePrivateBrowse = that.multipleRoute(privateBrowse);
+
+      privateBrowse.postEvents.push(multiplePrivateBrowse);
+      privateBrowse.wake();
+    });
+
   
+    this.listenForHistory(function(reason){
+      let histInteraction = Event(("historyInteraction"), {
+        reason: reason,
+        route: "history"
+      });
+
+      histInteraction.effect = function(){
+        let route = this.options.route;
+
+        listener.dispatchRoute(route);
+      };
+
+      let multipleHistInteraction = that.multipleRoute(histInteraction);
+      histInteraction.postEvents.push(multipleHistInteraction);
+
+      //delete or clear
+      //TODO: implement as separate and merge using OR operation
+      
+      let histDeleted = Event("historyDeleted");
+
+      histDeleted.effect = function(){
+        let reason = this.preEvent.options.reason;
+        let baseRoute = this.preEvent.options.route;
+        this.options.route = [baseRoute, "deleted"].join(" ");
+
+        let route = this.options.route;
+
+        listener.dispatchRoute(route);
+      }
+
+      histDeleted.checkPreconditions = function(){
+        return (["cleared", "deletedURI", "deletedvisits"].indexOf(this.preEvent.options.reason) != -1);
+      }
+
+      histInteraction.postEvents.push(histDeleted);
+
+      let multipleHistDeleted = that.multipleRoute(histDeleted);
+      histDeleted.postEvents.push(multipleHistDeleted);
+
+      histInteraction.wake();
+    });
+
     this.listenForDownloads(function(reason){
 
       let downloadInteraction = Event("downloadInteraction", {
@@ -585,6 +646,48 @@ listener.listenForKeyboardEvent = function(callback, options){
   });
 }
 
+
+listener.listenForHistory = function(callback){
+
+  //Create history observer
+  let historyObserver = {
+  onBeginUpdateBatch: function() {},
+  onEndUpdateBatch: function() {
+  },
+  onVisit: function(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {},
+  onTitleChanged: function(aURI, aPageTitle) {},
+  onBeforeDeleteURI: function(aURI) {},
+  onDeleteURI: function(aURI) {
+    callback('deletedURI');
+
+  },
+  onClearHistory: function() {
+    callback('cleared');
+  },
+  onPageChanged: function(aURI, aWhat, aValue) {},
+  onDeleteVisits: function() {
+    callback("deletedvisits");
+  },
+  QueryInterface: XPCOMUtils.generateQI([Ci.nsINavHistoryObserver])
+  };
+
+  var hs = Cc["@mozilla.org/browser/nav-history-service;1"].
+         getService(Ci.nsINavHistoryService);
+
+  hs.addObserver(historyObserver, false);
+
+}
+
+listener.listenForPrivateBrowsing = function(callback){
+  console.log("mo");
+  windows.browserWindows.on('open', function(window){
+    if (require("sdk/private-browsing").isPrivate(window)){
+      callback('open');
+      
+    }
+  });
+}
+
 listener.multipleRoute = function(baseEvent, options){
 
     if (!options)
@@ -633,8 +736,11 @@ listener.multipleRoute = function(baseEvent, options){
     return rEvent;
   };
 
+
 function onUnload(reason){
   if (downloadList) downloadList.removeView();
+
+  hs.removeObserver(historyObserver);
 }
 
 exports.init = init;

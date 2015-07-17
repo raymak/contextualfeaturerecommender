@@ -6,6 +6,9 @@
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "license": "MPL 2.0",
+  "permissions": {
+    "private-browsing": true  
+  },
   "preferences": [
     {
       "name": "timer.tick_length_s",
