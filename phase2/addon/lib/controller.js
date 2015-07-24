@@ -12,16 +12,24 @@ const {Event, eventData, eventDataAddress} = require("./event");
 const {Cu, Cc, Ci} = require("chrome");
 const {prefs} = require("sdk/simple-prefs");
 const presenter = require("./presenter");
+const { MatchPattern } = require("sdk/util/match-pattern");
 const {PersistentRecSet} = require("./recommendation");
 const timer = require("./timer");
 const {delMode} = require("./self");
 const system = require("sdk/system");
 const windows = require("sdk/windows");
+const {modelFor} = require("sdk/model/core");
+const {viewFor} = require("sdk/view/core");
+const tab_utils = require("sdk/tabs/utils");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+const devtools = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools;
+
+const observerService = Cc["@mozilla.org/observer-service;1"]
+                      .getService(Ci.nsIObserverService);
 
 const NEWTAB_URL = 'about:newtab';
 const HOME_URL = 'about:home';
@@ -32,6 +40,9 @@ const recSetAddress = "controller.recommData";
 let recommendations = PersistentRecSet("simplePref", {address: recSetAddress});
 
 let downloadList;
+let hs;
+let sessObserver;
+let contentTypeObserver;
 
 const init = function(){
   console.log("initializing controller");
@@ -50,17 +61,137 @@ const listener = {
 
     let that = this;
 
-    this.listenForAddonEvents(function(eventType, addonId){
+    this.listenForTabs(function(reason, params){
+      let tabsEvent = Event("tabsEvent", {
+        route: ["tabs", reason].join(" "),
+        reason: reason,
+        params: params
+      });
+
+      tabsEvent.effect = function(){
+        let route = this.options.route;
+
+        //pinned is not about tabs being pinned
+        //it is about reporting the number of pinned tabs
+        //so should not be dispatched as tabs even
+        if (this.options.reason == "pinned") return;
+        
+        listener.dispatchRoute(route);
+      };
+
+      let multipleTabsEvent = that.multipleRoute(tabsEvent);
+
+      //see above
+      multipleTabsEvent.checkPreconditions = function(){
+        return (this.preEvent.options.reason != "pinned");
+      };
+
+      tabsEvent.postEvents.push(multipleTabsEvent);
+
+      let tabsOpened = Event("tabsOpened");
+
+      tabsOpened.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+
+        let route = [baseRoute, "-n", this.preEvent.options.params.number].join(" ");
+
+        listener.dispatchRoute(route);
+      };
+
+      tabsOpened.checkPreconditions = function(){
+        return (this.preEvent.options.reason == "opened");
+      };
+
+      tabsEvent.postEvents.push(tabsOpened);
+
+      let tabsPinned = Event("tabsPinned");
+
+      tabsPinned.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+
+        let route = [baseRoute, "-n", this.preEvent.options.params.number].join(" ");
+
+        listener.dispatchRoute(route);
+      };
+
+      tabsPinned.checkPreconditions = function(){
+        return (this.preEvent.options.reason == "pinned");
+      };
+
+      tabsEvent.postEvents.push(tabsPinned)
+
+      let tabsClicked = Event("tabsClicked");
+
+      tabsClicked.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+
+        let route = [baseRoute, "-position", this.preEvent.options.params.position].join(" ");
+
+        this.options.route = route;
+
+        // listener.dispatchRoute(route);
+      };
+
+      tabsEvent.postEvents.push(tabsClicked);
+
+      tabsClicked.checkPreconditions = function(){
+        return (this.preEvent.options.reason == "clicked");
+      };
+
+      let multipleTabsClicked = that.multipleRoute(tabsClicked);
+
+      tabsClicked.postEvents.push(multipleTabsClicked);
+
+      tabsEvent.wake();
+
+
+    });
+
+    this.listenForAddonEvents(function(eventType, params){
       let addonEvent = Event("addonEvent", {
-        route: ['addon', eventType, addonId].join(" ")
+        eventType: eventType,
+        params: params
       });
 
       addonEvent.effect = function(){
-        listener.dispatchRoute(this.options.route);
+        let route;
+        switch(this.options.eventType){
+          case "count":
+          route = ["addon", this.options.eventType, "-" + this.options.params.type, "-n", this.options.params.number].join(" ");
+          break;
+          case "pageshow":
+          route = ["addon", this.options.eventType].join(" ");
+          break;
+          default:
+          route = ["addon", this.options.eventType, params.addonId].join(" ");
+        }
+        this.options.route = route;
+        listener.dispatchRoute(route);
       };
 
       addonEvent.wake();
     });
+
+    // this.listenForContentType(function(contentType){
+    //   let contentTypeEvent = Event("contentTypeEvent",
+    //   {
+    //     route: ["contentType", contentType].join(" "),
+    //     contentType: contentType
+    //   });
+
+    //   contentType.effect = function(){
+    //     let route = this.options.route;
+
+    //     listener.dispatchRoute(route);
+    //   };
+
+    //   let multipleContentType = that.multipleRoute(contentTypeEvent);
+
+    //   contentTypeEvent.postEvents.push(multipleContentType);
+
+    //   contentTypeEvent.wake();
+
+    // }, ["application/json", "application/epub+zip"]);
 
     this.listenForActiveNewtab(function(){
       let newtabEvent = Event("newtabEvent", {
@@ -181,6 +312,66 @@ const listener = {
 
     });
 
+    //TODO: combine webapp, category, and hostname progress into url progress
+
+    this.listenForWebApps(function(appId){
+
+      let webAppOpen = Event("webAppOpen",{
+        route: "visit webapp",
+        appId: appId
+      });
+
+      webAppOpen.effect = function(){
+        let route = this.options.route;
+
+        listener.dispatchRoute(route);
+      }
+
+      let multipleWebAppOpen = that.multipleRoute(webAppOpen);
+
+      webAppOpen.postEvents.push(multipleWebAppOpen);
+
+      let webAppOpenId = Event("webAppOpenId");
+
+      webAppOpenId.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+        let appId = this.preEvent.options.appId;
+
+        let route = [baseRoute, "-appId", appId].join(" ");
+        this.options.route = route;
+
+        listener.dispatchRoute(route);
+      }
+
+      let multipleWebAppOpenId = that.multipleRoute(webAppOpenId);
+
+      webAppOpenId.postEvents.push(multipleWebAppOpenId);
+
+      webAppOpen.postEvents.push(webAppOpenId);
+
+      webAppOpen.wake();
+      
+    }, {fresh: true});
+
+    this.listenForWebsiteCategories(function(category){
+      let websiteCategoryEvent = Event("websiteCategoryEvent", {
+        route: ["visit category", category].join(" "),
+        category: category
+      });
+
+      websiteCategoryEvent.effect = function(){
+        let route = this.options.route;
+
+        listener.dispatchRoute(route);
+      }
+
+      let multipleWebsiteCategoryEvent = that.multipleRoute(websiteCategoryEvent);
+      websiteCategoryEvent.postEvents.push(multipleWebsiteCategoryEvent);
+
+      websiteCategoryEvent.wake();
+
+    }, {fresh: false});
+
     this.listenForActiveTabHostnameProgress(function(hostname){
 
       let hostVisit = Event("activeTabHostnameVisit", {
@@ -189,10 +380,10 @@ const listener = {
       });
 
       hostVisit.effect = function(){
-          let hostname = this.options.hostname; //TODO: remove if unnecessary
-          let route = this.options.route;
+        let hostname = this.options.hostname; //TODO: remove if unnecessary
+        let route = this.options.route;
 
-          listener.dispatchRoute(route);
+        listener.dispatchRoute(route);
         };
 
         let multipleHostVisit = that.multipleRoute(hostVisit);
@@ -201,6 +392,71 @@ const listener = {
         hostVisit.wake();
 
     }, {fresh: true});
+
+    this.listenForDevTools(function(reason, params){
+      let devToolsEvent = Event("devToolsEvent", {
+        route: ["dev", reason].join(" "),
+        reason: reason,
+        params: params
+      });
+
+      devToolsEvent.effect = function(){
+        let route = this.options.route;
+
+        listener.dispatchRoute(route);
+      };
+
+      let multipleDevToolsEvent = that.multipleRoute(devToolsEvent);
+
+      devToolsEvent.postEvents.push(multipleDevToolsEvent);
+
+      let devToolsSelect = Event("devToolsSelect");
+
+      devToolsSelect.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+        let toolId = this.preEvent.options.params.toolId;
+
+        let route = [baseRoute, "-tool", toolId].join(" ");
+
+        this.options.route = route;
+        this.options.toolId = toolId;
+
+        listener.dispatchRoute(route);
+      }
+
+      devToolsSelect.checkPreconditions = function(){
+        return (this.preEvent.options.reason == "select");
+      };
+
+      devToolsEvent.postEvents.push(devToolsSelect);
+
+      let multipleDevToolsSelect = that.multipleRoute(devToolsSelect);
+      devToolsSelect.postEvents.push(multipleDevToolsSelect);
+
+      devToolsEvent.wake();
+
+    });
+
+    this.listenForSessionStore(function(reason){
+      let sessRestored = Event("sessionRestored", {
+        reason: reason,
+        route: ["session", reason].join(" ")
+      });
+
+      sessRestored.effect = function(){
+        let route = this.options.route;
+        listener.dispatchRoute(route);
+      }
+
+      sessRestored.checkPreconditions = function(){
+        return (this.options.reason == "restored");
+      };
+
+      let multipleSessRestored = that.multipleRoute(sessRestored);
+      sessRestored.postEvents.push(multipleSessRestored);
+
+      sessRestored.wake();
+    });
 
     this.listenForPrivateBrowsing(function(reason){
       let privateBrowse = Event("privateBrowse", {
@@ -520,18 +776,38 @@ listener.dispatchRoute = function(route, options){
 }
 
 listener.listenForAddonEvents = function(callback){
+
+  tabs.on('ready', function(tab){
+    if (tab.url == "about:addons")
+      callback('pageshow');
+  });
+
+  function reportCount(){
+    AddonManager.getAllAddons(function(addons){
+        callback('count', {number: addons.length, type: 'all'});
+      });
+      AddonManager.getAddonsByTypes(['extension'], function(addons){
+        callback('count', {number: addons.length, type: 'extension'});
+      });
+      AddonManager.getAddonsByTypes(['theme'], function(addons){
+        callback('count', {number: addons.length, type: 'theme'});
+      });
+  }
+
   let addonListener = {
     onInstallEnded: function(install, addon){
-      callback('install', addon.id);
-      callback('has', addon.id);
+      callback('install', {addonId: addon.id});
+      callback('has', {addonId: addon.id});
+      reportCount();
     }
   }
 
   AddonManager.addInstallListener(addonListener);
 
   AddonManager.getAllAddons(function(addons){
+    reportCount();
     addons.forEach(function(addon){
-      callback('has', addon.id);
+      callback('has', {addonId: addon.id});
     });
   });
 }
@@ -565,6 +841,168 @@ listener.listenForActiveTabHostnameProgress = function(callback, options){
 
   });
 };
+
+
+//TODO: make this a more general listener (can be combined with listener for MIME types)
+listener.listenForWebApps = function(callback, options){
+
+  let apps = {};
+
+  apps = {
+    googleCal: new MatchPattern(/https:\/\/www\.google\.com\/calendar\/.*/),
+    gmail: new MatchPattern(/https:\/\/mail\.google\.com\/.*/),
+    gdrive: new MatchPattern(/https:\/\/drive\.google\.com\/.*/),
+    twitter: new MatchPattern(/https:\/\/twitter\.com.*/)
+  }
+
+  tabs.on("ready", function(tab){
+    // if (tab.id !== tabs.activeTab.id) return;//make sure it's the active tab
+      
+    let appId = null;
+
+    for (let id in apps){
+      if (apps[id].test(tab.url))
+        appId = id;
+    }
+
+    //TOTHINK: potential namespace conflict      
+    if (options.fresh && appId === tab.appId) return; //not a fresh url open
+
+    tab.appId = appId;
+
+    //TODO: use pattern matching 
+    // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
+    if (!appId) return; //app not recognized
+
+    callback(appId);
+  });
+};
+
+listener.listenForWebsiteCategories = function(callback, options){
+
+  let catIndx = {};
+
+  catIndx = {
+    academic: [ new MatchPattern(/http:\/\/ieeexplore\.ieee\.org\/.*/),
+                new MatchPattern(/https:\/\/scholar\.google\..*/),
+                new MatchPattern(/http:\/\/www\.sciencedirect\.com\/.*/),
+                new MatchPattern(/http:\/\/dl\.acm\.org\/.*/)
+                ],
+    search:   [ new MatchPattern(/https:\/\/www\.google\.com\/\?.*/),
+                new MatchPattern(/https:\/\/www\.bing\.com\/search\?.*/),
+                new MatchPattern(/https:\/\/.*\.search\.yahoo\.com\/.*/)
+                ],
+    specializedSearch: [ new MatchPattern(/http:\/\/www\.google\.com\/maps\/search\/.*/),
+                         new MatchPattern(/http:\/\/www\.imdb\.com\/find\?.*/),
+                         new MatchPattern(/https:\/\/en\.wikipedia\.org\/wiki\/Special:Search\?.*/),
+                         new MatchPattern(/https:\/\/en\.wikipedia\.org\/w\/index\.php\?search.*/)
+                         ]
+  };
+
+  tabs.on("ready", function(tab){
+    // if (tab.id !== tabs.activeTab.id) return;
+
+    let cats = [];
+
+    for (let c in catIndx){
+      let arr = catIndx[c];
+
+      for (let i in arr){
+        let pattern = arr[i];
+        if (pattern.test(tab.url)){
+          cats.push(c);
+          break;
+        }
+      }
+    }
+
+    //TOTHINK: potential namespace conflict    
+    if (options.fresh && JSON.stringify(cats) === JSON.stringify(tab.cats)) return;
+
+    tab.cats = cats;
+
+    if (cats.length == 0) return;
+
+    cats.forEach(function(cat){
+      callback(cat);
+    });
+  });
+
+}
+
+listener.listenForTabs = function(callback, options){
+  let reason;
+
+  let countPinnedTabs = function(){
+    let c = 0;
+
+    for (let i in tabs)
+      if (tabs[i].isPinned)
+        c++;
+
+    return c
+  }
+
+  let windowTracker = new WindowTracker({
+    onTrack: function (window){
+
+      if (!isBrowser(window)) return;
+
+      let tabBrowser = window.gBrowser;
+      tabBrowser.tabContainer.addEventListener("TabPinned", function(e){
+        reason = "pinned";
+        callback(reason, {number: countPinnedTabs()});
+      });
+      tabBrowser.tabContainer.addEventListener("TabUnpinned", function(e){
+        reason = "pinned";
+        callback(reason, {number: countPinnedTabs()});
+      });
+    }
+  });
+
+
+  let tabClick = function(e){
+      reason = "clicked";
+
+      if (e.currentTarget.getAttribute("last-tab") === "true"){
+        callback(reason, {position: "last"});
+      };
+
+      if (e.currentTarget.getAttribute("first-tab") === "true"){
+        callback(reason, {position: "first"});
+      };
+
+      // if (e.currentTarget.tabIndex < 8)
+      //   callback(reason, {position: "1-8"});
+    };
+
+  tabs.on('open', function(tab){
+    reason = "opened";
+    callback(reason, {number: tabs.length});
+
+    //listen for clicks
+    let xulTab = viewFor(tab);
+    xulTab.addEventListener("click", tabClick);
+  });
+
+  //initial tabs that are not handled by tab.on(open)
+  if (!options || !options.excludeInitialTabs){
+    for (let i in tabs){
+      let xulTab = viewFor(tabs[i]);
+      xulTab.addEventListener("click", tabClick);
+
+      reason = "opened";
+      callback(reason, {number: tabs.length});
+
+      callback("pinned", {number: countPinnedTabs()}); //in order to capture initial pinned tabs/ creates redundancy
+    }
+
+    tabs.on('activate', function(tab){
+      reason = "activated";
+      callback(reason);
+    });
+  }
+}
 
 listener.listenForDownloads = function(callback, options){
   let view = {
@@ -651,27 +1089,27 @@ listener.listenForHistory = function(callback){
 
   //Create history observer
   let historyObserver = {
-  onBeginUpdateBatch: function() {},
-  onEndUpdateBatch: function() {
-  },
-  onVisit: function(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {},
-  onTitleChanged: function(aURI, aPageTitle) {},
-  onBeforeDeleteURI: function(aURI) {},
-  onDeleteURI: function(aURI) {
-    callback('deletedURI');
+    onBeginUpdateBatch: function() {},
+    onEndUpdateBatch: function() {
+    },
+    onVisit: function(aURI, aVisitID, aTime, aSessionID, aReferringID, aTransitionType) {},
+    onTitleChanged: function(aURI, aPageTitle) {},
+    onBeforeDeleteURI: function(aURI) {},
+    onDeleteURI: function(aURI) {
+      callback('deletedURI');
 
-  },
-  onClearHistory: function() {
-    callback('cleared');
-  },
-  onPageChanged: function(aURI, aWhat, aValue) {},
-  onDeleteVisits: function() {
-    callback("deletedvisits");
-  },
-  QueryInterface: XPCOMUtils.generateQI([Ci.nsINavHistoryObserver])
+    },
+    onClearHistory: function() {
+      callback('cleared');
+    },
+    onPageChanged: function(aURI, aWhat, aValue) {},
+    onDeleteVisits: function() {
+      callback("deletedvisits");
+    },
+    QueryInterface: XPCOMUtils.generateQI([Ci.nsINavHistoryObserver])
   };
 
-  var hs = Cc["@mozilla.org/browser/nav-history-service;1"].
+  hs = Cc["@mozilla.org/browser/nav-history-service;1"].
          getService(Ci.nsINavHistoryService);
 
   hs.addObserver(historyObserver, false);
@@ -679,7 +1117,6 @@ listener.listenForHistory = function(callback){
 }
 
 listener.listenForPrivateBrowsing = function(callback){
-  console.log("mo");
   windows.browserWindows.on('open', function(window){
     if (require("sdk/private-browsing").isPrivate(window)){
       callback('open');
@@ -687,6 +1124,95 @@ listener.listenForPrivateBrowsing = function(callback){
     }
   });
 }
+
+listener.listenForSessionStore = function(callback){
+
+  sessObserver = {
+    observe: function(subject, topic, data) {
+      if (topic == "sessionstore-browser-state-restored"){ //sessionstore... not in Observer Notifications list
+        callback("restored");
+      }
+    },
+    register: function() {
+      observerService.addObserver(this, "sessionstore-browser-state-restored", false);
+    },
+    unregister: function() {
+      observerService.removeObserver(this, "sessionstore-browser-state-restored");
+    }
+  };
+
+  sessObserver.register();
+}
+
+listener.listenForContentType = function(callback, contentTypes){
+  contentTypeObserver = {
+    observe: function(subject,topic,data){
+      let httpChannel = 
+          subject.QueryInterface(Ci.nsIHttpChannel);
+      
+      let contentType, contentTypeExp;
+
+      try{
+        contentTypeExp = httpChannel.getResponseHeader("Content-Type").match(/.*[;\Z]/);
+      }
+      catch(e){}
+
+      if (contentTypeExp)
+        contentType = contentTypeExp[0].slice(0,-1);
+      else
+        return;
+      console.log(contentType);
+
+      let channel = subject.QueryInterface(Ci.nsIChannel);
+      let url = channel.URI.spec;
+      url = url.toString();
+
+      if (contentTypes.indexOf(contentType) != -1)
+        callback(contentType);
+      },
+    register: function() {
+      observerService.addObserver(this, "http-on-examine-response", false);
+    },
+    unregister: function() {
+        observerService.removeObserver(this, "http-on-examine-response");
+    }
+  };
+  contentTypeObserver.register();
+}
+
+// listening for command invocations is not useful because the menu items directly call gDevTools functions
+listener.listenForDevTools = function(callback){
+  let windowTracker = new WindowTracker({
+    onTrack: function (window){
+
+      if (!isBrowser(window)) return;
+
+      let gDevTools = window.gDevTools;
+      let gBrowser = window.gBrowser
+      
+      
+      gDevTools.on("toolbox-ready", function(e, toolbox){
+        let reason = "toolbox-ready";
+
+        let target = devtools.TargetFactory.forTab(gBrowser.selectedTab);
+        toolbox = gDevTools.getToolbox(target);
+
+        toolbox.on("select", function(e, toolId){
+          let reason = "select";
+          callback(reason, {toolId: toolId});
+        });
+
+        callback(reason);
+      });
+
+      gDevTools.on("select-tool-command", function(e, toolId){
+        let reason = "select";
+        callback(reason, {toolId: toolId});
+      });
+
+    }
+  });
+};
 
 listener.multipleRoute = function(baseEvent, options){
 
@@ -740,7 +1266,11 @@ listener.multipleRoute = function(baseEvent, options){
 function onUnload(reason){
   if (downloadList) downloadList.removeView();
 
-  hs.removeObserver(historyObserver);
+  if (hs) hs.removeObserver(historyObserver);
+
+  if (sessObserver) sessObserver.unregister();
+
+  if (contentTypeObserver) contentTypeObserver.unregister();
 }
 
 exports.init = init;
