@@ -38,34 +38,37 @@ function init(){
 }
 
 
-function update(worker, type, data){
-	worker.port.emit("update", type, data);
+function update(worker, type, lists, data){
+	worker.port.emit("update", type, lists, data);
 }
 
 function printPrefs(worker){
-  let data = {};
-  let types = {};
+  let recs = {};
   Object.keys(sp.prefs).sort().forEach(function(pref){
-    data[pref] = sp.prefs[pref];
+    recs[pref] = {};
+    recs[pref].data = sp.prefs[pref];
     if (tryParseJSON(sp.prefs[pref]))
-      types[pref] = 'json';
+      recs[pref].type = 'json';
     else
-      types[pref] = (typeof data[pref]);{}
+      recs[pref].type = (typeof data[pref]);
+
+    recs[pref].list = 'prefs';
   });
-  update(worker, types, data);
+  update(worker, recs);
 };
 
 function registerPrefListeners(){
-
   Object.keys(sp.prefs).sort().forEach(function(pref){
     sp.on(pref, function(pref){
-      let types = {}, data = {};
+      let recs = {};
+      recs[pref] = {};
       //does not update the type
-      types[pref] = null;
-      data[pref] = sp.prefs[pref];
+      recs[pref].type = null;
+      recs[pref].data = sp.prefs[pref];
+      recs[pref].list = 'prefs';
 
       workers.forEach(function(worker){
-        update(worker, types, data);
+        update(worker, recs);
       });
     });
   });
