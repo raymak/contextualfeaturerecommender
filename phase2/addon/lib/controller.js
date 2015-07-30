@@ -43,6 +43,7 @@ let downloadList;
 let hs;
 let sessObserver;
 let contentTypeObserver;
+let searchEngineObserver;
 
 const init = function(){
   console.log("initializing controller");
@@ -392,6 +393,48 @@ const listener = {
         hostVisit.wake();
 
     }, {fresh: true});
+
+    this.listenForSearchEngine(function(reason, params){
+
+      let searchEngModify = Event("searchEngModify",
+      {
+        route: ["search-engine", reason].join(" "),
+        reason: reason,
+        params: params
+      });
+
+      searchEngModify.effect = function(){
+        let route = this.options.route;
+        let reason = this.options.reason;
+
+        if (reason != "alias")
+          listener.dispatchRoute(route);
+      };
+
+
+      let multipleSearchEngModify = that.multipleRoute(searchEngModify);
+      searchEngModify.postEvents.push(multipleSearchEngModify);
+
+      let searchEngAliasEvent = Event("searchEngModifyAliasEvent");
+
+      searchEngAliasEvent.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+        let params = this.preEvent.options.params;
+
+        let route = [baseRoute, "-n", params.number].join(" ");
+
+        listener.dispatchRoute(route);
+      };
+
+      searchEngAliasEvent.checkPreconditions = function(){
+        return (this.preEvent.options.reason == "alias");
+      }
+
+      searchEngModify.postEvents.push(searchEngAliasEvent);
+
+      searchEngModify.wake();
+
+    });
 
     this.listenForDevTools(function(reason, params){
       let devToolsEvent = Event("devToolsEvent", {
@@ -1084,6 +1127,58 @@ listener.listenForKeyboardEvent = function(callback, options){
   });
 }
 
+listener.listenForSearchEngine = function(callback){
+
+  let searchService = Cc["@mozilla.org/browser/search-service;1"]
+                           .getService(Ci.nsIBrowserSearchService);
+
+  function countNondefaultAlias(engines){
+    let c  = 0;
+    engines.forEach(function(eng){
+      if (eng.alias)
+        c = c + 1;
+    });
+
+    return c;
+  }
+
+  function reportAliasCount(){
+    let engines = searchService.getEngines();
+
+    let c = countNondefaultAlias(engines);
+
+    if (c > 0)
+      callback("alias", {number: c});
+  }
+
+  searchService.init(function(){
+    // console.log(engines);
+    //TOTHINK: could potentially be done only the first run and make multiple modify events meaningful
+
+    reportAliasCount();
+  });
+
+  let modifyTopic = "browser-search-engine-modified";
+  searchEngineObserver = {
+    observe: function(aEngine, aTopic, aData){
+      if (aTopic == modifyTopic){
+        callback(aData);
+        
+        reportAliasCount();
+      }
+    },
+    register: function(){
+      Services.obs.addObserver(searchEngineObserver, modifyTopic, false);
+    },
+    unregister: function(){
+      Services.obs.removeObserver(searchEngineObserver, modifyTopic, false);
+    }
+  }
+
+  searchEngineObserver.register();
+
+};
+
 
 listener.listenForHistory = function(callback){
 
@@ -1271,6 +1366,8 @@ function onUnload(reason){
   if (sessObserver) sessObserver.unregister();
 
   if (contentTypeObserver) contentTypeObserver.unregister();
+
+  if (searchEngineObserver) searchEngineObserver.unregister();
 }
 
 exports.init = init;
