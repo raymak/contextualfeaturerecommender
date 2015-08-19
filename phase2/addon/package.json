@@ -29,6 +29,18 @@
       "value": 20
     },
     {
+      "name": "timer.inactive_threshold_s",
+      "type": "integer",
+      "title": "Minimum length of inactivity time to conclude user unactivity",
+      "value": 30
+    },
+    {
+      "name": "timer.recently_active_threshold_s",
+      "type": "integer",
+      "title": "Maximum length of activity time to conclude user has become active recently",
+      "value": 5
+    },
+    {
       "name": "delivery.mode.moment",
       "type": "radio",
       "title": " ",

@@ -7,7 +7,7 @@ const logger = require("./logger");
 
 const Recommendation = function(data) {
 
-  data.presentationData.all = merge({}, {icon: ["images/icons/", data.id, ".png"].join("")}, data.presentationData.all);
+  data.presentationData.['*'] = merge({}, {icon: ["images/icons/", data.id, ".png"].join("")}, data.presentationData['*']);
   let nRecommendation = {
     id: data.id,
     trigBehavior: data.trigBehavior || "null",
@@ -158,11 +158,11 @@ const PersistentRecSet = function(type, options){
   return nObj;
 }
 const extractPresentationData = function(channel){
-  return merge({}, this.presentationData["all"] || {}, this.presentationData[channel] || {});
+  return merge({}, this.presentationData["*"] || {}, this.presentationData[channel] || {});
 }
 
 const extractResponseCommandMap = function(channel){
-  return merge({}, this.respCommandMap["all"] || {}, this.respCommandMap[channel] || {});
+  return merge({}, this.respCommandMap["*"] || {}, this.respCommandMap[channel] || {});
 }
 
 const recommendationToString = function(){

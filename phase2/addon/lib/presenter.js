@@ -15,6 +15,7 @@ const present = function(aRecommendation, cmdCallback){
       if (that[channel])
         that[channel].present(aRecommendation, cmdCallback);
       else
+      if (channel != '*')
         console.log("warning: no presenter module named '" + channel + "' was found.");
   }
 }

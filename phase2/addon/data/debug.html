@@ -6,14 +6,19 @@
 		<link rel="stylesheet" type="text/css" href="debug.css">
 	</head>
 	<body>
-		<h1 id="HEADER">DEBUG</h1>
-		<button id="view-prefs-btn" name="view-prefs">View Prefs</button>
 		<div id="lists" class="jsonview">
 			<!-- <ul id="default-list">
 			</ul> -->
 		</div>
-		<div>
-		<pre id="prefs"></pre>
+		<div id="cmdInput">
+			<hr>
+			<p class="list-label">Command</p>
+			<form id="cmdForm">
+				<input type="text" id="cmdText" cols=100 autocomplete placeholder="Enter command..." autofocus>
+				<input type="submit" id="cmdBtn" value="submit">
+				<br>
+				<textarea id="cmdOut" readonly placeholder="output"></textarea>
+			</form>
 		</div>
 		
 	</body>

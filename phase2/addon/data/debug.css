@@ -1,6 +1,35 @@
 
 .list-label {
 	color: red;
-	text-transform: uppercase;
-	font-size:18px;
+	text-transform: capitalize;
+	font-size: 18px;
+	margin: 10px;
+}
+
+#cmdForm {
+	margin: 0 0 0 2em;
+}
+
+#cmdText {
+	resize: none;
+	line-height: 1.5;
+	height: 1.5em;
+	width: 500px;
+}
+
+#cmdBtn {
+	border-style: none;
+	line-height: 1.9em;
+	font-size: 12px;
+}
+
+#cmdOut {
+	border-top: none;
+	border-bottom: none;
+	border-right: none;
+	padding-left: 2px;
+	margin-top: 5px;
+	width: 500px;
+	resize: none;
+
 }

@@ -5,28 +5,28 @@
 const items = {};
 const records = {};
 
-self.port.on("create", function(sp){
-  document.getElementById("view-prefs-btn").addEventListener("click", function(){
-    self.port.emit("view-prefs");
+self.port.on("init", function(){
+
+  //registering listeners
+  $("#cmdForm").submit(function(e){
+    submitCmd();
+    e.preventDefault();
   });
 
 });
+
 
 self.port.on("update", function(recs){
   for (let key in recs){
       if (!records[key])
         records[key] = {};
       records[key].data = recs[key].data;
-      records[key].type = records[key].type || recs[key].type || 'string';
+      records[key].type = records[key].type || recs[key].type || typeof recs[key].data || 'string';
       records[key].list = records[key].list || recs[key].list || 'default'; //cannot modify the section of an existing item
       updateObject(key);
     }
 });
 
-self.port.on("prefs", function(prefs){
-  // print prefs output
-  $("#prefs-jsonview").JSONView(prefs, { collapsed: true, nl2br: true, recursive_collapser: true });
-});
 
 function updateObject(key){
   let item;
@@ -35,10 +35,10 @@ function updateObject(key){
   else
   {
     item = document.createElement("li");
-    let lst = document.getElementById(records[key].list + "-list");
+    let lst = document.getElementById(records[key].list.replace(/ /g, "-") + "-list");
     if (!lst){ //creating a new list
       lst = document.createElement("ul");
-      lst.setAttribute("id", records[key].list + "-list");
+      lst.setAttribute("id", records[key].list.replace(/ /g, "-") + "-list");
       let lsts = document.getElementById("lists");
       let lstLabel = document.createElement("p");
       lstLabel.classList.add("list-label");
@@ -76,4 +76,13 @@ function mapJsType2JsonViewClass(type){
   return map[type] || "null";
 }
 
+function submitCmd(){
+  self.port.emit("cmd", $("#cmdText").val());
+}
+
+function cmdOut(out){
+  $("#cmdOut").val($("#cmdOut").val()+ ">" + out + "\n" );
+}
+
+self.port.on("cmdOut", cmdOut);
 

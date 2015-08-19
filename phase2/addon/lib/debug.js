@@ -10,7 +10,10 @@ const {tryParseJSON} = require("./utils");
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
 const DEBUG_URL = "about:fr-d";
+
 let workers = [];
+let records = {};
+let cmdHandlers = [];
 
 function init(){
   console.log("initializing debug")
@@ -26,20 +29,48 @@ function init(){
     contentStyleFile: data.url('./css/jquery.jsonview.css'),
     contentScriptWhen: 'ready',
     onAttach: function(worker){
-       workers.push(worker);
+      workers.push(worker);
       worker.on('detach', function(){
         detachWorker(worker, workers);
       });
       worker.port.on("log", function(m){console.log(m);});
-      worker.port.emit("create");
+      worker.port.on("cmd", function(cmd){processCommand(worker, cmd);});
+      worker.port.emit("init");
       printPrefs(worker);
     }
   });
 }
 
+function dumpUpdateObject(obj, options){
+  let recs = {};
+  for (let k in obj){
+    if (typeof obj[k] === "object"){
+      recs[k] = {
+        data: JSON.stringify(obj[k]),
+        list: options && options.list,
+        type: "json"
+      };
+    }
+    else
+    {
+      recs[k] = {
+        data: obj[k],
+        list: options && options.list,
+        type: typeof obj[k]
+      };
+    }
+  }
+  updateAll(recs);
+}
 
-function update(worker, type, lists, data){
-	worker.port.emit("update", type, lists, data);
+function update(worker, recs){
+	worker.port.emit("update", recs);
+}
+
+function updateAll(recs){
+  workers.forEach(function(worker){
+    update(worker, recs);
+  });
 }
 
 function printPrefs(worker){
@@ -50,7 +81,7 @@ function printPrefs(worker){
     if (tryParseJSON(sp.prefs[pref]))
       recs[pref].type = 'json';
     else
-      recs[pref].type = (typeof data[pref]);
+      recs[pref].type = (typeof recs[pref].data);
 
     recs[pref].list = 'prefs';
   });
@@ -67,9 +98,7 @@ function registerPrefListeners(){
       recs[pref].data = sp.prefs[pref];
       recs[pref].list = 'prefs';
 
-      workers.forEach(function(worker){
-        update(worker, recs);
-      });
+      updateAll(recs);
     });
   });
 }
@@ -81,4 +110,38 @@ function detachWorker(worker, workerArray) {
   }
 }
 
+function processCommand(worker, cmd){
+  let handled = false;
+  let out;
+  cmdHandlers.forEach(function(h){
+    if (h){
+      if (out = h(cmd)){
+        handled = true;
+        worker.port.emit("cmdOut", out);
+      }
+    }
+    else 
+    {
+      console.log("warning: null debug command handler");
+    }
+  });
+
+  if (!handled){
+    //TODO: flash message
+    console.log("warning: unrecognized debug command");
+  }
+}
+
+function handleCmd(handler){
+  for (let h in cmdHandlers){
+    if (handler === cmdHandlers[h])
+      return;
+  }
+
+  cmdHandlers.push(handler);
+}
+
 exports.init = init;
+exports.handleCmd = handleCmd;
+exports.update = updateAll;
+exports.dumpUpdateObject = dumpUpdateObject;

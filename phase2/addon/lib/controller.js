@@ -21,6 +21,7 @@ const windows = require("sdk/windows");
 const {modelFor} = require("sdk/model/core");
 const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
+const {handleCmd} = require("./debug");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -49,6 +50,7 @@ const init = function(){
   console.log("initializing controller");
   listener.start();
   deliverer.init();
+  debug.init();
 }
 
 /**
@@ -209,7 +211,9 @@ const listener = {
       });
 
       interruptibeMomentEvent.checkPreconditions = function(){
-        return delMode.moment === 'interruptible';
+        // return (delMode.moment === 'interruptible') ;
+        return (timer.isRecentlyActive());
+        
       }
 
       interruptibeMomentEvent.effect = function(){
@@ -1356,6 +1360,44 @@ listener.multipleRoute = function(baseEvent, options){
 
     return rEvent;
   };
+
+const debug = {
+  init: function(){
+    handleCmd(this.parseCmd);
+  },
+  parseCmd: function(cmd){
+    const patt = /([^ ]*) *(.*)/; 
+    let args = patt.exec(cmd);
+    
+    if (!args)  //does not match the basic pattern
+      return false;
+
+    let name = args[1];
+    let params = args[2];
+
+    switch(name){
+      case "dispatch":
+        listener.dispatchRoute(params);
+      break;
+      case "behavior":
+        listener.behavior(params);
+      break;
+      case "context":
+        listener.context(params);
+      break;
+      case "featureUse":
+        listener.featureUse(params);
+      break;
+      case "command":
+        listener.command(params)
+      break;
+      default:
+        return false;
+    }
+
+    return " ";
+  }
+};
 
 
 function onUnload(reason){
