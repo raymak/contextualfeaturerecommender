@@ -8,7 +8,7 @@
     "feature": "gmail notifier",
     "classTags": "extension low-priority",
     "presentationData": {
-      "all": {
+      "*": {
         "message": "yay! gmail-notifier",
         "title": "Gmail Notifier Extension!",
         "rationale": "because gmail-notifier!"
@@ -34,7 +34,7 @@
     "feature": "download manager",
     "classTags": "extension med-priority",
     "presentationData": {
-      "all": {
+      "*": {
         "message": "yo! downloadManager"
       },
       "log": {},
@@ -54,7 +54,7 @@
     "delivContext": "chrome click tabbrowser-tabs -anonid tabs-newtab-button",
     "featUseBehavior": "hotkey t -cmd -c 2",
     "presentationData": {
-      "all": {
+      "*": {
         "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
         "title": "New tab shortcut",
         "rationale": "Because you open tabs a lot."
@@ -80,7 +80,7 @@
     "delivContext": "chrome click tabbrowser-tabs -anonid close-button",
     "featUseBehavior": "hotkey w -cmd -c 2",
     "presentationData": {
-      "all": {
+      "*": {
         "message": "You can use <strong>CTRL+W</strong> to close a tab faster!",
         "title": "Close tab shortcut",
         "rationale": "Because you close tabs a lot."
@@ -105,7 +105,7 @@
     "delivContext": "visit hostname www.reddit.com",
     "featUseBehavior": "addon has jid1-xUfzOsOFlzSOXg@jetpack",
     "presentationData": {
-      "all": {
+      "*": {
         "icon": "images/icons/alien-glow.png",
         "message": "The Reddit Enhancement Suite extension gives you the tools to enhance your reddit browsing experience.",
         "title": "Enhance your reddit experience!",

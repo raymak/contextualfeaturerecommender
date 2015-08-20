@@ -9,10 +9,11 @@ const {prefs} = require("sdk/simple-prefs");
 const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 const {merge} = require("sdk/util/object");
+const {dumpUpdateObject, handleCmd} = require("../debug");
 
 const dhDataAddress = "presentation.doorhanger.data";
 
-const dhData = PersistentObject("simplePref", {address: dhDataAddress});
+let dhData; //initialized in init()
 
 let panel;
 let button;
@@ -25,6 +26,11 @@ function init(){
   console.log("initializing doorhanger");
   button = initButton(buttonClick);
   // panel = initPanel(button);
+
+  dhData = PersistentObject("simplePref", {address: dhDataAddress, updateListener: debug.update});
+
+  debug.init();
+  debug.update();
 
 }
 
@@ -219,6 +225,18 @@ function dontLikeToggle(){
   let state = currRec.state;
   merge(state, {dontlike: !state.dontlike});
   dhData.currentRec = merge({}, currRec, {state: state});
+}
+
+const debug = {
+  init: function(){
+    handleCmd(this.parseCmd);
+  },
+  update: function(){
+    dumpUpdateObject(dhData, {label: "Presentation: Doorhanger"});
+  },
+  parseCmd: function(cmd){
+    return false;
+  }
 }
 
 exports.init = init;

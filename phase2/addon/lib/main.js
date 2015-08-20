@@ -40,8 +40,8 @@ function firstRun(){
   self.setInitialized();
 }
 
-function periodicLog(lapsedTime){
-  if (lapsedTime % 20 != 0) return;
+function periodicLog(elapsedTime){
+  if (elapsedTime % 20 != 0) return;
   logger.logPeriodicInfo(self.periodicInfo);
 }
 

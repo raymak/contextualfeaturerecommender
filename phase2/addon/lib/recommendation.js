@@ -7,7 +7,8 @@ const logger = require("./logger");
 
 const Recommendation = function(data) {
 
-  data.presentationData.['*'] = merge({}, {icon: ["images/icons/", data.id, ".png"].join("")}, data.presentationData['*']);
+  data.presentationData['*'] = merge({}, {icon: ["images/icons/", data.id, ".png"].join("")}, data.presentationData['*']);
+
   let nRecommendation = {
     id: data.id,
     trigBehavior: data.trigBehavior || "null",

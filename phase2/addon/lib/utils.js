@@ -54,6 +54,9 @@ exports.PersistentObject = function(type, options){
           else
             target[name] = value;
 
+          if (options.updateListener)
+            options.updateListener(this);
+
           return true;
         },
         ownKeys: function(target){
@@ -74,6 +77,9 @@ exports.PersistentObject = function(type, options){
             prefs[options.address] = JSON.stringify(dataObj);
             return res;
           }
+
+          if (options.updateListener)
+            options.updateListener(this);
         }
     });
   }

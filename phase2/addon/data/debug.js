@@ -81,7 +81,7 @@ function submitCmd(){
 }
 
 function cmdOut(out){
-  $("#cmdOut").val($("#cmdOut").val()+ ">" + out + "\n" );
+  $("#cmdOut").html($("#cmdOut").html()+ "> " + out + "<br>" );
 }
 
 self.port.on("cmdOut", cmdOut);
