@@ -10,12 +10,13 @@ const self = require("./self");
 
 const recommFileAddress = "recommendations.json";
 
-require("presentation/splitpage").init();  //TODO: move somewhere more meaningful
-require("presentation/doorhanger").init();
-require("experiment").init();
-require("timer").init();
-require("logger").init();
-require("debug").init();
+require("./presentation/splitpage").init();  //TODO: move somewhere more meaningful
+require("./presentation/doorhanger").init();
+require("./experiment").init();
+require("./timer").init();
+require("./logger").init();
+require("./debug").init();
+
 
 
 exports.main = function(options, callbacks){

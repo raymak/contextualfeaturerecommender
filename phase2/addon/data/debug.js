@@ -16,15 +16,25 @@ self.port.on("init", function(){
 });
 
 
-self.port.on("update", function(recs){
-  for (let key in recs){
-      if (!records[key])
+self.port.on("update", function(recs, options){
+
+  let keySet;
+
+  if (options && options.keys)
+    keySet = options.keys
+  else
+    keySet = Object.keys(recs);
+
+  keySet.forEach(function(key){
+    if (!records[key])
         records[key] = {};
-      records[key].data = recs[key].data;
-      records[key].type = recs[key].type;
-      records[key].list = recs[key].list;
-      updateObject(key);
-    }
+
+    records[key].data = recs[key].data;
+    records[key].type = recs[key].type;
+    records[key].list = recs[key].list;
+    updateObject(key);
+  });
+      
 });
 
 

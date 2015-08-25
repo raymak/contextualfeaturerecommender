@@ -1,5 +1,31 @@
 [
   {
+    "id": "welcome",
+    "priority": 1,
+    "trigBehavior": "",
+    "delivContext": "",
+    "featUseBehavior": "",
+    "presentationData": {
+      "*": {
+        "message": "Welcome to the world of Anadir!",
+        "title": "Feature Recommender",
+        "rationale": "Because you are awesome!"
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      },
+      "splitpage": {}
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": ""
+      }
+    }
+  },
+  {
     "id": "gmailNotifier",
     "priority": 1,
     "trigBehavior": "visit hostname www.google.ca -c 3",

@@ -97,7 +97,7 @@ const debug = {
 
     switch(name){
       default: 
-        return false;
+        return undefined;
     }
 
     return " ";

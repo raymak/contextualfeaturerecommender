@@ -3,6 +3,8 @@
 
 const prefs = require("sdk/simple-prefs").prefs;
 const {merge} = require("sdk/util/object");
+const {URL} = require("sdk/url");
+// const {handleCmd} = require("./debug");
 
 /**
  * Applies partial arguments to a function
@@ -120,6 +122,68 @@ exports.tryParseJSON  = function(jsonString){
 
 exports.wordCount = function(str){
   return str.split(" ").length;
+};
+
+exports.isHostVideo = function(host){
+  let list = [
+    "www.youtube.com",
+    "www.netflix.com",
+    "vimeo.com",
+    "screen.yahoo.com",
+    "www.hulu.com",
+    "www.dailymotion.com",
+    "www.liveleak.com",
+    "www.twitch.tv",
+    "vine.co"
+  ];
+
+  return (list.indexOf(host) !== -1);
+}
+
+exports.isVidTabOpen = function(){
+  let tabs = require('sdk/tabs');
+  
+  for (let tab of tabs){
+    let hostname = URL(tab.url).hostname;
+    if (exports.isHostVideo(hostname))
+      return true;
+  }
+
+  return false;
+}
+
+exports.handleCmd = function(h){
+  h(debug.parseCmd);
+};
+
+const debug = {
+  init: function(){
+
+  },
+  update: function(){
+
+  },
+  parseCmd: function(cmd){
+  const patt = /([^ ]*) *(.*)/; 
+    let args = patt.exec(cmd);
+    
+    if (!args)  //does not match the basic pattern
+      return false;
+
+    let name = args[1];
+    let params = args[2];
+
+    switch(name){
+      case "isVidTabOpen":
+        return exports.isVidTabOpen();
+        break;
+
+      default: 
+        return undefined;
+    }
+
+    return " ";
+  }
 };
 
 

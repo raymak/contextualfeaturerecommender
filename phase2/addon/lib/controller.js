@@ -51,6 +51,9 @@ const init = function(){
   listener.start();
   deliverer.init();
   debug.init();
+
+  //welcome message
+  deliverer.deliver(recommendations.welcome);
 }
 
 /**
@@ -698,10 +701,11 @@ const deliverer = {
     }
 
     console.log("delivering " + aRecommendation.id);
-    presenter.present(aRecommendation, listener.command.bind(listener));
 
     aRecommendation.status = "delivered";
     recommendations.update(aRecommendation);
+
+    presenter.present(aRecommendation, listener.command.bind(listener));
 
     timer.silence();
 
@@ -1244,6 +1248,10 @@ listener.listenForSessionStore = function(callback){
 }
 
 listener.listenForContentType = function(callback, contentTypes){
+
+  //TODO: rewrite using the contentType in tabs sdk
+  //https://developer.mozilla.org/en-US/Add-ons/SDK/High-Level_APIs/tabs#contentType
+
   contentTypeObserver = {
     observe: function(subject,topic,data){
       let httpChannel = 
@@ -1408,7 +1416,7 @@ const debug = {
         deliverer.scheduleDelivery(recommendations[params]);
         break;
       default:
-        return false;
+        return undefined;
     }
 
     return " ";

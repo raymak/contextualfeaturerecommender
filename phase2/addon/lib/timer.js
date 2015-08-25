@@ -226,7 +226,7 @@ const debug = {
         return endSilence();
       break;
       default: 
-        return false;
+        return undefined;
     }
 
     return " ";

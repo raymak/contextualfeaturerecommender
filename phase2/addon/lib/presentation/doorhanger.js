@@ -30,7 +30,7 @@ function init(){
   dhData = PersistentObject("simplePref", {address: dhDataAddress, updateListener: debug.update});
 
   debug.init();
-  debug.update();
+  // debug.update();
 
 }
 
@@ -232,10 +232,12 @@ const debug = {
     handleCmd(this.parseCmd);
   },
   update: function(){
-    dumpUpdateObject(dhData, {label: "Presentation: Doorhanger"});
+
+    let updateObj = {currentRecomm: dhData.currentRec.recomm, state: dhData.currentRec.state};
+    dumpUpdateObject(updateObj, {list: "Presentation: Doorhanger"});
   },
   parseCmd: function(cmd){
-    return false;
+    return undefined;
   }
 }
 

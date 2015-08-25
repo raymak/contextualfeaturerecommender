@@ -5,7 +5,7 @@ const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 const sp = require("sdk/simple-prefs");
 
-const {tryParseJSON} = require("./utils");
+const utils = require("./utils");
 
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
@@ -40,6 +40,9 @@ function init(){
       initWorker(worker);
     }
   });
+
+  utils.handleCmd(handleCmd);
+
 }
 
 
@@ -66,15 +69,15 @@ function dumpUpdateObject(obj, options){
   updateAll(recs);
 }
 
-function update(worker, recs){
-	worker.port.emit("update", recs);
+function update(worker, recs, options){
+	worker.port.emit("update", recs, options);
 }
 
 function updateAll(recs){
   updateRecords(recs);
 
   workers.forEach(function(worker){
-    update(worker, recs);
+    update(worker, records, {keys: Object.keys(recs)});
   });
 }
 
@@ -82,9 +85,10 @@ function updateRecords(recs){
   for (let key in recs){
     if (!records[key])
       records[key] = {};
+
     records[key].data = recs[key].data;
     records[key].type = records[key].type || recs[key].type ||  typeof recs[key].data || 'string';
-    records[key].list = records[key].list || recs[key].list || 'default'; //cannot modify the section of an existing item
+    records[key].list = records[key].list || recs[key].list || 'default'; //problem: cannot modify the section of an existing item
   }
 }
 
@@ -97,7 +101,7 @@ function loadPrefs(){
   Object.keys(sp.prefs).sort().forEach(function(pref){
     recs[pref] = {};
     recs[pref].data = sp.prefs[pref];
-    if (tryParseJSON(sp.prefs[pref]))
+    if (utils.tryParseJSON(sp.prefs[pref]))
       recs[pref].type = 'json';
     else
       recs[pref].type = (typeof recs[pref].data);
@@ -135,7 +139,8 @@ function processCommand(worker, cmd){
   let out;
   cmdHandlers.forEach(function(h){
     if (h){
-      if (out = h(cmd)){
+      out = h(cmd);
+      if (out !== undefined){
         handled = true;
         worker.port.emit("cmdOut", out);
       }
@@ -160,6 +165,28 @@ function handleCmd(handler){
   }
 
   cmdHandlers.push(handler);
+}
+
+function parseUtilsCmd(cmd){
+  const patt = /([^ ]*) *(.*)/; 
+    let args = patt.exec(cmd);
+    
+    if (!args)  //does not match the basic pattern
+      return false;
+
+    let name = args[1];
+    let params = args[2];
+
+    switch(name){
+      case "isVidTabOpen":
+        return utils.isVidTabOpen();
+        break;
+
+      default: 
+        return undefined;
+    }
+
+    return " ";
 }
 
 exports.init = init;
