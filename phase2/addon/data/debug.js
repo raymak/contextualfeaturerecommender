@@ -21,8 +21,8 @@ self.port.on("update", function(recs){
       if (!records[key])
         records[key] = {};
       records[key].data = recs[key].data;
-      records[key].type = records[key].type || recs[key].type || typeof recs[key].data || 'string';
-      records[key].list = records[key].list || recs[key].list || 'default'; //cannot modify the section of an existing item
+      records[key].type = recs[key].type;
+      records[key].list = recs[key].list;
       updateObject(key);
     }
 });

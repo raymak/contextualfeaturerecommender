@@ -7,14 +7,21 @@ const {PersistentObject} = require("./utils");
 const self = require("./self");
 const addonSelf = require("sdk/self");
 const exp = require("./experiment");
+const {dumpUpdateObject, handleCmd} = require("./debug");
 
 const loggerDataAddress = "logger.data";
+const recentHistCount = 5;
 const loggerData = PersistentObject("simplePref", {address: loggerDataAddress});
 
+let recentMsgs;
 
 function init(){
   if (!loggerData.count)
     loggerData.count = 0;
+
+  recentMsgs = {};
+
+  debug.init();
 }
 
 function nextNumber(){
@@ -41,6 +48,12 @@ function log(type, attrs){
   OUT = override(OUT, {type: type, attrs: attrs});
 
   console.log(OUT);
+
+  recentMsgs[OUT.number] = OUT;
+  if (recentMsgs[OUT.number - recentHistCount])
+    delete recentMsgs[OUT.number - recentHistCount];
+
+  debug.update();
 }
 
 
@@ -58,6 +71,38 @@ function logLoad(reason){
 
 function logPeriodicInfo(info){
   log("PERIODIC_INFO", info);
+}
+
+const debug = {
+  init: function(){
+    handleCmd(this.parseCmd);
+  },
+  update: function(){
+    let updateObj = {};
+    updateObj.count = loggerData.count;
+    updateObj.recent = recentMsgs;
+   
+    dumpUpdateObject(updateObj, {list: "Logger"});
+  },
+
+  parseCmd: function(cmd){
+    const patt = /([^ ]*) *(.*)/; 
+    let args = patt.exec(cmd);
+    
+    if (!args)  //does not match the basic pattern
+      return false;
+
+    let name = args[1];
+    let params = args[2];
+
+    switch(name){
+      default: 
+        return false;
+    }
+
+    return " ";
+  }
+
 }
 
 exports.init = init;

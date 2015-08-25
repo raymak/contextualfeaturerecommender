@@ -20,6 +20,7 @@ function init(){
   tabs.on('ready', function(tab){
   	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
   });
+  loadPrefs();
   registerPrefListeners();
   
 
@@ -36,12 +37,14 @@ function init(){
       worker.port.on("log", function(m){console.log(m);});
       worker.port.on("cmd", function(cmd){processCommand(worker, cmd);});
       worker.port.emit("init");
-      printPrefs(worker);
+      initWorker(worker);
     }
   });
 }
 
+
 function dumpUpdateObject(obj, options){
+
   let recs = {};
   for (let k in obj){
     if (typeof obj[k] === "object"){
@@ -68,12 +71,28 @@ function update(worker, recs){
 }
 
 function updateAll(recs){
+  updateRecords(recs);
+
   workers.forEach(function(worker){
     update(worker, recs);
   });
 }
 
-function printPrefs(worker){
+function updateRecords(recs){
+  for (let key in recs){
+    if (!records[key])
+      records[key] = {};
+    records[key].data = recs[key].data;
+    records[key].type = records[key].type || recs[key].type ||  typeof recs[key].data || 'string';
+    records[key].list = records[key].list || recs[key].list || 'default'; //cannot modify the section of an existing item
+  }
+}
+
+function initWorker(worker){
+  update(worker, records);
+}
+
+function loadPrefs(){
   let recs = {};
   Object.keys(sp.prefs).sort().forEach(function(pref){
     recs[pref] = {};
@@ -85,7 +104,8 @@ function printPrefs(worker){
 
     recs[pref].list = 'prefs';
   });
-  update(worker, recs);
+
+  updateRecords(recs);
 };
 
 function registerPrefListeners(){

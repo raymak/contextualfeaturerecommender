@@ -668,7 +668,7 @@ const deliverer = {
       return;
 
     if (recomms.length > 1)
-      console.log("warning: attempted to deliver multple recommendations at the same time.");
+      console.log("warning: attempted to deliver multiple recommendations at the same time.");
 
     //finding the recommendation with the highest priority
 
@@ -1376,21 +1376,37 @@ const debug = {
     let params = args[2];
 
     switch(name){
+
+      //listener
       case "dispatch":
         listener.dispatchRoute(params);
-      break;
+        break;
       case "behavior":
         listener.behavior(params);
-      break;
+        break;
       case "context":
         listener.context(params);
-      break;
+        break;
       case "featureUse":
         listener.featureUse(params);
-      break;
+        break;
       case "command":
         listener.command(params)
-      break;
+        break;
+
+      //deliverer
+      case "deliver":
+        if (!recommendations[params])
+          return ("error: recommendation with id " + params + "does not exist.")
+
+        deliverer.deliver(recommendations[params]);
+        break;
+      case "schedule":
+        if (!recommendations[params])
+          return ("error: recommendation with id " + params + "does not exist.")
+
+        deliverer.scheduleDelivery(recommendations[params]);
+        break;
       default:
         return false;
     }
