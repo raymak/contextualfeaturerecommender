@@ -2,7 +2,7 @@
 
 const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("./utils");
-const {Route, equals, matches} = require("./route");
+const {Route, equals, matches, scale, str} = require("./route");
 const logger = require("./logger");
 
 const Recommendation = function(data) {
@@ -36,6 +36,8 @@ const recSet = {
   add: function(/* recommendations */){
     let that = this;
     Array.prototype.slice.call(arguments).forEach(function(aRecommendation){
+      if (!aRecommendation)
+        return;
 
       if (that[aRecommendation.id]){
         console.log("error: unable to add recommendation. A recommendation with the same ID exists: id -> " + aRecommendation.id);
@@ -131,6 +133,12 @@ const recSet = {
     }
     else
       return [];
+  },
+  scaleRoute: function(aRecommendation, coeff, indexTable){
+    scale.call(aRecommendation[indexTable + "Route"], coeff);
+    aRecommendation[indexTable] = str.call(aRecommendation[indexTable + "Route"]);
+
+    this.update(aRecommendation);
   },
   forEach: function(callback) {
   let that = this;

@@ -1,6 +1,6 @@
 "use strict";
 
-const {elapsedTime} = require("./timer");
+const {elapsedTime, elapsedTotalTime} = require("./timer");
 const {merge} = require("sdk/util/object");
 const override  = function() merge.apply(null, arguments);
 const {PersistentObject} = require("./utils");
@@ -33,6 +33,7 @@ function log(type, attrs){
 
   let OUT = {ts: Date.now(),
     et: elapsedTime(),
+    ett: elapsedTotalTime(),
     number: nextNumber(),
     experiment_version: 1,
     addon_version: addonSelf.version,

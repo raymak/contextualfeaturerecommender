@@ -5,6 +5,7 @@ const {PersistentObject} = require("./utils");
 const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
 const {Cu, Cc, Ci} = require("chrome");
+const exp = require("./experiment");
 const {dumpUpdateObject, handleCmd} = require("./debug");
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
@@ -28,6 +29,8 @@ const init = function(){
   if (!timerData.silence)
     timerData.silenceStart = -1;
 
+  elapsedTotalTime();
+
   watchActivity();
 
   tickInterval = setInterval(tick, prefs["timer.tick_length_s"]*1000);
@@ -40,6 +43,13 @@ const init = function(){
   debug.init();
 
   debug.update();
+}
+
+// updates the ett preference records in addition to returning it
+const elapsedTotalTime = function(){
+  let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
+  timerData.elapsedTotalTime = ett; //update the elapsed total time at the beginning
+  return ett;
 }
 
 const watchActivity = function(){
@@ -105,6 +115,8 @@ const watchActivity = function(){
 }
 
 const tick = function(){
+
+  timerData.elapsedTotalTime = elapsedTotalTime();
 
   if (!activity.active){
     console.log("tick missed due to inactivity");
@@ -208,6 +220,8 @@ const debug = {
   parseCmd: function(cmd){
     const patt = /([^ ]*) *(.*)/; 
     let args = patt.exec(cmd);
+
+    let subArgs;
     
     if (!args)  //does not match the basic pattern
       return false;
@@ -220,11 +234,47 @@ const debug = {
         silence();
       break;
       case "isSilent":
-        return String(isSilent());
+        return isSilent();
       break;
       case "endSilence":
         return endSilence();
       break;
+      case "time":
+        subArgs = params.split(" ");
+
+        let act = subArgs[0];
+
+        if (!subArgs)
+          return "error: invalid use of time command.";
+
+        switch(act){
+          case "set":
+            if (!subArgs[1])
+              return "error: invalid use of time set command.";
+
+            switch(subArgs[1]){
+              case "et":
+                if (!subArgs[2])
+                  return "error: invalid use of time set et command.";
+
+                timerData.elapsedTime = Number(subArgs[2]);
+                return "elapsedTime set to " + Number(subArgs[2]);
+              break;
+              case "tick_length_s":
+                if (!subArgs[2])
+                  return "error: invalid use of time set tick_length_s command.";
+
+                prefs["timer.tick_length_s"] = Number(subArgs[2]);
+                return "new tick length in seconds: " + prefs["timer.tick_length_s"];
+                break;
+              default:
+                return "error: invalid use of time set command.";
+            }
+            break;
+
+            default:
+              return "error: invalid use of time command.";
+        }
       default: 
         return undefined;
     }
@@ -239,6 +289,7 @@ function onUnload(reason){
 }
 
 exports.elapsedTime = elapsedTime;
+exports.elapsedTotalTime = elapsedTotalTime;
 exports.isActive = isActive;
 exports.isRecentlyActive = isRecentlyActive;
 exports.isCertainlyActive = isCertainlyActive;

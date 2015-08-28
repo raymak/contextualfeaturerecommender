@@ -39,6 +39,10 @@ self.port.on("updateEntry", function(entry, state, options){
     document.getElementById("sec-button").classList.add('disabled');
   document.querySelector("#rationalesection p").innerHTML = rationale;
 
+  if (options && options.negFbOrder){ //ordering negative feedback radio buttons
+    orderNegFb(options.negFbOrder);
+  }
+
   
   updatePanelSize();
 
@@ -194,10 +198,30 @@ function submitFeedback(){
   setTimeout(function(){
     document.getElementById("feedbackcontainer").classList.remove("visible");
     document.getElementById("thankscontainer").classList.add("visible");
+    let val = document.querySelector('input[name="negfb"]:checked').value;
+    self.port.emit("negfb", val);
     setTimeout(function(){
       self.port.emit("hide", "feedbacksubmission", true);
     }, 1000);
   }, 500);
+}
+
+function orderNegFb(order){
+      let perms = [[1, 2, 3],
+                   [1, 3, 2],
+                   [2, 1, 3],
+                   [2, 3, 1],
+                   [3, 1, 2],
+                   [3, 2, 1]];
+
+      let permIds = perms[order].map(function(p){return "r" + p;});
+      permIds.reverse(); //because of using insert before the first child
+
+      let form = document.getElementById("feedback-form");
+
+      permIds.forEach(function(id){
+        form.insertBefore(document.getElementById(id), form.childNodes[0]);
+      });
 }
 
 function likeClick(){

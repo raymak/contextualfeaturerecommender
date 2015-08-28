@@ -3,7 +3,7 @@
 const {ToggleButton} = require("sdk/ui/button/toggle");
 const {Panel} = require("../panel");
 const {setTimeout, clearTimeout} = require("sdk/timers");
-const {PersistentObject, wordCount} = require("../utils");
+const {PersistentObject, wordCount, weightedRandomInt} = require("../utils");
 const {extractPresentationData, extractResponseCommandMap} = require("../recommendation");
 const {prefs} = require("sdk/simple-prefs");
 const tabs = require("sdk/tabs");
@@ -54,6 +54,7 @@ function initPanel(button){
   nPanel.port.on("response", response)
   nPanel.port.on("liketoggle", likeToggle);
   nPanel.port.on("dontliketoggle", dontLikeToggle);
+  nPanel.port.on("negfb", negFbSubmit);
 
   return nPanel;
 
@@ -72,9 +73,18 @@ function initButton(clickHandler){
   });
 }
 
+function negFbOrder(){
+  if (dhData["neg_fb_order"])
+    return dhData["neg_fb_order"];
+
+  let order = weightedRandomInt([1, 1, 1, 1, 1, 1]);
+
+  return order;
+}
+
 
 function present(aRecommendation, cmdCallback){
-  dhData.currentRec = {recomm: aRecommendation, state:{like: false, dontlike: false, count: 0}};
+  dhData.currentRec = {recomm: aRecommendation, state:{like: false, dontlike: false, count: 0, negFbChoice: null}};
   command = cmdCallback;
   console.log("showing " + aRecommendation.id);
   
@@ -85,7 +95,7 @@ function updateEntry(){
   panel = initPanel(button);
 
   let entry = extractPresentationData.call(dhData.currentRec.recomm, "doorhanger");
-  panel.port.emit("updateEntry", entry, dhData.currentRec.state);
+  panel.port.emit("updateEntry", entry, dhData.currentRec.state, {negFbOrder: negFbOrder()});
 
   wrdCnt = wordCount(entry.message);
 
@@ -223,7 +233,21 @@ function dontLikeToggle(){
   console.log("dontliketoggle");
   let currRec = dhData.currentRec;
   let state = currRec.state;
-  merge(state, {dontlike: !state.dontlike});
+  state.dontlike = !state.dontlike;
+
+  if (!state.dontlike)
+    state.negFbChoice = null;
+
+  dhData.currentRec = merge({}, currRec, {state: state});
+}
+
+function negFbSubmit(val){
+  console.log("negative feedback submitted: " + val);
+  let currRec = dhData.currentRec;
+  let state = currRec.state;
+  
+  state.negFbChoice =  val;
+
   dhData.currentRec = merge({}, currRec, {state: state});
 }
 

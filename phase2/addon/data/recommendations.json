@@ -9,7 +9,7 @@
       "*": {
         "message": "Welcome to the world of Anadir!",
         "title": "Feature Recommender",
-        "rationale": "Because you are awesome!"
+        "rationale": "You are awesome!sdasda asdasd asdasda "
       },
       "log": {},
       "desktopnotification": {},
@@ -28,6 +28,7 @@
   {
     "id": "gmailNotifier",
     "priority": 1,
+    "auto-load": false,
     "trigBehavior": "visit hostname www.google.ca -c 3",
     "delivContext": "visit hostname www.google.ca",
     "featUseBehavior": "null",
@@ -45,7 +46,7 @@
       },
       "desktopnotification": {},
       "doorhanger": {
-        "primaryButtonLabel": "Look! a Button.",
+        "primaryButtonLabel": "Button.",
         "secondaryButtonLabel": "Try it"
       }
     },

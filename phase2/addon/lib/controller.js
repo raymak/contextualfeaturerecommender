@@ -4,7 +4,8 @@
 
 const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
-const {Route} = require("./route");
+const {Route, coefficient} = require("./route");
+const {Recommendation} = require("./recommendation");
 const {URL} = require("sdk/url");
 const {getBrowserForTab, getTabForId} = require("sdk/tabs/utils");
 const tabs = require("sdk/tabs");
@@ -22,6 +23,7 @@ const {modelFor} = require("sdk/model/core");
 const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
 const {handleCmd} = require("./debug");
+const {data} = require("sdk/self");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -51,6 +53,10 @@ const init = function(){
   listener.start();
   deliverer.init();
   debug.init();
+
+
+  //scaling routes
+  scaleRoutes(coefficient(), "trigBehavior");
 
   //welcome message
   deliverer.deliver(recommendations.welcome);
@@ -821,7 +827,7 @@ listener.dispatchRoute = function(route, options){
     if (options.context)
       this.context(route);
 
-    if (optiona.featureUse)
+    if (options.featureUse)
       this.featureUse(route);
   }
 }
@@ -1376,6 +1382,8 @@ const debug = {
   parseCmd: function(cmd){
     const patt = /([^ ]*) *(.*)/; 
     let args = patt.exec(cmd);
+
+    let subArgs, id;
     
     if (!args)  //does not match the basic pattern
       return false;
@@ -1415,6 +1423,79 @@ const debug = {
 
         deliverer.scheduleDelivery(recommendations[params]);
         break;
+
+      case "route":
+        subArgs = patt.exec(params);
+
+        if (!subArgs)
+          return "error: incorrent use of route command.";
+
+        switch(subArgs[1]){
+          case "coeff":
+            if (subArgs[2]){
+              coefficient(Number(subArgs[2]));
+              scaleRoutes(Number(subArgs[2]), "trigBehavior");
+              return "route coefficient set to " + subArgs[2];
+            }
+            else
+              return getCoefficient();
+          break;
+          default:
+          return "error: incorrect use of route command.";
+        }
+        break;
+        
+      case "status":
+        subArgs = patt.exec(params);
+
+        if (!subArgs)
+          return "error: incorrect syntax using status";
+
+        id = subArgs[1];
+        let status = subArgs[2];
+
+        if (!recommendations[id])
+          return ("error: recommendation with id " + id + " does not exist.")
+
+        if (!status)
+          return recommendations[id].status;
+
+        if (['active', 'outstanding', 'inactive'].indexOf(status) == -1)
+          return "error: invalid status";
+
+        let recomm = recommendations[id];
+        let oldStat = recomm.status;
+        recomm.status = status;
+        recommendations.update(recomm);
+
+        return "recommendation " + id + " updated: " + "old status -> " + oldStat + ", new status-> " + status;
+        break;
+
+      case "load":
+        subArgs = patt.exec(params);
+
+        if (!subArgs)
+          return "error: incorrect syntax using load";
+
+        let file = subArgs[1];
+        id = subArgs[2];
+
+        if (file == "*")
+          file = "recommendations.json"; //default recommendations file
+
+        if (id == "*"){
+          loadRecFile(file);
+          return file + " loaded";
+        }
+
+        let res = loadRec(file, id);
+
+        if (!res)
+          return "recommendation with id " + id + " does not exist in file."
+
+        return "recommendation with id " + id + " loaded successfully."
+        break;
+
       default:
         return undefined;
     }
@@ -1423,6 +1504,38 @@ const debug = {
   }
 };
 
+function loadRecFile(file){
+  let recomms = JSON.parse(data.load(file)).map(function(recData){
+    if ("auto-load" in recData && !recData["auto-load"])
+      return null;
+    
+    return Recommendation(recData);
+  });
+
+  recommendations.add.apply(recommendations, recomms);
+}
+
+function loadRec(file, recId){
+
+  let isFound = false;
+
+  let recomms = JSON.parse(data.load(file)).forEach(function(recData){
+    if (recData.id === recId){
+      recommendations.add(Recommendation(recData));
+      isFound = true;
+    }
+  });
+
+return isFound;
+}
+
+function scaleRoutes(coeff, indexTable){
+  recommendations.forEach(function(aRecommendation){
+    recommendations.scaleRoute(aRecommendation, coeff, indexTable);
+  });
+
+
+}
 
 function onUnload(reason){
   if (downloadList) downloadList.removeView();
@@ -1438,4 +1551,5 @@ function onUnload(reason){
 
 exports.init = init;
 exports.recommendations = recommendations;
+exports.loadRecFile = loadRecFile;
 exports.onUnload = onUnload;

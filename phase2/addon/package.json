@@ -73,6 +73,12 @@
       "value": "[1, 1, 1, 1, 1, 1]"
     },
     {
+      "name": "route.coefficient",
+      "type": "string",
+      "title": "Coefficient that scales the triggering behavior thresholds",
+      "value": "1"
+    },
+    {
       "name": "presentation.doorhanger.autofade_time_ms_per_word",
       "type": "integer",
       "title": " ",

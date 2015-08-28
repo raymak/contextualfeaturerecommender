@@ -1,5 +1,7 @@
 "use strict";
 
+const {prefs} = require("sdk/simple-prefs");
+
 function Route(routeStr){
   let rRoute = {};
 
@@ -38,14 +40,42 @@ const equals = function(route){
   return true;
 }
 
+const scale = function(coeff){
+  for (let key in this){
+    if (typeof this[key] === "function") continue;
+
+    if (this[key].charAt(0) === ">")
+      this[key] = ">" + String(Number(this[key].slice(1))/coeff);
+
+    if (this[key].charAt(0) === "<")
+       this[key] = ">" + String(Number(this[key].slice(1))*coeff);
+  }
+
+  return this;
+};
+
+const str = function(){
+  let str = this.header;
+
+  for (let key in this){
+    str = str + " -" + key;
+    if (typeof this[key] === "boolean") continue; //only key and no value
+    str = str + " " + this[key];
+  }
+
+  return str;
+}
+
 const matches = function(route){
   if (Object.keys(this).length !== Object.keys(route).length) 
     return false;
 
   for (let key in this){
     if (typeof this[key] === "function" || this[key] === route[key]) continue;
+
     if (this[key].charAt(0) === ">")
       if (Number(this[key].slice(1)) < Number(route[key])) continue;
+
     if (this[key].charAt(0) === "<")
       if (Number(this[key].slice(1)) > Number(route[key])) continue;
 
@@ -53,9 +83,20 @@ const matches = function(route){
   }
 
   return true;
-
 }
 
+function coefficient(coeff){
+  if (coeff)
+    prefs["route.coefficient"] = String(coeff);
+
+  return Number(prefs["route.coefficient"]);
+}
+
+// exports.init = init;
+exports.scale = scale;
 exports.Route = Route;
 exports.equals = equals;
 exports.matches = matches;
+exports.scale = scale;
+exports.coefficient = coefficient;
+exports.str = str;

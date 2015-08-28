@@ -14,8 +14,10 @@ require("./presentation/splitpage").init();  //TODO: move somewhere more meaning
 require("./presentation/doorhanger").init();
 require("./experiment").init();
 require("./timer").init();
+// require("./route").init();
 require("./logger").init();
 require("./debug").init();
+
 
 
 
@@ -31,12 +33,8 @@ exports.main = function(options, callbacks){
 }
 
 function firstRun(){
-  let recommendations = JSON.parse(data.load(recommFileAddress)).map(function(recData){
-    return Recommendation(recData);
-  });
-
-  controller.recommendations.add.apply(controller.recommendations, recommendations);
-
+  controller.loadRecFile(recommFileAddress);
+  
   logger.logFirstRun();
   self.setInitialized();
 }

@@ -431,6 +431,10 @@ input[type=checkbox]:not(old):checked + label > span:before{
   font-weight : bold;
 }
 
+#choice4 {
+  margin-top: 10px;
+}
+
 
 
 #thankscontainer {
