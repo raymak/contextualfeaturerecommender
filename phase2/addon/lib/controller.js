@@ -16,7 +16,7 @@ const presenter = require("./presenter");
 const { MatchPattern } = require("sdk/util/match-pattern");
 const {PersistentRecSet} = require("./recommendation");
 const timer = require("./timer");
-const {delMode} = require("./self");
+const self = require("./self");
 const system = require("sdk/system");
 const windows = require("sdk/windows");
 const {modelFor} = require("sdk/model/core");
@@ -220,7 +220,7 @@ const listener = {
       });
 
       interruptibeMomentEvent.checkPreconditions = function(){
-        // return (delMode.moment === 'interruptible') ;
+        // return (self.delMode.moment === 'interruptible') ;
         return (timer.isRecentlyActive());
         
       }
@@ -693,11 +693,15 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
-    if (delMode.rateLimit){
-      if (timer.isSilent()){
-        console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
+    if (self.delMode.rateLimit){
+      if (self.delMode.observOnly || timer.isSilent()){
+        if (self.delMode.observOnly)
+          console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
+        else
+          console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
 
-        if (delMode.moment === "random"){
+
+        if (self.delMode.moment === "random"){
           console.log("rescheduling delivery time: id -> " + aRecommendation.id);
           this.rescheduleDelivery(aRecommendation);
           recommendations.update(aRecommendation);
@@ -751,7 +755,7 @@ listener.behavior = function(route){
   if (recomms.length === 0)
     return;
 
-  let random = (delMode.moment === "random");
+  let random = (self.delMode.moment === "random");
 
   recomms.forEach(function(aRecommendation){
     aRecommendation.status = 'outstanding';
@@ -767,7 +771,9 @@ listener.behavior = function(route){
 
 listener.context = function(route){
 
-  if ((delMode.moment === 'interruptible' && route != '*') || delMode.moment === 'random')
+  if (self.delMode.observOnly) return;
+
+  if ((self.delMode.moment === 'interruptible' && route != '*') || self.delMode.moment === 'random')
     return;
 
   console.log("context -> route: " + route);
@@ -1449,7 +1455,7 @@ const debug = {
         subArgs = patt.exec(params);
 
         if (!subArgs)
-          return "error: incorrect syntax using status";
+          return "error: incorrect use of status command.";
 
         id = subArgs[1];
         let status = subArgs[2];
@@ -1469,6 +1475,29 @@ const debug = {
         recommendations.update(recomm);
 
         return "recommendation " + id + " updated: " + "old status -> " + oldStat + ", new status-> " + status;
+        break;
+
+      case "delmode":
+        subArgs = patt.exec(params);
+
+        if (!subArgs)
+          return "error: incorrect use of delmode command.";
+
+        let subMode = subArgs[1];
+
+        switch (subMode){
+          case "observ_only":
+            if (subArgs[2] != "true" && subArgs[2] != "false") 
+              return "error: incorrect use of delmode observ_only command.";
+
+            prefs["delivery.mode.observ_only"] = JSON.parse(subArgs[2]);
+
+            return "observ_only mode is now " + (JSON.parse(subArgs[2]) ? "on": "off");
+
+            break;
+          default:
+            return "error: incorrect use of delmode command.";
+        }
         break;
 
       case "load":

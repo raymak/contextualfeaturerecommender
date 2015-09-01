@@ -15,7 +15,7 @@ self.port.on("updateEntry", function(entry, state, options){
   let rationale = entry.rationale || "";
   let iconSrc = entry.icon;
   self.port.emit("log", iconSrc);
-
+  
 
   document.getElementById("icon").src = iconSrc;
   document.getElementById("icon").onerror = function(){
@@ -30,6 +30,8 @@ self.port.on("updateEntry", function(entry, state, options){
   }
 
   document.getElementById("textbox").innerHTML = message;
+  if (options && options.os && options.os === "darwin")
+    replaceCtrlCommand();
   document.getElementById("header").innerHTML = title;
   document.getElementById("prim-button").innerHTML = primButtonLabel;
   document.getElementById("sec-button").innerHTML = secButtonLabel;
@@ -118,12 +120,6 @@ self.port.on("updateEntry", function(entry, state, options){
   });
 
 
-  window.addEventListener("keydown", function(e){
-    if (e.key === "Escape")
-      self.port.emit("hide", "escape");
-  });
-
-  self.port.emit("conntest", "load");
 });
 
 
@@ -142,7 +138,7 @@ function primButtonClick(){
 }
 
 function closeButtonClick(){
-  self.port.emit("hide", "closeButtonClicked");
+  self.port.emit("hide", "closebutton");
 }
 
 function changeBodySize(panelSize){
@@ -180,6 +176,7 @@ function expandRationale(){
   document.getElementById("rationalecontainer").classList.add('open');
   document.getElementById("rationalesection").style.opacity = 1;
   updatePanelSize();
+  self.port.emit("rationaleopen");
 }
 
 function collapseRationale(){
@@ -232,4 +229,14 @@ function likeClick(){
 
   self.port.emit("liketoggle");
   
+}
+
+//TOTHINK: this is just a workaround
+// should find a neater way to do this
+function replaceCtrlCommand(options){
+    let keys = document.querySelectorAll("span.key");
+    if (keys)
+      Array.prototype.slice.call(keys).forEach(function(elem){
+        elem.innerHTML = elem.innerHTML.replace(/ctrl/i, "command");
+      });
 }

@@ -30,7 +30,8 @@ const self = {
   get delMode(){
     return {
       rateLimit: prefs["delivery.mode.rate"],
-      moment: prefs["delivery.mode.moment"]
+      moment: prefs["delivery.mode.moment"],
+      observOnly: prefs["delivery.mode.observ_only"]
     }
   },
   // also sets user id for the first tiem

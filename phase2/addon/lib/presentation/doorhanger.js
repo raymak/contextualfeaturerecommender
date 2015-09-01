@@ -1,5 +1,7 @@
 "use strict";
 
+const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
+const {WindowTracker} = require("sdk/deprecated/window-utils");
 const {ToggleButton} = require("sdk/ui/button/toggle");
 const {Panel} = require("../panel");
 const {setTimeout, clearTimeout} = require("sdk/timers");
@@ -10,6 +12,9 @@ const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 const {merge} = require("sdk/util/object");
 const {dumpUpdateObject, handleCmd} = require("../debug");
+const {logDhReport} = require("../logger");
+const timer = require("../timer");
+const self = require("../self");
 
 const dhDataAddress = "presentation.doorhanger.data";
 
@@ -21,6 +26,8 @@ let hideTimeout;
 let wrdCnt; //for auto-adjuting fading time
 let buttonState = false;
 let command;
+let hideWatch;
+let closedwithreason;
 
 function init(){
   console.log("initializing doorhanger");
@@ -31,6 +38,17 @@ function init(){
 
   debug.init();
   // debug.update();
+  
+  let wt = new WindowTracker({
+    onTrack: function(window){
+      if (!isBrowser(window)) return;
+
+      window.addEventListener("keydown", function(e){
+       if (e.key === "Escape")
+       pHide("escape");
+      });
+    }
+  });
 
 }
 
@@ -55,6 +73,7 @@ function initPanel(button){
   nPanel.port.on("liketoggle", likeToggle);
   nPanel.port.on("dontliketoggle", dontLikeToggle);
   nPanel.port.on("negfb", negFbSubmit);
+  nPanel.port.on("rationaleopen", rationaleOpen);
 
   return nPanel;
 
@@ -84,9 +103,27 @@ function negFbOrder(){
 
 
 function present(aRecommendation, cmdCallback){
-  dhData.currentRec = {recomm: aRecommendation, state:{like: false, dontlike: false, count: 0, negFbChoice: null}};
+ 
+  if (dhData.count)
+     dhData.count = dhData.count + 1;
+
+  if (dhData.currentRec && dhData.currentRec.recomm)
+    updateReport();
+    report(); //report the last recommendation
+
+  dhData.currentRec = {recomm: aRecommendation, 
+                       state:{like: false, dontlike: false, count: 0, negFbChoice: null},
+                       report:{number: dhData.count || 1, startett: timer.elapsedTotalTime(), durationett: 0, primbtn: 0, secbtn: 0,
+                       closebtn: 0, autohide: 0, autofade: 0, esc: 0,
+                       closeother: 0, responseclose: 0, firstclosereason: "", mouseenter: false,
+                       totalopen: 0, firstopen: 0, rationaleopen: 0, infopage: 0}
+                      };
   command = cmdCallback;
   console.log("showing " + aRecommendation.id);
+
+   if (!dhData.count)
+    dhData.count = 1;
+
   
   updateShow();  
 }
@@ -95,7 +132,7 @@ function updateEntry(){
   panel = initPanel(button);
 
   let entry = extractPresentationData.call(dhData.currentRec.recomm, "doorhanger");
-  panel.port.emit("updateEntry", entry, dhData.currentRec.state, {negFbOrder: negFbOrder()});
+  panel.port.emit("updateEntry", entry, dhData.currentRec.state, {negFbOrder: negFbOrder(), os: self.sysInfo.os});
 
   wrdCnt = wordCount(entry.message);
 
@@ -117,12 +154,13 @@ function updateShow(options, panelOptions){
 function scheduleHide(time_ms){
   clearTimeout(hideTimeout);
   hideTimeout = setTimeout(function(){
-    hidePanel(true);
+    pHide("autohide", true);
   }, time_ms);
 }
 
 function showPanel(delay_ms, panelOptions){
 
+  closedwithreason = false;
   //increment count
   let currRec = dhData.currentRec;
   let state = currRec.state;
@@ -184,22 +222,78 @@ function buttonOff(){
 }
 
 function onPanelShow(){
-
+  hideWatch = Date.now();
 }
 
 function onPanelHide(){
+
   buttonOff();
 
   clearTimeout(hideTimeout);
+
+  let showLength = Date.now()-hideWatch;
+
+  let currRec = dhData.currentRec;
+  let report = currRec.report;
+
+  if (currRec.state.count == 1)
+    report.firstopen = showLength;
+
+  report.totalopen = report.totalopen + showLength;
+
+  if (!closedwithreason)
+    report.autofade = report.autofade + 1;
+
+  dhData.currentRec = merge(currRec, {report: report});
 }
 
 function pHide(reason, fadeOut){
+
+  let currRec = dhData.currentRec;
+  let report = currRec.report;
+
+  if (currRec.state.count == 1)
+    report.firstclosereason = reason;
+
+  switch(reason){
+    case "escape":
+      report.esc = report.esc + 1;
+      break;
+
+    case "closebutton":
+      report.closebtn = report.closebtn + 1;
+      break;
+
+    case "autohide":
+      report.autohide = report.autohide + 1;
+      break;
+
+    case "response":
+      report.responseclose = report.responseclose + 1;
+      break;
+
+    default:
+      report.closeother = report.closeother + 1;   
+  }
+
+  dhData.currentRec = merge(currRec, {report: report});
+
   console.log(reason);
+
+  closedwithreason = true;
+
   hidePanel(fadeOut);
 }
 
 function pMouseenter(){
   clearTimeout(hideTimeout);
+
+  let currRec = dhData.currentRec;
+  let report = currRec.report;
+
+  report.mouseenter = true;
+
+  dhData.currentRec = merge(currRec, {report: report});
 }
 
 function pMouseleave(){
@@ -210,6 +304,15 @@ function pMouseleave(){
 
 function openInfoPage(){
   tabs.open(data.url("infopage.html"));
+
+  let currRec = dhData.currentRec;
+  let report = currRec.report;
+
+  report.infopage = report.infopage + 1;
+
+  dhData.currentRec = merge(currRec, {report: report});
+
+
 }
 
 function resize(size){
@@ -217,6 +320,18 @@ function resize(size){
 }
 
 function response(element, options){
+
+  let currRec = dhData.currentRec;
+  let report = currRec.report;
+
+  if (element === "primaryButton")
+    report.primbtn = report.primbtn + 1;
+
+  if (element === "secondaryButton")
+    report.secbtn = report.secbtn + 1;
+
+  dhData.currentRec = merge(currRec, {report: report});
+
   let respCmdMap = extractResponseCommandMap.call(dhData.currentRec.recomm, "doorhanger");
   command(respCmdMap[element]);
 }
@@ -226,7 +341,7 @@ function likeToggle(){
   let currRec = dhData.currentRec;
   let state = currRec.state;
   merge(state, {like: !state.like});
-  dhData.currentRec = merge({}, currRec, {state: state});
+  dhData.currentRec = merge(currRec, {state: state});
 }
 
 function dontLikeToggle(){
@@ -238,7 +353,7 @@ function dontLikeToggle(){
   if (!state.dontlike)
     state.negFbChoice = null;
 
-  dhData.currentRec = merge({}, currRec, {state: state});
+  dhData.currentRec = merge(currRec, {state: state});
 }
 
 function negFbSubmit(val){
@@ -248,7 +363,31 @@ function negFbSubmit(val){
   
   state.negFbChoice =  val;
 
-  dhData.currentRec = merge({}, currRec, {state: state});
+  dhData.currentRec = merge(currRec, {state: state});
+}
+
+function rationaleOpen(){
+  let currRec = dhData.currentRec;
+  let report = currRec.report;
+
+  report.rationaleopen = report.rationaleopen + 1;
+
+  dhData.currentRec = merge(currRec, {report: report});
+}
+
+function updateReport(){
+  let currRec = dhData.currentRec;
+  let info = merge({}, currRec.state, currRec.report, {durationtt: timer.elapsedTotalTime() - currRec.report.startett});
+
+  dhData.lastReport = info;
+}
+
+function report(){
+  let info = dhData.lastReport;
+  if (info)
+    logDhReport(info);
+  else
+    console.log("warning: no report to log.");
 }
 
 const debug = {
@@ -257,7 +396,8 @@ const debug = {
   },
   update: function(){
 
-    let updateObj = {currentRecomm: dhData.currentRec.recomm, state: dhData.currentRec.state};
+    let data = dhData;
+    let updateObj = {count: data.count, currentRecomm: data.currentRec.recomm, state: data.currentRec.state};
     dumpUpdateObject(updateObj, {list: "Presentation: Doorhanger"});
   },
   parseCmd: function(cmd){

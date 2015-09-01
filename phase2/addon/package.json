@@ -67,6 +67,12 @@
       "value": false
     },
     {
+      "name": "delivery.mode.observ_only",
+      "type": "bool",
+      "title": "Whether or not only the observation should happen.",
+      "value": false
+    },
+    {
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weigths based on which the user is randomly put into an experimental mode",

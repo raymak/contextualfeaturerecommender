@@ -33,7 +33,7 @@ function log(type, attrs){
 
   let OUT = {ts: Date.now(),
     et: elapsedTime(),
-    ett: elapsedTotalTime(),
+    ett: elapsedTotalTime(),  
     number: nextNumber(),
     experiment_version: 1,
     addon_version: addonSelf.version,
@@ -74,6 +74,10 @@ function logPeriodicInfo(info){
   log("PERIODIC_INFO", info);
 }
 
+function logDhReport(info){
+  log("DH_REPORT", info)
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -111,4 +115,5 @@ exports.logRecommUpdate = logRecommUpdate;
 exports.logFirstRun = logFirstRun;
 exports.logLoad = logLoad;
 exports.logPeriodicInfo = logPeriodicInfo;
+exports.logDhReport = logDhReport;
 
