@@ -87,6 +87,17 @@ exports.PersistentObject = function(type, options){
   }
 };
 
+exports.isPowerOf2 = function(num){
+  if (!num)
+    return false;
+  let num2 = num/2;
+  if (num==1)
+    return true;
+  if (num2 !== Math.floor(num2))
+    return false;
+  
+  return exports.isPowerOf2(num2);
+}
 
 exports.weightedRandomInt = function(weightsArr){
   let sum = weightsArr.reduce(function(pv, cv) { return pv + cv; }, 0);

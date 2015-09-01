@@ -79,7 +79,7 @@
     "priority": 1,
     "trigBehavior": "chrome click tabbrowser-tabs -anonid tabs-newtab-button -c >3",
     "delivContext": "chrome click tabbrowser-tabs -anonid tabs-newtab-button",
-    "featUseBehavior": "hotkey t -cmd -c 2",
+    "featUseBehavior": "hotkey t -cmd -c >2",
     "presentationData": {
       "*": {
         "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",

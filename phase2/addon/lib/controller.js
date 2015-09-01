@@ -16,6 +16,7 @@ const presenter = require("./presenter");
 const { MatchPattern } = require("sdk/util/match-pattern");
 const {PersistentRecSet} = require("./recommendation");
 const timer = require("./timer");
+const utils = require("./utils");
 const self = require("./self");
 const system = require("sdk/system");
 const windows = require("sdk/windows");
@@ -24,6 +25,7 @@ const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
 const {handleCmd} = require("./debug");
 const {data} = require("sdk/self");
+const logger = require("logger");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -789,7 +791,9 @@ listener.context = function(route){
 };
 
 listener.featureUse = function(route){
+ 
   console.log("featureUse -> route: " + route);
+  let shouldReport;
 
   let recomms = recommendations.getByRouteIndex('featUseBehavior', route);
 
@@ -797,9 +801,22 @@ listener.featureUse = function(route){
     return;
 
   recomms.forEach(function(aRecommendation){
-    if (aRecommendation.status === 'active' || aRecommendation.status === 'outstanding'){
+    shouldReport = false;
+    let oldStatus = aRecommendation.status;
+    if (aRecommendation.status === 'active' || aRecommendation.status === 'outstanding' || aRecommendation.status === 'scheduled'){
       aRecommendation.status = 'inactive';
       recommendations.update(aRecommendation);
+      shouldReport = true;
+    }
+    let count = Route(route).c;
+    let num = Route(route).n;
+    console.log(count);
+    if (utils.isPowerOf2(num) || utils.isPowerOf2(count))
+      shouldReport = true;
+    
+    if (shouldReport){
+      let featureUseInfo = {id: aRecommendation.id, oldstatus: oldStatus, count: count, num: num};
+      logger.logFeatureUse(featureUseInfo);
     }
   });
 }

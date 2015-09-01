@@ -78,6 +78,10 @@ function logDhReport(info){
   log("DH_REPORT", info)
 }
 
+function logFeatureUse(info){
+  log("FEATURE_USE", info)
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -116,4 +120,5 @@ exports.logFirstRun = logFirstRun;
 exports.logLoad = logLoad;
 exports.logPeriodicInfo = logPeriodicInfo;
 exports.logDhReport = logDhReport;
+exports.logFeatureUse = logFeatureUse;
 
