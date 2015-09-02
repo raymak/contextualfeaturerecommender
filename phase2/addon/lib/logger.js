@@ -82,6 +82,22 @@ function logFeatureUse(info){
   log("FEATURE_USE", info)
 }
 
+function logBehavior(info){
+  log("BEHAVIOR", info);
+}
+
+function logLooseBehavior(info){
+  log("BEHAVIOR_LOOSE", info);
+}
+
+function logContext(info){
+  log("CONTEXT", info);
+}
+
+function logDhPresent(info){
+  log("DH_PRESENT", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -121,4 +137,7 @@ exports.logLoad = logLoad;
 exports.logPeriodicInfo = logPeriodicInfo;
 exports.logDhReport = logDhReport;
 exports.logFeatureUse = logFeatureUse;
-
+exports.logBehavior = logBehavior;
+exports.logContext = logContext;
+exports.logDhPresent = logDhPresent;
+exports.logLooseBehavior = logLooseBehavior;

@@ -1,10 +1,11 @@
 "use strict";
 
 const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
-const {PersistentObject} = require("./utils");
+const {PersistentObject, dateTimeToString} = require("./utils");
 const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
 const {Cu, Cc, Ci} = require("chrome");
+const unload = require("sdk/system/unload").when;
 const exp = require("./experiment");
 const {dumpUpdateObject, handleCmd} = require("./debug");
 
@@ -35,10 +36,19 @@ const init = function(){
 
   tickInterval = setInterval(tick, prefs["timer.tick_length_s"]*1000);
 
-  sp.on("timer.tick_length_s", function(pref){
+  let f = function(pref){
     clearInterval(tickInterval);
     tickInterval = setInterval(tick, prefs["timer.tick_length_s"]*1000);
-  });
+  };
+
+  sp.on("timer.tick_length_s", f);
+  unload(function(){sp.removeListener("timer.tick_length_s"), f});
+
+  f = function(pref){
+    timerData.elapsedTotalTime = elapsedTotalTime();
+  };
+  sp.on("experiment.startTimeMs", f);
+  unload(function(){sp.removeListener("experiment.startTimeMs"), f});
 
   debug.init();
 
@@ -110,6 +120,8 @@ const watchActivity = function(){
       observerService.removeObserver(this, "user-interaction-active");
     }
   };
+
+  unload(function(){if (activityObs) activityObs.unregister();});
 
   activityObs.register();
 }
@@ -267,6 +279,15 @@ const debug = {
                 prefs["timer.tick_length_s"] = Number(subArgs[2]);
                 return "new tick length in seconds: " + prefs["timer.tick_length_s"];
                 break;
+              case "st-diff":
+                if (!subArgs[2])
+                  return "error: invalid use of time set st command.";
+
+                let dateNum = Number(prefs["experiment.startTimeMs"]) + Number(subArgs[2]);
+                prefs["experiment.startTimeMs"] = String(dateNum);
+
+                return "new start time set to: " + dateTimeToString(new Date(dateNum));
+                break;
               default:
                 return "error: invalid use of time set command.";
             }
@@ -284,9 +305,6 @@ const debug = {
 
 }
 
-function onUnload(reason){
-  if (activityObs) activityObs.unregister();
-}
 
 exports.elapsedTime = elapsedTime;
 exports.elapsedTotalTime = elapsedTotalTime;

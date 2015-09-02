@@ -25,7 +25,8 @@ const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
 const {handleCmd} = require("./debug");
 const {data} = require("sdk/self");
-const logger = require("logger");
+const unload = require("sdk/system/unload").when;
+const logger = require("./logger");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -49,9 +50,15 @@ let hs;
 let sessObserver;
 let contentTypeObserver;
 let searchEngineObserver;
+let addonListener;
+let historyObserver;
+let dlView;
 
 const init = function(){
   console.log("initializing controller");
+
+  unload(unloadController);
+
   listener.start();
   deliverer.init();
   debug.init();
@@ -723,7 +730,7 @@ const deliverer = {
 
   },
   checkSchedule: function(time){
-    let recomms = recommendations.getByRouteIndex('delivContext', '*', 'outstanding');
+    let recomms = recommendations.getByRouteIndex('delivContext', '*', {status: 'outstanding'});
 
     if (recomms.length === 0)
       return;
@@ -736,6 +743,7 @@ const deliverer = {
     let time = timer.elapsedTime();
     let deliveryTime = timer.randomTime(time, time + prefs["random_interval_length_tick"]);
     aRecommendation.deliveryTime = deliveryTime;
+    aRecommendation.status = "scheduled";
 
     console.log("recommendation delivery scheduled: id -> " + aRecommendation.id + ", time -> " + deliveryTime + " ticks");
   },
@@ -750,10 +758,24 @@ const deliverer = {
 listener.behavior = function(route){
   console.log("behavior -> route: " + route);
 
-  //TODO: use pattern matching 
-  // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
-  
-  let recomms = recommendations.getByRouteIndex('trigBehavior', route, 'active');
+  //logging loose matches
+  let recomms = recommendations.getByRouteIndex('trigBehavior', route, {looseMatch: true});
+  if (recomms.length === 0)
+    return;
+
+  recomms.forEach(function(aRecommendation){
+
+    let count = Route(route).c;
+    let num = Route(route).n;
+    let invf = Route(route)["if"];
+    if (utils.isPowerOf2(count) || utils.isPowerOf2(num)){
+      let behaviorInfo = {id: aRecommendation.id, count: count, num: num, "if": invf};
+      logger.logLooseBehavior(behaviorInfo);
+    }
+  });
+
+
+  recomms = recommendations.getByRouteIndex('trigBehavior', route, {status: 'active'});
   if (recomms.length === 0)
     return;
 
@@ -767,8 +789,13 @@ listener.behavior = function(route){
     }
 
     recommendations.update(aRecommendation);
-  });
 
+    let count = Route(route).c;
+    let num = Route(route).n;
+    let invf = Route(route)["if"];
+    let behaviorInfo = {id: aRecommendation.id, count: count, num: num, "if": invf};
+    logger.logBehavior(behaviorInfo);
+    });
 };
 
 listener.context = function(route){
@@ -780,7 +807,7 @@ listener.context = function(route){
 
   console.log("context -> route: " + route);
  
-  let recomms = recommendations.getByRouteIndex('delivContext', route, 'outstanding');
+  let recomms = recommendations.getByRouteIndex('delivContext', route, {status: 'outstanding'});
   //TODO: use pattern matching 
   // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
   if (recomms.length === 0)
@@ -866,15 +893,15 @@ listener.listenForAddonEvents = function(callback){
     AddonManager.getAllAddons(function(addons){
         callback('count', {number: addons.length, type: 'all'});
       });
-      AddonManager.getAddonsByTypes(['extension'], function(addons){
+    AddonManager.getAddonsByTypes(['extension'], function(addons){
         callback('count', {number: addons.length, type: 'extension'});
-      });
-      AddonManager.getAddonsByTypes(['theme'], function(addons){
+    });
+    AddonManager.getAddonsByTypes(['theme'], function(addons){
         callback('count', {number: addons.length, type: 'theme'});
-      });
+    });
   }
 
-  let addonListener = {
+  addonListener = {
     onInstallEnded: function(install, addon){
       callback('install', {addonId: addon.id});
       callback('has', {addonId: addon.id});
@@ -909,6 +936,7 @@ listener.listenForActiveTabHostnameProgress = function(callback, options){
         if (options.fresh && hostname === tab.hostname) return; //not a fresh url open
 
         tab.hostname = hostname;
+        unload(function(){if (tab) delete tab.hostname;})
 
         //TODO: use pattern matching 
         // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
@@ -1029,14 +1057,19 @@ listener.listenForTabs = function(callback, options){
       if (!isBrowser(window)) return;
 
       let tabBrowser = window.gBrowser;
-      tabBrowser.tabContainer.addEventListener("TabPinned", function(e){
+      let f = function(e){
         reason = "pinned";
         callback(reason, {number: countPinnedTabs()});
-      });
-      tabBrowser.tabContainer.addEventListener("TabUnpinned", function(e){
+      };
+      tabBrowser.tabContainer.addEventListener("TabPinned", f);
+      unload(function(){tabBrowser.tabContainer.removeEventListener("TabPinned", f)});
+
+      f = function(e){
         reason = "pinned";
         callback(reason, {number: countPinnedTabs()});
-      });
+      };
+      tabBrowser.tabContainer.addEventListener("TabUnpinned", f);
+      unload(function(){tabBrowser.tabContainer.removeEventListener("TabUnpinned", f)});
     }
   });
 
@@ -1063,6 +1096,7 @@ listener.listenForTabs = function(callback, options){
     //listen for clicks
     let xulTab = viewFor(tab);
     xulTab.addEventListener("click", tabClick);
+    unload(function(){xulTab.removeEventListener("click", tabClick)});
   });
 
   //initial tabs that are not handled by tab.on(open)
@@ -1070,6 +1104,7 @@ listener.listenForTabs = function(callback, options){
     for (let i in tabs){
       let xulTab = viewFor(tabs[i]);
       xulTab.addEventListener("click", tabClick);
+      unload(function(){xulTab.removeEventListener("click", tabClick)});
 
       reason = "opened";
       callback(reason, {number: tabs.length});
@@ -1085,7 +1120,7 @@ listener.listenForTabs = function(callback, options){
 }
 
 listener.listenForDownloads = function(callback, options){
-  let view = {
+  dlView = {
     onDownloadAdded: function(download) { 
       console.log("Download added");
       callback('added');
@@ -1103,7 +1138,7 @@ listener.listenForDownloads = function(callback, options){
   Task.spawn(function() {
     try {
       downloadList = yield Downloads.getList(Downloads.ALL);
-      yield downloadList.addView(view);
+      yield downloadList.addView(dlView);
     } catch (ex) {
       console.error(ex);
     }
@@ -1141,10 +1176,12 @@ listener.listenForChromeEvents = function(callback, options){
         let route =routesToListenFor[routeId];
         let elem = window.document.getElementById(route.id);
         
-        elem.addEventListener(route.eventName, function(evt){
+        let f = function(evt){
           console.log(elem);
           callback(route.eventName, evt);
-        });
+        }
+        elem.addEventListener(route.eventName, f);
+        unload(function(){elem.removeEventListener(route.eventName, f)});
       } 
     }
   });
@@ -1160,6 +1197,7 @@ listener.listenForKeyboardEvent = function(callback, options){
       if (!isBrowser(window)) return;   
 
       window.addEventListener((options && options.eventName) || "keydown", callback );
+      unload(function(){window.removeEventListener((options && options.eventName) || "keydown", callback)});
     }
   });
 }
@@ -1220,7 +1258,7 @@ listener.listenForSearchEngine = function(callback){
 listener.listenForHistory = function(callback){
 
   //Create history observer
-  let historyObserver = {
+  historyObserver = {
     onBeginUpdateBatch: function() {},
     onEndUpdateBatch: function() {
     },
@@ -1583,19 +1621,24 @@ function scaleRoutes(coeff, indexTable){
 
 }
 
-function onUnload(reason){
-  if (downloadList) downloadList.removeView();
+function unloadController(reason){
 
-  if (hs) hs.removeObserver(historyObserver);
+  console.log("unloading controller...");
+
+  if (downloadList) downloadList.removeView(dlView);
+
+  if (hs && historyObserver) hs.removeObserver(historyObserver);
 
   if (sessObserver) sessObserver.unregister();
 
   if (contentTypeObserver) contentTypeObserver.unregister();
 
   if (searchEngineObserver) searchEngineObserver.unregister();
+
+  if (addonListener)
+    AddonManager.removeInstallListener(addonListener);
 }
 
 exports.init = init;
 exports.recommendations = recommendations;
 exports.loadRecFile = loadRecFile;
-exports.onUnload = onUnload;

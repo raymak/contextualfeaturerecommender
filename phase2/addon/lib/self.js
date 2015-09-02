@@ -7,6 +7,7 @@ const system = require("sdk/system");
 const logger = require("./logger");
 const exp = require("./experiment");
 const tabs = require("sdk/tabs");
+const {handleCmd} = require("./debug");
 const override  = function() merge.apply(null, arguments);
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
@@ -20,6 +21,9 @@ const modes = [
 ]
 
 const self = {
+  init: function(){
+    debug.init();
+  },
   get isInitialized(){
     return !!prefs["isInitialized"];
     },
@@ -136,5 +140,36 @@ const self = {
     
   }
 }
+
+const debug = {
+  init: function(){
+    handleCmd(this.parseCmd);
+  },
+  update: function(){
+
+  },
+  parseCmd: function(cmd){
+    const patt = /([^ ]*) *(.*)/; 
+    let args = patt.exec(cmd);
+
+    let subArgs;
+    
+    if (!args)  //does not match the basic pattern
+      return false;
+
+    let name = args[1];
+    let params = args[2];
+
+    switch(name){
+      case "uninstall":
+        AddonManager.getAddonByID(require("sdk/self").id,function(addon){addon.uninstall();});
+        return "addon removed";
+        break;
+      default:
+        return undefined
+    }
+
+  }
+};
 
 module.exports = self;

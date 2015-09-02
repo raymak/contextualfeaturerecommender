@@ -7,6 +7,7 @@ const {data} = require("sdk/self");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
 const logger = require("./logger");
 const self = require("./self");
+self.init();
 
 const recommFileAddress = "recommendations.json";
 
@@ -14,14 +15,12 @@ require("./presentation/splitpage").init();  //TODO: move somewhere more meaning
 require("./presentation/doorhanger").init();
 require("./experiment").init();
 require("./timer").init();
-// require("./route").init();
 require("./logger").init();
 require("./debug").init();
 
 
-
-
 exports.main = function(options, callbacks){
+
   console.log("Hello World! I am alive :)");
 
   if (!self.isInitialized)
@@ -44,7 +43,9 @@ function periodicLog(elapsedTime){
   logger.logPeriodicInfo(self.periodicInfo);
 }
 
-
+exports.onUnload = function(reason){
+  console.log("unloading due to " + reason);
+}
 
 
 

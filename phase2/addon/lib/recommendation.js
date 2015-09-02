@@ -100,9 +100,12 @@ const recSet = {
 
     });
   },
-  getByRouteIndex: function(indexTable, route, status){
+  getByRouteIndex: function(indexTable, route, options){
     let that = this;
     console.log(route);
+
+    let status = options && options.status;
+    let looseMatch = options && options.looseMatch;
 
     if (route === "*"){
       let recomms = [];
@@ -123,7 +126,7 @@ const recSet = {
       let recomms = this[indexTable][route.header].map(function(id){
         return that[id];
       }).filter(function(aRecommendation){
-        return matches.call(aRecommendation[indexTable + "Route"], route);
+        return matches.call(aRecommendation[indexTable + "Route"], route, looseMatch);
       });
 
       if (status)

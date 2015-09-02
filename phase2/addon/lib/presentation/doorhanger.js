@@ -15,6 +15,8 @@ const {dumpUpdateObject, handleCmd} = require("../debug");
 const {logDhReport} = require("../logger");
 const timer = require("../timer");
 const self = require("../self");
+const logger = require("./logger");
+const unload = require("sdk/system/unload").when;
 
 const dhDataAddress = "presentation.doorhanger.data";
 
@@ -43,10 +45,13 @@ function init(){
     onTrack: function(window){
       if (!isBrowser(window)) return;
 
-      window.addEventListener("keydown", function(e){
+      let f = function(e){
        if (e.key === "Escape")
-       pHide("escape");
-      });
+        pHide("escape");
+      };
+
+      window.addEventListener("keydown", f);
+      unload(function(){window.removeEventListener("keydown", f)});
     }
   });
 
@@ -54,13 +59,13 @@ function init(){
 
 function initPanel(button){
   let nPanel =  Panel({
-  autosize: true,
-  autohide: false,
-  focus: false,
-  contentURL: data.url("./presentation/doorhanger.html"),
-  contentScriptFile: data.url("./presentation/doorhanger.js"),
-  onShow: onPanelShow,
-  onHide: onPanelHide
+    autosize: true,
+    autohide: false,
+    focus: false,
+    contentURL: data.url("./presentation/doorhanger.html"),
+    contentScriptFile: data.url("./presentation/doorhanger.js"),
+    onShow: onPanelShow,
+    onHide: onPanelHide
   });
 
   nPanel.port.on("log", function(m){console.log(m)});
@@ -124,11 +129,15 @@ function present(aRecommendation, cmdCallback){
    if (!dhData.count)
     dhData.count = 1;
 
+
+  let dhPresentInfo = {id: aRecommendation.id, number: dhData.count};
+  logger.logDhPresent(dhPresentInfo);
   
   updateShow();  
 }
 
 function updateEntry(){
+
   panel = initPanel(button);
 
   let entry = extractPresentationData.call(dhData.currentRec.recomm, "doorhanger");

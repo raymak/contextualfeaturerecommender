@@ -2,6 +2,7 @@
 
 
 const prefs = require("sdk/simple-prefs").prefs;
+const sp = require("sdk/simple-prefs");
 const {merge} = require("sdk/util/object");
 const {URL} = require("sdk/url");
 // const {handleCmd} = require("./debug");
@@ -40,7 +41,7 @@ exports.PersistentObject = function(type, options){
       targetObj = options.target;
 
     //TOTHINK: some way to cache data to improve performance
-    return new Proxy(targetObj, {
+    let rObj = new Proxy(targetObj, {
         get: function(target, name) {
           if (!target[name])
             return JSON.parse(prefs[options.address])[name];
@@ -55,9 +56,6 @@ exports.PersistentObject = function(type, options){
           }
           else
             target[name] = value;
-
-          if (options.updateListener)
-            options.updateListener(this);
 
           return true;
         },
@@ -84,6 +82,12 @@ exports.PersistentObject = function(type, options){
             options.updateListener(this);
         }
     });
+
+    if (options.updateListener)
+      sp.on(options.address, function(pref){
+        options.updateListener(rObj);
+    });
+    return rObj;
   }
 };
 
@@ -167,6 +171,13 @@ exports.handleCmd = function(h){
   h(debug.parseCmd);
 };
 
+exports.dateTimeToString = function(date){
+  let n = date.toDateString();
+  let time = date.toLocaleTimeString();
+
+  return (n + ' ' + time);
+}
+
 const debug = {
   init: function(){
 
@@ -196,6 +207,7 @@ const debug = {
     return " ";
   }
 };
+
 
 
 exports.override  = function() merge.apply(null, arguments);

@@ -66,18 +66,24 @@ const str = function(){
   return str;
 }
 
-const matches = function(route){
+const matches = function(route, looseMatch){
+  looseMatch = !!looseMatch; //false by default
+
   if (Object.keys(this).length !== Object.keys(route).length) 
     return false;
 
   for (let key in this){
     if (typeof this[key] === "function" || this[key] === route[key]) continue;
 
-    if (this[key].charAt(0) === ">")
+    if (this[key].charAt(0) === ">"){
       if (Number(this[key].slice(1)) < Number(route[key])) continue;
+      if (looseMatch) continue;
+    }
 
-    if (this[key].charAt(0) === "<")
+    if (this[key].charAt(0) === "<"){
       if (Number(this[key].slice(1)) > Number(route[key])) continue;
+      if (looseMatch) continue;
+    }
 
     return false;
   }

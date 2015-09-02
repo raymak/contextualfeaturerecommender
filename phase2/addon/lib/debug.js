@@ -4,6 +4,7 @@ const {PageMod} = require("sdk/page-mod");
 const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 const sp = require("sdk/simple-prefs");
+const unload = require("sdk/system/unload").when;
 
 const utils = require("./utils");
 
@@ -113,8 +114,7 @@ function loadPrefs(){
 };
 
 function registerPrefListeners(){
-  Object.keys(sp.prefs).sort().forEach(function(pref){
-    sp.on(pref, function(pref){
+  let f = function(pref){
       let recs = {};
       recs[pref] = {};
       //does not update the type
@@ -123,7 +123,10 @@ function registerPrefListeners(){
       recs[pref].list = 'prefs';
 
       updateAll(recs);
-    });
+  };
+  Object.keys(sp.prefs).sort().forEach(function(pref){
+    sp.on(pref, f);
+    unload(function(){sp.removeListener(pref, f)});
   });
 }
 
@@ -167,27 +170,7 @@ function handleCmd(handler){
   cmdHandlers.push(handler);
 }
 
-function parseUtilsCmd(cmd){
-  const patt = /([^ ]*) *(.*)/; 
-    let args = patt.exec(cmd);
-    
-    if (!args)  //does not match the basic pattern
-      return false;
 
-    let name = args[1];
-    let params = args[2];
-
-    switch(name){
-      case "isVidTabOpen":
-        return utils.isVidTabOpen();
-        break;
-
-      default: 
-        return undefined;
-    }
-
-    return " ";
-}
 
 exports.init = init;
 exports.handleCmd = handleCmd;
