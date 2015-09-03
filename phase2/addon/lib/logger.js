@@ -70,8 +70,8 @@ function logLoad(reason){
   log("LOAD", {reason: reason});
 }
 
-function logPeriodicInfo(info){
-  log("PERIODIC_INFO", info);
+function logPeriodicSelfInfo(info){
+  log("PERIODIC_SELF_INFO", info);
 }
 
 function logDhReport(info){
@@ -79,6 +79,9 @@ function logDhReport(info){
 }
 
 function logFeatureUse(info){
+  if (info.count && info.count == 1){
+
+  }
   log("FEATURE_USE", info)
 }
 
@@ -134,7 +137,7 @@ exports.init = init;
 exports.logRecommUpdate = logRecommUpdate;
 exports.logFirstRun = logFirstRun;
 exports.logLoad = logLoad;
-exports.logPeriodicInfo = logPeriodicInfo;
+exports.logPeriodicSelfInfo = logPeriodicSelfInfo;
 exports.logDhReport = logDhReport;
 exports.logFeatureUse = logFeatureUse;
 exports.logBehavior = logBehavior;

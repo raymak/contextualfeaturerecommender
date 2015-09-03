@@ -4,6 +4,7 @@ const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("./utils");
 const {Route, equals, matches, scale, str} = require("./route");
 const logger = require("./logger");
+const featReport = require("./feature-report");
 
 const Recommendation = function(data) {
 
@@ -57,6 +58,8 @@ const recSet = {
         that[indexTable] = currIndexTable;
       });
 
+      featReport.addRow(aRecommendation.id, {status: aRecommendation.status, adopted: false});
+
       console.log("recommendation added: id -> " + aRecommendation.id);
     });
   },
@@ -96,6 +99,7 @@ const recSet = {
 
       if (oldStatus != newStatus){
         logger.logRecommUpdate(oldStatus, newStatus);
+        featReport.updateRow(aRecommendation.id, {status: newStatus});
       }
 
     });

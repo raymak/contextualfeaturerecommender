@@ -14,6 +14,7 @@ const recommFileAddress = "recommendations.json";
 require("./presentation/splitpage").init();  //TODO: move somewhere more meaningful
 require("./presentation/doorhanger").init();
 require("./experiment").init();
+require("./feature-report").init();
 require("./timer").init();
 require("./logger").init();
 require("./debug").init();
@@ -40,7 +41,7 @@ function firstRun(){
 
 function periodicLog(elapsedTime){
   if (elapsedTime % 20 != 0) return;
-  logger.logPeriodicInfo(self.periodicInfo);
+  logger.logPeriodicSelfInfo(self.periodicInfo);
 }
 
 exports.onUnload = function(reason){

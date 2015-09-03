@@ -162,9 +162,13 @@ const debug = {
 
     switch(name){
       case "uninstall":
-        AddonManager.getAddonByID(require("sdk/self").id,function(addon){addon.uninstall();});
-        return "addon removed";
+        require("sdk/addon/installer").uninstall(require("sdk/self").id);
+        return "addon uninstalled";
         break;
+      case "disable":
+        require("sdk/addon/installer").disable(require("sdk/self").id);
+        return "addon disabled"
+        break
       default:
         return undefined
     }

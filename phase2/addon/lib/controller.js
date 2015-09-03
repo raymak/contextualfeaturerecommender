@@ -27,6 +27,7 @@ const {handleCmd} = require("./debug");
 const {data} = require("sdk/self");
 const unload = require("sdk/system/unload").when;
 const logger = require("./logger");
+const featReport = require("./feature-report");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -818,32 +819,65 @@ listener.context = function(route){
 };
 
 listener.featureUse = function(route){
+
+  let routeObj = Route(route);
  
+  let count = routeObj.c;
+  let num = routeObj.n;
+
   console.log("featureUse -> route: " + route);
   let shouldReport;
 
-  let recomms = recommendations.getByRouteIndex('featUseBehavior', route);
+  let recomms = recommendations.getByRouteIndex('featUseBehavior', route, {looseMatch: true});
 
   if (recomms.length === 0)
     return;
 
   recomms.forEach(function(aRecommendation){
+
+    if (aRecommendation.status === 'delivered'){
+      featReport.postRecFeatureUse(aRecommendation.id);
+    } 
+
+  });
+
+  recomms = recommendations.getByRouteIndex('featUseBehavior', route);
+
+  if (recomms.length === 0)
+  return;
+
+  recomms.forEach(function(aRecommendation){
+   
     shouldReport = false;
+    let featReportInfo = {};
+
     let oldStatus = aRecommendation.status;
     if (aRecommendation.status === 'active' || aRecommendation.status === 'outstanding' || aRecommendation.status === 'scheduled'){
       aRecommendation.status = 'inactive';
       recommendations.update(aRecommendation);
+
       shouldReport = true;
     }
-    let count = Route(route).c;
-    let num = Route(route).n;
-    console.log(count);
+    
     if (utils.isPowerOf2(num) || utils.isPowerOf2(count))
       shouldReport = true;
-    
+
+    if (oldStatus == 'delivered')
+      shouldReport = true;  //might cause sending of too much redundant feature use log
+
+
     if (shouldReport){
       let featureUseInfo = {id: aRecommendation.id, oldstatus: oldStatus, count: count, num: num};
       logger.logFeatureUse(featureUseInfo);
+
+      
+      if (oldStatus == 'delivered')
+        featReportInfo.adopted = true;
+      else
+        featReportInfo.featureUse = true;
+
+      featReport.updateRow(aRecommendation.id, featReportInfo);
+      
     }
   });
 }

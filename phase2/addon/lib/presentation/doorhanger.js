@@ -15,7 +15,8 @@ const {dumpUpdateObject, handleCmd} = require("../debug");
 const {logDhReport} = require("../logger");
 const timer = require("../timer");
 const self = require("../self");
-const logger = require("./logger");
+const logger = require("../logger");
+const featReport = require("../feature-report");
 const unload = require("sdk/system/unload").when;
 
 const dhDataAddress = "presentation.doorhanger.data";
@@ -386,7 +387,25 @@ function rationaleOpen(){
 
 function updateReport(){
   let currRec = dhData.currentRec;
-  let info = merge({}, currRec.state, currRec.report, {durationtt: timer.elapsedTotalTime() - currRec.report.startett});
+  let state = currRec.state;
+  let report = currRec.report;
+
+  let addedInfo = {durationtt: timer.elapsedTotalTime() - currRec.report.startett,
+                   interaction: Boolean(state.like || state.dontlike || (state.count > 1) 
+                   || state.negFbChoice || (report.primbtn > 0) || (report.secbtn > 0)
+                   || (report.closebtn > 0) || (report.esc > 0) || report.mouseenter
+                   || report.rationaleopen || (report.infopage > 0))
+                    };
+  let info = merge({}, currRec.state, currRec.report, addedInfo);
+
+  //reporting to feature report
+  let featReportRow = {negfbchoice: info.negFbChoice, dontlike: info.dontlike, presnumber: info.number,
+                    interaction: info.interaction, primbtn: (info.primbtn > 0),
+                    secbtn: (info.secbtn > 0), manualopen: (info.count > 1),
+                    response: (info.primbtn > 0 || info.secbtn > 0), rationaleopen: (info.rationaleopen > 0),
+                    firstclosereason: info.firstclosereason, firstopen: info.firstopen
+                     }
+  featReport.updateRow(currRec.recomm.id, featReportRow);
 
   dhData.lastReport = info;
 }
