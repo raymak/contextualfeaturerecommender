@@ -7,7 +7,7 @@ const {PersistentObject} = require("./utils");
 const self = require("./self");
 const addonSelf = require("sdk/self");
 const exp = require("./experiment");
-const {dumpUpdateObject, handleCmd} = require("./debug");
+const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
 
 const loggerDataAddress = "logger.data";
 const recentHistCount = 5;
@@ -70,6 +70,14 @@ function logLoad(reason){
   log("LOAD", {reason: reason});
 }
 
+function logUnload(reason){
+  log("UNLOAD", {reason: reason});
+}
+
+function logDisable(reason){
+  log("DISABLE", {reason: reason});
+}
+
 function logPeriodicSelfInfo(info){
   log("PERIODIC_SELF_INFO", info);
 }
@@ -101,11 +109,21 @@ function logDhPresent(info){
   log("DH_PRESENT", info);
 }
 
+function logFeatReport(info){
+  log("FEAT_REPORT", info);
+}
+
+function logExpStageAdvance(info){
+  log("EXP_STAGE_ADVANCE", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
   },
   update: function(){
+    if (!isEnabled()) return;
+
     let updateObj = {};
     updateObj.count = loggerData.count;
     updateObj.recent = recentMsgs;
@@ -137,6 +155,8 @@ exports.init = init;
 exports.logRecommUpdate = logRecommUpdate;
 exports.logFirstRun = logFirstRun;
 exports.logLoad = logLoad;
+exports.logUnload = logUnload;
+exports.logDisable = logDisable;
 exports.logPeriodicSelfInfo = logPeriodicSelfInfo;
 exports.logDhReport = logDhReport;
 exports.logFeatureUse = logFeatureUse;
@@ -144,3 +164,5 @@ exports.logBehavior = logBehavior;
 exports.logContext = logContext;
 exports.logDhPresent = logDhPresent;
 exports.logLooseBehavior = logLooseBehavior;
+exports.logFeatReport = logFeatReport;
+exports.logExpStageAdvance = logExpStageAdvance;

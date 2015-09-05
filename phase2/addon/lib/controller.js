@@ -23,7 +23,7 @@ const windows = require("sdk/windows");
 const {modelFor} = require("sdk/model/core");
 const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
-const {handleCmd} = require("./debug");
+const {handleCmd, isEnabled} = require("./debug");
 const {data} = require("sdk/self");
 const unload = require("sdk/system/unload").when;
 const logger = require("./logger");
@@ -730,7 +730,7 @@ const deliverer = {
     timer.silence();
 
   },
-  checkSchedule: function(time){
+  checkSchedule: function(time, totalTime){
     let recomms = recommendations.getByRouteIndex('delivContext', '*', {status: 'outstanding'});
 
     if (recomms.length === 0)

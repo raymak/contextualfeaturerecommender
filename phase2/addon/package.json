@@ -79,6 +79,24 @@
       "value": "[1, 1, 1, 1, 1, 1]"
     },
     {
+      "name": "experiment.obs1_length_tick",
+      "type": "integer",
+      "title": "Length of the first observation period in the experiment.",
+      "value": 5
+    },
+    {
+      "name": "experiment.intervention_length_tick",
+      "type": "integer",
+      "title": "Length of the intervention period in the experiment.",
+      "value": 5
+    },
+    {
+      "name": "experiment.obs2_length_tick",
+      "type": "integer",
+      "title": "Length of the second observation period in the experiment.",
+      "value": 5
+    },
+    {
       "name": "route.coefficient",
       "type": "string",
       "title": "Coefficient that scales the triggering behavior thresholds",
@@ -95,6 +113,12 @@
       "type": "integer",
       "title": " ",
       "value": 300
+    },
+    {
+      "name": "debug.enabled",
+      "type": "bool",
+      "title": " ",
+      "value": false
     }
   ]
 }

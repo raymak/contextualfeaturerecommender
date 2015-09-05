@@ -11,7 +11,8 @@ self.init();
 
 const recommFileAddress = "recommendations.json";
 
-require("./presentation/splitpage").init();  //TODO: move somewhere more meaningful
+require("./self").init();
+require("./presentation/splitpage").init();  
 require("./presentation/doorhanger").init();
 require("./experiment").init();
 require("./feature-report").init();
@@ -39,13 +40,13 @@ function firstRun(){
   self.setInitialized();
 }
 
-function periodicLog(elapsedTime){
-  if (elapsedTime % 20 != 0) return;
-  logger.logPeriodicSelfInfo(self.periodicInfo);
-}
 
 exports.onUnload = function(reason){
   console.log("unloading due to " + reason);
+  logger.logUnload(reason);
+
+  if (reason == "uninstall" || reason == "disable")
+    logger.logDisable(reason);
 }
 
 

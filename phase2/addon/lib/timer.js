@@ -7,7 +7,7 @@ const prefs = sp.prefs;
 const {Cu, Cc, Ci} = require("chrome");
 const unload = require("sdk/system/unload").when;
 const exp = require("./experiment");
-const {dumpUpdateObject, handleCmd} = require("./debug");
+const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
@@ -51,7 +51,6 @@ const init = function(){
   unload(function(){sp.removeListener("experiment.startTimeMs"), f});
 
   debug.init();
-
   debug.update();
 }
 
@@ -146,7 +145,7 @@ const tick = function(){
     endSilence();
 
   tickHandlers.forEach(function(callback){
-    callback(elapsedTime);
+    callback(elapsedTime, elapsedTotalTime());
   });
 
   debug.update();
@@ -216,12 +215,15 @@ const debug = {
     handleCmd(this.parseCmd);
   },
   update: function(){
+
+    if (!isEnabled) return;
+    
     dumpUpdateObject(activity, {list: "Activity Status"});
 
     let silenceObj = {
       isSilent: isSilent(),
       silenceStart: timerData.silenceStart,
-      silenceEnd: isSilent()? timerData.silenceStart + silence_length_tick() : "",
+      silenceEnd: isSilent()? timerData.silenceStart + silence_length_tick() : 0,
       silenceElapsed: elapsedTime() - silence,
       silenceLeft: silenceLeft(),
       silenceElapsed: silenceElapsed()

@@ -17,6 +17,8 @@ let records = {};
 let cmdHandlers = [];
 
 function init(){
+  if (!isEnabled()) return;
+
   console.log("initializing debug")
   tabs.on('ready', function(tab){
   	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
@@ -46,6 +48,9 @@ function init(){
 
 }
 
+function isEnabled(){
+  return sp.prefs["debug.enabled"];
+}
 
 function dumpUpdateObject(obj, options){
 
@@ -88,8 +93,8 @@ function updateRecords(recs){
       records[key] = {};
 
     records[key].data = recs[key].data;
-    records[key].type = records[key].type || recs[key].type ||  typeof recs[key].data || 'string';
-    records[key].list = records[key].list || recs[key].list || 'default'; //problem: cannot modify the section of an existing item
+    records[key].type = recs[key].type || records[key].type  ||  typeof recs[key].data || 'string';
+    records[key].list = recs[key].list || records[key].list || 'default'; //problem: cannot modify the section of an existing item
   }
 }
 
@@ -175,4 +180,5 @@ function handleCmd(handler){
 exports.init = init;
 exports.handleCmd = handleCmd;
 exports.update = updateAll;
+exports.isEnabled = isEnabled;
 exports.dumpUpdateObject = dumpUpdateObject;

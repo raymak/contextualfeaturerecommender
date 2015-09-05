@@ -4,6 +4,7 @@
 const featDataAddress = "feature_report.data";
 const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("./utils");
+const logger = require("./logger");
 const timer = require("./timer");
 
 const featData = PersistentObject("simplePref", {address: featDataAddress});
@@ -15,6 +16,7 @@ function init(){
     featData.report = {};
 
   //set up periodic logging
+  timer.tickCallback(log);
   
 }
 
@@ -43,7 +45,7 @@ function addRow(id, obj){
     primbtn: null, secbtn: null, response: null,
     manualopen: null, presnumber: null,
     rationaleopen: null, firstclosereason: null, firstopen: null,
-    featureuse: null, firstusesincepres: null
+    featureuse: null, firstusesincepres: null, tried: null
     };
 
   for (let k in obj )
@@ -83,8 +85,15 @@ function postRecFeatureUse(id){
   let startett = dhCurrRec.report.startett;
 
   report[id].firstusesincepres = ett - startett;
+  report[id].tried = true;
 
   featData.report = report;
+}
+
+function log(et, ett){
+  if (et % 20 != 1) return;
+  let info = featData.report;
+  logger.logFeatReport(info);
 }
 
 exports.updateRow = updateRow;

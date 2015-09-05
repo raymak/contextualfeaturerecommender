@@ -7,6 +7,7 @@ const system = require("sdk/system");
 const logger = require("./logger");
 const exp = require("./experiment");
 const tabs = require("sdk/tabs");
+const timer = require("./timer");
 const {handleCmd} = require("./debug");
 const override  = function() merge.apply(null, arguments);
 Cu.import("resource://gre/modules/AddonManager.jsm");
@@ -23,6 +24,15 @@ const modes = [
 const self = {
   init: function(){
     debug.init();
+
+    let that = this;
+
+    function periodicLog(et, ett){
+      if (et % 20 != 2) return;
+      logger.logPeriodicSelfInfo(that.periodicInfo);
+    }
+
+    timer.tickCallback(periodicLog);
   },
   get isInitialized(){
     return !!prefs["isInitialized"];

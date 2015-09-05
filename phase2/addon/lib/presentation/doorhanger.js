@@ -11,7 +11,7 @@ const {prefs} = require("sdk/simple-prefs");
 const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 const {merge} = require("sdk/util/object");
-const {dumpUpdateObject, handleCmd} = require("../debug");
+const {dumpUpdateObject, handleCmd, isEnabled} = require("../debug");
 const {logDhReport} = require("../logger");
 const timer = require("../timer");
 const self = require("../self");
@@ -423,6 +423,7 @@ const debug = {
     handleCmd(this.parseCmd);
   },
   update: function(){
+    if (!isEnabled) return;
 
     let data = dhData;
     let updateObj = {count: data.count, currentRecomm: data.currentRec.recomm, state: data.currentRec.state};
