@@ -23,8 +23,6 @@ function init(){
   tabs.on('ready', function(tab){
   	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
   });
-  loadPrefs();
-  registerPrefListeners();
   
 
   PageMod({
@@ -40,6 +38,8 @@ function init(){
       worker.port.on("log", function(m){console.log(m);});
       worker.port.on("cmd", function(cmd){processCommand(worker, cmd);});
       worker.port.emit("init");
+      loadPrefs();
+      registerPrefListeners();
       initWorker(worker);
     }
   });
@@ -102,38 +102,50 @@ function initWorker(worker){
   update(worker, records);
 }
 
-function loadPrefs(){
-  let recs = {};
-  Object.keys(sp.prefs).sort().forEach(function(pref){
-    recs[pref] = {};
-    recs[pref].data = sp.prefs[pref];
-    if (utils.tryParseJSON(sp.prefs[pref]))
-      recs[pref].type = 'json';
-    else
-      recs[pref].type = (typeof recs[pref].data);
+let loadPrefs = (function(){  // can be executed only once
+  let executed = false;
+  return function(){
+    if (executed) return;
 
-    recs[pref].list = 'prefs';
-  });
-
-  updateRecords(recs);
-};
-
-function registerPrefListeners(){
-  let f = function(pref){
-      let recs = {};
+    let recs = {};
+    Object.keys(sp.prefs).sort().forEach(function(pref){
       recs[pref] = {};
-      //does not update the type
-      recs[pref].type = null;
       recs[pref].data = sp.prefs[pref];
-      recs[pref].list = 'prefs';
+      if (utils.tryParseJSON(sp.prefs[pref]))
+        recs[pref].type = 'json';
+      else
+        recs[pref].type = (typeof recs[pref].data);
 
-      updateAll(recs);
-  };
-  Object.keys(sp.prefs).sort().forEach(function(pref){
-    sp.on(pref, f);
-    unload(function(){sp.removeListener(pref, f)});
-  });
-}
+      recs[pref].list = 'prefs';
+    });
+
+    updateRecords(recs);
+    executed = true;
+  }
+})();
+
+let registerPrefListeners = (function(){ // can be executed only once
+  let executed = false;
+  return function(){
+    if (executed) return;
+
+    let f = function(pref){
+        let recs = {};
+        recs[pref] = {};
+        //does not update the type
+        recs[pref].type = null;
+        recs[pref].data = sp.prefs[pref];
+        recs[pref].list = 'prefs';
+
+        updateAll(recs);
+    };
+    Object.keys(sp.prefs).sort().forEach(function(pref){
+      sp.on(pref, f);
+      unload(function(){sp.removeListener(pref, f)});
+    });
+    executed = true;
+  }
+})();
 
 function detachWorker(worker, workerArray) {
   let index = workerArray.indexOf(worker);

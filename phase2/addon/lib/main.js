@@ -11,13 +11,13 @@ self.init();
 
 const recommFileAddress = "recommendations.json";
 
-require("./self").init();
 require("./presentation/splitpage").init();  
 require("./presentation/doorhanger").init();
 require("./experiment").init();
 require("./feature-report").init();
 require("./timer").init();
 require("./logger").init();
+require("./connection").init();
 require("./debug").init();
 
 

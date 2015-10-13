@@ -8,6 +8,7 @@ const self = require("./self");
 const addonSelf = require("sdk/self");
 const exp = require("./experiment");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
+const {sendToTp} = require("./connection");
 
 const loggerDataAddress = "logger.data";
 const recentHistCount = 5;
@@ -49,6 +50,7 @@ function log(type, attrs){
   OUT = override(OUT, {type: type, attrs: attrs});
 
   console.log(OUT);
+  sendToTp(OUT);
 
   recentMsgs[OUT.number] = OUT;
   if (recentMsgs[OUT.number - recentHistCount])

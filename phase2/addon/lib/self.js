@@ -9,7 +9,8 @@ const exp = require("./experiment");
 const tabs = require("sdk/tabs");
 const timer = require("./timer");
 const {handleCmd} = require("./debug");
-const override  = function() merge.apply(null, arguments);
+const {getFhrData} = require("./utils");
+const {merge} = require("sdk/util/object");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
 const modes = [
@@ -28,8 +29,10 @@ const self = {
     let that = this;
 
     function periodicLog(et, ett){
-      if (et % 20 != 2) return;
-      logger.logPeriodicSelfInfo(that.periodicInfo);
+      if (et % 20 != 1) return;
+      that.getPeriodicInfo(function(info){
+        logger.logPeriodicSelfInfo(info);
+      });
     }
 
     timer.tickCallback(periodicLog);
@@ -84,11 +87,11 @@ const self = {
   get addonVersion(){
     return require("sdk/self").version;
   },
-  get periodicInfo(){
-    let result = {};
+  getPeriodicInfo: function(f){
 
     //addons info
-    //var addonNames = [];
+    let activeThemeId, activeThemeName;
+    let addonNames = [];
     let addonIds = [];
     let addonTypes = [];
     let addonActivities = [];
@@ -113,6 +116,7 @@ const self = {
         addonActivities.push(addons[i].isActive);
       }
 
+
       AddonManager.getAddonsByTypes(['theme'], function(addons){
         
         themeCount = addons.length;
@@ -126,28 +130,28 @@ const self = {
         }
 
         //fhr
-        getFHRdata(function(profileAgeDays, totalActiveMs){
-          
-        try {
-          
-          result = override(OUTval, 
-            {extensioncount: extensionCount, themecount: themeCount,
-             addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
-             activeThemeId: activeThemeId, activeThemeName: activeThemeName,
-             searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
-             profileAgeDays: profileAgeDays, totalActiveMs: totalActiveMs,
-             browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart
-            }); 
-        }
-        catch (e){
-          console.log(e.message);
-        }
+        getFhrData(function(profileAgeDays, totalActiveMs){
+          try {
+            let result = {  
+               extensioncount: extensionCount, themecount: themeCount,
+               addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
+               activeThemeId: activeThemeId, activeThemeName: activeThemeName,
+               searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
+               profileAgeDays: profileAgeDays, totalActiveMs: totalActiveMs,
+               browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart,
+              };
 
-        return result;
+            f(result);
+          }
+          catch (e){
+            console.log("error logging periodic self info.");
+            console.log(e.message);
+          }
+
         });
       }); 
-    });
     
+    });
   }
 }
 

@@ -295,8 +295,8 @@ function sendInstallInfo(){
 			//fhr
 			getFHRdata(function (profileAgeDays, totalActiveMs){
 				
-				try {
-					
+				try 
+{					
 					OUTval = require("./utils").override(OUTval, 
 						{addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
 						 activeThemeId: activeThemeId, activeThemeName: activeThemeName,
