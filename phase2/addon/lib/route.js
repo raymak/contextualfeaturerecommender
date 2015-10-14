@@ -48,7 +48,7 @@ const scale = function(coeff){
       this[key] = ">" + String(Number(this[key].slice(1))/coeff);
 
     if (this[key].charAt(0) === "<")
-       this[key] = ">" + String(Number(this[key].slice(1))*coeff);
+       this[key] = "<" + String(Number(this[key].slice(1))*coeff);
   }
 
   return this;

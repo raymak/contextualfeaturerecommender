@@ -162,7 +162,7 @@ const debug = {
     switch(name){
       case "stage": //forces the stage
 
-        if (params == "unforce"){
+        if (params == "none"){
           expData.stageForced = false;
           return "back to normal stage determination";
         }

@@ -232,7 +232,7 @@ function likeClick(){
 }
 
 //TOTHINK: this is just a workaround
-// should find a neater way to do this
+// should find a neat way to do this
 function replaceCtrlCommand(options){
     let keys = document.querySelectorAll("span.key");
     if (keys)
