@@ -1522,7 +1522,7 @@ const debug = {
       case "route":
         subArgs = patt.exec(params);
 
-        if (!subArgs)
+        if (!subArgs[0])
           return "error: incorrent use of route command.";
 
         switch(subArgs[1]){
@@ -1543,7 +1543,7 @@ const debug = {
       case "status":
         subArgs = patt.exec(params);
 
-        if (!subArgs)
+        if (!subArgs[0])
           return "error: incorrect use of status command.";
 
         id = subArgs[1];
@@ -1569,7 +1569,7 @@ const debug = {
       case "delmode":
         subArgs = patt.exec(params);
 
-        if (!subArgs)
+        if (!subArgs[0])
           return "error: incorrect use of delmode command.";
 
         let subMode = subArgs[1];
@@ -1592,8 +1592,8 @@ const debug = {
       case "load":
         subArgs = patt.exec(params);
 
-        if (!subArgs)
-          return "error: incorrect syntax using load";
+        if (!subArgs[0])
+          return "error: incorrect use of load command.";
 
         let file = subArgs[1];
         id = subArgs[2];
@@ -1612,6 +1612,22 @@ const debug = {
           return "recommendation with id " + id + " does not exist in file."
 
         return "recommendation with id " + id + " loaded successfully."
+        break;
+
+      case "recs":
+
+        let stat = '*';
+        subArgs = patt.exec(params);
+
+        if (subArgs[1])
+          stat = subArgs[1];
+
+        let recomIds = recommendations.getByStatus(stat).map(function(aRecommendation){
+          return aRecommendation.id;
+        });
+
+        return recomIds.join(', ');
+
         break;
 
       default:

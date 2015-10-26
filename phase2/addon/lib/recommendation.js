@@ -141,6 +141,23 @@ const recSet = {
     else
       return [];
   },
+  getByStatus: function(status){
+
+    let recomms = [];
+    this.forEach(function(aRecommendation){
+      recomms.push(aRecommendation);
+    });
+
+    if (status == '*')
+      return recomms;
+    
+    recomms = recomms.filter(function(aRecommendation){
+      return aRecommendation.status === status;
+    });
+
+    return recomms;
+
+  },
   scaleRoute: function(aRecommendation, coeff, indexTable){
     scale.call(aRecommendation[indexTable + "Route"], coeff);
     aRecommendation[indexTable] = str.call(aRecommendation[indexTable + "Route"]);

@@ -258,7 +258,7 @@ const debug = {
 
         let act = subArgs[0];
 
-        if (!subArgs)
+        if (!subArgs[0])
           return "error: invalid use of time command.";
 
         switch(act){
