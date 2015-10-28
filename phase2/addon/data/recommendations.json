@@ -84,7 +84,7 @@
       "*": {
         "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
         "title": "New tab shortcut",
-        "rationale": "Because you open tabs a lot."
+        "rationale": "You open tabs a lot."
       },
       "log": {},
       "desktopnotification": {},

@@ -285,7 +285,12 @@ const debug = {
                 if (!subArgs[2])
                   return "error: invalid use of time set st command.";
 
-                let dateNum = Number(prefs["experiment.startTimeMs"]) + Number(subArgs[2]);
+                console.log(Number(prefs["experiment.startTimeMs"]));
+
+                let dateNum = Number(prefs["experiment.startTimeMs"]) 
+                              + Number(subArgs[2])*prefs["timer.tick_length_s"]*1000;
+
+                console.log(dateNum);
                 prefs["experiment.startTimeMs"] = String(dateNum);
 
                 return "new start time set to: " + dateTimeToString(new Date(dateNum));
