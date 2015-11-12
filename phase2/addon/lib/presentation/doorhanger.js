@@ -326,7 +326,7 @@ function openInfoPage(){
 }
 
 function resize(size){
-  panel.resize(size.width+2, size.height+3);
+  panel.resize(size.width+3, size.height+3);
 }
 
 function response(element, options){
