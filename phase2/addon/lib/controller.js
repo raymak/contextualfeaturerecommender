@@ -215,7 +215,7 @@ const listener = {
 
     // }, ["application/json", "application/epub+zip"]);
 
-    this.listenForActiveNewtab(function(){
+    this.listenForNewtab(function(){
       let newtabEvent = Event("newtabEvent", {
         route: 'newtab'
        });
@@ -953,7 +953,7 @@ listener.listenForAddonEvents = function(callback){
   });
 }
 
-listener.listenForActiveNewtab = function(callback){
+listener.listenForNewtab = function(callback){
   tabs.on('open', function(tab){
     if ([NEWTAB_URL, HOME_URL].indexOf(tab.url) != -1) callback();
   });
@@ -967,7 +967,7 @@ listener.listenForActiveTabHostnameProgress = function(callback, options){
         let hostname = URL(tab.url).hostname;
 
         //TOTHINK: potential namespace conflict      
-        if (options.fresh && hostname === tab.hostname) return; //not a fresh url open
+        if (options && options.fresh && hostname === tab.hostname) return; //not a fresh url open
 
         tab.hostname = hostname;
         unload(function(){if (tab) delete tab.hostname;})

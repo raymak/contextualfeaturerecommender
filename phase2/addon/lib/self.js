@@ -61,7 +61,8 @@ const self = {
     }
   },
   get isTest(){
-    if ("isTest" in system.staticArgs)
+
+    if (system.staticArgs && ("isTest" in system.staticArgs))
       prefs["isTest"] =  system.staticArgs.isTest;
     else
       if (!( "isTest" in prefs)){

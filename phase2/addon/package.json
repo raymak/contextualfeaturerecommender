@@ -6,6 +6,8 @@
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "license": "MPL 2.0",
+  "main": "./lib/main.js",
+  "version": "0.0.1",
   "permissions": {
     "private-browsing": true  
   },
@@ -31,7 +33,7 @@
     {
       "name": "timer.inactive_threshold_s",
       "type": "integer",
-      "title": "Minimum length of inactivity time to conclude user unactivity",
+      "title": "Minimum length of inactivity time to conclude user inactivity",
       "value": 30
     },
     {

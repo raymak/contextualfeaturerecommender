@@ -1,0 +1,61 @@
+{
+    "license": "MIT", 
+    "description": "Aims to find the most interruptible moments in Firefox.", 
+    "engines": {
+        "firefox": ">=38.0a1"
+    }, 
+    "author": "Kamyar Ardekani", 
+    "title": "woodpecker", 
+    "version": "0.0.1", 
+    "preferences": [
+        {
+            "description": "", 
+            "type": "integer", 
+            "name": "presentation.doorhanger.autofade_time_ms", 
+            "value": 30000, 
+            "title": "Auto fade time"
+        }, 
+        {
+            "description": "Determines what color scheme is used in doorhanger pop-ups", 
+            "type": "string", 
+            "name": "presentation.doorhanger.color_mode", 
+            "value": "basic", 
+            "title": "Doorhanger color mode"
+        }, 
+        {
+            "type": "integer", 
+            "name": "timer.tick_length_s", 
+            "value": 60, 
+            "title": "Length of a tick in seconds"
+        }, 
+        {
+            "type": "integer", 
+            "name": "timer.silence_length_s", 
+            "value": 120, 
+            "title": "Length of the silence period in seconds"
+        }, 
+        {
+            "type": "integer", 
+            "name": "timer.random_interval_length_tick", 
+            "value": 20, 
+            "title": "Maximum length of the random time interval"
+        }, 
+        {
+            "type": "integer", 
+            "name": "timer.inactive_threshold_s", 
+            "value": 30, 
+            "title": "Minimum length of inactivity time to conclude user inactivity"
+        }, 
+        {
+            "type": "integer", 
+            "name": "timer.recently_active_threshold_s", 
+            "value": 5, 
+            "title": "Maximum length of activity time to conclude user has become active recently"
+        }
+    ], 
+    "keywords": [
+        "jetpack"
+    ], 
+    "main": "./lib/index.js", 
+    "name": "woodpecker"
+}
