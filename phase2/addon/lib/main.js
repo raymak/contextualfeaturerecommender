@@ -4,7 +4,6 @@
 const {Recommendation} = require("./recommendation");
 const controller = require("./controller");
 const {data} = require("sdk/self");
-const {WindowTracker} = require("sdk/deprecated/window-utils");
 const logger = require("./logger");
 const self = require("./self");
 self.init();

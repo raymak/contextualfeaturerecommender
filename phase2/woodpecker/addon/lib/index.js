@@ -1,14 +1,38 @@
-const self = require('sdk/self');
+const self = require('./self');
 const controller = require('./controller');
+const logger = require('./logger');
 
+self.init();
+require("./experiment").init();
 require("./timer").init();
+require("./logger").init();
+require("./connection").init();
+require("./debug").init();
 
-controller.init();
 
-// a dummy function, to show how tests work.
-// to see how to test this function, look at test/test-index.js
-function dummy(text, callback) {
-  callback(text);
+exports.main = function(options, callbacks){
+
+  console.log("Hello World! Woodpecker is alive :)");
+
+  if (!self.isInitialized)
+    firstRun();
+
+  logger.logLoad(options.loadReason);
+
+  controller.init();
 }
 
-exports.dummy = dummy;
+function firstRun(){
+  
+  logger.logFirstRun();
+  self.setInitialized();
+}
+
+
+exports.onUnload = function(reason){
+  console.log("unloading due to " + reason);
+  logger.logUnload(reason);
+
+  if (reason == "uninstall" || reason == "disable")
+    logger.logDisable(reason);
+}

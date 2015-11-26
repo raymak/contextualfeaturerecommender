@@ -51,6 +51,12 @@
             "name": "timer.recently_active_threshold_s", 
             "value": 5, 
             "title": "Maximum length of activity time to conclude user has become active recently"
+        },
+         {
+              "name": "debug.enabled",
+              "type": "bool",
+              "title": " ",
+              "value": true
         }
     ], 
     "keywords": [

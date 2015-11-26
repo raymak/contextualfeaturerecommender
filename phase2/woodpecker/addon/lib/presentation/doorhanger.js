@@ -60,7 +60,7 @@ function initPanel(button){
     autohide: false,
     focus: false,
     contentURL: data.url("./presentation/doorhanger.html"),
-    contentScriptFile: [data.url("./js/jquery-1.11.3.min.js"), data.url("./presentation/doorhanger.js")],
+    contentScriptFile: [data.url("./js/jquery.min.js"), data.url("./presentation/doorhanger.js")],
     onShow: onPanelShow,
     onHide: onPanelHide
   });

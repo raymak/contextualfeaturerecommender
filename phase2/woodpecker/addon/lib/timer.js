@@ -6,8 +6,8 @@ const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
 const {Cu, Cc, Ci} = require("chrome");
 const unload = require("sdk/system/unload").when;
-// const exp = require("./experiment");
-// const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
+const exp = require("./experiment");
+const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
@@ -50,14 +50,13 @@ const init = function(){
   sp.on("experiment.startTimeMs", f);
   unload(function(){sp.removeListener("experiment.startTimeMs"), f});
 
-  // debug.init();
-  // debug.update();
+  debug.init();
+  debug.update();
 }
 
 // updates the ett preference records in addition to returning it
 const elapsedTotalTime = function(){
-  // let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
-  let ett = (Date.now() - Number(sp["experiment.startTimeMs"])) / (1000 * prefs["timer.tick_length_s"]);
+  let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
 
   timerData.elapsedTotalTime = ett; //update the elapsed total time at the beginning
   return ett;
@@ -86,7 +85,7 @@ const watchActivity = function(){
             activeCounter = setInterval(function(){
               activity.minor_active_s += 1;
               activity.active_s += 1;
-              // debug.update();
+              debug.update();
             }, 1000);
           }
           activity.active = true;
@@ -105,7 +104,7 @@ const watchActivity = function(){
             if (activity.minor_inactive_s > prefs["timer.inactive_threshold_s"] && activity.active){
               deactivate();
             }
-            // debug.update();
+            debug.update();
           }, 1000);
         break;
       }
@@ -136,19 +135,19 @@ const tick = function(){
 
   const SILENCE_LENGTH_TICK = prefs["timer.silence_length_s"] / prefs["timer.tick_length_s"];
 
-  let elapsedTime = timerData.elapsedTime + 1;
+  let et = timerData.elapsedTime + 1;
 
-  timerData.elapsedTime = elapsedTime;
-  console.log("elapsed time: " + elapsedTime + " ticks = " + elapsedTime*prefs["timer.tick_length_s"]/60 + " minutes");
+  timerData.elapsedTime = et;
+  console.log("elapsed time: " + et + " ticks = " + et*prefs["timer.tick_length_s"]/60 + " minutes");
 
   if (timerData.silenceStart != -1 && silenceLeft() < 0)
     endSilence();
 
   tickHandlers.forEach(function(callback){
-    callback(elapsedTime, elapsedTotalTime());
+    callback(et, elapsedTotalTime());
   });
 
-  // debug.update();
+  debug.update();
 }
 
 const tickCallback = function(callback){
@@ -160,23 +159,23 @@ const elapsedTime = function(){
 }
 
 const silence = function(){
-  let time = elapsedTime();
+  let time = elapsedTotalTime();
   timerData.silenceStart = time;
   console.log("silence started at " + time + " ticks");
   console.log("silence ends at " + Number(time + silence_length_tick()) + " ticks");
 }
 
 const silenceElapsed = function(){
-  return (isSilent()? elapsedTime() - timerData.silenceStart : 0);
+  return (isSilent()? elapsedTotalTime() - timerData.silenceStart : 0);
 }
 
 const silenceLeft = function(){
-  let elapsedTotalTime = elapsedTotalTime();
+  let ett = elapsedTotalTime();
 
   if (!isSilent())
     return 0;
 
-  return (silence_length_tick() - elapsedTime + timerData.silenceStart);
+  return (silence_length_tick() - timerData + ett.silenceStart);
 }
 
 const endSilence = function(){
@@ -262,7 +261,7 @@ const debug = {
       case "inactive":
         deactivate();
         observerService.notifyObservers(null, "user-interaction-inactive", "");
-        // debug.update();
+        debug.update();
         return "user inactivity forced"
       break;
 
