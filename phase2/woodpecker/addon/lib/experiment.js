@@ -32,10 +32,12 @@ const experiment = {
   timer.tickCallback(debug.update);
   timer.tickCallback(checkStage);
 
-
   },
   get info(){
     return {startTimeMs: startTimeMs(), stage: expData.stage};
+  }, 
+  firstRun: function(){
+    stages["obs1"]();
   }
 }
 
@@ -81,7 +83,7 @@ function checkStage(et, ett){
     return;
 
   //prepare the new stage
-  stages[nStage];
+  stages[nStage]();
 
   expData.stage = nStage;
 
@@ -92,14 +94,15 @@ function checkStage(et, ett){
 
 const stages = {
   obs1: function(){
-
+    prefs["delivery.mode.observ_only"] = true;
+    console.log("obs1 stage started.");
   },
   intervention: function(){
-
-
+    prefs["delivery.mode.observ_only"] = false;
+    console.log("intervention stage started.");
   },
   obs2: function(){
-
+    console.log("obs2 stage started.");
   },
   end: function(){
 

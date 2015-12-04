@@ -9,7 +9,7 @@ const exp = require("./experiment");
 const tabs = require("sdk/tabs");
 const timer = require("./timer");
 const {handleCmd} = require("./debug");
-const {getFhrData} = require("./utils");
+const {getFhrData, cleanUp, extractOpts} = require("./utils");
 const {merge} = require("sdk/util/object");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
@@ -153,7 +153,7 @@ const self = {
       }); 
     
     });
-  }
+  },
 }
 
 const debug = {
@@ -184,6 +184,11 @@ const debug = {
         require("sdk/addon/installer").disable(require("sdk/self").id);
         return "addon disabled"
         break
+      case "cleanup":
+        let opts = extractOpts(cmd);
+        cleanUp(opts);
+        return "cleaning up..."
+        break;
       default:
         return undefined
     }

@@ -1,67 +1,147 @@
 {
-    "license": "MIT", 
-    "description": "Aims to find the most interruptible moments in Firefox.", 
-    "engines": {
-        "firefox": ">=38.0a1"
+  "license": "MIT", 
+  "description": "Aims to find the most interruptible moments in Firefox.", 
+  "engines": {
+      "firefox": ">=38.0a1"
+  }, 
+  "author": "Kamyar Ardekani", 
+  "title": "woodpecker", 
+  "version": "0.0.3", 
+  "preferences": [
+    {
+      "name": "self.clean_install",
+      "type": "bool",
+      "title": "Whether or not all the preferences should be reset upon installation.",
+      "value": true
+    },
+     {
+      "type": "bool",
+      "name": "delivery.mode.no_silence",
+      "description": "",
+      "value": false,
+      "title": "No silence in delivery"
+
+    },
+    {
+      "name": "delivery.mode.observ_only",
+      "type": "bool",
+      "title": "Whether or not only the observation should happen.",
+      "value": false
+    },
+    {
+        "type": "integer",
+        "name": "moment.recent_window_length",
+        "title": " ",
+        "value": 1440 
+    },
+    {
+        "type": "integer",
+        "name": "moment.min_total_frequency_i",
+        "title": " ",
+        "value": 720
+    },
+    {
+        "type": "integer",
+        "name": "moment.min_effFrequency_i",
+        "title": " ",
+        "value": 180
+    },
+    {
+        "type": "integer",
+        "name": "moment.max_rEffCount",
+        "title": " ",
+        "value": 2
+    },
+    {
+        "type": "integer",
+        "name": "moment.min_rEffFrequency_i",
+        "title": " ",
+        "value": 180
+    },
+    {
+        "type": "integer",
+        "name": "moment.dEffFrequency_i",
+        "title": " ",
+        "value": 120
+    },
+    {
+        "type": "integer",
+        "name": "moment.max_rCount",
+        "title": " ",
+        "value": 3
+    },
+    {
+        "description": "", 
+        "type": "integer", 
+        "name": "presentation.doorhanger.autofade_time_ms", 
+        "value": 30000, 
+        "title": "Auto fade time"
     }, 
-    "author": "Kamyar Ardekani", 
-    "title": "woodpecker", 
-    "version": "0.0.1", 
-    "preferences": [
-        {
-            "description": "", 
-            "type": "integer", 
-            "name": "presentation.doorhanger.autofade_time_ms", 
-            "value": 30000, 
-            "title": "Auto fade time"
-        }, 
-        {
-            "description": "Determines what color scheme is used in doorhanger pop-ups", 
-            "type": "string", 
-            "name": "presentation.doorhanger.color_mode", 
-            "value": "basic", 
-            "title": "Doorhanger color mode"
-        }, 
-        {
-            "type": "integer", 
-            "name": "timer.tick_length_s", 
-            "value": 60, 
-            "title": "Length of a tick in seconds"
-        }, 
-        {
-            "type": "integer", 
-            "name": "timer.silence_length_s", 
-            "value": 120, 
-            "title": "Length of the silence period in seconds"
-        }, 
-        {
-            "type": "integer", 
-            "name": "timer.random_interval_length_tick", 
-            "value": 20, 
-            "title": "Maximum length of the random time interval"
-        }, 
-        {
-            "type": "integer", 
-            "name": "timer.inactive_threshold_s", 
-            "value": 30, 
-            "title": "Minimum length of inactivity time to conclude user inactivity"
-        }, 
-        {
-            "type": "integer", 
-            "name": "timer.recently_active_threshold_s", 
-            "value": 5, 
-            "title": "Maximum length of activity time to conclude user has become active recently"
-        },
-         {
-              "name": "debug.enabled",
-              "type": "bool",
-              "title": " ",
-              "value": true
-        }
-    ], 
-    "keywords": [
-        "jetpack"
-    ], 
-    "main": "./lib/index.js", 
-    "name": "woodpecker"
+    {
+        "description": "Determines what color scheme is used in doorhanger pop-ups", 
+        "type": "string", 
+        "name": "presentation.doorhanger.color_mode", 
+        "value": "basic", 
+        "title": "Doorhanger color mode"
+    }, 
+    {
+        "type": "integer", 
+        "name": "timer.tick_length_s", 
+        "value": 60, 
+        "title": "Length of a tick in seconds"
+    }, 
+    {
+        "type": "integer", 
+        "name": "timer.silence_length_s", 
+        "value": 300, 
+        "title": "Length of the silence period in seconds"
+    }, 
+    {
+        "type": "integer", 
+        "name": "timer.random_interval_length_tick", 
+        "value": 20, 
+        "title": "Maximum length of the random time interval"
+    }, 
+    {
+        "type": "integer", 
+        "name": "timer.inactive_threshold_s", 
+        "value": 30, 
+        "title": "Minimum length of inactivity time to conclude user inactivity"
+    }, 
+    {
+        "type": "integer", 
+        "name": "timer.recently_active_threshold_s", 
+        "value": 5, 
+        "title": "Maximum length of activity time to conclude user has become active recently"
+    },
+    {
+      "name": "experiment.obs1_length_tick",
+      "type": "integer",
+      "title": "Length of the first observation period in the experiment.",
+      "value": 1440
+    },
+    {
+      "name": "experiment.intervention_length_tick",
+      "type": "integer",
+      "title": "Length of the intervention period in the experiment.",
+      "value": 5760
+    },
+    {
+      "name": "experiment.obs2_length_tick",
+      "type": "integer",
+      "title": "Length of the second observation period in the experiment.",
+      "value": 5
+    },
+    {
+      "name": "debug.enabled",
+      "type": "bool",
+      "title": " ",
+      "value": true
+    }
+  ], 
+  "keywords": [
+      "jetpack"
+  ], 
+  "main": "./lib/index.js", 
+  "name": "woodpecker"
 }

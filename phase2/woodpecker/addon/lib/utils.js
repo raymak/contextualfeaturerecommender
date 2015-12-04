@@ -30,6 +30,34 @@ exports.partial = function(fn /*, arguments */) {
   };
 };
 
+exports.extractOpts = function(str){
+   let obj = {};
+
+  let headerInd = str.indexOf(" -");
+  if (headerInd < 0) headerInd = str.length;
+  let headerExp = str.slice(0, headerInd);
+  let keysExp = str.slice(headerInd+1);
+
+  obj.header = headerExp;
+
+  let i = 0;
+  let keysArr = keysExp.split(" ");
+
+  if (keysExp.length > 0)
+    while(i < keysArr.length){
+      if (keysArr[i+1] && keysArr[i+1].charAt(0) !== "-"){
+        obj[keysArr[i].slice(1)] = keysArr[i+1];
+        i = i + 2;
+      }
+      else {
+        obj[keysArr[i].slice(1)] = true;
+        i = i + 1;
+      }
+    }
+
+    return obj;
+}
+
 
 //TODO: add simpleStorage
 ////TODO: add function definition capabilities using closures
@@ -109,6 +137,7 @@ exports.isPowerOf2 = function(num){
   return exports.isPowerOf2(num2);
 }
 
+//weights have to be integers
 exports.weightedRandomInt = function(weightsArr){
   let sum = weightsArr.reduce(function(pv, cv) { return pv + cv; }, 0);
 
@@ -241,6 +270,21 @@ function parseFhrPayload(data, callback){
 
     // console.log(JSON.stringify(data.data, null, 2));
     // return usage statistic
+}
+
+exports.cleanUp =  function(options){
+  //note: preferences defiend in package.json cannot be deleted
+  if (options && options.reset){
+    console.log("resetting preferences...");
+    for (let pref in prefs){
+      if (pref.slice(0,3) !== 'sdk'){
+        console.log('resetting ' + pref + '...');
+        require('sdk/preferences/service').reset(['extensions', require('sdk/self').id, pref].join('.'));
+      }
+    }
+  }
+  else
+    console.log("cleaning up cancelled.");
 }
 
 exports.handleCmd = function(h){

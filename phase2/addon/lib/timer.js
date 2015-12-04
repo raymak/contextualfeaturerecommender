@@ -27,7 +27,7 @@ const init = function(){
   if (!timerData.elapsedTime)
     timerData.elapsedTime = 0;
 
-  if (!timerData.silence)
+  if (!timerData.silenceStart)
     timerData.silenceStart = -1;
 
   elapsedTotalTime();

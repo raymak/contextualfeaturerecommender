@@ -109,6 +109,7 @@ exports.isPowerOf2 = function(num){
   return exports.isPowerOf2(num2);
 }
 
+//weights have to be integers
 exports.weightedRandomInt = function(weightsArr){
   let sum = weightsArr.reduce(function(pv, cv) { return pv + cv; }, 0);
 
@@ -262,7 +263,7 @@ const debug = {
 
   },
   parseCmd: function(cmd){
-  const patt = /([^ ]*) *(.*)/; 
+    const patt = /([^ ]*) *(.*)/; 
     let args = patt.exec(cmd);
     
     if (!args)  //does not match the basic pattern

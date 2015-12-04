@@ -1,13 +1,17 @@
 const dh = require('./presentation/doorhanger');
 const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
+const {WindowTracker} = require("sdk/deprecated/window-utils");
 const tabs = require('sdk/tabs');
+const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
 const unload = require("sdk/system/unload").when;
 const {Cu, Cc, Ci} = require("chrome");
 const {prefs} = require("sdk/simple-prefs");
 const {URL} = require("sdk/url");
 const windows = require("sdk/windows").browserWindows
 const timer = require("./timer");
+const {handleCmd} = require("./debug");
 const {PersistentObject} = require("./utils");
+const {countRecent, updateFrequencies} = require("./moment");
 
 const momentDataAddress = "moment.data";
 
@@ -22,22 +26,9 @@ let idleObserver;
 function init(){
   dh.init();
 
-  unload(unloadController);
+  handleCmd(debug.parseCmd);
 
-  //initialize moments //TODO: first run
-  for (let moment in listener.momentListeners){
-    if (!momentData[moment]){
-      momentData[moment] = {
-        count: 0,
-        frequency: 0,
-        totalFrequency: 0,
-        effCount: 0,
-        effFrequency: 0,
-        effTotalFrequency: 0,
-        rates: []
-      };
-    }
-  }
+  unload(unloadController);
 
   listener.init();
 
@@ -45,22 +36,54 @@ function init(){
 
 const listener = {
   init: function(){
+
+      //initialize moments //TODO: first run
+    for (let moment in listener.momentListeners){
+      if (!momentData[moment]){
+        momentData[moment] = {
+          count: 0,
+          frequency: 0,
+          totalFrequency: 0,
+          effCount: 0,
+          effFrequency: 0,
+          effTotalFrequency: 0,
+          rEffCount: 0,
+          rEffFrequency: 0,
+          rates: [],
+          timestamps: []
+        };
+      }
+  }
     
     // start moment listeners
-    for (moment in this.momentListeners)
+    for (let moment in this.momentListeners)
       this.momentListeners[moment]();
+
+
+    timer.tickCallback(function(et){updateFrequencies()});
+
+    updateFrequencies();
+
   }
 }
 
+//new tab does not capture opening a new tab by double clicking the area on the right of the tabs
+//or opening a link in new tab
+
 listener.momentListeners = {
+  "*": function(){
+
+  },
+
   "startup": function(){
     listener.moment("startup");
   },
 
-  "tab-open": function(){
-    tabs.on('open', function(tab){
-      listener.moment("tab-open");
-    });
+  "tab-new": function(){
+    listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
+        console.log("tab-new");
+      // listener.moment("tab-new");
+      });
   },
 
   "active-tab-hostname-progress": function(){
@@ -69,85 +92,245 @@ listener.momentListeners = {
         
         let hostname = URL(tab.url).hostname;
 
+        //TODO: use pattern matching 
+        // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
+        if (!hostname || hostname === "about:newtab" || hostname === "about:blank") return;//to handle new tabs and blank pages
+
         //TOTHINK: potential namespace conflict      
         if (hostname === tab.hostname) return; //not a fresh url open
 
-        tab.hostname = hostname;
-        unload(function(){if (tab) delete tab.hostname;})
+        if (!tab.hostname){
+          tab.hostname = hostname;
+          unload(function(){if (tab) delete tab.hostname;})
+        }
+        else
+        {
+          tab.hostname = hostname;
+          listener.moment("active-tab-hostname-progress");   
+        }
 
-        //TODO: use pattern matching 
-        // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
-        if (!hostname) return;//to handle new tabs and blank pages
-
-        listener.moment("active-tab-hostname-progress");
     });
   },
 
   "window-open": function(){
 
-    windows.on('open', function(window){
+    listener.addEventListener("#cmd_newNavigator", "command", function(e){
       listener.moment('window-open');
     });
+
+
   },
 
-  "tab-open-recently-active5": function(){
-    tabs.on("open", function(){
-      if (timer.isRecentlyActive(5))
-        listener.moment('tab-open-recently-active5');
+  "tab-new-recently-active10s": function(){
+     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
+
+        if (!timer.isRecentlyActive(5, 10))
+         return;
+
+         listener.moment('tab-new-recently-active10s');
+      });
+  },
+
+  "tab-new-recently-active10m": function(){
+    listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
+      if (!timer.isRecentlyActive(10, 10*60)) 
+       return;
+
+       listener.moment('tab-new-recently-active10m');
     });
   }
 
 }
 
-listener.moment = function(name){
+listener.addEventListener = function(querySelector, eventName, handler){
+  let windowTracker = new WindowTracker({
+      onTrack: function(window){
+        if (!isBrowser(window)) return;
+
+        let elem = window.document.querySelector(querySelector);
+        elem.addEventListener(eventName, handler);
+        unload(function(){elem.removeEventListener(eventName, handler)});
+      }
+    });
+}
+
+
+listener.moment = function(name, options){
+
+  let dEffFrequency = 1/prefs["moment.dEffFrequency_i"];
 
   let deliver = true;
+  let data = momentData[name];
+  let allData = momentData["*"];
 
   console.log("moment triggered -> " + name);
 
-  let data = momentData[name];
   data.count = data.count + 1;
-  data.frequency = data.count / timer.elapsedTime() || 0;
-  data.totalFrequency = data.count / timer.elapsedTotalTime() || 0;
+  allData.count = allData.count + 1;
+  momentData[name] = data;
+  momentData["*"] = allData;
 
+  updateFrequencies(name);
+
+  if (prefs["delivery.mode.observ_only"]){
+    deliver = false;
+    console.log("delivery rejected due to: observation-only period");
+  }
 
   if (timer.isSilent()){
     deliver = false;
     console.log("delivery rejected due to: silence");
   }
 
-  if (data.effFrequency && data.effFrequency > 0.0166667){
+  if (data.effFrequency && 1/data.effFrequency < prefs["moment.min_effFrequency_i"]){
     deliver = false;
     console.log("delivery rejected due to: effective frequency = " + data.effFrequency);
   }
 
+  if (data.rEffCount && data.rEffCount > prefs["moment.max_rEffCount"]){
+    deliver = false;
+    console.log("delivery rejected due to: recent effective count = " + data.effCount);
+  }
+
+  let prob = 1; 
+  if (data.frequency < dEffFrequency)
+    prob = 1;
+  else
+    prob = dEffFrequency/data.frequency;
+
+  if (Math.random() > prob){
+    deliver = false; 
+    console.log("delivery rejected due to: sampling, prob = " + prob);
+  }
+
+  if (options && options.force){
+    console.log("moment notification delivery forced");
+    deliver = true;
+  }
+
   if (deliver){
+
+    console.log("moment notification delivered -> " + name);
+
+    data = momentData[name];
+    allData = momentData["*"];
     data.effCount = data.effCount + 1;
-    data.effFrequency = data.effCount / timer.elapsedTime() || 0;
-    data.totalFrequency = data.count / timer.elapsedTotalTime() || 0;
+    allData.effCount = allData.effCount + 1;
+    let ts = data.timestamps;
+    let allTs = allData.timestamps;
+    ts.push(Date.now());
+    allTs.push(Date.now());
+    data.timestamps = ts;
+    allData.timestamps = allTs;
+
+    momentData[name] = data;
+    momentData["*"] = allData; 
+
 
     dh.present(function(result){
       let data = momentData[name];
+      let allData = momentData["*"];
 
       if (result.type === "rate"){
         console.log("rate submitted for " + name + ": " + result.rate);
         data.rates.push(result.rate);
+        allData.rates.push(result.rate);
       }
       if (result.type === "timeout"){
         console.log("panel for " + name + " timed out");
         data.rates.push("timeout");
+        allData.rates.push(result.rate);
       }
 
       momentData[name] = data;
+      momentData["*"] = allData;
+
+      if (prefs["delivery.mode.no_silence"])
+        timer.endSilence();
     });
 
     timer.silence();
   }
 
   
-  momentData[name] = data;
+  // momentData[name] = data;
 
 }
+
+const debug = {
+  init: function(){
+    handleCmd(this.parseCmd);
+  },
+  parseCmd: function(cmd){
+    const patt = /([^ ]*) *(.*)/; 
+    let args = patt.exec(cmd);
+
+    let name = args[1];
+    let params = args[2];
+    let subArgs;
+
+    switch (name){
+      case "moment":
+
+        subArgs = params.split(" ");
+
+        let mName = subArgs[0];
+        let mode = subArgs[1];
+
+        let short = {
+          "s": "startup",
+          "athp": "active-tab-hostname-progress",
+          "tnra10s": "tab-new-recently-active10s",
+          "tnra10m": "tab-new-recently-active10m",
+          "wo": "window-open"
+        }
+
+        if (!listener.momentListeners[mName] && !short[mName])
+          return "moment '" + mName + "'' does not exist.";
+
+        let m;
+
+        if (listener.momentListeners[mName])
+          m = mName;
+        else
+          m = short[mName];
+
+        listener.moment(m, {force: (mode === "-force")});
+
+        return mName + " triggered.";
+        break;
+
+
+      case "delmode":
+        subArgs = patt.exec(params);
+
+        if (!subArgs[0])
+          return "error: incorrect use of delmode command.";
+
+        let subMode = subArgs[1];
+
+        switch (subMode){
+          case "observ_only":
+            if (subArgs[2] != "true" && subArgs[2] != "false") 
+              return "error: incorrect use of delmode observ_only command.";
+
+            prefs["delivery.mode.observ_only"] = JSON.parse(subArgs[2]);
+
+            return "observ_only mode is now " + (JSON.parse(subArgs[2]) ? "on": "off");
+
+            break;
+          default:
+            return "error: incorrect use of delmode command.";
+        }
+        break;
+
+      default:
+        return undefined;
+    }
+
+  }
+}
+
 
 function unloadController(){
 
