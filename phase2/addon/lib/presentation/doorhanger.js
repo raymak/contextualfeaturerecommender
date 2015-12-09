@@ -313,7 +313,7 @@ function pMouseleave(){
 }
 
 function openInfoPage(){
-  tabs.open(data.url("infopage.html"));
+  command("info");
 
   let currRec = dhData.currentRec;
   let report = currRec.report;

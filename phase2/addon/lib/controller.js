@@ -560,26 +560,26 @@ const listener = {
       //delete or clear
       //TODO: implement as separate and merge using OR operation
       
-      let histDeleted = Event("historyDeleted");
+      let histDelete = Event("historyDelete");
 
-      histDeleted.effect = function(){
+      histDelete.effect = function(){
         let reason = this.preEvent.options.reason;
         let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, "deleted"].join(" ");
+        this.options.route = [baseRoute, "delete"].join(" ");
 
         let route = this.options.route;
 
         listener.dispatchRoute(route);
       }
 
-      histDeleted.checkPreconditions = function(){
+      histDelete.checkPreconditions = function(){
         return (["cleared", "deletedURI", "deletedvisits"].indexOf(this.preEvent.options.reason) != -1);
       }
 
-      histInteraction.postEvents.push(histDeleted);
+      histInteraction.postEvents.push(histDelete);
 
-      let multipleHistDeleted = that.multipleRoute(histDeleted);
-      histDeleted.postEvents.push(multipleHistDeleted);
+      let multipleHistDelete = that.multipleRoute(histDelete);
+      histDelete.postEvents.push(multipleHistDelete);
 
       histInteraction.wake();
     });
@@ -803,7 +803,10 @@ listener.context = function(route){
 
   if (self.delMode.observOnly) return;
 
-  if ((self.delMode.moment === 'interruptible' && route != '*') || self.delMode.moment === 'random')
+  let mt = self.delMode.moment;
+  if ((mt === 'interruptible' && route != '*') 
+      || mt === 'random'
+      || mt != 'interruptible' && route === '*')
     return;
 
   console.log("context -> route: " + route);
@@ -883,15 +886,35 @@ listener.featureUse = function(route){
 }
 
 listener.command = function(cmd){
-  let cmdRoute = Route(cmd);
+  let cmdObj = utils.extractOpts(cmd);
 
-  switch(cmdRoute.header){
+  let name = cmdObj.header;
+
+  switch(name){
     case "open url":
-      if (cmdRoute.l) 
-        tabs.open(cmdRoute.l);
-      else
+      if (!cmdObj.l) {
         console.log("no url provided for command: " + cmd);
+        return;
+      }
+
+      if (cmdObj.window)
+        windows.browserWindows.open(
+          {
+            url: cmdObj.l,
+            isPrivate: cmdObj.private
+          });
+      else{
+        console.log(cmdObj.l);
+        tabs.open(cmdObj.l);
+      }
+
       break;
+
+    case "info":
+      tabs.open(data.url("infopage.html"))
+
+      break;
+
     default:
       console.log("command not recognized: " + cmd);
   }

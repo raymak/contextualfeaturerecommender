@@ -7,7 +7,7 @@ const logger = require("./logger");
 const self = require("./self");
 self.init();
 
-const recommFileAddress = "recommendations.json";
+const recommFileAddress = "mozlando-recommendations.json";
 
 require("./presentation/splitpage").init();  
 require("./presentation/doorhanger").init();

@@ -46,7 +46,7 @@
       "name": "delivery.mode.moment",
       "type": "radio",
       "title": " ",
-      "value": "interruptible",
+      "value": "in-context",
       "options": [
         {
           "value": "random",
