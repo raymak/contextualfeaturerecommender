@@ -57,6 +57,7 @@ const init = function(){
 // updates the ett preference records in addition to returning it
 const elapsedTotalTime = function(){
   let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
+
   timerData.elapsedTotalTime = ett; //update the elapsed total time at the beginning
   return ett;
 }
@@ -65,6 +66,7 @@ const watchActivity = function(){
 
   activity = {
     minor_inactive_s: 0,
+    last_minor_inactive_s: 0,
     minor_active_s: 0,
     active_s: 0,
     active: false
@@ -79,6 +81,7 @@ const watchActivity = function(){
         case "user-interaction-active":
           // console.log("active " + elapsedTime());
           clearInterval(inactiveCounter);
+          if (activity.minor_inactive_s) activity.last_minor_inactive_s = activity.minor_inactive_s;
           activity.minor_inactive_s = 0;
           if (!activeCounter){
             activeCounter = setInterval(function(){
@@ -134,16 +137,16 @@ const tick = function(){
 
   const SILENCE_LENGTH_TICK = prefs["timer.silence_length_s"] / prefs["timer.tick_length_s"];
 
-  let elapsedTime = timerData.elapsedTime + 1;
+  let et = timerData.elapsedTime + 1;
 
-  timerData.elapsedTime = elapsedTime;
-  console.log("elapsed time: " + elapsedTime + " ticks = " + elapsedTime*prefs["timer.tick_length_s"]/60 + " minutes");
+  timerData.elapsedTime = et;
+  console.log("elapsed time: " + et + " ticks = " + et*prefs["timer.tick_length_s"]/60 + " minutes");
 
-  if (timerData.silenceStart != -1 && silenceLeft() < 0)
+  if (timerData.silenceStart != -1 && silenceLeft() <= 0)
     endSilence();
 
   tickHandlers.forEach(function(callback){
-    callback(elapsedTime, elapsedTotalTime());
+    callback(et, elapsedTotalTime());
   });
 
   debug.update();
@@ -158,34 +161,35 @@ const elapsedTime = function(){
 }
 
 const silence = function(){
-  let time = elapsedTime();
+  let time = elapsedTotalTime();
   timerData.silenceStart = time;
   console.log("silence started at " + time + " ticks");
   console.log("silence ends at " + Number(time + silence_length_tick()) + " ticks");
 }
 
 const silenceElapsed = function(){
-  return (isSilent()? elapsedTime() - timerData.silenceStart : 0);
+  return (isSilent()? elapsedTotalTime() - timerData.silenceStart : 0);
 }
 
 const silenceLeft = function(){
-  let elapsedTime = timerData.elapsedTime;
+  let ett = elapsedTotalTime();
 
   if (!isSilent())
     return 0;
 
-  return (silence_length_tick() - elapsedTime + timerData.silenceStart);
+  return (silence_length_tick() - ett + timerData.silenceStart);
 }
 
 const endSilence = function(){
   timerData.silenceStart = -1;
-  let time = elapsedTime();
+  let time = elapsedTotalTime();
   console.log("silence ended at " + time + " ticks");
+  return time;
 }
 
 const isSilent = function(){
-  let time = elapsedTime();
-  return (timerData.silenceStart != -1 && (time - timerData.silenceStart <= silence_length_tick()));
+  let ett = elapsedTotalTime();
+  return (timerData.silenceStart != -1 && (ett - timerData.silenceStart <= silence_length_tick()));
 }
 
 const isActive = function(){
@@ -198,8 +202,15 @@ const deactivate = function(){
   console.log("user inactive");
 }
 
-const isRecentlyActive = function(){
-  return (activity.minor_active_s < prefs["timer.recently_active_threshold_s"]);
+const isRecentlyActive = function(activity_threshold_s, inactivity_threshold_s /* optional */){
+
+  if (activity.minor_active_s > activity_threshold_s)
+    return false;
+
+  if (inactivity_threshold_s && (activity.last_minor_inactive_s < inactivity_threshold_s))
+    return false;
+  
+  return true;
 }
 
 const isCertainlyActive = function(){
@@ -212,6 +223,15 @@ const randomTime = function(start, end){
 
 const silence_length_tick = function(){
   return prefs["timer.silence_length_s"] / prefs["timer.tick_length_s"];
+}
+
+const tToS = function(t){
+  return t*prefs["timer.tick_length_s"];
+}
+
+const sToT = function(s){
+  return s/prefs
+  ["timer.tick_length_s"];;
 }
 
 const debug = {
@@ -251,11 +271,11 @@ const debug = {
       case "silence":
         silence();
       break;
-      case "isSilent":
+      case "issilent":
         return isSilent();
       break;
-      case "endSilence":
-        return endSilence();
+      case "endsilence":
+        return console.log("silence ended at " + endSilence() + " ticks");
       break;
       case "inactive":
         deactivate();
@@ -331,6 +351,9 @@ exports.isRecentlyActive = isRecentlyActive;
 exports.isCertainlyActive = isCertainlyActive;
 exports.isSilent = isSilent;
 exports.silence = silence;
+exports.endSilence = endSilence;
 exports.randomTime = randomTime;
 exports.tickCallback = tickCallback;
+exports.tToS = tToS;
+exports.sToT = sToT;
 exports.init = init;

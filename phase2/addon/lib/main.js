@@ -3,7 +3,6 @@
 
 const {Recommendation} = require("./recommendation");
 const controller = require("./controller");
-const {data} = require("sdk/self");
 const logger = require("./logger");
 const self = require("./self");
 self.init();

@@ -33,7 +33,7 @@
     "delivContext": "visit hostname www.google.ca",
     "featUseBehavior": "null",
     "feature": "gmail notifier",
-    "classTags": "extension low-priority",
+    "tags": "extension low-priority",
     "presentationData": {
       "*": {
         "message": "yay! gmail-notifier",
@@ -59,7 +59,7 @@
     "delivContext": "download",
     "featUseBehavior": "null",
     "feature": "download manager",
-    "classTags": "extension med-priority",
+    "tags": "extension med-priority",
     "presentationData": {
       "*": {
         "message": "yo! downloadManager"
