@@ -14,23 +14,23 @@ let expData;
 
 const experiment = {
   init: function(){
-  // expData.mode = {rateLimit: true, moment: 'interruptible'};
-  //rate limit {true, false}
-  //moment {'interruptible', 'random', 'in-context'}
-  console.log("initializing experiment");
+    // expData.mode = {rateLimit: true, moment: 'interruptible'};
+    //rate limit {true, false}
+    //moment {'interruptible', 'random', 'in-context'}
+    console.log("initializing experiment");
 
-  expData = PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update});
+    expData = PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update});
 
-  debug.init();
+    debug.init();
 
-  if (!("stageForced" in expData))
-    expData.stageForced = false;
+    if (!("stageForced" in expData))
+      expData.stageForced = false;
 
-  if (!("stage" in expData))
-    expData.stage = "obs1";
+    if (!("stage" in expData))
+      expData.stage = "obs1";
 
-  timer.tickCallback(debug.update);
-  timer.tickCallback(checkStage);
+    timer.tickCallback(debug.update);
+    timer.tickCallback(checkStage);
 
   },
   get info(){

@@ -12,6 +12,7 @@ const timer = require("./timer");
 const {handleCmd} = require("./debug");
 const {PersistentObject} = require("./utils");
 const {countRecent, updateFrequencies} = require("./moment");
+const events = require("sdk/system/events");
 
 const momentDataAddress = "moment.data";
 
@@ -82,7 +83,7 @@ listener.momentListeners = {
   "tab-new": function(){
     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
         console.log("tab-new");
-      // listener.moment("tab-new");
+        listener.moment("tab-new", {reject: true});
       });
   },
 
@@ -118,7 +119,6 @@ listener.momentListeners = {
       listener.moment('window-open');
     });
 
-
   },
 
   "tab-new-recently-active10s": function(){
@@ -131,6 +131,47 @@ listener.momentListeners = {
       });
   },
 
+  "tab-new-recently-active10s-no-tab": function(){
+    listener.listenForUserActivity(function(e){
+      
+      if (!timer.isRecentlyActive(10, 10)) 
+       return;
+
+      listener.moment('tab-new-recently-active10s-no-tab', {reject: true});
+    });
+  },
+
+  "tab-new-recently-active5s": function(){
+     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
+
+        if (!timer.isRecentlyActive(5, 5))
+         return;
+
+         listener.moment('tab-new-recently-active5s', {reject: true});
+      });
+  },
+
+  "tab-new-recently-active5s-no-tab": function(){
+    listener.listenForUserActivity(function(e){
+      
+      if (!timer.isRecentlyActive(5, 5)) 
+       return;
+
+      listener.moment('tab-new-recently-active5s-no-tab', {reject: true});
+    });
+  },
+
+  "tab-new-recently-active0s": function(){
+     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
+
+        if (!timer.isRecentlyActive(5))
+         return;
+
+         listener.moment('tab-new-recently-active0s', {reject: true});
+      });
+  },
+
+
   "tab-new-recently-active10m": function(){
     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
       if (!timer.isRecentlyActive(10, 10*60)) 
@@ -138,8 +179,57 @@ listener.momentListeners = {
 
        listener.moment('tab-new-recently-active10m');
     });
-  }
+  },
 
+  "tab-new-recently-active10m-no-tab": function(){
+    
+   listener.listenForUserActivity(function(e){
+      
+      if (!timer.isRecentlyActive(10, 10*60)) 
+       return;
+
+      listener.moment('tab-new-recently-active10m-no-tab', {reject: true});
+    });
+  },
+
+  "tab-new-recently-active20m": function(){
+    listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
+      if (!timer.isRecentlyActive(10, 20*60)) 
+       return;
+
+       listener.moment('tab-new-recently-active20m', {reject: true});
+    });
+  },
+
+  "tab-new-recently-active20m-no-tab": function(){
+    
+    listener.listenForUserActivity(function(e){
+      
+      if (!timer.isRecentlyActive(10, 20*60)) 
+       return;
+
+      listener.moment('tab-new-recently-active20m-no-tab', {reject: true});
+    });
+  },
+
+  "tab-new-recently-active30m": function(){
+    listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
+      if (!timer.isRecentlyActive(10, 30*60)) 
+       return;
+
+       listener.moment('tab-new-recently-active30m', {reject: true});
+    });
+  },
+
+  "tab-new-recently-active30m-no-tab": function(){
+    listener.listenForUserActivity(function(e){
+
+      if (!timer.isRecentlyActive(10, 30*60)) 
+       return;
+
+      listener.moment('tab-new-recently-active30m-no-tab', {reject: true});
+    });
+  }
 }
 
 listener.addEventListener = function(querySelector, eventName, handler){
@@ -171,6 +261,11 @@ listener.moment = function(name, options){
   momentData["*"] = allData;
 
   updateFrequencies(name);
+
+  if (options && options.reject){
+    deliver = false;
+    console.log("delivery rejection forced");
+  }
 
   if (prefs["delivery.mode.observ_only"]){
     deliver = false;
@@ -255,6 +350,11 @@ listener.moment = function(name, options){
   
   // momentData[name] = data;
 
+};
+
+listener.listenForUserActivity = function(callback){
+  events.on("user-interaction-active", callback, true);
+  unload(function(){events.off("user-interaction-active", callback)});
 }
 
 const debug = {

@@ -23,12 +23,21 @@ let tickInterval;
 
 const init = function(){
   console.log("initializing timer");
+
+  
   
   if (!timerData.elapsedTime)
     timerData.elapsedTime = 0;
 
   if (!timerData.silenceStart)
     timerData.silenceStart = -1;
+
+  if (!timerData.events)
+    timerData.events = [];
+
+  event('startup');
+
+  unload(function(){event('shutdown')});
 
   elapsedTotalTime();
 
@@ -90,6 +99,8 @@ const watchActivity = function(){
               debug.update();
             }, 1000);
           }
+          if (!activity.active)
+            event('active');
           activity.active = true;
         break;
         case "user-interaction-inactive":
@@ -105,6 +116,7 @@ const watchActivity = function(){
 
             if (activity.minor_inactive_s > prefs["timer.inactive_threshold_s"] && activity.active){
               deactivate();
+              event('inactive');
             }
             debug.update();
           }, 1000);
@@ -150,6 +162,12 @@ const tick = function(){
   });
 
   debug.update();
+}
+
+const event = function(name){
+  let events = timerData.events;
+  events.push([name, dateTimeToString(new Date())]);
+  timerData.events = events;
 }
 
 const tickCallback = function(callback){

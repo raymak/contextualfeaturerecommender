@@ -6,10 +6,10 @@
   }, 
   "author": "Kamyar Ardekani", 
   "title": "woodpecker", 
-  "version": "0.0.3", 
+  "version": "0.0.31", 
   "preferences": [
     {
-      "name": "self.clean_install",
+      "name": "clean_install",
       "type": "bool",
       "title": "Whether or not all the preferences should be reset upon installation.",
       "value": true
@@ -118,7 +118,7 @@
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 1440
+      "value": 800
     },
     {
       "name": "experiment.intervention_length_tick",

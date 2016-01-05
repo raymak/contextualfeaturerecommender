@@ -43,7 +43,7 @@ function installRun(){
     if (system.staticArgs && system.staticArgs["clean_install"] === false)
       clean = false;
     else
-      clean = prefs["self.clean_install"];
+      clean = prefs["clean_install"];
 
   if (clean)
     require('./utils').cleanUp({reset: true});
