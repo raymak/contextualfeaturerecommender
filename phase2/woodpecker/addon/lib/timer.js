@@ -6,9 +6,7 @@ const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
 const {Cu, Cc, Ci} = require("chrome");
 const unload = require("sdk/system/unload").when;
-const exp = require("./experiment");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
-
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
 
@@ -65,6 +63,8 @@ const init = function(){
 
 // updates the ett preference records in addition to returning it
 const elapsedTotalTime = function(){
+  let exp = require("./experiment");
+  exp.info.hello;
   let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
 
   timerData.elapsedTotalTime = ett; //update the elapsed total time at the beginning

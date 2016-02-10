@@ -15,7 +15,7 @@ exports.main = function(options, callbacks){
   require("./experiment").init();
   require("./timer").init();
   require("./logger").init();
-  require("./connection").init();
+  require("./sender").init();
   require("./debug").init();
 
   if (!self.isInitialized)

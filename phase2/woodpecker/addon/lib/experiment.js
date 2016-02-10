@@ -5,8 +5,6 @@ const {prefs} = require("sdk/simple-prefs");
 const {merge} = require("sdk/util/object");
 const timer = require("./timer");
 const {handleCmd, dumpUpdateObject, isEnabled} = require("./debug");
-const logger = require("./logger");
-
 
 const expDataAddress = "experiment.data";
 
@@ -87,7 +85,7 @@ function checkStage(et, ett){
 
   expData.stage = nStage;
 
-  logger.logExpStageAdvance({newstage: nStage});
+  require("./logger").logExpStageAdvance({newstage: nStage});
 
   console.log("starting new experiment stage: " + nStage);
 }

@@ -118,7 +118,7 @@
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 800
+      "value": 1
     },
     {
       "name": "experiment.intervention_length_tick",
@@ -133,11 +133,29 @@
       "value": 5
     },
     {
+      "name": "logger.recent_hist_count",
+      "type": "integer",
+      "title": "Maximum number of log records to store when connection fails.",
+      "value": 5
+    },
+    {
       "name": "debug.enabled",
       "type": "bool",
       "title": " ",
       "value": true
-    }
+    },
+    {
+      "name": "sender.send_to_tp",
+      "type": "bool",
+      "title": " ",
+      "value": false
+    },
+    {
+      "name": "sender.send_to_file",
+      "type": "bool",
+      "title": " ",
+      "value": true
+   }
   ], 
   "keywords": [
       "jetpack"

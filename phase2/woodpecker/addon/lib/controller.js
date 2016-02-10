@@ -121,26 +121,6 @@ listener.momentListeners = {
 
   },
 
-  "tab-new-recently-active10s": function(){
-     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
-
-        if (!timer.isRecentlyActive(5, 10))
-         return;
-
-         listener.moment('tab-new-recently-active10s');
-      });
-  },
-
-  "tab-new-recently-active10s-no-tab": function(){
-    listener.listenForUserActivity(function(e){
-      
-      if (!timer.isRecentlyActive(10, 10)) 
-       return;
-
-      listener.moment('tab-new-recently-active10s-no-tab', {reject: true});
-    });
-  },
-
   "tab-new-recently-active5s": function(){
      listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
 
@@ -161,6 +141,26 @@ listener.momentListeners = {
     });
   },
 
+  "tab-new-recently-active10s": function(){
+     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
+
+        if (!timer.isRecentlyActive(5, 10))
+         return;
+
+         listener.moment('tab-new-recently-active10s');
+      });
+  },
+
+  "tab-new-recently-active10s-no-tab": function(){
+    listener.listenForUserActivity(function(e){
+      
+      if (!timer.isRecentlyActive(10, 10)) 
+       return;
+
+      listener.moment('tab-new-recently-active10s-no-tab', {reject: true});
+    });
+  },
+
   "tab-new-recently-active0s": function(){
      listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
 
@@ -171,13 +171,12 @@ listener.momentListeners = {
       });
   },
 
-
   "tab-new-recently-active10m": function(){
     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
       if (!timer.isRecentlyActive(10, 10*60)) 
        return;
 
-       listener.moment('tab-new-recently-active10m');
+       listener.moment('tab-new-recently-active10m', {reject: true});
     });
   },
 
@@ -208,7 +207,7 @@ listener.momentListeners = {
       if (!timer.isRecentlyActive(10, 20*60)) 
        return;
 
-      listener.moment('tab-new-recently-active20m-no-tab', {reject: true});
+      listener.moment('tab-new-recently-active20m-no-tab');
     });
   },
 

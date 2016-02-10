@@ -4,10 +4,7 @@ const {Cu} = require("chrome");
 const genPrefs = require("sdk/preferences/service");
 const {prefs} = require("sdk/simple-prefs");
 const system = require("sdk/system");
-const logger = require("./logger");
-const exp = require("./experiment");
 const tabs = require("sdk/tabs");
-const timer = require("./timer");
 const {handleCmd} = require("./debug");
 const {getFhrData, cleanUp, extractOpts} = require("./utils");
 const {merge} = require("sdk/util/object");
@@ -25,17 +22,6 @@ const modes = [
 const self = {
   init: function(){
     debug.init();
-
-    let that = this;
-
-    function periodicLog(et, ett){
-      if (et % 20 != 1) return;
-      that.getPeriodicInfo(function(info){
-        logger.logPeriodicSelfInfo(info);
-      });
-    }
-
-    timer.tickCallback(periodicLog);
   },
   get isInitialized(){
     return !!prefs["isInitialized"];
