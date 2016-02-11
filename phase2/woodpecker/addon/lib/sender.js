@@ -18,7 +18,7 @@ const TP_URL = "https://testpilot.mozillalabs.com/submit/" + "featurerecommender
 const TEST_URL = "http://requestb.in/zobohnzo";
 
 const FILE_NAME = "wp-log";
-const FILE_PATH = "Desk";
+const PATH_DIR = pathFor("Desk");
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
@@ -118,15 +118,28 @@ function sendToFile(data){
 
   console.log("sending to file");
 
+
+
   let writeToFile = function(fileName, message, options){
-    let dirPath = pathFor("Desk");
-    let filePath = file.join(dirPath, fileName);
-    let filePromise = OS.File.open(filePath, options);
-    filePromise.then(function onFullFill(aFile){
+
+    let onFulFill = function(aFile){
       let encoder = new TextEncoder();  // This encoder can be reused for several writes
       let array = encoder.encode(message); 
       aFile.write(array);
-    }).then(null, Cu.reportError);
+      aFile.close();
+    }
+
+    let b_dirPath = pathFor("ProfD"); //backup file
+    let b_filePath = file.join(b_dirPath, fileName + "_backup");
+    let b_filePromise = OS.File.open(b_filePath, options);
+    b_filePromise.then(onFulFill)
+                 .then(null, Cu.reportError);
+
+    let dirPath = PATH_DIR;
+    let filePath = file.join(dirPath, fileName);
+    let filePromise = OS.File.open(filePath, options);
+    filePromise.then(onFulFill)
+               .then(null, Cu.reportError);
   }
 
   let appendToFile = function(fileName, message){
