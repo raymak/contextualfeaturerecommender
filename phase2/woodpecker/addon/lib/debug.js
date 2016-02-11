@@ -18,6 +18,7 @@ function init(){
   if (!isEnabled()) return;
 
   console.log("initializing debug")
+  
   tabs.on('ready', function(tab){
   	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
   });

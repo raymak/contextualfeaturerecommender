@@ -6,8 +6,10 @@ exports.main = function(options, callbacks){
 
   console.log("Hello World! Woodpecker is alive :)");
 
+  const isFirstRun = !prefs["isInitialized"]
+
   if (options.loadReason === "install")
-    installRun();
+    installRun(isFirstRun);
 
   const self = require('./self');
 
@@ -18,7 +20,7 @@ exports.main = function(options, callbacks){
   require("./sender").init();
   require("./debug").init();
 
-  if (!self.isInitialized)
+  if (isFirstRun)
     firstRun();
 
   require('./logger').logLoad(options.loadReason);
@@ -28,12 +30,13 @@ exports.main = function(options, callbacks){
 }
 
 function firstRun(){
+
   require('./logger').logFirstRun();
   require('./self').setInitialized();
   require('./experiment').firstRun();
 }
 
-function installRun(){
+function installRun(isFirstRun){
   let clean = false;
 
   //static args have precedence over default preferences
@@ -48,6 +51,11 @@ function installRun(){
   if (clean)
     require('./utils').cleanUp({reset: true});
 
+
+  if (clean || isFirstRun){
+    try{require('./utils').overridePrefs("../prefs.json");}
+    catch(e){console.log("skipped overriding preferences");}
+  }
 }
 
 

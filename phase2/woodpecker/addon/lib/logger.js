@@ -19,6 +19,9 @@ const recentHistCount = prefs["logger.recent_hist_count"];
 let recentMsgs;
 
 function init(){
+
+  console.log("initializing logger");
+  
   if (!loggerData.count)
     loggerData.count = 0;
 

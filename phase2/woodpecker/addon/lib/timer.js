@@ -21,8 +21,6 @@ let tickInterval;
 
 const init = function(){
   console.log("initializing timer");
-
-  
   
   if (!timerData.elapsedTime)
     timerData.elapsedTime = 0;

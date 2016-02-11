@@ -28,6 +28,9 @@ let offlineObs;
 
 function init(){
 
+
+    console.log("initializing sender");
+
     let topic = "network:offline-status-changed";
     offlineObs = {
     observe: function(aEngine, aTopic, aData){

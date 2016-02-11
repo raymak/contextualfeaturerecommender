@@ -276,6 +276,22 @@ exports.dateTimeToString = function(date){
   return (n + ' ' + time);
 }
 
+exports.overridePrefs = function(fileName){
+  let pj = require("sdk/self").data.load(fileName);
+  
+  try{var newPrefs = JSON.parse(pj)}
+  catch(e){console.log("failed to parse " + fileName + " as json")}
+
+  for (let p in newPrefs){
+    if (p in prefs)
+      console.log("overriding " + p + ": " + prefs[p] + "-> " + newPrefs[p]);
+    else
+      console.log("creating " + p + ": " + newPrefs[p]);
+
+    prefs[p] = newPrefs[p];
+  }
+}
+
 const debug = {
   init: function(){
     require("./debug").handleCmd(this.parseCmd);
