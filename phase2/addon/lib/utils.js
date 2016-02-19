@@ -299,6 +299,22 @@ exports.overridePrefs = function(fileName){
   }
 }
 
+exports.selfDestruct = function(reason){
+  console.log("self-destructing...");
+  console.log("Goodbye cruel world... I'm leaving you today...");
+
+  if (prefs["cleanup_on_death"])
+    exports.cleanUp();
+
+  if (reason === undefined)
+    reason = "unknown";
+
+  require("./logger").logSelfDestruct({reason: reason});
+
+  return require("sdk/addon/installer")
+    .uninstall(require("sdk/self").id);
+}
+
 const debug = {
   init: function(){
     require("./debug").handleCmd(this.parseCmd);

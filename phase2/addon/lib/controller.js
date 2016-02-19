@@ -1654,6 +1654,16 @@ const debug = {
 
         break;
 
+      case "suicide":
+
+        if (params === "framed"){
+          utils.selfDestruct("debug command");
+          return "Let the world end...";
+        }
+        else
+          return "One does not simply kill itself. Enter 'suicide framed' if you really want it dead.";
+
+        break;
       default:
         return undefined;
     }

@@ -141,6 +141,10 @@ function logMomentReport(info){
   log("MOMENT_REPORT", info);
 }
 
+function logSelfDestruct(info){
+  log("SELF_DESTRUCT", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -192,3 +196,4 @@ exports.logFeatReport = logFeatReport;
 exports.logExpStageAdvance = logExpStageAdvance;
 exports.logMomentDelivery = logMomentDelivery;
 exports.logMomentReport = logMomentReport;
+exports.logSelfDestruct = logSelfDestruct;

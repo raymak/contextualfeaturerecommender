@@ -19,6 +19,12 @@
       "value": true
     },
     {
+      "name": "cleanup_on_death",
+      "type": "bool",
+      "title": "Whether the preferences should be cleaned up when the addon is killed",
+      "value": true
+    },
+    {
       "name": "timer.tick_length_s",
       "type": "integer",
       "title": "Length of a tick in seconds",

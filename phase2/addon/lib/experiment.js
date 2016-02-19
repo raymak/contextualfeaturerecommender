@@ -115,7 +115,7 @@ function checkStage(et, ett){
 
 const stages = {
   obs1: function(){
-    
+
     // prefs["delivery.mode.observ_only"] = true;
     let mode = expData.mode;
     prefs["delivery.mode.rate"] = mode.rateLimit;
@@ -128,10 +128,10 @@ const stages = {
     console.log("intervention stage started.");
   },
   obs2: function(){
-
+    prefs["delivery.mode.observ_only"] = true;
   },
   end: function(){
-
+    require("./utils").selfDestruct("end");
   }
 };
 
