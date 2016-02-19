@@ -5,7 +5,6 @@
 
 "use strict";
 
-
 var {setTimeout} = require("sdk/timers");
 var {getBrowserForTab, getTabForId} = require("sdk/tabs/utils");
 var tabs = require("sdk/tabs");

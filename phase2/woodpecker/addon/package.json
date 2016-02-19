@@ -5,7 +5,7 @@
       "firefox": ">=38.0a1"
   }, 
   "author": "Kamyar Ardekani", 
-  "title": "woodpecker", 
+  "title": "Woodpecker", 
   "version": "0.0.31", 
   "permissions": {"private-browsing": true},
   "preferences": [
@@ -22,6 +22,12 @@
       "value": false,
       "title": "No silence in delivery"
 
+    },
+    {
+      "name": "delivery.mode.rate",
+      "type": "bool",
+      "title": " ",
+      "value": false
     },
     {
       "name": "delivery.mode.observ_only",
@@ -116,6 +122,12 @@
         "title": "Maximum length of activity time to conclude user has become active recently"
     },
     {
+      "name": "experiment.default_delMode_weights",
+      "type": "string",
+      "title": "Weigths based on which the user is randomly put into an experimental mode",
+      "value": "[1, 1, 1, 1, 1, 1]"
+    },
+    {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
@@ -145,6 +157,12 @@
       "type": "integer",
       "title": "Maximum number of log records to store when connection fails.",
       "value": 5
+    },
+    {
+      "name": "route.coefficient",
+      "type": "string",
+      "title": "Coefficient that scales the triggering behavior thresholds",
+      "value": "1"
     },
     {
       "name": "debug.enabled",

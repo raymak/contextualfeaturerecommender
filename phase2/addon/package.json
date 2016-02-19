@@ -13,6 +13,12 @@
   },
   "preferences": [
     {
+      "name": "clean_install",
+      "type": "bool",
+      "title": "Whether or not all the preferences should be reset upon installation.",
+      "value": true
+    },
+    {
       "name": "timer.tick_length_s",
       "type": "integer",
       "title": "Length of a tick in seconds",
@@ -121,6 +127,18 @@
       "type": "bool",
       "title": " ",
       "value": true
-    }
+    },
+    {
+      "name": "sender.send_to_tp",
+      "type": "bool",
+      "title": " ",
+      "value": false
+    },
+    {
+      "name": "sender.send_to_file",
+      "type": "bool",
+      "title": " ",
+      "value": true
+   }
   ]
 }
