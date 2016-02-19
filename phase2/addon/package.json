@@ -6,7 +6,7 @@
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "license": "MPL 2.0",
-  "main": "./lib/main.js",
+  "main": "./lib/index.js",
   "version": "0.0.1",
   "permissions": {
     "private-browsing": true  

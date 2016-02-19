@@ -5,7 +5,6 @@ const {prefs} = require("sdk/simple-prefs");
 const {merge} = require("sdk/util/object");
 const timer = require("./timer");
 const {handleCmd, dumpUpdateObject, isEnabled} = require("./debug");
-const logger = require("./logger");
 
 
 const expDataAddress = "experiment.data";
@@ -31,11 +30,12 @@ const experiment = {
 
   timer.tickCallback(debug.update);
   timer.tickCallback(checkStage);
-
-
   },
   get info(){
     return {startTimeMs: startTimeMs(), stage: expData.stage};
+  },
+  firstRun: function(){
+    stages["obs1"]();
   }
 }
 
@@ -85,7 +85,7 @@ function checkStage(et, ett){
 
   expData.stage = nStage;
 
-  logger.logExpStageAdvance({newstage: nStage});
+  require("./logger").logExpStageAdvance({newstage: nStage});
 
   console.log("starting new experiment stage: " + nStage);
 }
@@ -95,8 +95,8 @@ const stages = {
 
   },
   intervention: function(){
-
-
+    prefs["delivery.mode.observ_only"] = false;
+    console.log("intervention stage started.");
   },
   obs2: function(){
 

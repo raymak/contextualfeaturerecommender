@@ -1,29 +1,31 @@
+
+"use strict";
 const system = require("sdk/system");
 const {prefs} = require("sdk/simple-prefs");
+
+
+const {Recommendation} = require("./recommendation");
 
 const recommFileAddress = "mozlando-recommendations.json";
 
 exports.main = function(options, callbacks){
 
-  console.log("Hello World! Woodpecker is alive :)");
+  console.log("Hello World! I am alive :)");
 
   const isFirstRun = !prefs["isInitialized"]
-  const frLog = !!prefs["experiment.fr_usage_logging.enabled"];
 
   if (options.loadReason === "install")
     installRun(isFirstRun);
 
   require("./self").init();
+  require("./presentation/splitpage").init();  
+  require("./presentation/doorhanger").init();
   require("./experiment").init();
+  require("./feature-report").init();
   require("./timer").init();
   require("./logger").init();
   require("./sender").init();
   require("./debug").init();
-  require("./moment-report").init();
-  
-  if (frLog)
-    require("./fr/feature-report").init();
-
 
   if (isFirstRun)
     firstRun();
@@ -32,16 +34,11 @@ exports.main = function(options, callbacks){
 
   require('./controller').init();
 
-  if (frLog)
-    require("./fr/controller").init();
-
-
 }
 
 function firstRun(){
-  if (prefs["experiment.fr_usage_logging.enabled"])
-    require("./fr/controller").loadRecFile(recommFileAddress);
-
+  require("./controller").loadRecFile(recommFileAddress);
+  
   require('./logger').logFirstRun();
   require('./self').setInitialized();
   require('./experiment').firstRun();
@@ -77,3 +74,6 @@ exports.onUnload = function(reason){
   if (reason == "uninstall" || reason == "disable")
     logger.logDisable(reason);
 }
+
+
+

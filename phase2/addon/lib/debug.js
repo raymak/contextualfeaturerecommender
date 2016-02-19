@@ -6,8 +6,6 @@ const {data} = require("sdk/self");
 const sp = require("sdk/simple-prefs");
 const unload = require("sdk/system/unload").when;
 
-const utils = require("./utils");
-
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
 const DEBUG_URL = "about:fr-d";
@@ -20,6 +18,7 @@ function init(){
   if (!isEnabled()) return;
 
   console.log("initializing debug")
+  
   tabs.on('ready', function(tab){
   	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
   });
@@ -44,13 +43,29 @@ function init(){
     }
   });
 
-  utils.handleCmd(handleCmd);
-
 }
 
 function isEnabled(){
   return sp.prefs["debug.enabled"];
 }
+
+//http://stackoverflow.com/a/20392392/4015333
+const tryParseJSON  = function(jsonString){
+  try {
+      var o = JSON.parse(jsonString);
+
+      // Handle non-exception-throwing cases:
+      // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
+      // but... JSON.parse(null) returns 'null', and typeof null === "object", 
+      // so we must check for that, too.
+      if (o && typeof o === "object" && o !== null) {
+          return o;
+      }
+  }
+  catch (e) { }
+
+  return false;
+};
 
 function dumpUpdateObject(obj, options){
 
@@ -111,7 +126,7 @@ let loadPrefs = (function(){  // can be executed only once
     Object.keys(sp.prefs).sort().forEach(function(pref){
       recs[pref] = {};
       recs[pref].data = sp.prefs[pref];
-      if (utils.tryParseJSON(sp.prefs[pref]))
+      if (tryParseJSON(sp.prefs[pref]))
         recs[pref].type = 'json';
       else
         recs[pref].type = (typeof recs[pref].data);

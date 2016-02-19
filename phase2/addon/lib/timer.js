@@ -6,9 +6,7 @@ const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
 const {Cu, Cc, Ci} = require("chrome");
 const unload = require("sdk/system/unload").when;
-const exp = require("./experiment");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
-
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
 
@@ -29,6 +27,13 @@ const init = function(){
 
   if (!timerData.silenceStart)
     timerData.silenceStart = -1;
+
+  if (!timerData.events)
+    timerData.events = [];
+
+  event('startup');
+
+  unload(function(){event('shutdown')});
 
   elapsedTotalTime();
 
@@ -56,6 +61,8 @@ const init = function(){
 
 // updates the ett preference records in addition to returning it
 const elapsedTotalTime = function(){
+  let exp = require("./experiment");
+  exp.info.hello;
   let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
 
   timerData.elapsedTotalTime = ett; //update the elapsed total time at the beginning
@@ -90,6 +97,8 @@ const watchActivity = function(){
               debug.update();
             }, 1000);
           }
+          if (!activity.active)
+            event('active');
           activity.active = true;
         break;
         case "user-interaction-inactive":
@@ -105,6 +114,7 @@ const watchActivity = function(){
 
             if (activity.minor_inactive_s > prefs["timer.inactive_threshold_s"] && activity.active){
               deactivate();
+              event('inactive');
             }
             debug.update();
           }, 1000);
@@ -150,6 +160,12 @@ const tick = function(){
   });
 
   debug.update();
+}
+
+const event = function(name){
+  let events = timerData.events;
+  events.push([name, dateTimeToString(new Date())]);
+  timerData.events = events;
 }
 
 const tickCallback = function(callback){

@@ -7,7 +7,6 @@ const {merge} = require("sdk/util/object");
 const {URL} = require("sdk/url");
 const {Cu, Cc, Ci} = require("chrome");
 
-
 const fhrReporter = Cc["@mozilla.org/datareporting/service;1"]
                    .getService(Ci.nsISupports)
                    .wrappedJSObject
@@ -152,23 +151,6 @@ exports.weightedRandomInt = function(weightsArr){
   }
 };
 
-//http://stackoverflow.com/a/20392392/4015333
-exports.tryParseJSON  = function(jsonString){
-  try {
-      var o = JSON.parse(jsonString);
-
-      // Handle non-exception-throwing cases:
-      // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
-      // but... JSON.parse(null) returns 'null', and typeof null === "object", 
-      // so we must check for that, too.
-      if (o && typeof o === "object" && o !== null) {
-          return o;
-      }
-  }
-  catch (e) { }
-
-  return false;
-};
 
 exports.wordCount = function(str){
   return str.split(" ").length;
@@ -287,10 +269,6 @@ exports.cleanUp =  function(options){
     console.log("cleaning up cancelled.");
 }
 
-exports.handleCmd = function(h){
-  h(debug.parseCmd);
-};
-
 exports.dateTimeToString = function(date){
   let n = date.toDateString();
   let time = date.toLocaleTimeString();
@@ -298,35 +276,56 @@ exports.dateTimeToString = function(date){
   return (n + ' ' + time);
 }
 
+exports.overridePrefs = function(fileName){
+  let pj = require("sdk/self").data.load(fileName);
+
+  try{var newPrefs = JSON.parse(pj)}
+  catch(e){console.log("failed to parse " + fileName + " as json")}
+
+  for (let p in newPrefs){
+    if (p === null)
+      continue;
+
+    if (p in prefs)
+      console.log("overriding " + p + ": " + prefs[p] + "-> " + newPrefs[p]);
+    else
+      console.log("creating " + p + ": " + newPrefs[p]);
+
+    prefs[p] = newPrefs[p];
+  }
+}
+
 const debug = {
   init: function(){
-
+    require("./debug").handleCmd(this.parseCmd);
   },
   update: function(){
 
   },
   parseCmd: function(cmd){
-  const patt = /([^ ]*) *(.*)/; 
-    let args = patt.exec(cmd);
-    
-    if (!args)  //does not match the basic pattern
-      return false;
+    const patt = /([^ ]*) *(.*)/; 
+      let args = patt.exec(cmd);
+      
+      if (!args)  //does not match the basic pattern
+        return false;
 
-    let name = args[1];
-    let params = args[2];
+      let name = args[1];
+      let params = args[2];
 
-    switch(name){
-      case "isVidTabOpen":
-        return exports.isVidTabOpen();
-        break;
+      switch(name){
+        case "isVidTabOpen":
+          return exports.isVidTabOpen();
+          break;
 
-      default: 
-        return undefined;
+        default: 
+          return undefined;
+      }
+
+      return " ";
     }
-
-    return " ";
-  }
 };
+
+debug.init();
 
 
 exports.getFhrData = getFhrData

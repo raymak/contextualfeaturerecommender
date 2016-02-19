@@ -847,7 +847,7 @@ listener.featureUse = function(route){
   recomms = recommendations.getByRouteIndex('featUseBehavior', route);
 
   if (recomms.length === 0)
-  return;
+    return;
 
   recomms.forEach(function(aRecommendation){
    
@@ -1347,7 +1347,6 @@ listener.listenForPrivateBrowsing = function(callback){
   windows.browserWindows.on('open', function(window){
     if (require("sdk/private-browsing").isPrivate(window)){
       callback('open');
-      console.log("PRIVAE");
       
     }
   });

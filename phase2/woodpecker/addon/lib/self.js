@@ -4,7 +4,6 @@ const {Cu} = require("chrome");
 const genPrefs = require("sdk/preferences/service");
 const {prefs} = require("sdk/simple-prefs");
 const system = require("sdk/system");
-const tabs = require("sdk/tabs");
 const {handleCmd} = require("./debug");
 const {getFhrData, cleanUp, extractOpts} = require("./utils");
 const {merge} = require("sdk/util/object");
@@ -139,7 +138,7 @@ const self = {
       }); 
     
     });
-  },
+  }
 }
 
 const debug = {

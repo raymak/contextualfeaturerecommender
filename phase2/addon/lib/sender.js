@@ -4,12 +4,21 @@ const request = require("sdk/request");
 const unload = require("sdk/system/unload").when;
 const {Cu, Cc, Ci} = require("chrome");
 const ss = require("sdk/simple-storage");
+const {pathFor} = require('sdk/system');
+const path = require('sdk/fs/path');
+const file = require('sdk/io/file');
+const {prefs} = require("sdk/simple-prefs");
+const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
 Cu.import("resource://gre/modules/Services.jsm");
+Cu.import("resource://gre/modules/osfile.jsm");
 
 const QUOTA = 50;
 
 const TP_URL = "https://testpilot.mozillalabs.com/submit/" + "featurerecommender";
 const TEST_URL = "http://requestb.in/zobohnzo";
+
+const FILE_NAME = "wp-log";
+const PATH_DIR = pathFor("Desk");
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
@@ -18,6 +27,9 @@ const observerService = Cc["@mozilla.org/observer-service;1"]
 let offlineObs;
 
 function init(){
+
+
+    console.log("initializing sender");
 
     let topic = "network:offline-status-changed";
     offlineObs = {
@@ -42,17 +54,17 @@ function init(){
   offlineObs.register();
   unload(offlineObs.unregister);
 
-  if (!ss.storage.connection){
-    ss.storage.connection = {};
-    ss.storage.connection.messages = [];
+  if (!ss.storage.sender){
+    ss.storage.sender = {};
+    ss.storage.sender.messages = [];
   }
 
   flush();
 }
 
 function queue(data){
-  if (ss.storage.connection.messages.length <= QUOTA){
-    ss.storage.connection.messages.push(data); 
+  if (ss.storage.sender.messages.length <= QUOTA){
+    ss.storage.sender.messages.push(data); 
     console.log("http message queued");
   }
   else
@@ -60,9 +72,9 @@ function queue(data){
 }
 
 function flush(){
-  let arr = ss.storage.connection.messages.slice();
+  let arr = ss.storage.sender.messages.slice();
 
-  ss.storage.connection.messages = [];
+  ss.storage.sender.messages = [];
 
   while (arr.length  > 0)
     sendToTp(arr.shift());
@@ -105,5 +117,53 @@ function sendToTp(data){
   XmlReqTp.post();
 }
 
+function sendToFile(data){
+
+  console.log("sending to file");
+
+
+
+  let writeToFile = function(fileName, message, options){
+
+    let onFulFill = function(aFile){
+      let encoder = new TextEncoder();  // This encoder can be reused for several writes
+      let array = encoder.encode(message); 
+      aFile.write(array);
+      aFile.close();
+    }
+
+    let b_dirPath = pathFor("ProfD"); //backup file
+    let b_filePath = file.join(b_dirPath, fileName + "_backup");
+    let b_filePromise = OS.File.open(b_filePath, options);
+    b_filePromise.then(onFulFill)
+                 .then(null, Cu.reportError);
+
+    let dirPath = PATH_DIR;
+    let filePath = file.join(dirPath, fileName);
+    let filePromise = OS.File.open(filePath, options);
+    filePromise.then(onFulFill)
+               .then(null, Cu.reportError);
+  }
+
+  let appendToFile = function(fileName, message){
+   writeToFile(fileName, message, {write: true, append: true});
+  };
+
+  let appendLineToFile = function(fileName, message){
+   appendToFile(fileName, message + "\n");
+  };
+
+  appendLineToFile(FILE_NAME, JSON.stringify(data));
+}
+
+function send(data){
+  if (prefs["sender.send_to_tp"])
+    sendToTp(data);
+
+  if (prefs["sender.send_to_file"])
+    sendToFile(data);
+
+}
+
 exports.init = init;
-exports.sendToTp = sendToTp;
+exports.send = send;

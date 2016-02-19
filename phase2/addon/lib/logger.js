@@ -1,6 +1,6 @@
 "use strict";
 
-const {elapsedTime, elapsedTotalTime} = require("./timer");
+const {elapsedTime, elapsedTotalTime, tickCallback} = require("./timer");
 const {merge} = require("sdk/util/object");
 const override  = function() merge.apply(null, arguments);
 const {PersistentObject} = require("./utils");
@@ -8,19 +8,26 @@ const self = require("./self");
 const addonSelf = require("sdk/self");
 const exp = require("./experiment");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
-const {sendToTp} = require("./connection");
+const {send} = require("./sender");
+const {prefs} = require("sdk/simple-prefs");
 
 const loggerDataAddress = "logger.data";
-const recentHistCount = 5;
 const loggerData = PersistentObject("simplePref", {address: loggerDataAddress});
+
+const recentHistCount = prefs["logger.recent_hist_count"];
 
 let recentMsgs;
 
 function init(){
+
+  console.log("initializing logger");
+
   if (!loggerData.count)
     loggerData.count = 0;
 
   recentMsgs = {};
+
+  tickCallback(periodicLog);
 
   debug.init();
 }
@@ -50,7 +57,7 @@ function log(type, attrs){
   OUT = override(OUT, {type: type, attrs: attrs});
 
   console.log(OUT);
-  sendToTp(OUT);
+  send(OUT);
 
   recentMsgs[OUT.number] = OUT;
   if (recentMsgs[OUT.number - recentHistCount])
@@ -59,6 +66,13 @@ function log(type, attrs){
   debug.update();
 }
 
+function periodicLog(et, ett){
+      if (Math.floor(ett) % 20 != 1) return;
+      self.getPeriodicInfo(function(info){
+        logPeriodicSelfInfo(info);
+      });
+
+}
 
 function logRecommUpdate(oldStatus, newStatus){
   log("RECOMM_STATUS_UPDATE", {oldStatus: oldStatus, newStatus: newStatus});
@@ -119,6 +133,14 @@ function logExpStageAdvance(info){
   log("EXP_STAGE_ADVANCE", info);
 }
 
+function logMomentDelivery(info){
+  log("MOMENT_DELIVERY", info);
+}
+
+function logMomentReport(info){
+  log("MOMENT_REPORT", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -168,3 +190,5 @@ exports.logDhPresent = logDhPresent;
 exports.logLooseBehavior = logLooseBehavior;
 exports.logFeatReport = logFeatReport;
 exports.logExpStageAdvance = logExpStageAdvance;
+exports.logMomentDelivery = logMomentDelivery;
+exports.logMomentReport = logMomentReport;
