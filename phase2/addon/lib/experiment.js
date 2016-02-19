@@ -16,14 +16,32 @@ const expDataAddress = "experiment.data";
 
 let expData;
 
+const modes = [
+  {rateLimit: false, moment: 'random', coeff: 1}, //0
+  {rateLimit: false, moment: 'interruptible', coeff: 2}, //1
+  {rateLimit: false, moment: 'in-context', coeff: 1}, //2
+  {rateLimit: true, moment: 'random', coeff: 2}, //3
+  {rateLimit: true, moment: 'interruptible', coeff: 1}, //4
+  {rateLimit: true, moment: 'in-context', coeff: 2}, //5
+  {rateLimit: false, moment: 'random', coeff: 1}, //6
+  {rateLimit: false, moment: 'interruptible', coeff: 2}, //7
+  {rateLimit: false, moment: 'in-context', coeff: 1}, //8
+  {rateLimit: true, moment: 'random', coeff: 2}, //9
+  {rateLimit: true, moment: 'interruptible', coeff: 1}, //10
+  {rateLimit: true, moment: 'in-context', coeff: 2} //11
+]
+
 const experiment = {
   init: function(){
-    // expData.mode = {rateLimit: true, moment: 'interruptible'};
-    //rate limit {true, false}
-    //moment {'interruptible', 'random', 'in-context'}
+
     console.log("initializing experiment");
 
     expData = PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update});
+
+    if (!expData.mode)
+      expData.mode = assignRandomMode(JSON.parse(prefs["experiment.default_delMode_weights"]));
+  
+    console.log("assigned experimental mode: ", expData.mode);
 
     debug.init();
 
@@ -37,7 +55,7 @@ const experiment = {
     timer.tickCallback(checkStage);
   },
   get info(){
-    return {startTimeMs: startTimeMs(), stage: expData.stage};
+    return {startTimeMs: startTimeMs(), stage: expData.stage, mode: expData.mode};
   },
   firstRun: function(){
     stages["obs1"]();
@@ -86,7 +104,7 @@ function checkStage(et, ett){
     return;
 
   //prepare the new stage
-  stages[nStage];
+  stages[nStage]();
 
   expData.stage = nStage;
 
@@ -97,6 +115,12 @@ function checkStage(et, ett){
 
 const stages = {
   obs1: function(){
+    
+    // prefs["delivery.mode.observ_only"] = true;
+    let mode = expData.mode;
+    prefs["delivery.mode.rate"] = mode.rateLimit;
+    prefs["delivery.mode.moment"] = mode.moment;
+    prefs["route.coefficient"] = String(mode.coeff);
 
   },
   intervention: function(){

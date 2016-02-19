@@ -45,6 +45,7 @@ const equals = function(route){
   return true;
 }
 
+// coefficient of 1 is more conservative than 2
 const scale = function(coeff){
   for (let key in this){
     if (typeof this[key] === "function") continue;

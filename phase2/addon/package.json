@@ -84,7 +84,7 @@
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weigths based on which the user is randomly put into an experimental mode",
-      "value": "[1, 1, 1, 1, 1, 1]"
+      "value": "[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
     },
     {
       "name": "experiment.obs1_length_tick",

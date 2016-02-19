@@ -706,21 +706,19 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
-    if (self.delMode.rateLimit){
-      if (self.delMode.observOnly || timer.isSilent()){
-        if (self.delMode.observOnly)
-          console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
-        else
-          console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
+    if (self.delMode.observOnly || (timer.isSilent() && self.delMode.rateLimit)){
+      if (self.delMode.observOnly)
+        console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
+      else
+        console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
 
 
-        if (self.delMode.moment === "random"){
-          console.log("rescheduling delivery time: id -> " + aRecommendation.id);
-          this.rescheduleDelivery(aRecommendation);
-          recommendations.update(aRecommendation);
-        }
-        return;
+      if (self.delMode.moment === "random"){
+        console.log("rescheduling delivery time: id -> " + aRecommendation.id);
+        this.rescheduleDelivery(aRecommendation);
+        recommendations.update(aRecommendation);
       }
+      return;
     }
 
     console.log("delivering " + aRecommendation.id);

@@ -39,6 +39,8 @@ exports.main = function(options, callbacks){
 }
 
 function firstRun(){
+  console.log("preparing first run");
+
   require("./controller").loadRecFile(recommFileAddress);
   
   require('./logger').logFirstRun();
