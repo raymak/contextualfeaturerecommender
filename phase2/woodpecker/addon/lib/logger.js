@@ -21,7 +21,7 @@ let recentMsgs;
 function init(){
 
   console.log("initializing logger");
-  
+
   if (!loggerData.count)
     loggerData.count = 0;
 
@@ -67,7 +67,7 @@ function log(type, attrs){
 }
 
 function periodicLog(et, ett){
-      if (et % 20 != 1) return;
+      if (Math.floor(ett) % 20 != 1) return;
       self.getPeriodicInfo(function(info){
         logPeriodicSelfInfo(info);
       });
@@ -133,6 +133,14 @@ function logExpStageAdvance(info){
   log("EXP_STAGE_ADVANCE", info);
 }
 
+function logMomentDelivery(info){
+  log("MOMENT_DELIVERY", info);
+}
+
+function logMomentReport(info){
+  log("MOMENT_REPORT", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -182,3 +190,5 @@ exports.logDhPresent = logDhPresent;
 exports.logLooseBehavior = logLooseBehavior;
 exports.logFeatReport = logFeatReport;
 exports.logExpStageAdvance = logExpStageAdvance;
+exports.logMomentDelivery = logMomentDelivery;
+exports.logMomentReport = logMomentReport;

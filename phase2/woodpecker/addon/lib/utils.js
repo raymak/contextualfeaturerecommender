@@ -278,11 +278,14 @@ exports.dateTimeToString = function(date){
 
 exports.overridePrefs = function(fileName){
   let pj = require("sdk/self").data.load(fileName);
-  
+
   try{var newPrefs = JSON.parse(pj)}
   catch(e){console.log("failed to parse " + fileName + " as json")}
 
   for (let p in newPrefs){
+    if (p === null)
+      continue;
+
     if (p in prefs)
       console.log("overriding " + p + ": " + prefs[p] + "-> " + newPrefs[p]);
     else

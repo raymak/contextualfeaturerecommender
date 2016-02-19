@@ -1,12 +1,14 @@
 const system = require("sdk/system");
 const {prefs} = require("sdk/simple-prefs");
 
+const recommFileAddress = "mozlando-recommendations.json";
 
 exports.main = function(options, callbacks){
 
   console.log("Hello World! Woodpecker is alive :)");
 
   const isFirstRun = !prefs["isInitialized"]
+  const frLog = !!prefs["experiment.fr_usage_logging.enabled"];
 
   if (options.loadReason === "install")
     installRun(isFirstRun);
@@ -19,17 +21,28 @@ exports.main = function(options, callbacks){
   require("./logger").init();
   require("./sender").init();
   require("./debug").init();
+  require("./moment-report").init();
+  
+  if (frLog)
+    require("./fr/feature-report").init();
+
 
   if (isFirstRun)
     firstRun();
 
   require('./logger').logLoad(options.loadReason);
 
-  const controller = require('./controller');
-  controller.init();
+  require('./controller').init();
+
+  if (frLog)
+    require("./fr/controller").init();
+
+
 }
 
 function firstRun(){
+  if (prefs["experiment.fr_usage_logging.enabled"])
+    require("./fr/controller").loadRecFile(recommFileAddress);
 
   require('./logger').logFirstRun();
   require('./self').setInitialized();

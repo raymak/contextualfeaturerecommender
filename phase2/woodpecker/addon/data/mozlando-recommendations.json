@@ -1,0 +1,109 @@
+[
+  {
+    "id": "welcome",
+    "priority": 1,
+    "trigBehavior": "",
+    "delivContext": "",
+    "featUseBehavior": "",
+    "presentationData": {
+      "*": {
+        "message": "Awesome tips that are just for you... coming up!",
+        "title": "Welcome to Mozlando!",
+        "rationale": "You are awesome.",
+        "icon": "images/icons/mozlando.png"
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      },
+      "splitpage": {}
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "info"
+      }
+    }
+  },
+  {
+    "id": "privateBrowsing",
+    "priority": 1,
+    "trigBehavior": "history delete -c >1",
+    "delivContext": "history delete",
+    "featUseBehavior": "private browse open -c >0",
+    "presentationData": {
+      "*": {
+        "message": "Private Browsing allows you to browse the Internet without saving any information about which sites and pages you’ve visited.",
+        "title": "Private Browsing",
+        "rationale": "You edit your browsing history frequently."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "secondaryButtonLabel": "Learn more",
+        "primaryButtonLabel": "Try It"
+      },
+      "splitpage": {}
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l about:privatebrowsing -window -private",
+        "secondaryButton": "open url -l https://support.mozilla.org/en-US/kb/private-browsing-use-firefox-without-history"
+      }
+    }
+  },
+  {
+    "id": "newTabShortcut",
+    "priority": 1,
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid tabs-newtab-button -c >1",
+    "delivContext": "chrome click tabbrowser-tabs -anonid tabs-newtab-button",
+    "featUseBehavior": "hotkey t -cmd -c >1",
+    "presentationData": {
+      "*": {
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
+        "title": "New tab shortcut",
+        "rationale": "You open tabs a lot."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      },
+      "splitpage": {}
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"
+      }
+    }
+  },
+  {
+    "id": "redditEnhancementSuite",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.reddit.com -c >1",
+    "delivContext": "visit hostname www.reddit.com",
+    "featUseBehavior": "addon has jid1-xUfzOsOFlzSOXg@jetpack",
+    "presentationData": {
+      "*": {
+        "icon": "images/icons/alien-glow.png",
+        "message": "The Reddit Enhancement Suite extension gives you the tools to enhance your reddit browsing experience.",
+        "title": "Enhance your reddit experience!",
+        "rationale": "You frequently visit reddit."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/reddit-enhancement-suite/",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=dp-btn-primary"
+      }
+    }
+  }
+]

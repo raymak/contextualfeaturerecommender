@@ -13,6 +13,8 @@ const {handleCmd} = require("./debug");
 const {PersistentObject} = require("./utils");
 const {countRecent, updateFrequencies} = require("./moment");
 const events = require("sdk/system/events");
+const {merge} = require("sdk/util/object");
+const logger = require('./logger');
 
 const momentDataAddress = "moment.data";
 
@@ -39,6 +41,7 @@ const listener = {
   init: function(){
 
       //initialize moments //TODO: first run
+
     for (let moment in listener.momentListeners){
       if (!momentData[moment]){
         momentData[moment] = {
@@ -333,11 +336,13 @@ listener.moment = function(name, options){
       if (result.type === "timeout"){
         console.log("panel for " + name + " timed out");
         data.rates.push("timeout");
-        allData.rates.push(result.rate);
+        allData.rates.push("timeout");
       }
 
       momentData[name] = data;
       momentData["*"] = allData;
+
+      logger.logMomentDelivery(merge({name: name}, result));
 
       if (prefs["delivery.mode.no_silence"])
         timer.endSilence();
@@ -379,7 +384,7 @@ const debug = {
         let short = {
           "s": "startup",
           "athp": "active-tab-hostname-progress",
-          "tnra10s": "tab-new-recently-active10s",
+          "tnra10s": "tab-new-recently-active10s",  
           "tnra10m": "tab-new-recently-active10m",
           "wo": "window-open"
         }

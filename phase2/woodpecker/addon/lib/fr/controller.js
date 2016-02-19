@@ -15,18 +15,18 @@ const {prefs} = require("sdk/simple-prefs");
 const presenter = require("./presenter");
 const { MatchPattern } = require("sdk/util/match-pattern");
 const {PersistentRecSet} = require("./recommendation");
-const timer = require("./timer");
-const utils = require("./utils");
-const self = require("./self");
+const timer = require("./../timer");
+const utils = require("./../utils");
+const self = require("./../self");
 const system = require("sdk/system");
 const windows = require("sdk/windows");
 const {modelFor} = require("sdk/model/core");
 const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
-const {handleCmd} = require("./debug");
+const {handleCmd} = require("./../debug");
 const {data} = require("sdk/self");
 const unload = require("sdk/system/unload").when;
-const logger = require("./logger");
+const logger = require("./../logger");
 const featReport = require("./feature-report");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
@@ -61,15 +61,15 @@ const init = function(){
   unload(unloadController);
 
   listener.start();
-  deliverer.init();
-  debug.init();
+  // deliverer.init();
+  // debug.init();
 
 
   //scaling routes
   scaleRoutes(coefficient(), "trigBehavior");
 
   //welcome message
-  deliverer.deliver(recommendations.welcome);
+  // deliverer.deliver(recommendations.welcome);
 }
 
 /**
@@ -79,7 +79,7 @@ const init = function(){
 const listener = {
   start: function(){
 
-    console.log("starting listener");
+    console.log("starting feature recommender listener");
 
     let that = this;
 
@@ -95,7 +95,7 @@ const listener = {
 
         //pinned is not about tabs being pinned
         //it is about reporting the number of pinned tabs
-        //so should not be dispatched as tabs even
+        //so should not be dispatched as tabs event
         if (this.options.reason == "pinned") return;
         
         listener.dispatchRoute(route);
@@ -681,6 +681,9 @@ const deliverer = {
   },
   deliver: function (/* recommendations */) {
 
+    console.log("no recommendation delivery in woodpecker");
+    return ;
+    
     let recomms = Array.prototype.slice.call(arguments);
 
     if (recomms.length === 0)
@@ -847,7 +850,7 @@ listener.featureUse = function(route){
   recomms = recommendations.getByRouteIndex('featUseBehavior', route);
 
   if (recomms.length === 0)
-  return;
+    return;
 
   recomms.forEach(function(aRecommendation){
    
@@ -1345,10 +1348,9 @@ listener.listenForHistory = function(callback){
 
 listener.listenForPrivateBrowsing = function(callback){
   windows.browserWindows.on('open', function(window){
+
     if (require("sdk/private-browsing").isPrivate(window)){
       callback('open');
-      console.log("PRIVAE");
-      
     }
   });
 }

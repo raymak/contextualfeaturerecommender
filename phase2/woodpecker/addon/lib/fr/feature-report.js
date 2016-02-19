@@ -2,9 +2,9 @@
 
 
 const {merge} = require("sdk/util/object");
-const {PersistentObject} = require("./utils");
-const logger = require("./logger");
-const timer = require("./timer");
+const {PersistentObject} = require("./../utils");
+const logger = require("./../logger");
+const timer = require("./../timer");
 
 const featDataAddress = "feature_report.data";
 const featData = PersistentObject("simplePref", {address: featDataAddress});

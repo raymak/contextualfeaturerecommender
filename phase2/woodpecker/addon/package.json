@@ -7,6 +7,7 @@
   "author": "Kamyar Ardekani", 
   "title": "woodpecker", 
   "version": "0.0.31", 
+  "permissions": {"private-browsing": true},
   "preferences": [
     {
       "name": "clean_install",
@@ -132,6 +133,13 @@
       "title": "Length of the second observation period in the experiment.",
       "value": 5
     },
+    { 
+      "name": "experiment.fr_usage_logging.enabled",
+      "type": "bool",
+      "title": "Whether the Woodpecker addon should log feature usage as well.",
+      "value": true
+
+      },
     {
       "name": "logger.recent_hist_count",
       "type": "integer",
