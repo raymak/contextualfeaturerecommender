@@ -102,7 +102,7 @@
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 240
+      "value": 120
     },
     {
       "name": "experiment.intervention_length_tick",

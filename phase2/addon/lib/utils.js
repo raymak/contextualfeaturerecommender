@@ -259,7 +259,7 @@ function parseFhrPayload(data, callback){
 }
 
 exports.cleanUp =  function(options){
-  //note: preferences defiend in package.json cannot be deleted
+  //note: preferences defined in package.json cannot be deleted
   if (options && options.reset){
     console.log("resetting preferences...");
     for (let pref in prefs){
