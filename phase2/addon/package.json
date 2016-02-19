@@ -7,11 +7,17 @@
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "license": "MPL 2.0",
   "main": "./lib/index.js",
-  "version": "0.0.1",
+  "version": "0.0.1-beta",
   "permissions": {
     "private-browsing": true  
   },
   "preferences": [
+    {
+      "name": "isTest",
+      "type": "bool",
+      "title": "Is it a test or field deployment.",
+      "value": true
+    },
     {
       "name": "clean_install",
       "type": "bool",
@@ -57,7 +63,7 @@
     {
       "name": "delivery.mode.moment",
       "type": "radio",
-      "title": " ",
+      "title": "Determines what is considered interruptible moment.",
       "value": "in-context",
       "options": [
         {
@@ -96,19 +102,25 @@
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 5
+      "value": 240
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 5
+      "value": 480
+    },
+    {
+      "name": "experiment.name",
+      "type": "string",
+      "title": "Name of the very deployed experiment.",
+      "value": "prepilot001"
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 5
+      "value": 120
     },
     {
       "name": "route.coefficient",
@@ -138,7 +150,7 @@
       "name": "sender.send_to_tp",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
     },
     {
       "name": "sender.send_to_file",

@@ -55,7 +55,8 @@ const experiment = {
     timer.tickCallback(checkStage);
   },
   get info(){
-    return {startTimeMs: startTimeMs(), stage: expData.stage, mode: expData.mode};
+    const name = prefs["experiment.name"];
+    return {startTimeMs: startTimeMs(), name: name, stage: expData.stage, mode: expData.mode};
   },
   firstRun: function(){
     stages["obs1"]();
@@ -116,7 +117,7 @@ function checkStage(et, ett){
 const stages = {
   obs1: function(){
 
-    // prefs["delivery.mode.observ_only"] = true;
+    prefs["delivery.mode.observ_only"] = true;
     let mode = expData.mode;
     prefs["delivery.mode.rate"] = mode.rateLimit;
     prefs["delivery.mode.moment"] = mode.moment;
@@ -191,18 +192,22 @@ const debug = {
     switch(name){
       case "stage": //forces the stage
 
-        if (params == "none"){
+      let subArgs = params.split(" ");
+
+      if (subArgs[0] !== "force") return;
+
+        if (subArgs[1] == "none"){
           expData.stageForced = false;
           return "back to normal stage determination";
         }
 
-        if (!stages[params])
+        if (!stages[subArgs[1]])
           return "error: no such stage exists.";
 
-        stages[params]();
+        stages[subArgs[1]]();
         expData.stageForced = true;
 
-        expData.stage = params;
+        expData.stage = subArgs[1];
 
         return "warning: experiment stage forced to " + params;
 

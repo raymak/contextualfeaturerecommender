@@ -8,7 +8,7 @@
 const system = require("sdk/system");
 const {prefs} = require("sdk/simple-prefs");
 
-const recommFileAddress = "mozlando-recommendations.json";
+const recommFileAddress = "prepilot001recommendations.json";
 
 exports.main = function(options, callbacks){
 
