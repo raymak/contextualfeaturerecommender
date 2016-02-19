@@ -8,8 +8,6 @@
 const system = require("sdk/system");
 const {prefs} = require("sdk/simple-prefs");
 
-const {Recommendation} = require("./recommendation");
-
 const recommFileAddress = "mozlando-recommendations.json";
 
 exports.main = function(options, callbacks){
@@ -25,11 +23,11 @@ exports.main = function(options, callbacks){
   require("./presentation/splitpage").init();  
   require("./presentation/doorhanger").init();
   require("./experiment").init();
-  require("./feature-report").init();
   require("./timer").init();
   require("./logger").init();
   require("./sender").init();
   require("./debug").init();
+  require("./feature-report").init();
 
   if (isFirstRun)
     firstRun();

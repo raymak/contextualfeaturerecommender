@@ -67,7 +67,6 @@ const init = function(){
 // updates the ett preference records in addition to returning it
 const elapsedTotalTime = function(){
   let exp = require("./experiment");
-  exp.info.hello;
   let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
 
   timerData.elapsedTotalTime = ett; //update the elapsed total time at the beginning

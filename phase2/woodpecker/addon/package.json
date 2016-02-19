@@ -1,5 +1,5 @@
 {
-  "license": "MIT", 
+  "license": "MPL 2.0", 
   "description": "Aims to find the most interruptible moments in Firefox.", 
   "engines": {
       "firefox": ">=38.0a1"
