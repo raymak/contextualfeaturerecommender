@@ -30,6 +30,27 @@
 		a {
 			font-size: 12px;
 		}
+
+		ul {
+			font-size: 15px;
+			list-style-type: none;
+			padding: 0px;
+		}
+
+		.numCirc {
+		    border-radius: 50%;
+		    width: 16px;
+		    height: 16px;
+		    padding: 8px;
+		    background: #fff;
+		    border: 1px solid #030303;
+		    color: #C01E1E;
+		    text-align: center;
+		    font: 16px Arial, sans-serif;
+		    display: inline-block;
+		    margin: 5px 5px;
+		}
+
 	</style>
 	<title></title>
 </head>
@@ -37,8 +58,7 @@
 	<div id="container">
 		<h2>What is Feature Recommender?</h2>
 		<p>
-			Feature Recommender is an experimental tool on Firefox that recommends 
-			Firefox features or extensions that are likely to be useful for you based on how you use Firefox. This tool is temporary and will be automatically removed from your Firefox after a certain time.
+			Feature Recommender recommends features or extensions that are likely to be useful for you based on how you use Firefox. This tool is experimental and will be automatically removed from your Firefox after a period of time.
 
 		</p>
 
@@ -48,11 +68,14 @@
 
 		<img id="screenshot" src="screenshot.png" />
 
-		<ol>
-			<li>1.....</li>
-			<li>2....</li>
-			<li>3....</li>
-		</ol>
+		<ul>
+			<li><p class=numCirc>1</p>Hides the notification.</li>
+			<li><p class=numCirc>2</p>Let's you give us feedback on why you don't like a notification.</li>
+			<li><p class=numCirc>3</p>Gives a brief description of the recommended feature.</li>
+			<li><p class=numCirc>4</p>Briefly tells you why the addon thinks you might like the recommended feature. </li>
+			<li><p class=numCirc>5</p>Click to learn more about the feature. </li>
+			<li><p class=numCirc>6</p>Let's you install or try some features right from the notification! </li>
+		</ul>
 
 		<a href="#"> Can I remove this tool?</a>
 		<p>
