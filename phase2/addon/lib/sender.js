@@ -20,7 +20,7 @@ Cu.import("resource://gre/modules/osfile.jsm");
 const QUOTA = 50;
 
 const TP_URL = "https://testpilot.mozillalabs.com/submit/" + "featurerecommender";
-const TEST_URL = "http://requestb.in/zobohnzo";
+const TEST_URL = "http://logs-01.loggly.com/inputs/ac4fee9c-9dc4-4dc9-8a1b-4094253067bb/tag/http/";
 
 const FILE_NAME = "wp-log";
 const PATH_DIR = pathFor("Desk");

@@ -138,13 +138,13 @@
       "name": "sender.send_to_tp",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
    }
   ]
 }
