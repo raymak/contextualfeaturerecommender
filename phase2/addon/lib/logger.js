@@ -43,7 +43,6 @@ function log(type, attrs){
     et: elapsedTime(),
     ett: elapsedTotalTime(),  
     number: nextNumber(),
-    experiment_version: 1,
     addon_version: addonSelf.version,
     is_test: self.isTest,
     userid: self.userId,

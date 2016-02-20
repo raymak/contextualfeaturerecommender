@@ -56,7 +56,12 @@ const experiment = {
   },
   get info(){
     const name = prefs["experiment.name"];
-    return {startTimeMs: startTimeMs(), name: name, stage: expData.stage, mode: expData.mode};
+
+    let stTimeMs = startTimeMs();
+    return {startTimeMs: stTimeMs,
+            localeTime: (new Date(Number(stTimeMs))).toLocaleString(),
+            name: name, stage: expData.stage,
+            mode: expData.mode};
   },
   firstRun: function(){
     stages["obs1"]();

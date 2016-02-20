@@ -72,7 +72,7 @@ const init = function(){
   scaleRoutes(coefficient(), "trigBehavior");
 
   //welcome message
-  deliverer.deliver(recommendations.welcome);
+  // deliverer.deliver(recommendations.welcome);
 }
 
 /**

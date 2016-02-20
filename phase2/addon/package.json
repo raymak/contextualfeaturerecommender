@@ -114,7 +114,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot001"
+      "value": "prepilot002"
     },
     {
       "name": "experiment.obs2_length_tick",
