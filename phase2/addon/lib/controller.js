@@ -1466,7 +1466,7 @@ listener.multipleRoute = function(baseEvent, options){
         data.ifreq = 1/data.freq;
       }
       else {
-        data = {count: 1, freq: 1 / (timer.elapsedTime() + 1), ifreq: timer.elapsedTime()};
+        data = {count: 1, freq: 1 / (timer.elapsedTime() + 1), ifreq: timer.elapsedTime() + 1};
       }
 
       eventData[baseRoute] = data;

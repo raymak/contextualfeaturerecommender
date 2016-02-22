@@ -93,10 +93,16 @@
       "value": false
     },
     {
+      "name": "logger.periodic_log_period",
+      "type": "integer",
+      "title": "How often periodic log info is reported.",
+      "value": 20
+    },
+    {
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
-      "value": 20
+      "value": 2
     },
     {
       "name": "experiment.default_delMode_weights",

@@ -1,19 +1,25 @@
+/*! This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 "use strict";
 
-const splitpage = require("./presentation/splitpage");
-const desktopnotification = require("./presentation/desktopnotification");
-const doorhanger = require("./presentation/doorhanger");
+const channels = {
+                  splitpage: require("./presentation/splitpage"),
+                  desktopnotification: require("./presentation/desktopnotification"),
+                  doorhanger: require("./presentation/doorhanger")
+                };
+
 const prefs = require("sdk/simple-prefs").prefs;
 const {extractPresentationData} = require("./recommendation");
-
-const that = this;
 
 const present = function(aRecommendation, cmdCallback){
   let data = aRecommendation.presentationData;
   let channel;
   for (channel in data){
-      if (that[channel])
-        that[channel].present(aRecommendation, cmdCallback);
+      if (channels[channel])
+        channels[channel].present(aRecommendation, cmdCallback);
       else
         if (channel != '*')
           console.log("warning: no presenter module named '" + channel + "' was found.");

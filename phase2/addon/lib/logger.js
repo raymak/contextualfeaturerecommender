@@ -1,3 +1,8 @@
+/*! This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 "use strict";
 
 const {elapsedTime, elapsedTotalTime, tickCallback} = require("./timer");
@@ -39,13 +44,14 @@ function nextNumber(){
 
 function log(type, attrs){
 
-  let OUT = {ts: Date.now(),
+  let OUT = {
+    userid: self.userId,
+    number: nextNumber(),
+    is_test: self.isTest,
+    ts: Date.now(),
     et: elapsedTime(),
     ett: elapsedTotalTime(),  
-    number: nextNumber(),
     addon_version: addonSelf.version,
-    is_test: self.isTest,
-    userid: self.userId,
     locale: self.locale,
     update_channel: self.updateChannel
   }
@@ -66,7 +72,7 @@ function log(type, attrs){
 }
 
 function periodicLog(et, ett){
-      if (Math.floor(ett) % 20 != 1) return;
+      if (Math.floor(ett) % prefs["logger.periodic_log_period"] != 1) return;
       self.getPeriodicInfo(function(info){
         logPeriodicSelfInfo(info);
       });
