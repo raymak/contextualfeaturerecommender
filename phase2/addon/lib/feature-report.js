@@ -9,6 +9,7 @@ const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("./utils");
 const logger = require("./logger");
 const timer = require("./timer");
+const {prefs} = require("sdk/simple-prefs");
 
 const featDataAddress = "feature_report.data";
 const featData = PersistentObject("simplePref", {address: featDataAddress});
@@ -96,7 +97,7 @@ function postRecFeatureUse(id){
 }
 
 function log(et, ett){
-  if (Math.floor(ett) % 20 != 3) return;
+  if (Math.floor(ett) % prefs["feature_report.log_period"] != 3) return;
   let info = featData.report;
   logger.logFeatReport(info);
 }

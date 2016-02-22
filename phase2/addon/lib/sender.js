@@ -19,7 +19,7 @@ Cu.import("resource://gre/modules/osfile.jsm");
 
 const QUOTA = 50;
 
-const TP_URL = "https://testpilot.mozillalabs.com/submit/" + "featurerecommender";
+const REMOTE_URL = "https://testpilot.mozillalabs.com/submit/" + "featurerecommender";
 const TEST_URL = "http://logs-01.loggly.com/inputs/ac4fee9c-9dc4-4dc9-8a1b-4094253067bb/tag/http/";
 
 const FILE_NAME = "wp-log";
@@ -82,10 +82,10 @@ function flush(){
   ss.storage.sender.messages = [];
 
   while (arr.length  > 0)
-    sendToTp(arr.shift());
+    sendToRemote(arr.shift());
 }
 
-function sendToTp(data){
+function sendToRemote(data){
 
   function requestCompleted(which, response) {
     console.log("REQUEST COMPLETE", which, response.status);
@@ -94,24 +94,9 @@ function sendToTp(data){
         queue(data);
   }
 
-  let fields = {
-      "userid": data.userid, // for easy sorting at TP
-      "v": 1, //static
-      "tid": "UA-35433268-28", //id of ga account for mozillalabs
-      "cid": "be74c5a0-143a-11e4-8c21-0800200c9a66", //randomly generated uuid
-      "t": "pageview", //type of hit. keep static
-      "dh": "caravela.mozillalabs.com", //subpage of mozillalabs account to get data
-      "dp": JSON.stringify(data), //subpage to register pageview. required for view
-  }
-
-  /** TP packet
-        * - special url
-        * - POST instead of getElementsByTagName('')
-        * - explicit about content type.
-        * - will autogen a record at /bagheera end
-        */
+  let fields = data;
   
-  let XmlReqTp = new request.Request({
+  let XmlReq = new request.Request({
       url: TEST_URL,
       headers: {},
       onComplete: requestCompleted.bind(null, "TP"),
@@ -119,14 +104,12 @@ function sendToTp(data){
       contentType: "application/json"
   });
 
-  XmlReqTp.post();
+  XmlReq.post();
 }
 
 function sendToFile(data){
 
   console.log("sending to file");
-
-
 
   let writeToFile = function(fileName, message, options){
 
@@ -162,8 +145,8 @@ function sendToFile(data){
 }
 
 function send(data){
-  if (prefs["sender.send_to_tp"])
-    sendToTp(data);
+  if (prefs["sender.send_to_remote"])
+    sendToRemote(data);
 
   if (prefs["sender.send_to_file"])
     sendToFile(data);

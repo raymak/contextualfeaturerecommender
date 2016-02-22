@@ -73,8 +73,8 @@ function periodicLog(et, ett){
 
 }
 
-function logRecommUpdate(oldStatus, newStatus){
-  log("RECOMM_STATUS_UPDATE", {oldStatus: oldStatus, newStatus: newStatus});
+function logRecommUpdate(id, oldStatus, newStatus){
+  log("RECOMM_STATUS_UPDATE", {id: id, oldStatus: oldStatus, newStatus: newStatus});
 }
 
 function logFirstRun(){

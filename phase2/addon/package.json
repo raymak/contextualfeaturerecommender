@@ -93,6 +93,12 @@
       "value": false
     },
     {
+      "name": "feature_report.log_period",
+      "type": "integer",
+      "title": "How often the feature status has to be reported.",
+      "value": 20
+    },
+    {
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weigths based on which the user is randomly put into an experimental mode",
@@ -114,7 +120,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot002"
+      "value": "prepilot003home01"
     },
     {
       "name": "experiment.obs2_length_tick",
@@ -147,7 +153,7 @@
       "value": true
     },
     {
-      "name": "sender.send_to_tp",
+      "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
       "value": false
@@ -156,7 +162,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
    }
   ]
 }

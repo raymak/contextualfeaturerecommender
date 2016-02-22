@@ -303,13 +303,13 @@ exports.selfDestruct = function(reason){
   console.log("self-destructing...");
   console.log("Goodbye cruel world... I'm leaving you today...");
 
-  if (prefs["cleanup_on_death"])
-    exports.cleanUp();
-
   if (reason === undefined)
     reason = "unknown";
 
   require("./logger").logSelfDestruct({reason: reason});
+
+  if (prefs["cleanup_on_death"])
+    exports.cleanUp({reset: true});
 
   return require("sdk/addon/installer")
     .uninstall(require("sdk/self").id);

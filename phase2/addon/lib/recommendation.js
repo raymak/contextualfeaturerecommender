@@ -103,7 +103,7 @@ const recSet = {
       console.log("recommendation updated: id -> " + aRecommendation.id + ", status -> " + aRecommendation.status);
 
       if (oldStatus != newStatus){
-        logger.logRecommUpdate(oldStatus, newStatus);
+        logger.logRecommUpdate(aRecommendation.id, oldStatus, newStatus);
         featReport.updateRow(aRecommendation.id, {status: newStatus});
       }
 
