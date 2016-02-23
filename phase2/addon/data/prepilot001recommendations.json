@@ -173,7 +173,7 @@
     "respCommandMap": {
       "doorhanger": {
         "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/reddit-enhancement-suite/",
-        "secondaryButton": "open url -l  https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=dp-btn-primary"
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=dp-btn-primary"
       }
     }
   },

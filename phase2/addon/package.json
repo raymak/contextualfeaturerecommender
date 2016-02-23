@@ -108,13 +108,13 @@
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weigths based on which the user is randomly put into an experimental mode",
-      "value": "[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      "value": "[0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 120
+      "value": 1  
     },
     {
       "name": "experiment.intervention_length_tick",

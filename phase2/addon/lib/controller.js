@@ -18,6 +18,7 @@ const {prefs} = require("sdk/simple-prefs");
 const presenter = require("./presenter");
 const { MatchPattern } = require("sdk/util/match-pattern");
 const {PersistentRecSet} = require("./recommendation");
+const {setTimeout} = require("sdk/timers");
 const timer = require("./timer");
 const utils = require("./utils");
 const self = require("./self");
@@ -31,6 +32,7 @@ const {data} = require("sdk/self");
 const unload = require("sdk/system/unload").when;
 const logger = require("./logger");
 const featReport = require("./feature-report");
+const events = require("sdk/system/events");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -197,26 +199,23 @@ const listener = {
       addonEvent.wake();
     });
 
-    // this.listenForContentType(function(contentType){
-    //   let contentTypeEvent = Event("contentTypeEvent",
-    //   {
-    //     route: ["contentType", contentType].join(" "),
-    //     contentType: contentType
-    //   });
+    this.listenForUserActivity(function(){
 
-    //   contentType.effect = function(){
-    //     let route = this.options.route;
+      let interruptibleMomentEvent = Event("interruptibleMomentEvent",
+      {
+        route: "*"
+      });
 
-    //     listener.dispatchRoute(route);
-    //   };
+      interruptibleMomentEvent.checkPreconditions = function(){
+        return timer.isRecentlyActive(10, 1*60);
+      };
 
-    //   let multipleContentType = that.multipleRoute(contentTypeEvent);
+      interruptibleMomentEvent.effect = function(){
+        listener.context(this.options.route);
+      };
 
-    //   contentTypeEvent.postEvents.push(multipleContentType);
-
-    //   contentTypeEvent.wake();
-
-    // }, ["application/json", "application/epub+zip"]);
+      interruptibleMomentEvent.wake();
+    });
 
     this.listenForNewtab(function(){
       let newtabEvent = Event("newtabEvent", {
@@ -226,23 +225,6 @@ const listener = {
       newtabEvent.effect = function(){
         listener.dispatchRoute(this.options.route);
       };
-
-      let interruptibeMomentEvent = Event("interruptibeMomentEvent", 
-      {
-        route: "*"
-      });
-
-      interruptibeMomentEvent.checkPreconditions = function(){
-        // return (self.delMode.moment === 'interruptible') ;
-        return (timer.isRecentlyActive());
-        
-      }
-
-      interruptibeMomentEvent.effect = function(){
-        listener.context(this.options.route);
-      }
-
-      newtabEvent.postEvents.push(interruptibeMomentEvent);
 
       newtabEvent.wake();
     });
@@ -1410,6 +1392,10 @@ listener.listenForContentType = function(callback, contentTypes){
     }
   };
   contentTypeObserver.register();
+}
+
+listener.listenForUserActivity = function(callback){
+  timer.onUserActive(callback);
 }
 
 // listening for command invocations is not useful because the menu items directly call gDevTools functions

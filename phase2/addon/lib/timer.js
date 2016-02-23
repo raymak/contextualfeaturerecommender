@@ -19,6 +19,8 @@ const timerDataAddress = "timer.data";
 const timerData = PersistentObject("simplePref", {address: timerDataAddress});
 
 const tickHandlers = [];
+const userActiveHandlers = [];
+const userInactiveHandlers = [];
 
 let activityObs;
 let activity;
@@ -90,6 +92,7 @@ const watchActivity = function(){
     observe: function(subject, topic, data){
       switch(topic){
         case "user-interaction-active":
+
           // console.log("active " + elapsedTime());
           clearInterval(inactiveCounter);
           if (activity.minor_inactive_s) activity.last_minor_inactive_s = activity.minor_inactive_s;
@@ -104,6 +107,10 @@ const watchActivity = function(){
           if (!activity.active)
             event('active');
           activity.active = true;
+
+          if (activity.minor_active_s == 0) // to call the handlers only once
+            userActiveHandlers.forEach((fn) => fn());
+
         break;
         case "user-interaction-inactive":
           console.log("user inactive (minor)");
@@ -174,6 +181,15 @@ const event = function(name){
 
 const tickCallback = function(callback){
   tickHandlers.push(callback);
+}
+
+const onUserActive = function(fn){
+  userActiveHandlers.push(fn);
+}
+
+//TOTHINK: major or minor inactive?
+const onInactive = function(fn){
+
 }
 
 const elapsedTime = function(){
@@ -374,6 +390,7 @@ exports.silence = silence;
 exports.endSilence = endSilence;
 exports.randomTime = randomTime;
 exports.tickCallback = tickCallback;
+exports.onUserActive = onUserActive;
 exports.tToS = tToS;
 exports.sToT = sToT;
 exports.init = init;

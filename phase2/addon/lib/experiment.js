@@ -18,17 +18,17 @@ let expData;
 
 const modes = [
   {rateLimit: false, moment: 'random', coeff: 1}, //0
-  {rateLimit: false, moment: 'interruptible', coeff: 2}, //1
+  {rateLimit: false, moment: 'random', coeff: 2}, //1
   {rateLimit: false, moment: 'in-context', coeff: 1}, //2
-  {rateLimit: true, moment: 'random', coeff: 2}, //3
-  {rateLimit: true, moment: 'interruptible', coeff: 1}, //4
-  {rateLimit: true, moment: 'in-context', coeff: 2}, //5
-  {rateLimit: false, moment: 'random', coeff: 1}, //6
-  {rateLimit: false, moment: 'interruptible', coeff: 2}, //7
-  {rateLimit: false, moment: 'in-context', coeff: 1}, //8
-  {rateLimit: true, moment: 'random', coeff: 2}, //9
+  {rateLimit: false, moment: 'in-context', coeff: 2}, //3
+  {rateLimit: false, moment: 'interruptible', coeff: 1}, //4
+  {rateLimit: false, moment: 'interruptible', coeff: 2}, //5
+  {rateLimit: true, moment: 'random', coeff: 1}, //6
+  {rateLimit: true, moment: 'random', coeff: 2}, //7
+  {rateLimit: true, moment: 'in-context', coeff: 1}, //8
+  {rateLimit: true, moment: 'in-contexg', coeff: 2}, //9
   {rateLimit: true, moment: 'interruptible', coeff: 1}, //10
-  {rateLimit: true, moment: 'in-context', coeff: 2} //11
+  {rateLimit: true, moment: 'interruptible', coeff: 2} //11
 ]
 
 const experiment = {
@@ -38,11 +38,14 @@ const experiment = {
 
     expData = PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update});
 
-    if (!expData.mode)
-      expData.mode = assignRandomMode(JSON.parse(prefs["experiment.default_delMode_weights"]));
-  
-    console.log("assigned experimental mode: ", expData.mode);
+    console.log("yoyoyo");
 
+    if (!expData.mode){
+      let modeCode = require("./utils").weightedRandomInt(JSON.parse(prefs["experiment.default_delMode_weights"]));
+      expData.mode = modes[modeCode];
+      console.log("assigned experimental mode: ", expData.mode, " code: ", modeCode);
+    }
+  
     debug.init();
 
     if (!("stageForced" in expData))
@@ -66,10 +69,6 @@ const experiment = {
   firstRun: function(){
     stages["obs1"]();
   }
-}
-
-function assignRandomMode(weightsArr){
-  return modes[require("./utils").weightedRandomInt(weightsArr)];  
 }
 
 // also sets start date when called for the first time
