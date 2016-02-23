@@ -159,10 +159,22 @@
       "value": true
     },
     {
+      "name": "sender.resend_period",
+      "type": "integer",
+      "title": "How often the sender should retry sending the queued messages",
+      "value": 2
+    },
+    {
+      "name": "sender.queue_quota",
+      "type": "integer",
+      "title": "The number of messages that can be stored in the queue before they start to drop.",
+      "value": 50
+    },
+    {
       "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "sender.send_to_file",
