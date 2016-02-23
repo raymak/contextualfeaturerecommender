@@ -84,7 +84,7 @@ function startTimeMs(){
 
 function checkStage(et, ett){
 
-  if (expData.forcedStage)
+  if (expData.stageForced)
     return ;
 
   let stage = expData.stage;
@@ -113,7 +113,7 @@ function checkStage(et, ett){
 
   //prepare the new stage
   stages[nStage]();
-  
+
   require("./logger").logExpStageAdvance({newstage: nStage});
 
   console.log("starting new experiment stage: " + nStage);
@@ -122,7 +122,7 @@ function checkStage(et, ett){
 const stages = {
   obs1: function(){
 
-    // prefs["delivery.mode.observ_only"] = true;
+    prefs["delivery.mode.observ_only"] = true;
     let mode = expData.mode;
     prefs["delivery.mode.rate"] = mode.rateLimit;
     prefs["delivery.mode.moment"] = mode.moment;

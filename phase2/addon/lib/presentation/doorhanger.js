@@ -39,7 +39,6 @@ let closedwithreason;
 
 function init(){
   console.log("initializing doorhanger");
-  button = initButton(buttonClick);
   // panel = initPanel(button);
 
   dhData = PersistentObject("simplePref", {address: dhDataAddress, updateListener: debug.update});
@@ -60,6 +59,11 @@ function init(){
       unload(function(){window.removeEventListener("keydown", f)});
     }
   });
+
+  if (dhData.currentRec && dhData.currentRec.recomm){
+    button = initButton(buttonClick);
+    updateEntry();
+  }
 
 }
 
@@ -118,9 +122,10 @@ function present(aRecommendation, cmdCallback){
   if (dhData.count)
      dhData.count = dhData.count + 1;
 
-  if (dhData.currentRec && dhData.currentRec.recomm)
+  if (dhData.currentRec && dhData.currentRec.recomm){
     updateReport();
     report(); //report the last recommendation
+  }
 
   dhData.currentRec = {recomm: aRecommendation, 
                        state:{like: false, dontlike: false, count: 0, negFbChoice: null},
@@ -144,6 +149,8 @@ function present(aRecommendation, cmdCallback){
 
 function updateEntry(){
 
+  if (!button)
+    button = initButton(buttonClick);
   panel = initPanel(button);
 
   let entry = extractPresentationData.call(dhData.currentRec.recomm, "doorhanger");
