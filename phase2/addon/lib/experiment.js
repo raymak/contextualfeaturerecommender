@@ -132,6 +132,7 @@ const stages = {
   },
   obs2: function(){
     prefs["delivery.mode.observ_only"] = true;
+    require('./presenter').stop();
   },
   end: function(){
     require("./utils").selfDestruct("end");
@@ -211,7 +212,7 @@ const debug = {
 
         expData.stage = subArgs[1];
 
-        return "warning: experiment stage forced to " + params;
+        return "warning: experiment stage forced to " + subArgs[1];
 
         break;
       default: 

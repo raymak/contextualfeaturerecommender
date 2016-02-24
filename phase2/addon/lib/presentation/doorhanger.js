@@ -60,7 +60,7 @@ function init(){
     }
   });
 
-  if (dhData.currentRec && dhData.currentRec.recomm){
+  if (dhData.currentRec && dhData.currentRec.recomm && !dhData.stopped){
     button = initButton(buttonClick);
     updateEntry();
   }
@@ -430,6 +430,19 @@ function report(){
     console.log("warning: no report to log.");
 }
 
+function stop(){
+  console.log("stopping doorhanger");
+
+   button.destroy();
+   dhData.stopped = true;
+
+   if (dhData.currentRec && dhData.currentRec.recomm){
+    updateReport();
+    report(); //report the last recommendation
+  }
+
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -447,4 +460,5 @@ const debug = {
 }
 
 exports.init = init;
+exports.stop = stop;
 exports.present = present;

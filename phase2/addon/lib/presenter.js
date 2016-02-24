@@ -16,8 +16,7 @@ const {extractPresentationData} = require("./recommendation");
 
 const present = function(aRecommendation, cmdCallback){
   let data = aRecommendation.presentationData;
-  let channel;
-  for (channel in data){
+  for (let channel in data){
       if (channels[channel])
         channels[channel].present(aRecommendation, cmdCallback);
       else
@@ -26,6 +25,12 @@ const present = function(aRecommendation, cmdCallback){
   }
 }
 
+function stop(){
+  console.log("stopping presentation channels");
+
+  for (let ch in channels)
+    if (channels[ch].stop) channels[ch].stop();
+}
 
 const log = {present: function(aRecommendation){
   let data = extractPresentationData.call(aRecommendation, "log");
@@ -35,3 +40,4 @@ const log = {present: function(aRecommendation){
 
 
 exports.present = present;
+exports.stop = stop;
