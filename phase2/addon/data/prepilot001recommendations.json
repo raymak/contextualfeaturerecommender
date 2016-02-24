@@ -230,31 +230,6 @@
     }
   },
   {
-    "id": "closeTabShortcut",
-    "priority": 1,
-    "trigBehavior": "",
-    "delivContext": "",
-    "featUseBehavior": "",
-    "presentationData": {
-      "*": {
-        "message": "You can use <strong>CTRL+T</strong> to open a new tab faster!",
-        "title": "New tab shortcut",
-        "rationale": "You close tabs a lot."
-      },
-      "log": {},
-      "desktopnotification": {},
-      "doorhanger": {
-        "primaryButtonLabel": "Learn more",
-        "secondaryButtonLabel": null
-      }
-    },
-    "respCommandMap": {
-      "doorhanger": {
-        "primaryButton": ""
-      }
-    }
-  },
-  {
     "id": "privateBrowsing",
     "priority": 1,
     "trigBehavior": "history delete -c >3",

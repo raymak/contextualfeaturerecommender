@@ -207,7 +207,7 @@ const listener = {
       });
 
       interruptibleMomentEvent.checkPreconditions = function(){
-        return timer.isRecentlyActive(10, 1*60);
+        return timer.isRecentlyActive(10, 2*60);
       };
 
       interruptibleMomentEvent.effect = function(){

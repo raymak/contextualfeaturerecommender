@@ -24,13 +24,21 @@ function init(){
 
   console.log("initializing debug")
   
+  // TODO: proper way to register about: pages
+  // https://dev.mozilla.jp/localmdc/localmdc_1781.html
+  // https://developer.mozilla.org/en-US/docs/Custom_about:_URLs#Firefox_4_and_Later_-_BootstrapRestartless
+  // http://kb.mozillazine.org/Dev_:_Extending_the_Chrome_Protocol
+  // http://stackoverflow.com/questions/34789910/creating-a-chrome-page-for-my-firefox-add-on
+  // https://developer.mozilla.org/en/docs/Chrome_Registration
+  // http://stackoverflow.com/questions/23748077/firefox-extension-differences-of-the-chrome-and-resource-protocols
+  // https://developer.mozilla.org/en-US/Add-ons/SDK/Guides/XUL_Migration_Guide
   tabs.on('ready', function(tab){
   	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
   });
   
 
   PageMod({
-    include: HTML_URL,
+    include: HTML_URL,  
     contentScriptFile: [JS_URL, data.url('./js/jquery.min.js'), data.url('./js/jquery.jsonview.js')],
     contentStyleFile: data.url('./css/jquery.jsonview.css'),
     contentScriptWhen: 'ready',

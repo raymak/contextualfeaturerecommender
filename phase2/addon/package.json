@@ -102,7 +102,7 @@
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
-      "value": 2
+      "value": 10
     },
     {
       "name": "experiment.default_delMode_weights",
@@ -111,28 +111,28 @@
       "value": "[0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]"
     },
     {
+      "name": "experiment.name",
+      "type": "string",
+      "title": "Name of the very deployed experiment.",
+      "value": "prepilot003"
+    },
+    {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 1  
+      "value": 45
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 480
-    },
-    {
-      "name": "experiment.name",
-      "type": "string",
-      "title": "Name of the very deployed experiment.",
-      "value": "prepilot003home01"
+      "value": 300
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 120
+      "value": 60
     },
     {
       "name": "route.coefficient",
@@ -168,7 +168,7 @@
       "name": "sender.queue_quota",
       "type": "integer",
       "title": "The number of messages that can be stored in the queue before they start to drop.",
-      "value": 50
+      "value": 75
     },
     {
       "name": "sender.send_to_remote",

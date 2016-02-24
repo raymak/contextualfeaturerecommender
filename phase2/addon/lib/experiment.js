@@ -38,8 +38,6 @@ const experiment = {
 
     expData = PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update});
 
-    console.log("yoyoyo");
-
     if (!expData.mode){
       let modeCode = require("./utils").weightedRandomInt(JSON.parse(prefs["experiment.default_delMode_weights"]));
       expData.mode = modes[modeCode];

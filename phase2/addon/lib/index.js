@@ -14,10 +14,10 @@ exports.main = function(options, callbacks){
 
   console.log("Hello World! I am alive :)");
 
-  const isFirstRun = !prefs["isInitialized"]
-
   if (options.loadReason === "install")
-    installRun(isFirstRun);
+    installRun();
+
+  const isFirstRun = !prefs["isInitialized"];
 
   require("./self").init();
   require("./presentation/splitpage").init();  
@@ -48,7 +48,7 @@ function firstRun(){
   require('./experiment').firstRun();
 }
 
-function installRun(isFirstRun){
+function installRun(){
   let clean = false;
 
   //static args have precedence over default preferences
@@ -64,7 +64,9 @@ function installRun(isFirstRun){
     require('./utils').cleanUp({reset: true});
 
 
-  if (clean || isFirstRun){
+  const isFirstRun = !prefs["isInitialized"];
+
+  if (isFirstRun){
     try{require('./utils').overridePrefs("../prefs.json");}
     catch(e){console.log("skipped overriding preferences");}
   }
