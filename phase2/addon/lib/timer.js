@@ -38,10 +38,6 @@ const init = function(){
   if (!timerData.events)
     timerData.events = [];
 
-  event('startup');
-
-  unload(function(){event('shutdown')});
-
   elapsedTotalTime();
 
   watchActivity();
@@ -104,8 +100,6 @@ const watchActivity = function(){
               debug.update();
             }, 1000);
           }
-          if (!activity.active)
-            event('active');
           activity.active = true;
 
           if (activity.minor_active_s == 0) // to call the handlers only once
@@ -125,7 +119,6 @@ const watchActivity = function(){
 
             if (activity.minor_inactive_s > prefs["timer.inactive_threshold_s"] && activity.active){
               deactivate();
-              event('inactive');
             }
             debug.update();
           }, 1000);
