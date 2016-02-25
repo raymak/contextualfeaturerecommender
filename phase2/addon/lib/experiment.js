@@ -177,6 +177,7 @@ const debug = {
     updateObj.nextStage = ({"obs1": "intervention", "intervention": "obs2", "obs2": "end"})[updateObj.stage];
     updateObj.stageForced = expData.stageForced;
     updateObj.timeUntilNextStage = timeUntilNextStage();
+    updateObj.mode = expData.mode;
 
    
     dumpUpdateObject(updateObj, {list: "Experiment"});

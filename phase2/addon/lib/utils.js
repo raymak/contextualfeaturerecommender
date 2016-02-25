@@ -5,8 +5,8 @@
 
 "use strict";
 
-const prefs = require("sdk/simple-prefs").prefs;
 const sp = require("sdk/simple-prefs");
+const prefs = sp.prefs;
 const {merge} = require("sdk/util/object");
 const {URL} = require("sdk/url");
 const {Cu, Cc, Ci} = require("chrome");
@@ -329,12 +329,41 @@ const debug = {
       if (!args)  //does not match the basic pattern
         return false;
 
+      let subArgs, id;
+
       let name = args[1];
       let params = args[2];
 
       switch(name){
         case "isVidTabOpen":
           return exports.isVidTabOpen();
+          break;
+
+        case "pref":
+          
+          subArgs = patt.exec(params);
+          let pref = subArgs[1];
+          let value = subArgs[2];
+
+          if (!pref)
+            return "error: incorrect use of pref command.";
+
+          //getting
+          if (!value){ 
+            if (!prefs[pref])
+              return pref + " does not exist.";
+
+            return pref + ": " + prefs[pref];
+          } 
+
+          prefs[pref] = JSON.parse(value);
+
+          //setting
+          if (!prefs[pref]) 
+            return pref + " created: " + value;
+          else
+            return pref + " updated: " + value;
+
           break;
 
         default: 
