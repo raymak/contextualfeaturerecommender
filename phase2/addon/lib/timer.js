@@ -98,6 +98,7 @@ const watchActivity = function(){
               activity.minor_active_s += 1;
               activity.active_s += 1;
               debug.update();
+              
             }, 1000);
           }
           activity.active = true;

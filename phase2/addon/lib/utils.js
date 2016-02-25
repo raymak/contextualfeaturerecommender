@@ -176,16 +176,28 @@ exports.isHostVideo = function(host){
   return (list.indexOf(host) !== -1);
 }
 
-exports.isVidTabOpen = function(){
+// returns whether the active tab is one of the well known video websites
+// and is playing sound
+exports.isVideoPlaying = function(){
+
   let tabs = require('sdk/tabs');
-  
-  for (let tab of tabs){
-    let hostname = URL(tab.url).hostname;
-    if (exports.isHostVideo(hostname))
-      return true;
-  }
+  const {viewFor} = require("sdk/view/core");  
+
+  let hostname = URL(tabs.activeTab.url).hostname;
+
+  if (exports.isHostVideo(hostname))
+      return viewFor(tabs.activeTab).getAttribute("soundplaying") === "true";
 
   return false;
+}
+
+// returns whether the active tab is playing sound
+// does not check if it's muted
+exports.isSoundPlaying = function(){
+  let tabs = require('sdk/tabs');
+  const {viewFor} = require("sdk/view/core");
+
+  return viewFor(tabs.activeTab).getAttribute("soundplaying") === "true";
 }
 
 function getFhrData(callback){
@@ -335,8 +347,12 @@ const debug = {
       let params = args[2];
 
       switch(name){
-        case "isVidTabOpen":
-          return exports.isVidTabOpen();
+        case "isVideoPlaying":
+          return exports.isVideoPlaying();
+          break;
+
+        case "isSoundPlaying":
+          return exports.isSoundPlaying();
           break;
 
         case "pref":
