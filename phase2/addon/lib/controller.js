@@ -14,7 +14,8 @@ const {getBrowserForTab, getTabForId} = require("sdk/tabs/utils");
 const tabs = require("sdk/tabs");
 const {Event, eventData, eventDataAddress} = require("./event");
 const {Cu, Cc, Ci} = require("chrome");
-const {prefs} = require("sdk/simple-prefs");
+const sp = require("sdk/simple-prefs");
+const prefs = sp.prefs;
 const presenter = require("./presenter");
 const { MatchPattern } = require("sdk/util/match-pattern");
 const {PersistentRecSet} = require("./recommendation");
@@ -662,7 +663,18 @@ const listener = {
 
 const deliverer = {
   init: function(){
+
+     let f = function(p){
+      prefs["timer.silence_length_s"] = 
+        timer.tToS(prefs["delivery.mode.silence_length." + prefs[p]]);
+    };
+    sp.on("delivery.mode.rate_limit", f)
+    unload(function() sp.removeListener("delivery.mode.rate_limit", f));
+
+    f("delivery.mode.rate_limit");
+    
     timer.tickCallback(this.checkSchedule);
+
   },
   deliver: function (/* recommendations */) {
 

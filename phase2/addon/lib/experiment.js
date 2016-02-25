@@ -17,18 +17,18 @@ const expDataAddress = "experiment.data";
 let expData;
 
 const modes = [
-  {rateLimit: false, moment: 'random', coeff: 1}, //0
-  {rateLimit: false, moment: 'random', coeff: 2}, //1
-  {rateLimit: false, moment: 'in-context', coeff: 1}, //2
-  {rateLimit: false, moment: 'in-context', coeff: 2}, //3
-  {rateLimit: false, moment: 'interruptible', coeff: 1}, //4
-  {rateLimit: false, moment: 'interruptible', coeff: 2}, //5
-  {rateLimit: true, moment: 'random', coeff: 1}, //6
-  {rateLimit: true, moment: 'random', coeff: 2}, //7
-  {rateLimit: true, moment: 'in-context', coeff: 1}, //8
-  {rateLimit: true, moment: 'in-contexg', coeff: 2}, //9
-  {rateLimit: true, moment: 'interruptible', coeff: 1}, //10
-  {rateLimit: true, moment: 'interruptible', coeff: 2} //11
+  {rateLimit: 'easy', moment: 'random', coeff: 1}, //0
+  {rateLimit: 'easy', moment: 'random', coeff: 2}, //1
+  {rateLimit: 'easy', moment: 'in-context', coeff: 1}, //2
+  {rateLimit: 'easy', moment: 'in-context', coeff: 2}, //3
+  {rateLimit: 'easy', moment: 'interruptible', coeff: 1}, //4
+  {rateLimit: 'easy', moment: 'interruptible', coeff: 2}, //5
+  {rateLimit: 'strict', moment: 'random', coeff: 1}, //6
+  {rateLimit: 'strict', moment: 'random', coeff: 2}, //7
+  {rateLimit: 'strict', moment: 'in-context', coeff: 1}, //8
+  {rateLimit: 'strict', moment: 'in-context', coeff: 2}, //9
+  {rateLimit: 'strict', moment: 'interruptible', coeff: 1}, //10
+  {rateLimit: 'strict', moment: 'interruptible', coeff: 2} //11
 ]
 
 const experiment = {
@@ -121,7 +121,7 @@ const stages = {
 
     prefs["delivery.mode.observ_only"] = true;
     let mode = expData.mode;
-    prefs["delivery.mode.rate"] = mode.rateLimit;
+    prefs["delivery.mode.rate_limit"] = mode.rateLimit;
     prefs["delivery.mode.moment"] = mode.moment;
     prefs["route.coefficient"] = String(mode.coeff);
 

@@ -81,10 +81,32 @@
       ]
     },
     {
-      "name": "delivery.mode.rate",
-      "type": "bool",
+      "name": "delivery.mode.rate_limit",
+      "type": "radio",
       "title": " ",
-      "value": false
+      "value": "easy",
+      "options": [
+        {
+          "value": "easy",
+          "label": "Easy"
+        },
+        {
+          "value": "strict",
+          "label": "Strict"
+        }
+      ]
+    },
+    {
+      "name" : "delivery.mode.silence_length.easy",
+      "type": "integer",
+      "title": "Length of the easy rate limit mode in ticks.",
+      "value": 1
+    },
+    {
+      "name" : "delivery.mode.silence_length.strict",
+      "type": "integer",
+      "title": "Length of the strict rate limit mode in ticks.",
+      "value": 10
     },
     {
       "name": "delivery.mode.observ_only",
@@ -108,7 +130,7 @@
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weigths based on which the user is randomly put into an experimental mode",
-      "value": "[0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0]"
+      "value": "[0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0]"
     },
     {
       "name": "experiment.name",

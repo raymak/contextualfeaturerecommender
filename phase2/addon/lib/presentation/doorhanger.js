@@ -129,7 +129,7 @@ function present(aRecommendation, cmdCallback){
 
   dhData.currentRec = {recomm: aRecommendation, 
                        state:{like: false, dontlike: false, count: 0, negFbChoice: null},
-                       report:{number: dhData.count || 1, startett: timer.elapsedTotalTime(), durationett: 0, primbtn: 0, secbtn: 0,
+                       report:{number: dhData.count || 1, startett: timer.elapsedTotalTime(), durationtt: 0, primbtn: 0, secbtn: 0,
                        closebtn: 0, autohide: 0, autofade: 0, esc: 0,
                        closeother: 0, responseclose: 0, firstclosereason: "", mouseenter: false,
                        totalopen: 0, firstopen: 0, rationaleopen: 0, infopage: 0}

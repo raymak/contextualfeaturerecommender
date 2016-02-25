@@ -26,7 +26,7 @@ const self = {
   },
   get delMode(){
     return {
-      rateLimit: prefs["delivery.mode.rate"],
+      rateLimit: prefs["delivery.mode.rate_limit"],
       moment: prefs["delivery.mode.moment"],
       observOnly: prefs["delivery.mode.observ_only"]
     }

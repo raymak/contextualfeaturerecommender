@@ -150,6 +150,14 @@ function logSelfDestruct(info){
   log("SELF_DESTRUCT", info);
 }
 
+function logError(info){
+  log("ERROR", info);
+}
+
+function logWarning(info){
+  log("WARNING", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
