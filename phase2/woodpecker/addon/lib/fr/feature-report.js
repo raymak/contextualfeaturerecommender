@@ -21,7 +21,7 @@ function init(){
     featData.report = {};
 
   //set up periodic logging
-  timer.tickCallback(log);
+  timer.onTick(log);
   
 }
 

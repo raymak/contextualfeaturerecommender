@@ -673,7 +673,7 @@ const deliverer = {
 
     f("delivery.mode.rate_limit");
     
-    timer.tickCallback(this.checkSchedule);
+    timer.onTick(this.checkSchedule);
 
   },
   deliver: function (/* recommendations */) {

@@ -32,8 +32,8 @@ const experiment = {
     if (!("stage" in expData))
       expData.stage = "obs1";
 
-    timer.tickCallback(debug.update);
-    timer.tickCallback(checkStage);
+    timer.onTick(debug.update);
+    timer.onTick(checkStage);
 
   },
   get info(){

@@ -71,7 +71,7 @@ const listener = {
       this.momentListeners[moment]();
 
 
-    timer.tickCallback(function(et){updateFrequencies()});
+    timer.onTick(function(et){updateFrequencies()});
 
     updateFrequencies();
 

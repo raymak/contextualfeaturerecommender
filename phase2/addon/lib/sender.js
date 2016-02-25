@@ -12,7 +12,7 @@ const ss = require("sdk/simple-storage");
 const {pathFor} = require('sdk/system');
 const path = require('sdk/fs/path');
 const file = require('sdk/io/file');
-const {tickCallback} = require('./timer');
+const {onTick} = require('./timer');
 const {prefs} = require("sdk/simple-prefs");
 const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
 Cu.import("resource://gre/modules/Services.jsm");
@@ -35,7 +35,7 @@ function init(){
   console.log("initializing sender");
 
 
-  tickCallback(function(et, ett){
+  onTick(function(et, ett){
     if (Math.floor(ett) % prefs["sender.resend_period"] == 0)
       flush();
   });

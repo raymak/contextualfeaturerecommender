@@ -172,7 +172,7 @@ const event = function(name){
   timerData.events = events;
 }
 
-const tickCallback = function(callback){
+const onTick = function(callback){
   tickHandlers.push(callback);
 }
 
@@ -373,7 +373,7 @@ exports.isSilent = isSilent;
 exports.silence = silence;
 exports.endSilence = endSilence;
 exports.randomTime = randomTime;
-exports.tickCallback = tickCallback;
+exports.onTick = onTick;
 exports.tToS = tToS;
 exports.sToT = sToT;
 exports.init = init;

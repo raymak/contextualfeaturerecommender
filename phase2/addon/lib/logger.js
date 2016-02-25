@@ -5,7 +5,7 @@
 
 "use strict";
 
-const {elapsedTime, elapsedTotalTime, tickCallback} = require("./timer");
+const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {merge} = require("sdk/util/object");
 const override  = function() merge.apply(null, arguments);
 const {PersistentObject} = require("./utils");
@@ -32,7 +32,7 @@ function init(){
 
   recentMsgs = {};
 
-  tickCallback(periodicLog);
+  onTick(periodicLog);
 
   debug.init();
 }
@@ -50,7 +50,8 @@ function log(type, attrs){
     is_test: self.isTest,
     ts: Date.now(),
     et: elapsedTime(),
-    ett: elapsedTotalTime(),  
+    ett: elapsedTotalTime(),
+    localeTime: (new Date(Date.now())).toLocaleString(),
     addon_version: addonSelf.version,
     locale: self.locale,
     update_channel: self.updateChannel
@@ -158,6 +159,14 @@ function logWarning(info){
   log("WARNING", info);
 }
 
+function logSilenceEnd(info){
+  log("SILENCE_END", info);
+}
+
+function logSilenceStart(info){
+  log("SILENCE_START", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -210,3 +219,5 @@ exports.logExpStageAdvance = logExpStageAdvance;
 exports.logMomentDelivery = logMomentDelivery;
 exports.logMomentReport = logMomentReport;
 exports.logSelfDestruct = logSelfDestruct;
+exports.logSilenceEnd = logSilenceEnd;
+exports.logSilenceStart = logSilenceStart;

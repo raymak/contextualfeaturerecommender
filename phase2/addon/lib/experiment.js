@@ -52,15 +52,15 @@ const experiment = {
     if (!("stage" in expData))
       expData.stage = "obs1";
 
-    timer.tickCallback(debug.update);
-    timer.tickCallback(checkStage);
+    timer.onTick(debug.update);
+    timer.onTick(checkStage);
   },
   get info(){
     const name = prefs["experiment.name"];
 
     let stTimeMs = startTimeMs();
     return {startTimeMs: stTimeMs,
-            localeTime: (new Date(Number(stTimeMs))).toLocaleString(),  
+            startLocaleTime: (new Date(Number(stTimeMs))).toLocaleString(),  
             name: name, stage: expData.stage,
             mode: expData.mode};
   },

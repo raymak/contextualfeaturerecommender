@@ -38,7 +38,7 @@ const init = function(){
   if (!timerData.events)
     timerData.events = [];
 
-  elapsedTotalTime();
+  silenceLeft(); //to update the silence status;
 
   watchActivity();
 
@@ -149,18 +149,14 @@ const tick = function(){
     return;
   }
 
-  const SILENCE_LENGTH_TICK = prefs["timer.silence_length_s"] / prefs["timer.tick_length_s"];
-
   let et = timerData.elapsedTime + 1;
 
   timerData.elapsedTime = et;
   console.log("elapsed time: " + et + " ticks = " + et*prefs["timer.tick_length_s"]/60 + " minutes");
 
-  if (timerData.silenceStart != -1 && silenceLeft() <= 0)
-    endSilence();
-
+  let ett = elapsedTotalTime();
   tickHandlers.forEach(function(callback){
-    callback(et, elapsedTotalTime());
+    callback(et, ett);
   });
 
   debug.update();
@@ -172,7 +168,7 @@ const event = function(name){
   timerData.events = events;
 }
 
-const tickCallback = function(callback){
+const onTick = function(callback){
   tickHandlers.push(callback);
 }
 
@@ -190,10 +186,14 @@ const elapsedTime = function(){
 }
 
 const silence = function(){
-  let time = elapsedTotalTime();
-  timerData.silenceStart = time;
+  let ett = elapsedTotalTime();
+  timerData.silenceStart = ett;
+
   console.log("silence started at " + time + " ticks");
-  console.log("silence ends at " + Number(time + silence_length_tick()) + " ticks");
+  console.log("silence is expected to end at " + Number(ett + silence_length_tick()) + " ticks");
+
+  let info = {startett: ett};
+  require('./logger').logSilenceStart(info);
 }
 
 const silenceElapsed = function(){
@@ -203,22 +203,33 @@ const silenceElapsed = function(){
 const silenceLeft = function(){
   let ett = elapsedTotalTime();
 
-  if (!isSilent())
+  if (timerData.silenceStart == -1)
     return 0;
 
-  return (silence_length_tick() - ett + timerData.silenceStart);
+  let left = silence_length_tick() - ett + timerData.silenceStart;
+  
+  //updating silence status
+  if (left <= 0)
+    endSilence();
 }
 
 const endSilence = function(){
+  let start = timerData.silenceStart;
+
   timerData.silenceStart = -1;
-  let time = elapsedTotalTime();
-  console.log("silence ended at " + time + " ticks");
-  return time;
+  let ett = elapsedTotalTime();
+
+  console.log("silence ended at " + ett + " ticks");
+
+  let info = {startett: start, endett: ett, effectiveLength: ett-start};
+
+  require('./logger').logSilenceEnd(info);
+
+  return ett;
 }
 
 const isSilent = function(){
-  let ett = elapsedTotalTime();
-  return (timerData.silenceStart != -1 && (ett - timerData.silenceStart <= silence_length_tick()));
+  return (silenceLeft() > 0);
 }
 
 const isActive = function(){
@@ -251,7 +262,7 @@ const randomTime = function(start, end){
 }
 
 const silence_length_tick = function(){
-  return prefs["timer.silence_length_s"] / prefs["timer.tick_length_s"];
+  return sToT(prefs["timer.silence_length_s"]);
 }
 
 const tToS = function(t){
@@ -259,8 +270,7 @@ const tToS = function(t){
 }
 
 const sToT = function(s){
-  return s/prefs
-  ["timer.tick_length_s"];;
+  return s/prefs["timer.tick_length_s"];
 }
 
 const debug = {
@@ -382,7 +392,7 @@ exports.isSilent = isSilent;
 exports.silence = silence;
 exports.endSilence = endSilence;
 exports.randomTime = randomTime;
-exports.tickCallback = tickCallback;
+exports.onTick = onTick;
 exports.onUserActive = onUserActive;
 exports.tToS = tToS;
 exports.sToT = sToT;
