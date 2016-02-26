@@ -51,18 +51,10 @@ function firstRun(){
 function installRun(){
   let clean = false;
 
-  //static args have precedence over default preferences
-  if (system.staticArgs && system.staticArgs["clean_install"])
-    clean = true;
-  else
-    if (system.staticArgs && system.staticArgs["clean_install"] === false)
-      clean = false;
-    else
-      clean = prefs["clean_install"];
+  clean = !!prefs["clean_install"];
 
   if (clean)
     require('./utils').cleanUp({reset: true});
-
 
   const isFirstRun = !prefs["isInitialized"];
 

@@ -98,7 +98,7 @@ const watchActivity = function(){
               activity.minor_active_s += 1;
               activity.active_s += 1;
               debug.update();
-              
+
             }, 1000);
           }
           activity.active = true;
@@ -190,8 +190,11 @@ const silence = function(){
   let ett = elapsedTotalTime();
   timerData.silenceStart = ett;
 
-  console.log("silence started at " + time + " ticks");
+  console.log("silence started at " + ett + " ticks");
   console.log("silence is expected to end at " + Number(ett + silence_length_tick()) + " ticks");
+
+  silenceLeft(); //to update all variables
+  debug.update();
 
   let info = {startett: ett};
   require('./logger').logSilenceStart(info);
@@ -212,6 +215,8 @@ const silenceLeft = function(){
   //updating silence status
   if (left <= 0)
     endSilence();
+
+  return left;
 }
 
 const endSilence = function(){
@@ -288,9 +293,8 @@ const debug = {
       isSilent: isSilent(),
       silenceStart: timerData.silenceStart,
       silenceEnd: isSilent()? timerData.silenceStart + silence_length_tick() : 0,
-      silenceElapsed: elapsedTime() - silence,
-      silenceLeft: silenceLeft(),
-      silenceElapsed: silenceElapsed()
+      silenceElapsed: silenceElapsed(),
+      silenceLeft: silenceLeft()
     }
     dumpUpdateObject(silenceObj, {list: "Silence Status"});
   },

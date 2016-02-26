@@ -41,14 +41,12 @@ const self = {
     }
   },
   get isTest(){
+    return false;
 
-    if (system.staticArgs && ("isTest" in system.staticArgs))
-      prefs["isTest"] =  system.staticArgs.isTest;
-    else
-      if (!( "isTest" in prefs)){
-          // throw Error("isTest state not specified properly. use --static-args to define set .isTest to either \"true\" or \"false\"");
-          prefs["isTest"] = true;  //true by default
-      }
+    if (!("isTest" in prefs)){
+        // throw Error("isTest state not specified properly. use --static-args to define set .isTest to either \"true\" or \"false\"");
+        prefs["isTest"] = true;  //true by default
+    }
           
     return prefs["isTest"];
   },

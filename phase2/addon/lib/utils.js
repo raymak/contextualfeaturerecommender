@@ -178,6 +178,7 @@ exports.isHostVideo = function(host){
 
 // returns whether the active tab is one of the well known video websites
 // and is playing sound
+// use the attribute 'muted' to check if it is muted
 exports.isVideoPlaying = function(){
 
   let tabs = require('sdk/tabs');

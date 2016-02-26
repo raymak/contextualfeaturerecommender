@@ -38,12 +38,9 @@ const experiment = {
 
     expData = PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update});
 
-    if (!expData.mode){
-      let modeCode = require("./utils").weightedRandomInt(JSON.parse(prefs["experiment.default_delMode_weights"]));
-      expData.mode = modes[modeCode];
-      console.log("assigned experimental mode: ", expData.mode, " code: ", modeCode);
-    }
-  
+    if (!expData.mode)
+      setMode();
+
     debug.init();
 
     if (!("stageForced" in expData))
@@ -52,8 +49,8 @@ const experiment = {
     if (!("stage" in expData))
       expData.stage = "obs1";
 
-    timer.onTick(debug.update);
     timer.onTick(checkStage);
+    timer.onTick(debug.update);
   },
   get info(){
     const name = prefs["experiment.name"];
@@ -226,13 +223,13 @@ const debug = {
 }
 
 function setMode(weights){
-  weights = weights || system.staticArgs.delMode_weights || JSON.parse(prefs["experiment.default_delMode_weights"]);
-  // let modeint = require("./utils").weightedRandomInt(weights);
-  // let mode = arms.arms[armint];
-  // prefs["config.armnumber"] = armint;
-  // prefs["config.arm"] = JSON.stringify(arm);
-  // return arm;
-  }
+  weights = weights || JSON.parse(prefs["experiment.default_delMode_weights"]);
+  console.log(weights);
+
+  let modeCode = require("./utils").weightedRandomInt(JSON.parse(prefs["experiment.default_delMode_weights"]));
+  expData.mode = modes[modeCode];
+  console.log("assigned experimental mode: ", expData.mode, " code: ", modeCode);
+}
 
 // exports.expData = expData;
 module.exports = experiment;
