@@ -46,7 +46,7 @@
       "name": "timer.random_interval_length_tick",
       "type": "integer",
       "title": "Maximum length of the random time interval",
-      "value": 20
+      "value": 2
     },
     {
       "name": "timer.inactive_threshold_s",
@@ -130,7 +130,7 @@
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weights based on which the user is randomly put into an experimental mode",
-      "value": "[0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0]"
+      "value": "[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
     },
     {
       "name": "experiment.name",

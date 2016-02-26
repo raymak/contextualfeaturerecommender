@@ -672,7 +672,7 @@ const deliverer = {
     unload(function() sp.removeListener("delivery.mode.rate_limit", f));
 
     f("delivery.mode.rate_limit");
-    
+
     timer.onTick(this.checkSchedule);
 
   },
@@ -700,19 +700,22 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
-    if (self.delMode.observOnly || (timer.isSilent() && self.delMode.rateLimit)){
+    if (self.delMode.observOnly || (timer.isSilent())){
       if (self.delMode.observOnly)
         console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
       else
         console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
 
-
       if (self.delMode.moment === "random"){
         console.log("rescheduling delivery time: id -> " + aRecommendation.id);
-        this.rescheduleDelivery(aRecommendation);
-        recommendations.update(aRecommendation);
+        this.rescheduleDelivery(aRecommendation, 'silence or observation-only period');
       }
       return;
+    }
+
+    if (self.delMode.moment === "random" && !timer.isCertainlyActive()){
+        console.log("rescheduling delivery time: id -> " + aRecommendation.id);
+        this.rescheduleDelivery(aRecommendation, 'uncertain user activity status');
     }
 
     console.log("delivering " + aRecommendation.id);
@@ -725,28 +728,41 @@ const deliverer = {
     timer.silence();
 
   },
-  checkSchedule: function(time, totalTime){
-    let recomms = recommendations.getByRouteIndex('delivContext', '*', {status: 'outstanding'});
+  checkSchedule: function(et, ett){
+    let recomms = recommendations.getByRouteIndex('delivContext', '*', {status: 'scheduled'});
 
     if (recomms.length === 0)
       return;
     
+    // delivering the scheduled recommendations
     deliverer.deliver.apply(deliverer, recomms.filter(function(aRecommendation){ 
-      return aRecommendation.deliveryTime && (aRecommendation.deliveryTime <= time);
+      return aRecommendation.deliveryTime && (aRecommendation.deliveryTime === Math.floor(et));
     }));
+
+    // rescheduling the missed recommendations
+    // recomms.filter(function(aRecommendation){ 
+    //   return aRecommendation.deliveryTime && (aRecommendation.deliveryTime < Math.floor(et));
+    // }).forEach(function(aRecommendation) rescheduleDelivery(aRecommendation), 'missing the schedule');
+
   },
   scheduleDelivery: function(aRecommendation){
-    let time = timer.elapsedTime();
-    let deliveryTime = timer.randomTime(time, time + prefs["random_interval_length_tick"]);
+    let et = timer.elapsedTime();
+  
+    let deliveryTime = timer.randomTime(et, et + prefs["timer.random_interval_length_tick"]);
+
     aRecommendation.deliveryTime = deliveryTime;
+
     aRecommendation.status = "scheduled";
+    recommendations.update(aRecommendation);
 
     console.log("recommendation delivery scheduled: id -> " + aRecommendation.id + ", time -> " + deliveryTime + " ticks");
   },
-  rescheduleDelivery: function(aRecommendation){
+  rescheduleDelivery: function(aRecommendation, reason){
     this.scheduleDelivery(aRecommendation);
     
-    console.log("recommendation delivery rescheduled: id -> " + aRecommendation.id + ", time -> " + aRecommendation.deliveryTime + " ticks");
+    console.log("recommendation delivery rescheduled: id -> " + aRecommendation.id +
+                ", reason: " + reason + 
+                ", time -> " + aRecommendation.deliveryTime + " ticks");
   }
 };
 
@@ -754,19 +770,20 @@ const deliverer = {
 listener.behavior = function(route){
   console.log("behavior -> route: " + route);
 
+  route = Route(route); // converting to route object
+
+  let behaviorInfo =  function(aRecommendation){ 
+    return {id: aRecommendation.id, count: route.c, num: route.n, "if": route.if};
+  }
+
   //logging loose matches
   let recomms = recommendations.getByRouteIndex('trigBehavior', route, {looseMatch: true});
   if (recomms.length === 0)
     return;
 
   recomms.forEach(function(aRecommendation){
-
-    let count = Route(route).c;
-    let num = Route(route).n;
-    let invf = Route(route)["if"];
-    if (utils.isPowerOf2(count) || utils.isPowerOf2(num)){
-      let behaviorInfo = {id: aRecommendation.id, count: count, num: num, "if": invf};
-      logger.logLooseBehavior(behaviorInfo);
+    if (utils.isPowerOf2(route.c) || utils.isPowerOf2(route.n)){
+      logger.logLooseBehavior(behaviorInfo(aRecommendation));
     }
   });
 
@@ -779,24 +796,17 @@ listener.behavior = function(route){
 
   recomms.forEach(function(aRecommendation){
     aRecommendation.status = 'outstanding';
+    recommendations.update(aRecommendation);
 
     if (random){
       deliverer.scheduleDelivery(aRecommendation);
     }
 
-    recommendations.update(aRecommendation);
-
-    let count = Route(route).c;
-    let num = Route(route).n;
-    let invf = Route(route)["if"];
-    let behaviorInfo = {id: aRecommendation.id, count: count, num: num, "if": invf};
-    logger.logBehavior(behaviorInfo);
-    });
+    logger.logBehavior(behaviorInfo(aRecommendation));
+  });
 };
 
 listener.context = function(route){
-
-  if (self.delMode.observOnly) return;
 
   let mt = self.delMode.moment;
   if ((mt === 'interruptible' && route != '*') 
@@ -807,8 +817,7 @@ listener.context = function(route){
   console.log("context -> route: " + route);
  
   let recomms = recommendations.getByRouteIndex('delivContext', route, {status: 'outstanding'});
-  //TODO: use pattern matching 
-  // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
+
   if (recomms.length === 0)
     return;
 
