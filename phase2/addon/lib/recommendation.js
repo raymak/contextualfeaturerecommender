@@ -111,7 +111,6 @@ const recSet = {
   },
   getByRouteIndex: function(indexTable, route, options){
     let that = this;
-    console.log(route);
 
     let status = options && options.status;
     let looseMatch = options && options.looseMatch;
@@ -131,7 +130,7 @@ const recSet = {
       route = Route(route);
 
     if (this[indexTable][route.header]){
-      console.log(this[indexTable][route.header]);
+      // console.log(this[indexTable][route.header]);
       let recomms = this[indexTable][route.header].map(function(id){
         return that[id];
       }).filter(function(aRecommendation){

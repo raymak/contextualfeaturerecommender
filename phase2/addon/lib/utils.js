@@ -34,7 +34,7 @@ exports.partial = function(fn /*, arguments */) {
 };
 
 exports.extractOpts = function(str){
-   let obj = {};
+  let obj = {};
 
   let headerInd = str.indexOf(" -");
   if (headerInd < 0) headerInd = str.length;

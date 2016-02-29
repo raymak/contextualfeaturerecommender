@@ -716,6 +716,8 @@ const deliverer = {
     if (self.delMode.moment === "random" && !timer.isCertainlyActive()){
         console.log("rescheduling delivery time: id -> " + aRecommendation.id);
         this.rescheduleDelivery(aRecommendation, 'uncertain user activity status');
+
+        return;
     }
 
     console.log("delivering " + aRecommendation.id);
@@ -740,9 +742,10 @@ const deliverer = {
     }));
 
     // rescheduling the missed recommendations
-    // recomms.filter(function(aRecommendation){ 
-    //   return aRecommendation.deliveryTime && (aRecommendation.deliveryTime < Math.floor(et));
-    // }).forEach(function(aRecommendation) rescheduleDelivery(aRecommendation), 'missing the schedule');
+    // this should happpen only when 2 recommendations are scheduled to be delivered at the exact same active tick time
+    recomms.filter(function(aRecommendation){ 
+      return aRecommendation.deliveryTime && (aRecommendation.deliveryTime < Math.floor(et));
+    }).forEach(function(aRecommendation) deliverer.rescheduleDelivery(aRecommendation, 'missing the schedule'));
 
   },
   scheduleDelivery: function(aRecommendation){
@@ -756,6 +759,11 @@ const deliverer = {
     recommendations.update(aRecommendation);
 
     console.log("recommendation delivery scheduled: id -> " + aRecommendation.id + ", time -> " + deliveryTime + " ticks");
+
+    if (deliveryTime == et){
+      deliverer.deliver(aRecommendation);
+      console.log("immediate scheduled delivery")
+    }
   },
   rescheduleDelivery: function(aRecommendation, reason){
     this.scheduleDelivery(aRecommendation);
@@ -908,7 +916,6 @@ listener.command = function(cmd){
             isPrivate: cmdObj.private
           });
       else{
-        console.log(cmdObj.l);
         tabs.open(cmdObj.l);
       }
 
@@ -1478,18 +1485,12 @@ listener.multipleRoute = function(baseEvent, options){
 
       eventData[baseRoute] = data;
 
-      this.options.route = [baseRoute, "-c", String(data.count)].join(" ");
+      this.options.route = [baseRoute,
+                            "-c", String(data.count),
+                            "-if", String(data.ifreq),
+                            "-f", String(data.freq)].join(" ");
+
       let route = this.options.route;
-
-      listener.dispatchRoute(route);
-
-      this.options.route = [baseRoute, "-f", String(data.freq)].join(" ");
-      route = this.options.route;
-
-      listener.dispatchRoute(route);
-
-      this.options.route = [baseRoute, "-if", String(data.ifreq)].join(" ");
-      route = this.options.route;
 
       listener.dispatchRoute(route);
       

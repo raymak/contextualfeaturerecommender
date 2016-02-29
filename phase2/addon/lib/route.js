@@ -8,29 +8,7 @@
 const {prefs} = require("sdk/simple-prefs");
 
 function Route(routeStr){
-  let rRoute = {};
-
-  let headerInd = routeStr.indexOf(" -");
-  if (headerInd < 0) headerInd = routeStr.length;
-  let headerExp = routeStr.slice(0, headerInd);
-  let keysExp = routeStr.slice(headerInd+1);
-
-  rRoute.header = headerExp;
-
-  let i = 0;
-  let keysArr = keysExp.split(" ");
-
-  if (keysExp.length > 0)
-    while(i < keysArr.length){
-      if (keysArr[i+1] && keysArr[i+1].charAt(0) !== "-"){
-        rRoute[keysArr[i].slice(1)] = keysArr[i+1];
-        i = i + 2;
-      }
-      else {
-        rRoute[keysArr[i].slice(1)] = true;
-        i = i + 1;
-      }
-    }
+  let rRoute = require('./utils').extractOpts(routeStr);
 
   return rRoute;
 }
@@ -72,24 +50,26 @@ const str = function(){
   return str;
 }
 
-const matches = function(route, looseMatch){
+const matches = function(inRoute, looseMatch){
   looseMatch = !!looseMatch; //false by default
 
-  if (Object.keys(this).length !== Object.keys(route).length) 
+  let defRoute = this;
+
+  if (Object.keys(defRoute).length > Object.keys(inRoute).length) 
     return false;
 
-  for (let key in this){
-    if (typeof this[key] === "function" || this[key] === route[key]) continue;
+  for (let key in defRoute){
+    if (!(key in inRoute))
+      return false;
+    
+    if (typeof defRoute[key] === "function" 
+        || defRoute[key] === inRoute[key]) continue;
 
-    if (this[key].charAt(0) === ">"){
-      if (Number(this[key].slice(1)) < Number(route[key])) continue;
-      if (looseMatch) continue;
-    }
+    if (defRoute[key].charAt(0) === ">")
+      if (looseMatch || Number(defRoute[key].slice(1)) < Number(inRoute[key])) continue;
 
-    if (this[key].charAt(0) === "<"){
-      if (Number(this[key].slice(1)) > Number(route[key])) continue;
-      if (looseMatch) continue;
-    }
+    if (defRoute[key].charAt(0) === "<")
+      if (looseMatch || Number(defRoute[key].slice(1)) > Number(inRoute[key]) || looseMatch) continue;
 
     return false;
   }

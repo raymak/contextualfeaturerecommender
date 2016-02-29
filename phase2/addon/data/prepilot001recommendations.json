@@ -2,7 +2,7 @@
   {
     "id": "newTabShortcut",
     "priority": 1,
-    "trigBehavior": "chrome click tabbrowser-tabs -anonid tabs-newtab-button -c >2",
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid tabs-newtab-button -c >2 -if <0.1",
     "delivContext": "chrome click tabbrowser-tabs -anonid tabs-newtab-button",
     "featUseBehavior": "hotkey t -cmd -c >1",
     "presentationData": {

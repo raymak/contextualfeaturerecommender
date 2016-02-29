@@ -264,7 +264,7 @@ const isCertainlyActive = function(){
 }
 
 const randomTime = function(start, end){
-  return Math.floor(Math.random()*(end-start) + start + 1);
+  return Math.floor(Math.random()*(end-start) + start);
 }
 
 const silence_length_tick = function(){
