@@ -1116,7 +1116,7 @@ listener.listenForTabs = function(callback, options){
       if (tabs[i].isPinned)
         c++;
 
-    return c
+    return c;
   }
 
   let windowTracker = new WindowTracker({
@@ -1133,11 +1133,33 @@ listener.listenForTabs = function(callback, options){
       unload(function(){tabBrowser.tabContainer.removeEventListener("TabPinned", f)});
 
       f = function(e){
-        reason = "pinned";
+        reason = "unpinned";
         callback(reason, {number: countPinnedTabs()});
       };
       tabBrowser.tabContainer.addEventListener("TabUnpinned", f);
       unload(function(){tabBrowser.tabContainer.removeEventListener("TabUnpinned", f)});
+
+      // new-tab-button
+      // this would ideally be a union of 2 chrome events, but you currently
+      // cannot take the union of two routes in 1 route
+      
+      f = function(e){
+        reason = "newtab-button";
+        callback(reason);
+      }
+
+      let button =  window.document
+      .getAnonymousElementByAttribute(
+        window.document.getElementById("tabbrowser-tabs")
+        , "anonid", "tabs-newtab-button");
+
+      button.addEventListener("click", f);
+      unload(function() button.removeEventListener("click", f));
+
+      button = window.document.getElementById("new-tab-button");
+      button.addEventListener("click", f);
+      unload(function() button.removeEventListener("click", f));
+
     }
   });
 
@@ -1156,6 +1178,11 @@ listener.listenForTabs = function(callback, options){
       // if (e.currentTarget.tabIndex < 8)
       //   callback(reason, {position: "1-8"});
     };
+
+  tabs.on('activate', function(tab){
+    reason = "activated";
+    callback(reason);
+  });
 
   tabs.on('open', function(tab){
     reason = "opened";
@@ -1179,11 +1206,6 @@ listener.listenForTabs = function(callback, options){
 
       callback("pinned", {number: countPinnedTabs()}); //in order to capture initial pinned tabs/ creates redundancy
     }
-
-    tabs.on('activate', function(tab){
-      reason = "activated";
-      callback(reason);
-    });
   }
 }
 
