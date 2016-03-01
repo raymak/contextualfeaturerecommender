@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+
 .list-label {
 	color: red;
 	text-transform: capitalize;
@@ -43,5 +44,7 @@
 	width: 700px;
 	resize: none;
 	font-size: 15px;
+	max-height: 10em;
+	overflow: auto;
 
 }

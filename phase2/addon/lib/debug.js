@@ -190,7 +190,7 @@ function processCommand(worker, cmd){
       out = h(cmd);
       if (out !== undefined){
         handled = true;
-        worker.port.emit("cmdOut", out);
+        worker.port.emit("cmdOut", out, cmd);
       }
     }
     else 

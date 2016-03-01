@@ -93,8 +93,12 @@ function submitCmd(){
   self.port.emit("cmd", $("#cmdText").val());
 }
 
-function cmdOut(out){
-  $("#cmdOut").html($("#cmdOut").html()+ "> " + out + "<br>" );
+function cmdOut(out, cmd){
+  $("#cmdOut").html(">> " + "<span class='outcmd'>"+ cmd + "</span>" + "<br>"  
+                    + " "+ "<span class='outout'>"+ out + "</span>"+ "<br>" + $("#cmdOut").html());
+
+  window.location.href = "#cmdOut";
+  $("#cmdText").focus();
 }
 
 self.port.on("cmdOut", cmdOut);
