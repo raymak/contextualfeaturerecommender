@@ -1,7 +1,34 @@
 [
   {
+    "id": "welcome",
+    "priority": 1,
+    "trigBehavior": "",
+    "delivContext": "",
+    "featUseBehavior": "",
+    "presentationData": {
+      "*": {
+        "message": "Awesome tips that are just for you... coming up!",
+        "title": "Welcome to Mozlando!",
+        "rationale": "You are awesome.",
+        "icon": "images/icons/mozlando.png"
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      },
+      "splitpage": {}
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "info"
+      }
+    }
+  },
+  {
     "id": "newTabShortcut",
-    "priority": 5,
+    "priority": 1,
     "trigBehavior": "tabs newtab-button -c >2 -if <5",
     "delivContext": "tabs newtab-button",
     "featUseBehavior": "hotkey t -cmd -c >1",
@@ -26,7 +53,7 @@
   },
   {
     "id": "closeTabShortcut",
-    "priority": 4,
+    "priority": 1,
     "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c >5 -if <10",
     "delivContext": "chrome click tabbrowser-tabs -anonid close-button",
     "featUseBehavior": "hotkey w -cmd -c >1",
@@ -51,7 +78,7 @@
   },
   {
     "id": "reloadShortcut",
-    "priority": 3,
+    "priority": 1,
     "trigBehavior": "chrome click urlbar-reload-button -c >2 -if <30",
     "delivContext": "chrome click urlbar-reload-button",
     "featUseBehavior": "hotkey r -cmd -c >1",
@@ -101,7 +128,7 @@
   },
   {
     "id": "downThemAll",
-    "priority": 2,
+    "priority": 1,
     "trigBehavior": "download added -c >4",
     "delivContext": "download",
     "featUseBehavior": "addon has {DDC359D1-844A-42a7-9AA1-88A850A938A8}",

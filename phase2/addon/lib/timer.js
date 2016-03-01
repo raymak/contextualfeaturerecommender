@@ -319,7 +319,7 @@ const debug = {
         return isSilent();
       break;
       case "endsilence":
-        return console.log("silence ended at " + endSilence() + " ticks");
+        return "silence ended at " + endSilence() + " ticks";
       break;
       case "inactive":
         deactivate();

@@ -46,7 +46,7 @@
       "name": "timer.random_interval_length_tick",
       "type": "integer",
       "title": "Maximum length of the random time interval",
-      "value": 2
+      "value": 10
     },
     {
       "name": "timer.inactive_threshold_s",
@@ -100,13 +100,13 @@
       "name" : "delivery.mode.silence_length.easy",
       "type": "integer",
       "title": "Length of the easy rate limit mode in ticks.",
-      "value": 1
+      "value": 10
     },
     {
       "name" : "delivery.mode.silence_length.strict",
       "type": "integer",
       "title": "Length of the strict rate limit mode in ticks.",
-      "value": 10
+      "value": 60
     },
     {
       "name": "delivery.mode.observ_only",
@@ -124,31 +124,31 @@
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
-      "value": 10
+      "value": 20
     },
     {
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weights based on which the user is randomly put into an experimental mode",
-      "value": "[0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
+      "value": "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]"
     },
     {
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot004home"
+      "value": "prepilot005home"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 45
+      "value": 60
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 300
+      "value": 360
     },
     {
       "name": "experiment.obs2_length_tick",
@@ -190,7 +190,7 @@
       "name": "sender.queue_quota",
       "type": "integer",
       "title": "The number of messages that can be stored in the queue before they start to drop.",
-      "value": 75
+      "value": 50
     },
     {
       "name": "sender.send_to_remote",
@@ -202,7 +202,8 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
+
    }
   ]
 }

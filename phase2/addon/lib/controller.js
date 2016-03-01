@@ -215,6 +215,10 @@ const listener = {
         listener.context(this.options.route);
       };
 
+      let multipleInterruptibleMomentEvent = that.multipleRoute(interruptibleMomentEvent);
+
+      interruptibleMomentEvent.postEvents.push(multipleInterruptibleMomentEvent);
+
       interruptibleMomentEvent.wake();
     });
 
@@ -684,11 +688,11 @@ const deliverer = {
       return;
 
     if (recomms.length > 1)
-      console.log("warning: attempted to deliver multiple recommendations at the same time.");
+      console.log("warning: attempted to deliver multiple recommendations at the same time: " + recomms.length);
 
     //finding the recommendation with the highest priority
 
-    let minPriority = recomms[0];
+    let minPriority = recomms[0].priority;
     let minRec = recomms[0];
 
     recomms.forEach(function(aRecommendation){
@@ -1216,8 +1220,8 @@ listener.listenForDownloads = function(callback, options){
       callback('added');
     },
     onDownloadChanged: function(download) {
-      console.log("Download changed");
-      callback('changed');
+      // console.log("Download changed");
+      // callback('changed');
     },
     onDownloadRemoved: function(download) {
      console.log("Download removed");
