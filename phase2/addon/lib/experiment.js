@@ -31,6 +31,21 @@ const modes = [
   {rateLimit: 'strict', moment: 'interruptible', coeff: 2} //11
 ]
 
+const quickCodes = {
+  "er1": 0,
+  "er2": 1,
+  "ec1": 2,
+  "ec2": 3,
+  "ei1": 4,
+  "ei2": 5,
+  "sr1": 6,
+  "sr2": 7,
+  "sc1": 8,
+  "sc2": 9,
+  "si1": 10,
+  "si2": 11
+}
+
 const experiment = {
   init: function(){
 
@@ -122,10 +137,14 @@ const stages = {
     prefs["delivery.mode.moment"] = mode.moment;
     prefs["route.coefficient"] = String(mode.coeff);
 
+    console.log("obs1 stage started.");
+
   },
   intervention: function(){
     prefs["delivery.mode.observ_only"] = false;
     console.log("intervention stage started.");
+
+    require("./controller").welcome();
   },
   obs2: function(){
     prefs["delivery.mode.observ_only"] = true;
@@ -227,6 +246,12 @@ function setMode(weights){
   console.log(weights);
 
   let modeCode = require("./utils").weightedRandomInt(JSON.parse(prefs["experiment.default_delMode_weights"]));
+  
+  if (prefs["experiment.override_mode"]){
+    console.log("experiment mode overrided");
+    modeCode = quickCodes[prefs["experiment.override_mode"]];
+  }
+
   expData.mode = modes[modeCode];
   console.log("assigned experimental mode: ", expData.mode, " code: ", modeCode);
 }

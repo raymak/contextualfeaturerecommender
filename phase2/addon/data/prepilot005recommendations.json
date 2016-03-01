@@ -1,16 +1,15 @@
 [
   {
     "id": "welcome",
-    "priority": 1,
+    "priority": 0,
     "trigBehavior": "",
     "delivContext": "",
     "featUseBehavior": "",
     "presentationData": {
       "*": {
-        "message": "Awesome tips that are just for you... coming up!",
-        "title": "Welcome to Mozlando!",
-        "rationale": "You are awesome.",
-        "icon": "images/icons/mozlando.png"
+        "message": "Wait to see awesome Firefox tips that are just for you.",
+        "title": "Welcome to Feature Recommender!",
+        "rationale": "You are awesome."
       },
       "log": {},
       "desktopnotification": {},
