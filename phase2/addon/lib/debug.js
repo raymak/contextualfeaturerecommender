@@ -22,6 +22,8 @@ let cmdHandlers = [];
 function init(){
   if (!isEnabled()) return;
 
+  console.time("debug init");
+
   console.log("initializing debug")
   
   // TODO: proper way to register about: pages
@@ -56,6 +58,8 @@ function init(){
     }
   });
 
+  console.timeEnd("debug init");
+
 }
 
 function isEnabled(){
@@ -82,6 +86,8 @@ const tryParseJSON  = function(jsonString){
 
 function dumpUpdateObject(obj, options){
 
+  if (!isEnabled) return;
+  
   let recs = {};
   for (let k in obj){
     if (typeof obj[k] === "object"){
@@ -207,6 +213,9 @@ function processCommand(worker, cmd){
 }
 
 function handleCmd(handler){
+
+  if (!isEnabled()) return;
+
   for (let h in cmdHandlers){
     if (handler === cmdHandlers[h])
       return;

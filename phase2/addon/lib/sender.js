@@ -10,7 +10,6 @@ const unload = require("sdk/system/unload").when;
 const {Cu, Cc, Ci} = require("chrome");
 const ss = require("sdk/simple-storage");
 const {pathFor} = require('sdk/system');
-const path = require('sdk/fs/path');
 const file = require('sdk/io/file');
 const {onTick} = require('./timer');
 const {prefs} = require("sdk/simple-prefs");
@@ -30,7 +29,6 @@ const observerService = Cc["@mozilla.org/observer-service;1"]
 
 
 function init(){
-
 
   console.log("initializing sender");
 

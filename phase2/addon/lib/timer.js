@@ -28,6 +28,8 @@ let tickInterval;
 
 const init = function(){
   console.log("initializing timer");
+
+  console.time("timer init");
   
   if (!timerData.elapsedTime)
     timerData.elapsedTime = 0;
@@ -60,6 +62,9 @@ const init = function(){
 
   debug.init();
   debug.update();
+
+  console.timeEnd("timer init");
+
 }
 
 // updates the ett preference records in addition to returning it

@@ -5,10 +5,9 @@
 
 "use strict";
 
+
 const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
-const {ToggleButton} = require("sdk/ui/button/toggle");
-const {Panel} = require("../panel");
 const {setTimeout, clearTimeout} = require("sdk/timers");
 const {PersistentObject, wordCount, weightedRandomInt} = require("../utils");
 const {extractPresentationData, extractResponseCommandMap} = require("../recommendation");
@@ -17,12 +16,12 @@ const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 const {merge} = require("sdk/util/object");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("../debug");
-const {logDhReport} = require("../logger");
+const {logDhReport, logDhPresent} = require("../logger");
 const timer = require("../timer");
 const self = require("../self");
-const logger = require("../logger");
 const featReport = require("../feature-report");
 const unload = require("sdk/system/unload").when;
+
 
 const dhDataAddress = "presentation.doorhanger.data";
 
@@ -40,6 +39,8 @@ let closedwithreason;
 function init(){
   console.log("initializing doorhanger");
   // panel = initPanel(button);
+  
+  console.time("doorhanger init");
 
   dhData = PersistentObject("simplePref", {address: dhDataAddress, updateListener: debug.update});
 
@@ -65,10 +66,13 @@ function init(){
     updateEntry();
   }
 
+  console.timeEnd("doorhanger init");
+
+
 }
 
 function initPanel(button){
-  let nPanel =  Panel({
+  let nPanel =  require("../panel").Panel({
     autosize: true,
     autohide: false,
     focus: false,
@@ -95,7 +99,7 @@ function initPanel(button){
 }
 
 function initButton(clickHandler){
-  return ToggleButton({
+  return require("sdk/ui/button/toggle").ToggleButton({
       id: "dh-button",
       label: "Feature Recommender",
       icon: {
@@ -142,7 +146,7 @@ function present(aRecommendation, cmdCallback){
 
 
   let dhPresentInfo = {id: aRecommendation.id, number: dhData.count};
-  logger.logDhPresent(dhPresentInfo);
+  logDhPresent(dhPresentInfo);
   
   updateShow();  
 }

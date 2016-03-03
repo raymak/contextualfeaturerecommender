@@ -14,11 +14,14 @@ exports.main = function(options, callbacks){
 
   console.log("Hello World! I am alive :)");
 
+  console.time("full load");
+
   if (options.loadReason === "install")
     installRun();
 
   const isFirstRun = !prefs["isInitialized"];
 
+  console.time("initializations");
   require("./self").init();
   require("./presentation/splitpage").init();  
   require("./presentation/doorhanger").init();
@@ -28,6 +31,7 @@ exports.main = function(options, callbacks){
   require("./sender").init();
   require("./debug").init();
   require("./feature-report").init();
+  console.timeEnd("initializations");
 
   if (isFirstRun)
     firstRun();
@@ -36,9 +40,13 @@ exports.main = function(options, callbacks){
 
   require('./controller').init();
 
+  console.timeEnd("full load");
+
 }
 
 function firstRun(){
+  console.time("first run");
+
   console.log("preparing first run");
 
   require("./controller").loadRecFile(recommFileAddress);
@@ -46,9 +54,16 @@ function firstRun(){
   require('./logger').logFirstRun();
   require('./self').setInitialized();
   require('./experiment').firstRun();
+
+  //scaling routes
+  require("./controller").scaleRoutes(require("./route").coefficient(), "trigBehavior");
+
+  console.timeEnd("first run");
 }
 
 function installRun(){
+  console.time("install run")
+
   let clean = false;
 
   clean = !!prefs["clean_install"];
@@ -62,6 +77,8 @@ function installRun(){
     try{require('./utils').overridePrefs("../prefs.json");}
     catch(e){console.log("skipped overriding preferences");}
   }
+
+  console.timeEnd("install run");
 }
 
 

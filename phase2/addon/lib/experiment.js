@@ -51,6 +51,8 @@ const experiment = {
 
     console.log("initializing experiment");
 
+    console.time("experiment init");
+
     expData = PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update});
 
     if (!expData.mode)
@@ -66,6 +68,9 @@ const experiment = {
 
     timer.onTick(checkStage);
     timer.onTick(debug.update);
+
+    console.timeEnd("experiment init");
+
   },
   get info(){
     const name = prefs["experiment.name"];

@@ -8,8 +8,7 @@
 const {PageMod} = require("sdk/page-mod");
 const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
-const {PersistentObject} = require("./../utils");
-const {extractPresentationData} = require("./../recommendation");
+const {PersistentObject} = require("../utils");
 
 const HTML_URL = data.url("./presentation/splitpage.html");
 const JS_URL = data.url("./presentation/splitpage.js");
@@ -21,10 +20,16 @@ const spData = PersistentObject("simplePref", {address: spDataAddress});
 
 
 function init(){
+
+	console.log("initializing splitpage");
+
+	console.time("splitpage init");
+
 	tabs.on('ready', function(tab){
 		// if (tab.url === HTML_URL) loadPage(tab);
 		if (tab.url === PAGE_URL) tab.url = HTML_URL;
 	});
+
 
 	PageMod({
 	  include: HTML_URL,
@@ -40,11 +45,13 @@ function init(){
 
 	if (!spData.recList)
 		spData.recList = [];
+	
+	console.timeEnd("splitpage init");
 }
 
 function postEntries(worker){
 	spData.recList.forEach(function(aRecommendation){
-		worker.port.emit("postEntry", extractPresentationData.call(aRecommendation, "splitpage"));
+		worker.port.emit("postEntry", require("../recommendation").extractPresentationData.call(aRecommendation, "splitpage"));
 	});
 }
 

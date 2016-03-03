@@ -202,7 +202,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
 
    }
   ]

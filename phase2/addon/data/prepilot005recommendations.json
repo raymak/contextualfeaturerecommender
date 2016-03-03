@@ -9,7 +9,7 @@
       "*": {
         "message": "Wait to see awesome Firefox tips that are just for you.",
         "title": "Welcome to Feature Recommender!",
-        "rationale": "You are awesome."
+        "rationale": "You are awesome." 
       },
       "log": {},
       "desktopnotification": {},
@@ -208,7 +208,7 @@
     "priority": 1,
     "trigBehavior": "visit hostname www.amazon.com -c >2",
     "delivContext": "visit hostname www.amazon.com",
-    "featUseBehavior": "addon has amznUWL2@amazon.com ",
+    "featUseBehavior": "addon has amznUWL2@amazon.com",
     "presentationData": {
       "*": {
         "message": "Provides a handy \"Add to Wish List\" button that lets you add any product from any website to your Amazon wish list with just a few clicks.",

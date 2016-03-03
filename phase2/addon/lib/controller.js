@@ -34,11 +34,14 @@ const unload = require("sdk/system/unload").when;
 const logger = require("./logger");
 const featReport = require("./feature-report");
 const events = require("sdk/system/events");
+const {pathFor} = require('sdk/system');
+const file = require('sdk/io/file');
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/osfile.jsm");
 const devtools = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools;
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
@@ -64,18 +67,15 @@ let dlView;
 const init = function(){
   console.log("initializing controller");
 
+  console.time("controller init");
+
   unload(unloadController);
 
   listener.start();
   deliverer.init();
   debug.init();
 
-
-  //scaling routes
-  scaleRoutes(coefficient(), "trigBehavior");
-
-  //welcome message
-  // deliverer.deliver(recommendations.welcome);
+  console.timeEnd("controller init");
 }
 
 /**
@@ -232,6 +232,20 @@ const listener = {
       };
 
       newtabEvent.wake();
+    });
+
+    this.listenForFirefoxProfiles(function(options){
+      
+      let profileEvent = Event("profileEvent", {
+        route: ['profile', '-n', options.number].join(" ")
+      });
+
+      profileEvent.effect = function(){
+        listener.dispatchRoute(this.options.route);
+      };
+
+      profileEvent.wake();
+
     });
 
     //TODO: merge with chromeEvent
@@ -1452,6 +1466,23 @@ listener.listenForUserActivity = function(callback){
   timer.onUserActive(callback);
 }
 
+listener.listenForFirefoxProfiles = function(callback){
+
+  let toolkitProfileService = Cc["@mozilla.org/toolkit/profile-service;1"]
+                            .createInstance(Ci.nsIToolkitProfileService);
+
+  let enumerator = toolkitProfileService.profiles;
+
+  let prof;
+  let num = 0;
+  while (enumerator.hasMoreElements()){
+    prof = enumerator.getNext().QueryInterface(Ci.nsIToolkitProfile)
+    num++;
+  };
+
+  callback({number: num})
+  
+}
 // listening for command invocations is not useful because the menu items directly call gDevTools functions
 listener.listenForDevTools = function(callback){
   let windowTracker = new WindowTracker({
@@ -1718,6 +1749,7 @@ function loadRecFile(file){
   });
 
   recommendations.add.apply(recommendations, recomms);
+
 }
 
 function loadRec(file, recId){
@@ -1763,4 +1795,5 @@ function unloadController(reason){
 exports.init = init;
 exports.recommendations = recommendations;
 exports.loadRecFile = loadRecFile;
+exports.scaleRoutes = scaleRoutes;
 exports.welcome = welcome;

@@ -5,10 +5,10 @@
 
 "use strict";
 
+
 const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("./utils");
 const {Route, equals, matches, scale, str} = require("./route");
-const logger = require("./logger");
 const featReport = require("./feature-report");
 
 const Recommendation = function(data) {
@@ -24,15 +24,13 @@ const Recommendation = function(data) {
     delivContext: data.delivContext || "null",
     delivContextRoute: Route(data.delivContext),
     feature: data.feature,
-    classTags: data.classTags,
+    tags: data.tags,
     presentationData: data.presentationData,
     respCommandMap: data.respCommandMap,
     status: data.status || "active",
     priority: data.priority || 1,
     deliveryTime:undefined
   }
-
-
 
   return nRecommendation;
 }
@@ -103,7 +101,7 @@ const recSet = {
       console.log("recommendation updated: id -> " + aRecommendation.id + ", status -> " + aRecommendation.status);
 
       if (oldStatus != newStatus){
-        logger.logRecommUpdate(aRecommendation.id, oldStatus, newStatus);
+        require("./logger").logRecommUpdate(aRecommendation.id, oldStatus, newStatus);
         featReport.updateRow(aRecommendation.id, {status: newStatus});
       }
 
@@ -176,6 +174,7 @@ const recSet = {
   }
 };
 
+
 const RecSet = function(options){
   let nObj =  Object.create(recSet);
   nObj.routeIndexTables.forEach(function(indexTable){
@@ -212,6 +211,9 @@ const recommendationToString = function(){
       return previousValue + "\n" + currentValue + "-> " + that[currentValue];
     }, "");
   }
+
+
+
 
 exports.extractPresentationData = extractPresentationData;
 exports.RecSet = RecSet;
