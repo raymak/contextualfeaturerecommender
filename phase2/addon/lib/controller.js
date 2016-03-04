@@ -234,17 +234,51 @@ const listener = {
       newtabEvent.wake();
     });
 
-    this.listenForFirefoxProfiles(function(options){
-      
-      let profileEvent = Event("profileEvent", {
-        route: ['profile', '-n', options.number].join(" ")
+    this.listenForFirefoxEvents(function(reason, params){
+
+      let firefoxEvent = Event("firefoxEvent", {
+        route: ['firefox'].join(" "),
+        reason: reason,
+        params: params
       });
 
-      profileEvent.effect = function(){
-        listener.dispatchRoute(this.options.route);
-      };
+      let profilesEvent = Event("profilesEvent");
 
-      profileEvent.wake();
+      profilesEvent.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+
+        let route = [baseRoute,
+                     this.preEvent.options.reason,
+                     "-n",
+                     this.preEvent.options.params.number]
+                     .join(" ");
+
+        listener.dispatchRoute(route);
+      }
+      
+      profilesEvent.checkPreconditions = function() this.preEvent.options.reason == "profiles";
+
+      firefoxEvent.postEvents.push(profilesEvent);
+
+      let startupEvent = Event("startupEvent");
+
+      startupEvent.effect = function(){
+
+        let baseRoute = this.preEvent.options.route;
+
+        let route = [baseRoute,
+                    this.preEvent.options.reason].join(" ");
+        this.options.route = route;
+      }
+
+      startupEvent.checkPreconditions = function() this.preEvent.options.reason == "startup";
+      firefoxEvent.postEvents.push(startupEvent);
+
+      let multipleStartupEvent = that.multipleRoute(startupEvent);
+
+      startupEvent.postEvents.push(multipleStartupEvent);
+
+      firefoxEvent.wake();
 
     });
 
@@ -944,9 +978,18 @@ listener.command = function(cmd){
 
       break;
 
+    case "pin tab":
+      tabs.activeTab.pin();
+
+      break;
+
     default:
       console.log("command not recognized: " + cmd);
+
+      return undefined;
   }
+
+  return "";
 
 }
 
@@ -1466,8 +1509,10 @@ listener.listenForUserActivity = function(callback){
   timer.onUserActive(callback);
 }
 
-listener.listenForFirefoxProfiles = function(callback){
 
+listener.listenForFirefoxEvents = function(callback){
+  //listen for profile number
+  
   let toolkitProfileService = Cc["@mozilla.org/toolkit/profile-service;1"]
                             .createInstance(Ci.nsIToolkitProfileService);
 
@@ -1480,9 +1525,11 @@ listener.listenForFirefoxProfiles = function(callback){
     num++;
   };
 
-  callback({number: num})
-  
+  callback('profiles', {number: num});
+
+  callback('startup');
 }
+
 // listening for command invocations is not useful because the menu items directly call gDevTools functions
 listener.listenForDevTools = function(callback){
   let windowTracker = new WindowTracker({

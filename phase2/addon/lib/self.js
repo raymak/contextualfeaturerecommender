@@ -117,7 +117,7 @@ const self = {
                activeThemeId: activeThemeId, activeThemeName: activeThemeName,
                searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
                profileAgeDays: profileAgeDays, totalActiveMs: totalActiveMs,
-               browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart,
+               browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart
               };
 
             f(result);

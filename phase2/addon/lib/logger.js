@@ -220,3 +220,5 @@ exports.logMomentReport = logMomentReport;
 exports.logSelfDestruct = logSelfDestruct;
 exports.logSilenceEnd = logSilenceEnd;
 exports.logSilenceStart = logSilenceStart;
+exports.logWarning = logWarning;
+exports.logError = logError;

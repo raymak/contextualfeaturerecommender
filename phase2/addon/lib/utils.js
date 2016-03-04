@@ -11,10 +11,6 @@ const {merge} = require("sdk/util/object");
 const {URL} = require("sdk/url");
 const {Cu, Cc, Ci} = require("chrome");
 
-const fhrReporter = Cc["@mozilla.org/datareporting/service;1"]
-                   .getService(Ci.nsISupports)
-                   .wrappedJSObject
-                   .healthReporter;
 
 /**
  * Applies partial arguments to a function
@@ -205,20 +201,33 @@ function getFhrData(callback){
 
   console.log("starting to get FHR data");
 
+  var fhrReporter;
+
+  try {
+      fhrReporter = Cc["@mozilla.org/datareporting/service;1"]
+                     .getService(Ci.nsISupports)
+                     .wrappedJSObject
+                     .healthReporter;
+      } catch(e){
+        fhrReporter = undefined;
+      }
+
+
   if (!fhrReporter) 
     {
       console.log("warning: could not get fhr data");
-      return;
+      require('./logger').logWarning({code: "no_fhr", message: "could not receive fhr info."});
+      callback(0,0);
     }
 
 
   console.log("getting FHR data");
 
-    fhrReporter.onInit().then(function() {
-      return fhrReporter.collectAndObtainJSONPayload(true)
-    }).then(function(data) {
-      parseFhrPayload(data, callback);
-    });
+  fhrReporter.onInit().then(function() {
+    return fhrReporter.collectAndObtainJSONPayload(true)
+  }).then(function(data) {
+    parseFhrPayload(data, callback);
+  });
 }
 
 // parses the fhr 'data' object and calls the callback function when the result is ready.

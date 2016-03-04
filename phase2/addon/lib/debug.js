@@ -87,7 +87,7 @@ const tryParseJSON  = function(jsonString){
 function dumpUpdateObject(obj, options){
 
   if (!isEnabled) return;
-  
+
   let recs = {};
   for (let k in obj){
     if (typeof obj[k] === "object"){
@@ -208,7 +208,7 @@ function processCommand(worker, cmd){
   if (!handled){
     //TODO: flash message
     console.log("warning: unrecognized debug command");
-    worker.port.emit("cmdOut", "unrecognized: " + cmd);
+    worker.port.emit("cmdOut", "<span class='outunrecognized'>unrecognized</span>", cmd);
   }
 }
 
