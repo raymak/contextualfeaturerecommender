@@ -94,8 +94,8 @@ function submitCmd(){
 }
 
 function cmdOut(out, cmd){
-  $("#cmdOut").html(">> &nbsp&nbsp" + "<span class='outcmd'>"+ cmd + "</span>" + "<br>"  
-                    + " &nbsp&nbsp"+ "<span class='outout'>"+ out + "</span>"+ "<br><br>" + $("#cmdOut").html());
+  $("#cmdOut").html(">> &nbsp" + "<span class='outcmd'>"+ cmd + "</span>" + "<br>"  
+                    + " &nbsp"+ "<span class='outout'>"+ out + "</span>"+ "<br><br>" + $("#cmdOut").html());
 
   window.location.href = "#cmdOut";
   $("#cmdText").focus();

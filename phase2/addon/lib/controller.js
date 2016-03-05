@@ -237,10 +237,24 @@ const listener = {
     this.listenForFirefoxEvents(function(reason, params){
 
       let firefoxEvent = Event("firefoxEvent", {
-        route: ['firefox'].join(" "),
+        route: ['firefox', reason].join(" "),
         reason: reason,
         params: params
       });
+
+      let updateChannelEvent = Event("updateChannel");
+
+      updateChannelEvent.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+
+        let route = [baseRoute, params.channel].join(" ");
+
+        listener.dispatchRoute(route);
+      }
+
+      updateChannelEvent.checkPreconditions = function() this.preEvent.options.reason == "channel";
+
+      firefoxEvent.postEvents.push(updateChannelEvent);
 
       let profilesEvent = Event("profilesEvent");
 
@@ -248,7 +262,6 @@ const listener = {
         let baseRoute = this.preEvent.options.route;
 
         let route = [baseRoute,
-                     this.preEvent.options.reason,
                      "-n",
                      this.preEvent.options.params.number]
                      .join(" ");
@@ -266,8 +279,8 @@ const listener = {
 
         let baseRoute = this.preEvent.options.route;
 
-        let route = [baseRoute,
-                    this.preEvent.options.reason].join(" ");
+        let route = baseRoute;
+
         this.options.route = route;
       }
 
@@ -983,6 +996,9 @@ listener.command = function(cmd){
 
       break;
 
+    case "pass":
+      break;
+
     default:
       console.log("command not recognized: " + cmd);
 
@@ -1511,7 +1527,15 @@ listener.listenForUserActivity = function(callback){
 
 
 listener.listenForFirefoxEvents = function(callback){
-  //listen for profile number
+
+  // listen for update channel
+  let channel = self.updateChannel;
+
+  let reason = 'channel';
+
+  callback(reason, {channel: channel});
+  
+  // listen for profile number
   
   let toolkitProfileService = Cc["@mozilla.org/toolkit/profile-service;1"]
                             .createInstance(Ci.nsIToolkitProfileService);
@@ -1532,6 +1556,7 @@ listener.listenForFirefoxEvents = function(callback){
 
 // listening for command invocations is not useful because the menu items directly call gDevTools functions
 listener.listenForDevTools = function(callback){
+
   let windowTracker = new WindowTracker({
     onTrack: function (window){
 
