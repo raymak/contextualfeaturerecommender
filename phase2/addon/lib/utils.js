@@ -201,40 +201,55 @@ function getFhrData(callback){
 
   console.log("starting to get FHR data");
 
+  try {
+    if (Cc["@mozilla.org/datareporting/service;1"])
+      getFhrDataV2(callback);
+    else
+      getFhrDataV4(callback);
+  }
+  catch(e){
+    console.log("warning: could not get fhr data", e.message);
+    require('./logger').logWarning({code: "no_fhr", message: "could not receive fhr info."});
+    callback(0,0,0, null);
+  }
+
+}
+
+function getFhrDataV2(callback){
+  console.log("getting fhr v2");
+
   var fhrReporter;
 
-  try {
-      fhrReporter = Cc["@mozilla.org/datareporting/service;1"]
-                     .getService(Ci.nsISupports)
-                     .wrappedJSObject
-                     .healthReporter;
-      } catch(e){
-        fhrReporter = undefined;
-      }
+  
+  fhrReporter = Cc["@mozilla.org/datareporting/service;1"]
+                 .getService(Ci.nsISupports)
+                 .wrappedJSObject
+                 .healthReporter;
 
-
-  if (!fhrReporter) 
-    {
-      console.log("warning: could not get fhr data");
-      require('./logger').logWarning({code: "no_fhr", message: "could not receive fhr info."});
-      callback(0,0);
-    }
-
-
-  console.log("getting FHR data");
 
   fhrReporter.onInit().then(function() {
-    return fhrReporter.collectAndObtainJSONPayload(true)
+    return fhrReporter.collectAndObtainJSONPayload(true);
   }).then(function(data) {
-    parseFhrPayload(data, callback);
+    parseFhrPayloadV2(data, callback);
   });
 }
 
+function getFhrDataV4(callback){
+   console.log("getting fhr v4");
+
+  Cu.import("resource://gre/modules/TelemetryStorage.jsm");
+
+  TelemetryStorage.loadArchivedPingList().then(function(map){
+    parseFhrPayloadV4(map, callback);
+  }).catch(function(reason){console.log(reason.message)});
+    
+}
 // parses the fhr 'data' object and calls the callback function when the result is ready.
 // callback(profileAgeDays, sumMs)
 // https://github.com/raymak/contextualfeaturerecommender/issues/136
 
-function parseFhrPayload(data, callback){
+function parseFhrPayloadV2(data, callback){
+  console.log(data);
   console.log("parsing FHR payload");
 
   var days = data.data.days;
@@ -242,12 +257,14 @@ function parseFhrPayload(data, callback){
   var nowDate = new Date();
   
   var todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0 ,0, 0);
-  console.log(todayDate.toString());
+  console.log("today: ", todayDate.toString());
 
   var aMonthAgoDate = new Date(todayDate.getTime() - 30 * 24 * 3600 * 1000);
-  console.log(aMonthAgoDate.toString());
+  console.log("one mongth ago: ", aMonthAgoDate.toString());
 
-  var sumMs = 0;
+  var totalActiveTicks = 0;
+
+  var totalTime = 0;
   
   var profileAgeDays = Date.now()/(86400*1000) - data.data.last["org.mozilla.profile.age"].profileCreation;
 
@@ -262,22 +279,91 @@ function parseFhrPayload(data, callback){
       let date = new Date(parseInt(allQs[1], 10), parseInt(allQs[2] - 1, 10), parseInt(allQs[3], 10), 0, 0, 0, 0);
       // console.log(date.toString());
 
-      if (date >= aMonthAgoDate && date < todayDate)
-        if (days[key]["org.mozilla.appSessions.previous"])
+      if (date >= aMonthAgoDate && date < todayDate){
+        if (days[key]["org.mozilla.appSessions.previous"]){
           if (days[key]["org.mozilla.appSessions.previous"].cleanActiveTicks)
             days[key]["org.mozilla.appSessions.previous"].cleanActiveTicks.forEach(function (elm){
-                  sumMs = sumMs + elm * 5 * 1000;
+              totalActiveTicks += elm;
             });
-
-
+          if (days[key]["org.mozilla.appSessions.previous"].cleanTotalTime)
+            days[key]["org.mozilla.appSessions.previous"].cleanTotalTime.forEach(function (elm){
+              totalTime += elm;
+            });
+        }
+      }
     }
-  }
-  console.log("sumMs", sumMs);
 
-  callback(profileAgeDays, sumMs);
+  }
+
+  let todayKey = [todayDate.getFullYear(), "-",
+                  ('0' + (todayDate.getMonth() + 1)).slice(-2), "-",
+                  ('0' + todayDate.getDate()).slice(-2)].join("");
+
+  let isDefaultBrowser = null;
+
+  if (days[todayKey] && days[todayKey]["org.mozilla.appInfo.appinfo"])
+    isDefaultBrowser = !!days[todayKey]["org.mozilla.appInfo.appinfo"].isDefaultBrowser;
+
+  console.log("profileAgeDays", profileAgeDays, "totalActiveTicks", totalActiveTicks, "totalTime", totalTime, "isDefaultBrowser", isDefaultBrowser);
+
+  callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser);
 
     // console.log(JSON.stringify(data.data, null, 2));
     // return usage statistic
+}
+
+function parseFhrPayloadV4(map, callback){
+
+  Cu.import("resource://gre/modules/TelemetrySession.jsm");
+
+  let lastPayload = TelemetrySession.getPayload();
+
+  var nowDate = new Date();
+
+  var todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0 ,0, 0);
+  console.log("today: ", todayDate.toString());
+
+  var aMonthAgoDate = new Date(todayDate.getTime() - 30 * 24 * 3600 * 1000);
+  console.log("one mongth ago: ", aMonthAgoDate.toString());
+
+  
+  Cu.import("resource://gre/modules/ProfileAge.jsm");
+  var profileAgeDays;
+
+  Cu.import("resource://gre/modules/TelemetryEnvironment.jsm");
+
+  let isDefaultBrowser = TelemetryEnvironment.currentEnvironment.settings.isDefaultBrowser;
+
+  var promises = [];
+
+  let totalTime = 0;
+  let totalActiveTicks = 0;
+
+  for (var [k, v] of map){
+      console.log(k, v);
+      if (v["type"] !== "main")
+        continue;
+
+      let date = new Date(v["timestampCreated"]);
+      if (!(date >= aMonthAgoDate && date < todayDate))  // only consider the pings from a month ago 
+        continue;
+
+      promises.push(TelemetryStorage.loadArchivedPing(k));
+    }
+
+    Promise.all(promises).then(function(subsessionArr){
+      subsessionArr.forEach(function(subsession){
+        let pd = subsession.payload;
+        totalTime += pd.info.subsessionLength;
+        totalActiveTicks += pd.simpleMeasurements.activeTicks;
+      });
+
+      return (new ProfileAge()).getOldestProfileTimestamp();
+    }).then(function(oldestTimestamp){
+      profileAgeDays = (Date.now() - oldestTimestamp)/(86400*1000);
+      console.log("profileAgeDays", profileAgeDays, "totalActiveTicks", totalActiveTicks, "totalTime", totalTime, "isDefaultBrowser", isDefaultBrowser);
+      callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser);
+    });     
 }
 
 exports.cleanUp =  function(options){
@@ -305,7 +391,7 @@ exports.dateTimeToString = function(date){
 exports.overridePrefs = function(fileName){
   let pj = require("sdk/self").data.load(fileName);
 
-  try{var newPrefs = JSON.parse(pj)}
+  try {var newPrefs = JSON.parse(pj)}
   catch(e){console.log("failed to parse " + fileName + " as json")}
 
   for (let p in newPrefs){
@@ -363,6 +449,15 @@ const debug = {
 
         case "isSoundPlaying":
           return exports.isSoundPlaying();
+          break;
+
+        case "fhr":
+          if (params === 'dump'){
+            getFhrData(function(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser){
+              console.log(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser);
+            });
+          }
+
           break;
 
         case "pref":
