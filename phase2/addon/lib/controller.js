@@ -1136,20 +1136,26 @@ listener.listenForWebsiteCategories = function(callback, options){
   let catIndx = {};
 
   catIndx = {
-    academic: [ new MatchPattern(/http:\/\/ieeexplore\.ieee\.org\/.*/),
-                new MatchPattern(/https:\/\/scholar\.google\..*/),
-                new MatchPattern(/http:\/\/www\.sciencedirect\.com\/.*/),
-                new MatchPattern(/http:\/\/dl\.acm\.org\/.*/)
-                ],
-    search:   [ new MatchPattern(/https:\/\/www\.google\.com\/\?.*/),
-                new MatchPattern(/https:\/\/www\.bing\.com\/search\?.*/),
-                new MatchPattern(/https:\/\/.*\.search\.yahoo\.com\/.*/)
-                ],
-    specializedSearch: [ new MatchPattern(/http:\/\/www\.google\.com\/maps\/search\/.*/),
-                         new MatchPattern(/http:\/\/www\.imdb\.com\/find\?.*/),
-                         new MatchPattern(/https:\/\/en\.wikipedia\.org\/wiki\/Special:Search\?.*/),
-                         new MatchPattern(/https:\/\/en\.wikipedia\.org\/w\/index\.php\?search.*/)
-                         ]
+    academic:           [ new MatchPattern(/http:\/\/ieeexplore\.ieee\.org\/.*/),
+                          new MatchPattern(/https:\/\/scholar\.google\..*/),
+                          new MatchPattern(/http:\/\/www\.sciencedirect\.com\/.*/),
+                          new MatchPattern(/http:\/\/dl\.acm\.org\/.*/)
+                        ],
+    search:             [ new MatchPattern(/https:\/\/www\.google\.com\/\?.*/),
+                          new MatchPattern(/https:\/\/www\.bing\.com\/search\?.*/),
+                          new MatchPattern(/https:\/\/.*\.search\.yahoo\.com\/.*/)
+                        ],
+    specializedSearch:  [ new MatchPattern(/http:\/\/www\.google\.com\/maps\/search\/.*/),
+                          new MatchPattern(/http:\/\/www\.imdb\.com\/find\?.*/),
+                          new MatchPattern(/https:\/\/en\.wikipedia\.org\/wiki\/Special:Search\?.*/),
+                          new MatchPattern(/https:\/\/en\.wikipedia\.org\/w\/index\.php\?search.*/)
+                        ],
+    weather:            [ new MatchPattern(/http:\/\/www\.weather\.com\/.*/),
+                          new MatchPattern(/http:\/\/www\.accuweather\.com\/.*/),
+                          new MatchPattern(/http:\/\/www\.wunderground\.com\/.*/),
+                          new MatchPattern(/http:\/\/www\.weather\.gov\.com\/.*/),
+                          new MatchPattern(/http:\/\/www\.weather\.yahoo\.com\/.*/)
+                          ]
   };
 
   tabs.on("ready", function(tab){
