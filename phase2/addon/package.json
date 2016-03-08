@@ -2,7 +2,7 @@
   "name": "featurerecommender",
   "title": "Feature Recommender",
   "id": "featurerecommender@insights.mozilla.com",
-  "description": "This addon recommends Firefox interface features when they are needed. It is a temporary experimental addon installed.",
+  "description": "This addon recommends Firefox interface features when they are needed. It is an experimental addon installed temporarily.",
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "license": "MPL 2.0",
@@ -154,13 +154,13 @@
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 360
+      "value": 720
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 60
+      "value": 120
     },
     {
       "name": "route.coefficient",
@@ -214,7 +214,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
 
    }
   ]

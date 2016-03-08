@@ -855,7 +855,7 @@ listener.behavior = function(route){
     return;
 
   recomms.forEach(function(aRecommendation){
-    if (utils.isPowerOf2(route.c) || utils.isPowerOf2(route.n)){
+    if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
       logger.logLooseBehavior(behaviorInfo(aRecommendation));
     }
   });
@@ -1168,7 +1168,7 @@ listener.listenForWebsiteCategories = function(callback, options){
     // if (tab.id !== tabs.activeTab.id) return;
 
     if (require("sdk/private-browsing").isPrivate(tab)) return;
-    
+
     let cats = [];
 
     for (let c in catIndx){
@@ -1869,6 +1869,8 @@ return isFound;
 }
 
 function scaleRoutes(coeff, indexTable){
+  if (coeff === 1)
+    return;
   recommendations.forEach(function(aRecommendation){
     recommendations.scaleRoute(aRecommendation, coeff, indexTable);
   });

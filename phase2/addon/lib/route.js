@@ -42,8 +42,11 @@ const str = function(){
   let str = this.header;
 
   for (let key in this){
+    if (key == "header")
+      continue;
     str = str + " -" + key;
-    if (typeof this[key] === "boolean") continue; //only key and no value
+    if (typeof this[key] === "boolean") 
+      continue; //only key and no value
     str = str + " " + this[key];
   }
 
