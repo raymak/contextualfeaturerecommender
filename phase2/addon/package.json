@@ -31,6 +31,12 @@
       "value": true
     },
     {
+      "name": "recomm_list_address",
+      "type": "string",
+      "title": "Address of the feature recommendations list to load.",
+      "value": "prepilot005recommendations.json"
+    },
+    {
       "name": "timer.tick_length_s",
       "type": "integer",
       "title": "Length of a tick in seconds",
@@ -173,6 +179,12 @@
       "type": "integer",
       "title": " ",
       "value": 300
+    },
+    {
+      "name": "presentation.doorhanger.panel_show_delay_ms",
+      "type": "integer",
+      "title": " ",
+      "value": 700
     },
     {
       "name": "debug.enabled",

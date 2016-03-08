@@ -92,6 +92,7 @@ function initPanel(button){
   nPanel.port.on("liketoggle", likeToggle);
   nPanel.port.on("dontliketoggle", dontLikeToggle);
   nPanel.port.on("negfb", negFbSubmit);
+  nPanel.port.on("negfbopen", negFbOpen);
   nPanel.port.on("rationaleopen", rationaleOpen);
 
   return nPanel;
@@ -132,11 +133,11 @@ function present(aRecommendation, cmdCallback){
   }
 
   dhData.currentRec = {recomm: aRecommendation, 
-                       state:{like: false, dontlike: false, count: 0, negFbChoice: null},
+                       state:{like: false, dontlike: false, count: 0, negFbChoice: null, negFbOpened: false},
                        report:{number: dhData.count || 1, startett: timer.elapsedTotalTime(), durationtt: 0, primbtn: 0, secbtn: 0,
                        closebtn: 0, autohide: 0, autofade: 0, esc: 0,
                        closeother: 0, responseclose: 0, firstclosereason: "", mouseenter: false,
-                       totalopen: 0, firstopen: 0, rationaleopen: 0, infopage: 0}
+                       totalopen: 0, firstopen: 0, rationaleopen: 0, infopage: 0, negfbopen: false}
                       };
   command = cmdCallback;
   console.log("showing " + aRecommendation.id);
@@ -151,30 +152,40 @@ function present(aRecommendation, cmdCallback){
   updateShow();  
 }
 
-function updateEntry(){
+function updateEntry(options){
+
+  let currentRec = dhData.currentRec;
+
+  let noInit = options && options.noinit;
 
   if (!button)
     button = initButton(buttonClick);
-  panel = initPanel(button);
 
-  let entry = extractPresentationData.call(dhData.currentRec.recomm, "doorhanger");
-  panel.port.emit("updateEntry", entry, dhData.currentRec.state, {negFbOrder: negFbOrder(), os: self.sysInfo.os});
+  if (!noInit || !panel || currentRec.state.negFbOpened)
+    panel = initPanel(button);
+
+  let entry = extractPresentationData.call(currentRec.recomm, "doorhanger");
+  panel.port.emit("updateEntry", entry, currentRec.state, {negFbOrder: negFbOrder(), os: self.sysInfo.os});
 
   wrdCnt = wordCount(entry.message);
 
 }
 
 function updateShow(options, panelOptions){
-  updateEntry();
+ 
 
-  showPanel(150, panelOptions);
-
+  let delay = (options && options.nodelay)? 0: prefs["presentation.doorhanger.panel_show_delay_ms"];
+  let noInit = options && options.noinit;
   let noSchedule = options && options.noschedule;
 
-  if (!noSchedule)
-    scheduleHide(prefs["presentation.doorhanger.autofade_time_ms_per_word"]*wrdCnt);
+   updateEntry({noinit: noInit});
 
-  buttonOn();
+  showPanel(delay, panelOptions).then(function(){
+    if (!noSchedule)
+      scheduleHide(prefs["presentation.doorhanger.autofade_time_ms_per_word"]*wrdCnt);
+
+    buttonOn();
+  });
 } 
 
 function scheduleHide(time_ms){
@@ -190,13 +201,16 @@ function showPanel(delay_ms, panelOptions){
   //increment count
   let currRec = dhData.currentRec;
   let state = currRec.state;
-  merge(state, {count: state.count+1});
+  merge(state, {count: state.count+1, negFbOpened: false});
   dhData.currentRec = merge({}, currRec, {state: state});
 
+  return new Promise(function(resolve, reject){
   //delay to make sure the layout has been loaded
   setTimeout(function(){
     panel.show(merge({position: button}, panelOptions));
+    resolve();
   }, delay_ms || 0);
+  });
 
 }
 
@@ -214,7 +228,7 @@ function hidePanel(fadeOut){
 function buttonChange(state){
   if (state.checked){
     if (!panel.isShowing)
-     updateShow({noschedule: true}, {autohide: true, focus: true});
+     updateShow({noschedule: true, nodelay:true, noinit: true}, {autohide: true, focus: true});
   }
   else
     hidePanel(true);
@@ -388,8 +402,21 @@ function negFbSubmit(val){
   let state = currRec.state;
   
   state.negFbChoice =  val;
+}
 
-  dhData.currentRec = merge(currRec, {state: state});
+function negFbOpen(){
+  let currRec = dhData.currentRec;
+  let state = currRec.state;
+
+  state.negFbOpened = true;
+
+  let report = currRec.report;
+  report.negfbopen = true;
+
+  dhData.currentRec = merge(currRec, {state: state}, {report: report});
+
+
+
 }
 
 function rationaleOpen(){

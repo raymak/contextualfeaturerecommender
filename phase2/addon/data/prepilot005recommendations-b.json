@@ -1,0 +1,285 @@
+[
+  {
+    "id": "welcome",
+    "priority": 0,
+    "trigBehavior": "",
+    "delivContext": "",
+    "featUseBehavior": "",
+    "presentationData": {
+      "*": {
+        "message": "Wait to see awesome Firefox tips that are just for you.",
+        "title": "Welcome to Feature Recommender!",
+        "rationale": "You are awesome." 
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      },
+      "splitpage": {}
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "info"
+      }
+    }
+  },
+  {
+    "id": "newTabShortcut",
+    "priority": 1,
+    "trigBehavior": "tabs newtab-button -c >2 -if <5",
+    "delivContext": "tabs newtab-button",
+    "featUseBehavior": "hotkey t -cmd -c >1",
+    "presentationData": {
+      "*": {
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
+        "title": "New Tab shortcut",
+        "rationale": "You open tabs a lot."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"
+      }
+    }
+  },
+  {
+    "id": "closeTabShortcut",
+    "priority": 1,
+    "trigBehavior": "chrome click tabbrowser-tabs -anonid close-button -c >5 -if <10",
+    "delivContext": "chrome click tabbrowser-tabs -anonid close-button",
+    "featUseBehavior": "hotkey w -cmd -c >1",
+    "presentationData": {
+      "*": {
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>W</span> keyboard shortcut to close a tab faster!",
+        "title": "Close Tab shortcut",
+        "rationale": "You close tabs a lot."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"
+      }
+    }
+  },
+  {
+    "id": "reloadShortcut",
+    "priority": 1,
+    "trigBehavior": "chrome click urlbar-reload-button -c >2 -if <30",
+    "delivContext": "chrome click urlbar-reload-button",
+    "featUseBehavior": "hotkey r -cmd -c >1",
+    "presentationData": {
+      "*": {
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>R</span> keyboard shortcut to reload the page faster!",
+        "title": "Page Reload shortcut",
+        "rationale": "You reload the page frequently."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_navigation"
+      }
+    }
+  },
+  {
+    "id": "fullScreenShortcut",
+    "priority": 1,
+    "trigBehavior": "chrome click titlebar-placeholder-on-TabsToolbar-for-fullscreen-button -c >2",
+    "delivContext": "chrome click titlebar-placeholder-on-TabsToolbar-for-fullscreen-button",
+    "featUseBehavior": "hotkey f -cmd -shift -c >1",
+    "presentationData": {
+      "*": {
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>SHIFT</span>+<span class='key'>F</span> keyboard shortcut to toggle the full screen view quickly!",
+        "title": "Full Screen shortcut",
+        "rationale": "You toggle the full screen view a lot."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": null
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_miscellaneous"
+      }
+    }
+  },
+  {
+    "id": "downThemAll",
+    "priority": 1,
+    "trigBehavior": "download added -c >4",
+    "delivContext": "download",
+    "featUseBehavior": "addon has {DDC359D1-844A-42a7-9AA1-88A850A938A8}",
+    "presentationData": {
+      "*": {
+        "message": "The DownThemAll lets you view and manage your downloads easier and faster!",
+        "title": "Download Them All!",
+        "rationale": "You download files frequently."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/downthemall/",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/201/addon-201-latest.xpi?src=dp-btn-primary"
+      }
+    }
+  },
+  {
+    "id": "turnOffTheLights",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.youtube.com -c >3 -if <120",
+    "delivContext": "visit hostname www.youtube.com",
+    "featUseBehavior": "addon has stefanvandamme@stefanvd.net",
+    "presentationData": {
+      "*": {
+        "message": "The Turn Off the Lights extension lets you watch videos as if you were in the cinema.",
+        "title": "Turn Off the Lights and enjoy!",
+        "rationale": "You like watching videos in Firefox."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/turn-off-the-lights/?src=ss",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/255270/addon-255270-latest.xpi?src=ss"
+      }
+    }
+  },
+  {
+    "id": "redditEnhancementSuite",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.reddit.com -c >0",
+    "delivContext": "visit hostname www.reddit.com",
+    "featUseBehavior": "addon has jid1-xUfzOsOFlzSOXg@jetpack",
+    "presentationData": {
+      "*": {
+        "message": "The Reddit Enhancement Suite extension gives you the tools to enhance your reddit browsing experience.",
+        "title": "Enhance your reddit experience!",
+        "rationale": "You frequently visit reddit."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/reddit-enhancement-suite/",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=fr-dh-btn"
+      }
+    }
+  },
+  {
+    "id": "amazonWishListBtn",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.amazon.com -c >2",
+    "delivContext": "visit hostname www.amazon.com",
+    "featUseBehavior": "addon has amznUWL2@amazon.com",
+    "presentationData": {
+      "*": {
+        "message": "Provides a handy \"Add to Wish List\" button that lets you add any product from any website to your Amazon wish list with just a few clicks.",
+        "title": "Amazon Add to Wish List Button",
+        "rationale": "You visit Amazon.com frequently."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/add-to-amazon-wish-list-button/",
+        "secondaryButton": "open url -l  https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi?src=dp-btn-primary"
+      }
+    }
+  },
+  {
+    "id": "pinterestPinBtn",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.pinterest.com -c >1 -if <120",
+    "delivContext": "visit hostname www.pinterest.com",
+    "featUseBehavior": "addon has {677a8f98-fd64-40b0-a883-b8c95d0cbf17}",
+    "presentationData": {
+      "*": {
+        "message": "lets you pin images and upload your Pins to Pinterest quickly and easily with a special toolbar button.  ",
+        "title": "Pinterest Pin Button",
+        "rationale": "You visit Pinterest.com frequently."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "primaryButtonLabel": "Learn more",
+        "secondaryButtonLabel": "Install it"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/pinterest-pin-button/",
+        "secondaryButton": "open url -l  https://addons.mozilla.org/firefox/downloads/latest/428922/addon-428922-latest.xpi?src=dp-btn-primary"
+      }
+    }
+  },
+  {
+    "id": "privateBrowsing",
+    "priority": 1,
+    "trigBehavior": "history delete -c >3",
+    "delivContext": "history delete",
+    "featUseBehavior": "private browse open",
+    "presentationData": {
+      "*": {
+        "message": "Private Browsing allows you to browse the Internet without saving any information about which sites and pages you’ve visited.",
+        "title": "Private Browsing",
+        "rationale": "You edit your browsing history frequently."
+      },
+      "log": {},
+      "desktopnotification": {},
+      "doorhanger": {
+        "secondaryButtonLabel": "Learn more",
+        "primaryButtonLabel": "Try It"
+      },
+      "splitpage": {}
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l about:privatebrowsing -window -private",
+        "secondaryButton": "open url -l https://support.mozilla.org/en-US/kb/private-browsing-use-firefox-without-history"
+      }
+    }
+  }
+]

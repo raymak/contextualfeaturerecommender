@@ -1679,10 +1679,24 @@ const debug = {
 
       //deliverer
       case "deliver":
-        if (!recommendations[params])
+        if (!recommendations[params] && params != "next")
           return ("error: recommendation with id " + params + "does not exist.")
 
-        deliverer.deliver(recommendations[params]);
+        if (params != "next")
+          deliverer.deliver(recommendations[params]);
+        else {
+          let delivered = false;
+          recommendations.forEach(function(aRecommendation){
+            if (delivered) return;
+            if (aRecommendation.status != "delivered"){
+              timer.endSilence();
+              deliverer.deliver(aRecommendation);
+              delivered = true;
+            }
+          });
+          if (!delivered)
+            return "end of delivery list";
+        }
         break;
       case "schedule":
         if (!recommendations[params])
@@ -1700,9 +1714,9 @@ const debug = {
         switch(subArgs[1]){
           case "coeff":
             if (subArgs[2]){
-              coefficient(Number(subArgs[2]));
+              let newCoeff = coefficient(Number(subArgs[2]));
               scaleRoutes(Number(subArgs[2]), "trigBehavior");
-              return "route coefficient set to " + subArgs[2];
+              return "route coefficient set to " + newCoeff;
             }
             else
               return getCoefficient();

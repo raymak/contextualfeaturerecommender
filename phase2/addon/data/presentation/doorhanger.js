@@ -168,7 +168,10 @@ function openNegFeedback(){
   document.getElementById("sec-button").addEventListener("click", function(e){
     self.port.emit("infoPage"); 
   });
-  document.getElementById("neg-feedback").innerHTML = "I don't like this (New Tab shortcut)";
+  document.getElementById("neg-feedback").innerHTML = "I don't like this (" + document.getElementById("header").innerHTML + ")";
+  self.port.emit("negfbopen");
+
+  updatePanelSize();
 }
 
 function expandRationale(){

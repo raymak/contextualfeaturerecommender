@@ -8,7 +8,7 @@
 const system = require("sdk/system");
 const {prefs} = require("sdk/simple-prefs");
 
-const recommFileAddress = "prepilot005recommendations.json";
+const recommFileAddress = prefs["recomm_list_address"];
 
 exports.main = function(options, callbacks){
 

@@ -26,7 +26,7 @@ const equals = function(route){
 // coefficient of 1 is more conservative than 2
 const scale = function(coeff){
   for (let key in this){
-    if (typeof this[key] === "function") continue;
+    if (typeof this[key] === "function" || typeof this[key] === "boolean") continue;
 
     if (this[key].charAt(0) === ">")
       this[key] = ">" + String(Number(this[key].slice(1))/coeff);
@@ -79,7 +79,7 @@ const matches = function(inRoute, looseMatch){
 
 function coefficient(coeff){
   if (coeff)
-    prefs["route.coefficient"] = String(coeff);
+    prefs["route.coefficient"] = String(coeff*Number(prefs["route.coefficient"]));
 
   return Number(prefs["route.coefficient"]);
 }
