@@ -248,7 +248,7 @@
     "featUseBehavior": "hotkey c -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "Use the <span class='key'>CTRL</span>+<span class='key'>C</span> keyboard shortcut to easily copy your selection.",
+        "message": "Use the <span class='key'>CTRL</span>+<span class='key'>C</span> keyboard shortcut to easily copy a selection.",
         "rationale": "You copy text frequently.",
         "title": "Copy shortcut"
       },
@@ -320,7 +320,7 @@
     "featUseBehavior": "addon has {DDC359D1-844A-42a7-9AA1-88A850A938A8}",
     "presentationData": {
       "*": {
-        "message": "The DownThemAll lets you view and manage your downloads easier and faster!",
+        "message": "The DownThemAll extension lets you view and manage your downloads easier and faster!",
         "rationale": "You download files frequently.",
         "title": "Download Them All!"
       },
@@ -401,12 +401,13 @@
       },
       "doorhanger": {
         "secondaryButtonLabel": "Install it",
-        "primaryButtonLabel": "Learn more"
+        "primaryButtonLabel": "Learn more",
+        "icon": "images/icons/amazonWishListBtn.jpg"
       }
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l  https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi?src=fr-dh-btn",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi?src=fr-dh-btn",
         "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/add-to-amazon-wish-list-button/"
       }
     },
@@ -431,7 +432,7 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l  https://addons.mozilla.org/firefox/downloads/latest/428922/addon-428922-latest.xpi?src=fr-dh-btn",
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/428922/addon-428922-latest.xpi?src=fr-dh-btn",
         "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/pinterest-pin-button/"
       }
     },
@@ -888,7 +889,7 @@
     "tags": ""
   },
   {
-    "id": "smartKeywords\n",
+    "id": "smartKeywords",
     "priority": 4,
     "trigBehavior": "visit category specializedSearch -c >20 -if <60",
     "delivContext": "visit category specializedSearch",

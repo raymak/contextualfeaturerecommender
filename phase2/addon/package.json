@@ -184,7 +184,7 @@
       "name": "presentation.doorhanger.panel_show_delay_ms",
       "type": "integer",
       "title": " ",
-      "value": 700
+      "value": 0
     },
     {
       "name": "debug.enabled",

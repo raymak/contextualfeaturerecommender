@@ -169,6 +169,10 @@ function updateEntry(options){
 
   wrdCnt = wordCount(entry.message);
 
+  return new Promise(function(resolve, reject){
+    panel.port.on("loaded", function(){resolve()});
+  });
+
 }
 
 function updateShow(options, panelOptions){
@@ -178,14 +182,14 @@ function updateShow(options, panelOptions){
   let noInit = options && options.noinit;
   let noSchedule = options && options.noschedule;
 
-   updateEntry({noinit: noInit});
-
-  showPanel(delay, panelOptions).then(function(){
+  updateEntry({noinit: noInit})
+    .then(function() showPanel(delay, panelOptions))
+    .then(function(){
     if (!noSchedule)
       scheduleHide(prefs["presentation.doorhanger.autofade_time_ms_per_word"]*wrdCnt);
 
     buttonOn();
-  });
+    });
 } 
 
 function scheduleHide(time_ms){

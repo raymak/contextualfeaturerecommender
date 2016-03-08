@@ -45,8 +45,6 @@ self.port.on("updateEntry", function(entry, state, options){
     orderNegFb(options.negFbOrder);
   }
 
-  
-  updatePanelSize();
 
   //setting the callback
   document.getElementById("sec-button").addEventListener("click", secButtonClick);
@@ -118,6 +116,10 @@ self.port.on("updateEntry", function(entry, state, options){
   document.getElementById("info-page").addEventListener("click", function(e){
     self.port.emit("infoPage");
   });
+
+  self.port.emit("loaded");
+  
+  updatePanelSize();
 
 
 });
