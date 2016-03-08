@@ -1136,26 +1136,29 @@ listener.listenForWebsiteCategories = function(callback, options){
   let catIndx = {};
 
   catIndx = {
-    academic:           [ new MatchPattern(/http:\/\/ieeexplore\.ieee\.org\/.*/),
-                          new MatchPattern(/https:\/\/scholar\.google\..*/),
-                          new MatchPattern(/http:\/\/www\.sciencedirect\.com\/.*/),
-                          new MatchPattern(/http:\/\/dl\.acm\.org\/.*/)
+    academic:           [ new MatchPattern(/^(http|https):\/\/ieeexplore\.ieee\.org\/.*/),
+                          new MatchPattern(/^(http|https):\/\/scholar\.google\..*/),
+                          new MatchPattern(/^(http|https):\/\/www\.sciencedirect\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/dl\.acm\.org\/.*/)
                         ],
-    search:             [ new MatchPattern(/https:\/\/www\.google\.com\/\?.*/),
-                          new MatchPattern(/https:\/\/www\.bing\.com\/search\?.*/),
-                          new MatchPattern(/https:\/\/.*\.search\.yahoo\.com\/.*/)
+    search:             [ new MatchPattern(/^(http|https):\/\/www\.google\.com\/\?.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.bing\.com\/search\?.*/),
+                          new MatchPattern(/^(http|https):\/\/.*\.search\.yahoo\.com\/.*/)
                         ],
-    specializedSearch:  [ new MatchPattern(/http:\/\/www\.google\.com\/maps\/search\/.*/),
-                          new MatchPattern(/http:\/\/www\.imdb\.com\/find\?.*/),
-                          new MatchPattern(/https:\/\/en\.wikipedia\.org\/wiki\/Special:Search\?.*/),
-                          new MatchPattern(/https:\/\/en\.wikipedia\.org\/w\/index\.php\?search.*/)
+    specializedSearch:  [ new MatchPattern(/^(http|https):\/\/www\.google\.com\/maps\/search\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.imdb\.com\/find\?.*/),
+                          new MatchPattern(/^(http|https):\/\/en\.wikipedia\.org\/wiki\/.*/)
                         ],
-    weather:            [ new MatchPattern(/http:\/\/www\.weather\.com\/.*/),
-                          new MatchPattern(/http:\/\/www\.accuweather\.com\/.*/),
-                          new MatchPattern(/http:\/\/www\.wunderground\.com\/.*/),
-                          new MatchPattern(/http:\/\/www\.weather\.gov\.com\/.*/),
-                          new MatchPattern(/http:\/\/www\.weather\.yahoo\.com\/.*/)
-                          ]
+    weather:            [ new MatchPattern(/^(http|https):\/\/weather\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.accuweather\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.wunderground\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.weather\.gov\/.*/),
+                          new MatchPattern(/^(http|https):\/\/weather\.yahoo\.com\/.*/)
+                        ],
+    translation:        [ new MatchPattern(/^(http|https):\/\/translate\.google\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.translate\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.freetranslation\.com\/.*/)
+                        ]
   };
 
   tabs.on("ready", function(tab){
@@ -1179,6 +1182,8 @@ listener.listenForWebsiteCategories = function(callback, options){
     if (options.fresh && JSON.stringify(cats) === JSON.stringify(tab.cats)) return;
 
     tab.cats = cats;
+
+    console.log("website categories:", cats);
 
     if (cats.length == 0) return;
 
