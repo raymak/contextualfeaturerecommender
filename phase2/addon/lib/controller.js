@@ -1073,6 +1073,9 @@ listener.listenForNewtab = function(callback){
 listener.listenForActiveTabHostnameProgress = function(callback, options){
 
   tabs.on("ready", function(tab){
+      if (require("sdk/private-browsing").isPrivate(tab))
+        return;
+
       if (tab.id !== tabs.activeTab.id) return;//make sure it's the active tab
         
         let hostname = URL(tab.url).hostname;
@@ -1164,6 +1167,8 @@ listener.listenForWebsiteCategories = function(callback, options){
   tabs.on("ready", function(tab){
     // if (tab.id !== tabs.activeTab.id) return;
 
+    if (require("sdk/private-browsing").isPrivate(tab)) return;
+    
     let cats = [];
 
     for (let c in catIndx){
