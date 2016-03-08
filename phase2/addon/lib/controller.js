@@ -1183,9 +1183,9 @@ listener.listenForWebsiteCategories = function(callback, options){
 
     tab.cats = cats;
 
-    console.log("website categories:", cats);
-
     if (cats.length == 0) return;
+
+    console.log("website categories:", cats);
 
     cats.forEach(function(cat){
       callback(cat);

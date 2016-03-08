@@ -306,7 +306,8 @@ function parseFhrPayloadV2(data, callback){
 
   console.log("profileAgeDays", profileAgeDays, "totalActiveTicks", totalActiveTicks, "totalTime", totalTime, "isDefaultBrowser", isDefaultBrowser);
 
-  callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser);
+  // no crash count or session count reported for v2
+  callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, 0, 0);
 
     // console.log(JSON.stringify(data.data, null, 2));
     // return usage statistic
@@ -338,15 +339,23 @@ function parseFhrPayloadV4(map, callback){
 
   let totalTime = 0;
   let totalActiveTicks = 0;
+  let crashCount = 0;
+  let sessionCount = 0;
 
   for (var [k, v] of map){
       console.log(k, v);
-      if (v["type"] !== "main")
+
+      if (v["type"] !== "main" && v["type"] !== "crash")
         continue;
 
       let date = new Date(v["timestampCreated"]);
       if (!(date >= aMonthAgoDate && date < todayDate))  // only consider the pings from a month ago 
         continue;
+
+      if (v["type"] == "crash"){
+        crashCount +=1;
+        continue;
+      }
 
       promises.push(TelemetryStorage.loadArchivedPing(k));
     }
@@ -356,13 +365,14 @@ function parseFhrPayloadV4(map, callback){
         let pd = subsession.payload;
         totalTime += pd.info.subsessionLength;
         totalActiveTicks += pd.simpleMeasurements.activeTicks;
+        sessionCount += (pd.info.reason == 'shutdown')? 1: 0;
       });
 
       return (new ProfileAge()).getOldestProfileTimestamp();
     }).then(function(oldestTimestamp){
       profileAgeDays = (Date.now() - oldestTimestamp)/(86400*1000);
       console.log("profileAgeDays", profileAgeDays, "totalActiveTicks", totalActiveTicks, "totalTime", totalTime, "isDefaultBrowser", isDefaultBrowser);
-      callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser);
+      callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, crashCount, sessionCount);
     });     
 }
 
@@ -453,8 +463,8 @@ const debug = {
 
         case "fhr":
           if (params === 'dump'){
-            getFhrData(function(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser){
-              console.log(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser);
+            getFhrData(function(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, crashCount, sessionCount){
+              console.log(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, crashCount, sessionCount);
             });
           }
 

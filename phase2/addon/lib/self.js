@@ -109,14 +109,15 @@ const self = {
         }
 
         //fhr
-        getFhrData(function(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser){
+        getFhrData(function(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, crashCount, sessionCount){
           try {
             let result = {  
                extensioncount: extensionCount, themecount: themeCount,
                addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
                activeThemeId: activeThemeId, activeThemeName: activeThemeName,
                searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
-               profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks, totalTime: totalTime, isDefaultBrowser: isDefaultBrowser,
+               profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks,
+               totalTime: totalTime, isDefaultBrowser: isDefaultBrowser, crashCount: crashCount, sessionCount: sessionCount,
                browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart
               };
 
