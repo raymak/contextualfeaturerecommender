@@ -41,8 +41,7 @@ const self = {
     }
   },
   get isTest(){
-    return false;
-
+    
     if (!("isTest" in prefs)){
         // throw Error("isTest state not specified properly. use --static-args to define set .isTest to either \"true\" or \"false\"");
         prefs["isTest"] = true;  //true by default

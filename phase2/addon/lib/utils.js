@@ -249,7 +249,7 @@ function getFhrDataV4(callback){
 // https://github.com/raymak/contextualfeaturerecommender/issues/136
 
 function parseFhrPayloadV2(data, callback){
-  console.log(data);
+  // console.log(data);
   console.log("parsing FHR payload");
 
   var days = data.data.days;

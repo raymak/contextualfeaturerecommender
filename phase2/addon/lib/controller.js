@@ -99,10 +99,10 @@ const listener = {
       tabsEvent.effect = function(){
         let route = this.options.route;
 
-        //pinned is not about tabs being pinned
+        //pin is not about tabs being pinned
         //it is about reporting the number of pinned tabs
         //so should not be dispatched as tabs even
-        if (this.options.reason == "pinned") return;
+        if (this.options.reason == "pin") return;
         
         listener.dispatchRoute(route);
       };
@@ -111,7 +111,7 @@ const listener = {
 
       //see above
       multipleTabsEvent.checkPreconditions = function(){
-        return (this.preEvent.options.reason != "pinned");
+        return (this.preEvent.options.reason != "pin");
       };
 
       tabsEvent.postEvents.push(multipleTabsEvent);
@@ -132,9 +132,9 @@ const listener = {
 
       tabsEvent.postEvents.push(tabsOpened);
 
-      let tabsPinned = Event("tabsPinned");
+      let tabsPin= Event("tabsPin");
 
-      tabsPinned.effect = function(){
+      tabsPin.effect = function(){
         let baseRoute = this.preEvent.options.route;
 
         let route = [baseRoute, "-n", this.preEvent.options.params.number].join(" ");
@@ -142,11 +142,11 @@ const listener = {
         listener.dispatchRoute(route);
       };
 
-      tabsPinned.checkPreconditions = function(){
-        return (this.preEvent.options.reason == "pinned");
+      tabsPin.checkPreconditions = function(){
+        return (this.preEvent.options.reason == "pin");
       };
 
-      tabsEvent.postEvents.push(tabsPinned)
+      tabsEvent.postEvents.push(tabsPin)
 
       let tabsClicked = Event("tabsClicked");
 
@@ -1220,20 +1220,22 @@ listener.listenForTabs = function(callback, options){
       let tabBrowser = window.gBrowser;
       let f = function(e){
         reason = "pinned";
-        callback(reason, {number: countPinnedTabs()});
+        callback(reason);
       };
       tabBrowser.tabContainer.addEventListener("TabPinned", f);
       unload(function(){tabBrowser.tabContainer.removeEventListener("TabPinned", f)});
 
       f = function(e){
         reason = "unpinned";
-        callback(reason, {number: countPinnedTabs()});
+        callback(reason);
       };
       tabBrowser.tabContainer.addEventListener("TabUnpinned", f);
       unload(function(){tabBrowser.tabContainer.removeEventListener("TabUnpinned", f)});
 
       // new-tab-button
-      // this would ideally be a union of 2 chrome events, but you currently
+      // this would ideally be a union of 2 chrome events 
+      // (since a new element is created when tabs overflow),
+      // but you currently
       // cannot take the union of two routes in 1 route
       
       f = function(e){
@@ -1297,7 +1299,7 @@ listener.listenForTabs = function(callback, options){
       reason = "opened";
       callback(reason, {number: tabs.length});
 
-      callback("pinned", {number: countPinnedTabs()}); //in order to capture initial pinned tabs/ creates redundancy
+      callback("pin", {number: countPinnedTabs()}); //in order to capture initial pinned tabs/ creates redundancy
     }
   }
 }

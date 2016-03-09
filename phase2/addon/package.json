@@ -127,6 +127,12 @@
       "value": 20
     },
     {
+      "name": "logger.recent_hist_count",
+      "type": "integer",
+      "title": " ",
+      "value": 100
+    },
+    {
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
@@ -142,7 +148,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot005home"
+      "value": "prepilot006home"
     },
     {
       "name": "experiment.obs1_length_tick",
