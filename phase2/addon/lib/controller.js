@@ -116,9 +116,9 @@ const listener = {
 
       tabsEvent.postEvents.push(multipleTabsEvent);
 
-      let tabsOpened = Event("tabsOpened");
+      let tabsOpen = Event("tabsOpen");
 
-      tabsOpened.effect = function(){
+      tabsOpen.effect = function(){
         let baseRoute = this.preEvent.options.route;
 
         let route = [baseRoute, "-n", this.preEvent.options.params.number].join(" ");
@@ -126,11 +126,11 @@ const listener = {
         listener.dispatchRoute(route);
       };
 
-      tabsOpened.checkPreconditions = function(){
+      tabsOpen.checkPreconditions = function(){
         return (this.preEvent.options.reason == "open");
       };
 
-      tabsEvent.postEvents.push(tabsOpened);
+      tabsEvent.postEvents.push(tabsOpen);
 
       let tabsPin= Event("tabsPin");
 
@@ -901,7 +901,7 @@ listener.context = function(route){
 listener.featureUse = function(route){
 
   console.log("featureUse -> route: " + route);
-  
+
   route = Route(route);
 
   let featureUseInfo =  function(aRecommendation){ 
@@ -1131,6 +1131,7 @@ listener.listenForWebApps = function(callback, options){
     if (options.fresh && appId === tab.appId) return; //not a fresh url open
 
     tab.appId = appId;
+    unload(function(){if (tab) delete tab.appId;})
 
     //TODO: use pattern matching 
     // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
@@ -1283,11 +1284,23 @@ listener.listenForTabs = function(callback, options){
     };
 
   tabs.on('activate', function(tab){
+
     reason = "activated";
     callback(reason);
+
+    if (!tab.initialized){
+      tab.initialized = true;
+      unload(function(){if (tab) delete tab.initialized});
+      return;
+    }
+   
+    reason = "switched";
+    callback(reason);
+
   });
 
   tabs.on('open', function(tab){
+
     reason = "opened";
     callback(reason);
 
