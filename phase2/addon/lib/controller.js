@@ -102,7 +102,7 @@ const listener = {
         //pin is not about tabs being pinned
         //it is about reporting the number of pinned tabs
         //so should not be dispatched as tabs even
-        if (this.options.reason == "pin") return;
+        if (this.options.reason == "pin" || this.options.reason == "open") return;
         
         listener.dispatchRoute(route);
       };
@@ -111,7 +111,7 @@ const listener = {
 
       //see above
       multipleTabsEvent.checkPreconditions = function(){
-        return (this.preEvent.options.reason != "pin");
+        return (this.preEvent.options.reason != "pin" && this.preEvent.options.reason != "open");
       };
 
       tabsEvent.postEvents.push(multipleTabsEvent);
@@ -127,7 +127,7 @@ const listener = {
       };
 
       tabsOpened.checkPreconditions = function(){
-        return (this.preEvent.options.reason == "opened");
+        return (this.preEvent.options.reason == "open");
       };
 
       tabsEvent.postEvents.push(tabsOpened);
@@ -900,26 +900,31 @@ listener.context = function(route){
 
 listener.featureUse = function(route){
 
-  let routeObj = Route(route);
- 
-  let count = routeObj.c;
-  let num = routeObj.n;
-
   console.log("featureUse -> route: " + route);
-  let shouldReport;
+  
+  route = Route(route);
 
+  let featureUseInfo =  function(aRecommendation){ 
+    return {id: aRecommendation.id, count: route.c, num: route.n, "if": route.if};
+  }
+
+  //logging loose matches
   let recomms = recommendations.getByRouteIndex('featUseBehavior', route, {looseMatch: true});
-
   if (recomms.length === 0)
     return;
 
   recomms.forEach(function(aRecommendation){
+    if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
+      logger.logLooseFeatureUse(featureUseInfo(aRecommendation));
+    }
 
-    if (aRecommendation.status === 'delivered'){
+     if (aRecommendation.status === 'delivered'){
       featReport.postRecFeatureUse(aRecommendation.id);
     } 
 
   });
+
+  let shouldReport;
 
   recomms = recommendations.getByRouteIndex('featUseBehavior', route);
 
@@ -947,14 +952,14 @@ listener.featureUse = function(route){
 
 
     if (shouldReport){
-      let featureUseInfo = {id: aRecommendation.id, oldstatus: oldStatus, count: count, num: num};
+      let featureUseInfo = {id: aRecommendation.id, oldstatus: oldStatus, count: count, num: num, if: invf};
       logger.logFeatureUse(featureUseInfo);
 
       
       if (oldStatus == 'delivered')
         featReportInfo.adopted = true;
       else
-        featReportInfo.featureUse = true;
+        featReportInfo.featureuse = true;
 
       featReport.updateRow(aRecommendation.id, featReportInfo);
       
@@ -1105,10 +1110,11 @@ listener.listenForWebApps = function(callback, options){
   let apps = {};
 
   apps = {
-    googleCal: new MatchPattern(/https:\/\/www\.google\.com\/calendar\/.*/),
-    gmail: new MatchPattern(/https:\/\/mail\.google\.com\/.*/),
-    gdrive: new MatchPattern(/https:\/\/drive\.google\.com\/.*/),
-    twitter: new MatchPattern(/https:\/\/twitter\.com.*/)
+    googleCal: new MatchPattern(/^(http|https):\/\/calendar\.google\.com\/.*/),
+    gmail: new MatchPattern(/^(http|https):\/\/mail\.google\.com\/.*/),
+    gdrive: new MatchPattern(/^(http|https):\/\/drive\.google\.com\/.*/),
+    gdocs: new MatchPattern(/^(http|https):\/\/docs\.google\.com\/.*/),
+    twitter: new MatchPattern(/^(http|https):\/\/twitter\.com.*/)
   }
 
   tabs.on("ready", function(tab){
@@ -1221,6 +1227,7 @@ listener.listenForTabs = function(callback, options){
       let f = function(e){
         reason = "pinned";
         callback(reason);
+        callback("pin", {number: countPinnedTabs()}); 
       };
       tabBrowser.tabContainer.addEventListener("TabPinned", f);
       unload(function(){tabBrowser.tabContainer.removeEventListener("TabPinned", f)});
@@ -1228,6 +1235,7 @@ listener.listenForTabs = function(callback, options){
       f = function(e){
         reason = "unpinned";
         callback(reason);
+        callback("pin", {number: countPinnedTabs()}); 
       };
       tabBrowser.tabContainer.addEventListener("TabUnpinned", f);
       unload(function(){tabBrowser.tabContainer.removeEventListener("TabUnpinned", f)});
@@ -1281,7 +1289,10 @@ listener.listenForTabs = function(callback, options){
 
   tabs.on('open', function(tab){
     reason = "opened";
-    callback(reason, {number: tabs.length});
+    callback(reason);
+
+    reason = "open";
+    callback(reason,  {number: tabs.length});
 
     //listen for clicks
     let xulTab = viewFor(tab);
@@ -1296,7 +1307,7 @@ listener.listenForTabs = function(callback, options){
       xulTab.addEventListener("click", tabClick);
       unload(function(){xulTab.removeEventListener("click", tabClick)});
 
-      reason = "opened";
+      reason = "open";
       callback(reason, {number: tabs.length});
 
       callback("pin", {number: countPinnedTabs()}); //in order to capture initial pinned tabs/ creates redundancy
@@ -1359,6 +1370,7 @@ listener.listenForChromeEvents = function(callback, options){
 
       for (let routeId in routesToListenFor){
         let route =routesToListenFor[routeId];
+        // console.log(route.id);
         let elem = window.document.getElementById(route.id);
         
         let f = function(evt){

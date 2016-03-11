@@ -154,3 +154,4 @@ function send(data){
 
 exports.init = init;
 exports.send = send;
+exports.flush = flush;

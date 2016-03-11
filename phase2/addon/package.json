@@ -34,7 +34,7 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "prepilot005recommendations.json"
+      "value": "prepilot006recommendations.json"
     },
     {
       "name": "timer.tick_length_s",
@@ -130,13 +130,19 @@
       "name": "logger.recent_hist_count",
       "type": "integer",
       "title": " ",
-      "value": 100
+      "value": 50
     },
     {
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
       "value": 20
+    },
+    {
+      "name": "feature_report.immediate_try_period_s",
+      "type": "integer",
+      "title": " ",
+      "value": 30
     },
     {
       "name": "experiment.default_delMode_weights",
@@ -169,6 +175,12 @@
       "value": 120
     },
     {
+      "name": "experiment.modes.end.delay",
+      "type": "integer",
+      "title": " ",
+      "value": 5000
+    },
+    {
       "name": "route.coefficient",
       "type": "string",
       "title": "Coefficient that scales the triggering behavior thresholds",
@@ -197,6 +209,12 @@
       "type": "bool",
       "title": " ",
       "value": true
+    },
+    {
+      "name": "debug.command.used",
+      "type": "bool",
+      "title": " ",
+      "value": false
     },
     {
       "name": "sender.resend_period",

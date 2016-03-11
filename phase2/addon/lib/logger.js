@@ -47,6 +47,7 @@ function log(type, attrs){
     userid: self.userId,
     number: nextNumber(),
     is_test: self.isTest,
+    deb_cmd_used: prefs["debug.command.used"],
     ts: Date.now(),
     et: elapsedTime(),
     ett: elapsedTotalTime(),
@@ -112,6 +113,10 @@ function logFeatureUse(info){
 
   }
   log("FEATURE_USE", info)
+}
+
+function logLooseFeatureUse(info){
+  log("LOOSE_FEATURE_USE", info);
 }
 
 function logBehavior(info){
@@ -209,6 +214,7 @@ exports.logDisable = logDisable;
 exports.logPeriodicSelfInfo = logPeriodicSelfInfo;
 exports.logDhReport = logDhReport;
 exports.logFeatureUse = logFeatureUse;
+exports.logLooseFeatureUse = logLooseFeatureUse;
 exports.logBehavior = logBehavior;
 exports.logContext = logContext;
 exports.logDhPresent = logDhPresent;

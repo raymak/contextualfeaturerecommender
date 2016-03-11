@@ -9,6 +9,7 @@ const {PersistentObject} = require("./utils");
 const {prefs} = require("sdk/simple-prefs");
 const {merge} = require("sdk/util/object");
 const timer = require("./timer");
+const {setTimeout} = require("sdk/timers");
 const {handleCmd, dumpUpdateObject, isEnabled} = require("./debug");
 
 
@@ -60,11 +61,13 @@ const experiment = {
 
     debug.init();
 
-    if (!("stageForced" in expData))
+    if (!(expData["stageForced"]))
       expData.stageForced = false;
 
-    if (!("stage" in expData))
+    if (!(expData["stage"])){
+      console.log("experiment stage set to obs1 due to no existing stage");
       expData.stage = "obs1";
+    }
 
     timer.onTick(checkStage);
     timer.onTick(debug.update);
@@ -125,10 +128,10 @@ function checkStage(et, ett){
 
   expData.stage = nStage;
 
+  require("./logger").logExpStageAdvance({newstage: nStage});
+
   //prepare the new stage
   stages[nStage]();
-
-  require("./logger").logExpStageAdvance({newstage: nStage});
 
   console.log("starting new experiment stage: " + nStage);
 }
@@ -154,9 +157,20 @@ const stages = {
   obs2: function(){
     prefs["delivery.mode.observ_only"] = true;
     require('./presenter').stop();
+
+    console.log("obs2 stage started.");
   },
   end: function(){
-    require("./utils").selfDestruct("end");
+
+    // to make sure no notifications are delivered during the delay
+    prefs["delivery.mode.observ_only"] = true;
+    require('./presenter').stop();
+
+    // flush the remaining log messages
+    require('./sender').flush();
+
+    // delay to give some time for the remaining message queue to be flushed
+    setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"])
   }
 };
 

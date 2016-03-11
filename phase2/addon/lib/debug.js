@@ -188,6 +188,8 @@ function detachWorker(worker, workerArray) {
   }
 }
 
+// TOTHINK: ideally something like gcli is wanted
+// https://github.com/joewalker/gcli/blob/master/docs/index.md
 function processCommand(worker, cmd){
   let handled = false;
   let out;
@@ -197,6 +199,7 @@ function processCommand(worker, cmd){
       if (out !== undefined){
         handled = true;
         worker.port.emit("cmdOut", out, cmd);
+        sp.prefs["debug.command.used"] = true;
       }
     }
     else 

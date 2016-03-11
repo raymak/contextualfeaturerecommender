@@ -92,6 +92,12 @@ exports.PersistentObject = function(type, options){
 
           return true;
         },
+        has: function(target, prop){
+          if (!(prop in target))
+            return prop in JSON.parse(prefs[options.address]);
+          else
+            return true;
+        },
         ownKeys: function(target){
           return Object.getOwnPropertyNames(target).concat(Object.keys(JSON.parse(prefs[options.address])));
         },

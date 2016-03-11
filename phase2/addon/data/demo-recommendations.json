@@ -1,0 +1,125 @@
+[{
+    "id": "welcome",
+    "priority": 0,
+    "trigBehavior": "",
+    "delivContext": "",
+    "featUseBehavior": "",
+    "presentationData": {
+      "*": {
+        "message": "Here you will see awesome Firefox tips that are just for you.",
+        "rationale": "You are awesome.",
+        "title": "Welcome to Feature Recommender!"
+      },
+      "doorhanger": {
+        "secondaryButtonLabel": "Learn more",
+        "primaryButtonLabel": "Yay!"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "secondaryButton": "info",
+        "primaryButton": "pass"
+      }
+    },
+    "tags": ""
+  },
+  {
+    "id": "redditEnhancementSuite",
+    "priority": 1,
+    "trigBehavior": "visit hostname www.reddit.com -c >2 -if <180",
+    "delivContext": "visit hostname www.reddit.com",
+    "featUseBehavior": "addon has jid1-xUfzOsOFlzSOXg@jetpack",
+    "presentationData": {
+      "*": {
+        "message": "The Reddit Enhancement Suite extension enhances your reddit browsing experience.",
+        "rationale": "You frequently visit reddit.",
+        "title": "Enhance your reddit experience!"
+      },
+      "doorhanger": {
+        "secondaryButtonLabel": "Install it",
+        "primaryButtonLabel": "Learn more"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/reddit-enhancement-suite/"
+      }
+    },
+    "tags": ""
+  },
+{
+    "id": "newTabShortcut",
+    "priority": 1,
+    "trigBehavior": "tabs newtab-button -c >2 -if <5",
+    "delivContext": "tabs newtab-button",
+    "featUseBehavior": "hotkey t -cmd -c >1",
+    "presentationData": {
+      "*": {
+        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
+        "rationale": "You open tabs a lot.",
+        "title": "New Tab shortcut"
+      },
+      "doorhanger": {
+        "secondaryButtonLabel": null,
+        "primaryButtonLabel": "Learn more"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_windows-tabs"
+      }
+    },
+    "tags": ""
+  },
+  {
+    "id": "integratedGoogleCal",
+    "priority": 3,
+    "trigBehavior": "visit webapp -appId googleCal -c >2 -if <60",
+    "delivContext": "visit webapp -appId googleCal",
+    "featUseBehavior": "addon has intgcal@egarracingteam.com.ar",
+    "presentationData": {
+      "*": {
+        "message": "Integrate Google Calendar with Firefox! No extra login needed.",
+        "rationale": "You visit Google Calendar a lot.",
+        "title": "Integerated Google Calendar"
+      },
+      "doorhanger": {
+        "secondaryButtonLabel": "Install it",
+        "primaryButtonLabel": "Learn more"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/363973/addon-363973-latest.xpi?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/integrated-google-calendar/"
+      }
+    },
+    "tags": ""
+  },
+  {
+    "id": "treeStyleTab",
+    "priority": 3,
+    "trigBehavior": "tabs open -n >5",
+    "delivContext": "tabs open",
+    "featUseBehavior": "addon hastreestyletab@piro.sakura.ne.jp",
+    "presentationData": {
+      "*": {
+        "message": "Helps you manage and view your tabs more easily by showing tabs like a tree.",
+        "rationale": "You keep many tabs open.",
+        "title": "Tree Style Tab"
+      },
+      "doorhanger": {
+        "secondaryButtonLabel": "Install it",
+        "primaryButtonLabel": "Learn more"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/file/400286/tree_style_tab-0.16.2016021602-fx.xpi?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/tree-style-tab/"
+      }
+    },
+    "tags": ""
+  }
+  ]

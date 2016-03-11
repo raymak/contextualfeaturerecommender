@@ -50,7 +50,8 @@ function addRow(id, obj){
     primbtn: null, secbtn: null, response: null,
     manualopen: null, presnumber: null,
     rationaleopen: null, firstclosereason: null, firstopen: null,
-    featureuse: null, firstusesincepres: null, tried: null
+    featureuse: null, firstusesincepres: null, tried: null, immediate_try: null,
+    interaction: null
     };
 
   for (let k in obj )
@@ -91,6 +92,13 @@ function postRecFeatureUse(id){
 
   report[id].firstusesincepres = ett - startett;
   report[id].tried = true;
+
+  let immediate_try_period_s = prefs["feature_report.immediate_try_period_s"];
+
+  if (report[id].firstusesincepres < timer.sToT(immediate_try_period_s))
+    report[id].immediate_try = true;
+  else
+    report[id].immediate_try = false;
 
   featData.report = report;
 }

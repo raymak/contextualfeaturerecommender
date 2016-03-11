@@ -441,7 +441,8 @@ function updateReport(){
                    interaction: Boolean(state.like || state.dontlike || (state.count > 1) 
                    || state.negFbChoice || (report.primbtn > 0) || (report.secbtn > 0)
                    || (report.closebtn > 0) || (report.esc > 0) || report.mouseenter
-                   || report.rationaleopen || (report.infopage > 0))
+                   || report.rationaleopen || (report.infopage > 0)),
+                   id: currRec.recomm.id
                     };
   let info = merge({}, currRec.state, currRec.report, addedInfo);
 
@@ -450,7 +451,7 @@ function updateReport(){
                     interaction: info.interaction, primbtn: (info.primbtn > 0),
                     secbtn: (info.secbtn > 0), manualopen: (info.count > 1),
                     response: (info.primbtn > 0 || info.secbtn > 0), rationaleopen: (info.rationaleopen > 0),
-                    firstclosereason: info.firstclosereason, firstopen: info.firstopen
+                    firstclosereason: info.firstclosereason, firstopen: info.firstopen, interaction: info.interaction
                      }
   featReport.updateRow(currRec.recomm.id, featReportRow);
 
@@ -468,10 +469,15 @@ function report(){
 function stop(){
   console.log("stopping doorhanger");
 
-   button.destroy();
-   dhData.stopped = true;
+  if (dhData.stopped)
+    return;
 
-   if (dhData.currentRec && dhData.currentRec.recomm){
+  if (button)
+    button.destroy();
+
+  dhData.stopped = true;
+
+  if (dhData.currentRec && dhData.currentRec.recomm){
     updateReport();
     report(); //report the last recommendation
   }
