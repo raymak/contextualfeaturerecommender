@@ -496,7 +496,41 @@ const debug = {
     dumpUpdateObject(updateObj, {list: "Presentation: Doorhanger"});
   },
   parseCmd: function(cmd){
-    return undefined;
+    const patt = /([^ ]*) *(.*)/; 
+    let args = patt.exec(cmd);
+
+    let subArgs;
+    
+    if (!args)  //does not match the basic pattern
+      return false;
+
+    let name = args[1];
+    let params = args[2];
+
+    if (name != "dh")
+      return undefined;
+
+    subArgs = patt.exec(params);
+
+    switch(subArgs[1]){
+      case "report":
+
+        switch(subArgs[2]){
+          case "update":
+            updateReport();
+            report(); //report the last recommendation
+          break;
+
+          default:
+            return "waring: incorrect use of the dh report command.";
+        }
+        
+        break;
+      default:
+        return undefined;
+    }
+
+    return " ";
   }
 }
 
