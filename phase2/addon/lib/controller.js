@@ -55,7 +55,6 @@ const recSetAddress = "controller.recommData";
 
 let recommendations = PersistentRecSet("simplePref", {address: recSetAddress});
 
-let downloadList;
 let hs;
 let sessObserver;
 let contentTypeObserver;
@@ -104,7 +103,7 @@ const listener = {
         //so should not be dispatched as tabs even
         if (this.options.reason == "pin" || this.options.reason == "open") return;
         
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       };
 
       let multipleTabsEvent = that.multipleRoute(tabsEvent);
@@ -202,6 +201,10 @@ const listener = {
 
     this.listenForUserActivity(function(){
 
+      // TODO: resolve the duplicate issue 
+      // only multipleInterruptibleMomentEvent should issue a route
+      // have to change the equality check in context() to a match check
+      
       let interruptibleMomentEvent = Event("interruptibleMomentEvent",
       {
         route: "*"
@@ -304,6 +307,8 @@ const listener = {
 
       hotkeyEvent.effect = function(){
         let e = this.options.event;
+
+        // os-dependent representation, not dispatched currently
         let route = ["hotkey", e.key,
                    e.metaKey ? "-meta" : "",
                    e.ctrlKey ? "-ctrl" : "",
@@ -312,21 +317,15 @@ const listener = {
                     return elm != "";
                    }).join(" ");
 
-        listener.dispatchRoute(route);
-
         let osDarwin = system.platform === 'darwin'; //TODO
 
+        // os-independent representation
         route = ["hotkey", e.key,
                 ((e.metaKey && osDarwin) || (e.ctrlKey && !osDarwin)) ? "-cmd" : "",
                 e.shiftKey ? "-shift" : "",
                 e.altKey ? "-alt" : ""].filter(function(elm){
                     return elm != "";
                    }).join(" ");
-
-        //TODO: solve thE multiple correct routes problem by adding the capability of having multople
-        //routes for behaviors and contexts (or adding route equivalence test)
-
-        listener.dispatchRoute(route);
 
         this.options.route = route; //TOTHINK: the first route is ignored for postEvents
       }
@@ -355,7 +354,7 @@ const listener = {
       chromeEvent.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multipleChromeEvent = that.multipleRoute(chromeEvent);
@@ -366,11 +365,11 @@ const listener = {
       chromeEventAnon.effect = function(){
         let anonid = this.preEvent.options.event.originalTarget.getAttribute("anonid");
         let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, "-anonid", anonid].join(" ");
+        this.options.route = [baseRoute, "anonid", anonid].join(" ");
 
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       chromeEventAnon.checkPreconditions = function(){
@@ -399,7 +398,7 @@ const listener = {
       webAppOpen.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multipleWebAppOpen = that.multipleRoute(webAppOpen);
@@ -412,10 +411,10 @@ const listener = {
         let baseRoute = this.preEvent.options.route;
         let appId = this.preEvent.options.appId;
 
-        let route = [baseRoute, "-appId", appId].join(" ");
+        let route = [baseRoute, "appId", appId].join(" ");
         this.options.route = route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multipleWebAppOpenId = that.multipleRoute(webAppOpenId);
@@ -437,7 +436,7 @@ const listener = {
       websiteCategoryEvent.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multipleWebsiteCategoryEvent = that.multipleRoute(websiteCategoryEvent);
@@ -458,7 +457,7 @@ const listener = {
         let hostname = this.options.hostname; //TODO: remove if unnecessary
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
         };
 
         let multipleHostVisit = that.multipleRoute(hostVisit);
@@ -481,12 +480,17 @@ const listener = {
         let route = this.options.route;
         let reason = this.options.reason;
 
-        if (reason != "alias")
-          listener.dispatchRoute(route);
+        // if (reason != "alias")
+        //   listener.dispatchRoute(route);
       };
 
 
       let multipleSearchEngModify = that.multipleRoute(searchEngModify);
+
+      multipleSearchEngModify.checkPreconditions = function(){
+        return (this.preEvent.options.reason != "alias");
+      }
+
       searchEngModify.postEvents.push(multipleSearchEngModify);
 
       let searchEngAliasEvent = Event("searchEngModifyAliasEvent");
@@ -520,7 +524,7 @@ const listener = {
       devToolsEvent.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       };
 
       let multipleDevToolsEvent = that.multipleRoute(devToolsEvent);
@@ -533,12 +537,12 @@ const listener = {
         let baseRoute = this.preEvent.options.route;
         let toolId = this.preEvent.options.params.toolId;
 
-        let route = [baseRoute, "-tool", toolId].join(" ");
+        let route = [baseRoute, "tool", toolId].join(" ");
 
         this.options.route = route;
         this.options.toolId = toolId;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       devToolsSelect.checkPreconditions = function(){
@@ -562,7 +566,7 @@ const listener = {
 
       sessRestored.effect = function(){
         let route = this.options.route;
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       sessRestored.checkPreconditions = function(){
@@ -583,7 +587,7 @@ const listener = {
 
       privateBrowse.effect = function(){
         let route = this.options.route;
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multiplePrivateBrowse = that.multipleRoute(privateBrowse);
@@ -596,13 +600,13 @@ const listener = {
     this.listenForHistory(function(reason){
       let histInteraction = Event(("historyInteraction"), {
         reason: reason,
-        route: "history"
+        route: ["history", reason].join(" ")
       });
 
       histInteraction.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       };
 
       let multipleHistInteraction = that.multipleRoute(histInteraction);
@@ -614,13 +618,12 @@ const listener = {
       let histDelete = Event("historyDelete");
 
       histDelete.effect = function(){
-        let reason = this.preEvent.options.reason;
-        let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, "delete"].join(" ");
+
+        this.options.route = ['history', "delete"].join(" ");
 
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       histDelete.checkPreconditions = function(){
@@ -639,81 +642,18 @@ const listener = {
 
       let downloadInteraction = Event("downloadInteraction", {
         reason: reason,
-        route: "download"
+        route: ["download", reason].join(" ")
       });
 
       downloadInteraction.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       };
 
       let multipleDownloadInteraction = that.multipleRoute(downloadInteraction);
       downloadInteraction.postEvents.push(multipleDownloadInteraction);
 
-      //Download Added
-      let downloadAdded = Event("downloadAdded");
-
-      downloadAdded.effect = function(){
-        let reason = this.preEvent.options.reason;
-        let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, reason].join(" ");
-
-        let route = this.options.route;
-
-        listener.dispatchRoute(route);
-      };
-
-      downloadAdded.checkPreconditions = function(){
-        return this.preEvent.options.reason === "added";
-      };
-
-      let multipleDownloadAdded = that.multipleRoute(downloadAdded);
-      downloadAdded.postEvents.push(multipleDownloadAdded);
-
-     
-      //Download Changed
-      let downloadChanged = Event("downloadChanged");
-
-      downloadChanged.effect = function(){
-        let reason = this.preEvent.options.reason;
-        let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, reason].join(" ");
-
-        let route = this.options.route;
-
-        listener.dispatchRoute(route);
-      };
-
-      downloadChanged.checkPreconditions = function(){
-        return this.preEvent.options.reason === "changed";
-      };
-
-      let multipleDownloadChanged = that.multipleRoute(downloadChanged);
-      downloadChanged.postEvents.push(multipleDownloadChanged);
-
-      //Download Removed
-      let downloadRemoved = Event("downloadRemoved");
-
-      downloadRemoved.effect = function(){
-        let reason = this.preEvent.options.reason;
-        let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, reason].join(" ");
-
-        let route = this.options.route;
-
-        listener.dispatchRoute(route);
-      };
-
-      downloadRemoved.checkPreconditions = function(){
-        return this.preEvent.options.reason === "removed";
-      };
-
-      let multipleDownloadRemoved = that.multipleRoute(downloadRemoved);
-      downloadRemoved.postEvents.push(multipleDownloadRemoved);
-
-
-      downloadInteraction.postEvents.push(downloadAdded, downloadChanged, downloadRemoved);
       downloadInteraction.wake();
 
     });
@@ -729,7 +669,7 @@ const listener = {
 const deliverer = {
   init: function(){
 
-     let f = function(p){
+    let f = function(p){
       prefs["timer.silence_length_s"] = 
         timer.tToS(prefs["delivery.mode.silence_length." + prefs[p]]);
     };
@@ -786,6 +726,11 @@ const deliverer = {
     }
 
     console.log("delivering " + aRecommendation.id);
+
+    if (aRecommendation.status == "delivered"){
+      console.log("warning: delivering a recommendation that has already been delivered");
+      logger.logWarning({code: "delivery", message: "delivering a recommendation that has already been delivered: " + aRecommendation.id});
+    }
 
     aRecommendation.status = "delivered";
     recommendations.update(aRecommendation);
@@ -918,7 +863,7 @@ listener.featureUse = function(route){
       logger.logLooseFeatureUse(featureUseInfo(aRecommendation));
     }
 
-     if (aRecommendation.status === 'delivered'){
+    if (aRecommendation.status === 'delivered'){
       featReport.postRecFeatureUse(aRecommendation.id);
     } 
 
@@ -944,7 +889,7 @@ listener.featureUse = function(route){
       shouldReport = true;
     }
     
-    if (utils.isPowerOf2(num) || utils.isPowerOf2(count))
+    if (utils.isPowerOf2(route.n) || utils.isPowerOf2(route.c))
       shouldReport = true;
 
     if (oldStatus == 'delivered')
@@ -952,8 +897,7 @@ listener.featureUse = function(route){
 
 
     if (shouldReport){
-      let featureUseInfo = {id: aRecommendation.id, oldstatus: oldStatus, count: count, num: num, if: invf};
-      logger.logFeatureUse(featureUseInfo);
+      logger.logFeatureUse(featureUseInfo(aRecommendation));
 
       
       if (oldStatus == 'delivered')
@@ -1333,6 +1277,8 @@ listener.listenForDownloads = function(callback, options){
     onDownloadAdded: function(download) { 
       console.log("Download added");
       callback('added');
+      //just for testing
+      logger.logWarning({code: "download", source: download.source.url, startTime: download.startTime.getTime()});
     },
     onDownloadChanged: function(download) {
       // console.log("Download changed");
@@ -1346,11 +1292,18 @@ listener.listenForDownloads = function(callback, options){
 
   Task.spawn(function() {
     try {
-      downloadList = yield Downloads.getList(Downloads.ALL);
+      let downloadList = yield Downloads.getList(Downloads.ALL);
       yield downloadList.addView(dlView);
     } catch (ex) {
       console.error(ex);
     }
+  });
+
+  unload(function(){
+    Task.spawn(function(){
+      let list = yield Downloads.getList(Downloads.ALL);
+      list.removeView(dlView);
+    }).then(null, Cu.reportError);
   });
 };
 
@@ -1477,14 +1430,15 @@ listener.listenForHistory = function(callback){
     onBeforeDeleteURI: function(aURI) {},
     onDeleteURI: function(aURI) {
       callback('deletedURI');
+      console.log("deleted", aURI);
 
     },
     onClearHistory: function() {
       callback('cleared');
     },
     onPageChanged: function(aURI, aWhat, aValue) {},
-    onDeleteVisits: function() {
-      callback("deletedvisits");
+    onDeleteVisits: function(aURI, aVisitTime, aGUID) {
+      
     },
     QueryInterface: XPCOMUtils.generateQI([Ci.nsINavHistoryObserver])
   };
@@ -1594,7 +1548,7 @@ listener.listenForFirefoxEvents = function(callback){
 
   callback('profiles', {number: num});
 
-  callback('startup');
+  callback('startup'); // not alwats right, e.g. when addon is installed
 }
 
 // listening for command invocations is not useful because the menu items directly call gDevTools functions
@@ -1712,7 +1666,7 @@ const debug = {
       //deliverer
       case "deliver":
         if (!recommendations[params] && params != "next")
-          return ("error: recommendation with id " + params + "does not exist.")
+          return ("error: recommendation with id " + params + " does not exist.")
 
         if (params != "next")
           deliverer.deliver(recommendations[params]);
@@ -1908,8 +1862,6 @@ function scaleRoutes(coeff, indexTable){
 function unloadController(reason){
 
   console.log("unloading controller...");
-
-  if (downloadList) downloadList.removeView(dlView);
 
   if (hs && historyObserver) hs.removeObserver(historyObserver);
 

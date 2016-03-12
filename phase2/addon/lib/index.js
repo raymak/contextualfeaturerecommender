@@ -91,6 +91,8 @@ exports.onUnload = function(reason){
 
   if (reason == "uninstall" || reason == "disable")
     logger.logDisable(reason);
+
+  require('./sender').flush();
 }
 
 

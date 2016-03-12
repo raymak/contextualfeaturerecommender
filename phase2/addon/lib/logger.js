@@ -73,7 +73,7 @@ function log(type, attrs){
 }
 
 function periodicLog(et, ett){
-      if (Math.floor(ett) % prefs["logger.periodic_log_period"] != 1) return;
+      if (Math.floor(et) % prefs["logger.periodic_log_period"] != 1) return;
       self.getPeriodicInfo(function(info){
         logPeriodicSelfInfo(info);
       });

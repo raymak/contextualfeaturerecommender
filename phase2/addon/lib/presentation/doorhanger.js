@@ -492,7 +492,7 @@ const debug = {
     if (!isEnabled) return;
 
     let data = dhData;
-    let updateObj = {count: data.count, currentRecomm: data.currentRec.recomm, state: data.currentRec.state};
+    let updateObj = {count: data.count, currentRecomm: data.currentRec.recomm, state: data.currentRec.state, report: data.currentRec.report};
     dumpUpdateObject(updateObj, {list: "Presentation: Doorhanger"});
   },
   parseCmd: function(cmd){
@@ -524,7 +524,7 @@ const debug = {
           default:
             return "waring: incorrect use of the dh report command.";
         }
-        
+
         break;
       default:
         return undefined;

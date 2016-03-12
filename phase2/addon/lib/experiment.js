@@ -142,6 +142,8 @@ const stages = {
     prefs["delivery.mode.observ_only"] = true;
     let mode = expData.mode;
     prefs["delivery.mode.rate_limit"] = mode.rateLimit;
+    prefs["timer.silence_length_s"] = 
+        timer.tToS(prefs["delivery.mode.silence_length." + prefs["delivery.mode.rate_limit"]]);
     prefs["delivery.mode.moment"] = mode.moment;
     prefs["route.coefficient"] = String(mode.coeff);
 
