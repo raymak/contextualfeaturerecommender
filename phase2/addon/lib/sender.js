@@ -115,8 +115,7 @@ function sendToFile(data){
     let onFulFill = function(aFile){
       let encoder = new TextEncoder();  // This encoder can be reused for several writes
       let array = encoder.encode(message); 
-      aFile.write(array);
-      aFile.close();
+      aFile.write(array).then(function(){aFile.close();});
     }
 
     let b_dirPath = pathFor("ProfD"); //backup file

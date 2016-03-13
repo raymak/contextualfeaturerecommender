@@ -32,29 +32,31 @@ exports.partial = function(fn /*, arguments */) {
 exports.extractOpts = function(str){
   let obj = {};
 
+    str = str.trim();
+  
   let headerInd = str.indexOf(" -");
   if (headerInd < 0) headerInd = str.length;
-  let headerExp = str.slice(0, headerInd);
-  let keysExp = str.slice(headerInd+1);
+  let headerExp = str.slice(0, headerInd).trim();
+  let keysExp = str.slice(headerInd);
 
   obj.header = headerExp;
 
   let i = 0;
-  let keysArr = keysExp.split(" ");
+  let keysArr = keysExp.split(/ +-/);
+  keysArr.shift(); // removing the first "" item
 
-  if (keysExp.length > 0)
-    while(i < keysArr.length){
-      if (keysArr[i+1] && keysArr[i+1].charAt(0) !== "-"){
-        obj[keysArr[i].slice(1)] = keysArr[i+1];
-        i = i + 2;
+  keysArr.forEach(function(key){
+    let regex = /^([^ ]*) +(.*)$/.exec(key);
+    
+    if (!regex)
+      obj[key] = true;
+    else
+      {
+        obj[regex[1]]=regex[2];
       }
-      else {
-        obj[keysArr[i].slice(1)] = true;
-        i = i + 1;
-      }
-    }
+   });
 
-    return obj;
+  return obj;
 }
 
 

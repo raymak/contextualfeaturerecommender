@@ -10,6 +10,9 @@ const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 const sp = require("sdk/simple-prefs");
 const unload = require("sdk/system/unload").when;
+const {Cu, Cc, Ci} = require("chrome");
+const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
+Cu.import("resource://gre/modules/osfile.jsm");
 
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
@@ -57,6 +60,8 @@ function init(){
       initWorker(worker);
     }
   });
+
+  handleCmd(parseCmd);
 
   console.timeEnd("debug init");
 
@@ -188,6 +193,79 @@ function detachWorker(worker, workerArray) {
   }
 }
 
+function recordToEntry(rec){
+
+  let result;
+
+  if (rec.type == 'json')
+    result = JSON.parse(rec.data);
+  else
+    result = rec.data;
+
+  return result;
+}
+
+function exportData(options){
+
+  let recordsObj = {};
+
+  let lists = options && options.lists;
+
+  if (lists)
+    lists = lists.map(function(v){
+      return v.toUpperCase();
+    });
+
+  console.log(lists);
+
+  for (let k in records){
+    let rec = records[k];
+
+    if (lists && !~lists.indexOf(rec.list.toUpperCase()))
+      continue;
+
+    if (!recordsObj[rec.list])
+      recordsObj[rec.list] = {};
+
+    recordsObj[rec.list][k] = recordToEntry(rec);
+  }
+
+  const nsIFilePicker = Ci.nsIFilePicker;
+
+  let writeToFile = function(path, message, options){
+
+  let onFulFill = function(aFile){
+    let encoder = new TextEncoder();  // This encoder can be reused for several writes
+    let array = encoder.encode(message); 
+    aFile.write(array).then(function(){aFile.close();});
+  }
+
+  let filePromise = OS.File.open(path, options);
+  return filePromise.then(onFulFill)
+             .then(null, Cu.reportError);
+}
+
+  let fp = Cc["@mozilla.org/filepicker;1"]
+             .createInstance(Ci.nsIFilePicker);
+
+  fp.init(require("sdk/window/utils").getMostRecentBrowserWindow(), "Export to...", fp.modeSave);
+
+  fp.defaultExtension = "json";
+  fp.defaultString = "fr-debug-snapshot.json";
+  fp.appendFilter("All", "*.*");
+
+  fp.open({
+    done: function(rt){
+      if (rt == fp.returnCancel)
+        return;
+      
+      let dataStr = JSON.stringify(recordsObj);
+
+      writeToFile(fp.file.path, dataStr, {write: true, append: false, trunc: true});
+    }
+  });
+}
+
 // TOTHINK: ideally something like gcli is wanted
 // https://github.com/joewalker/gcli/blob/master/docs/index.md
 function processCommand(worker, cmd){
@@ -225,6 +303,59 @@ function handleCmd(handler){
   }
 
   cmdHandlers.push(handler);
+}
+
+function parseCmd(cmd){
+    const patt = /([^ ]*) *(.*)/; 
+    let args = patt.exec(cmd);
+
+    let subArgs;
+    
+    if (!args)  //does not match the basic pattern
+      return false;
+
+    let name = args[1];
+    let params = args[2];
+
+    switch(name){
+
+      case "debug":
+
+        let cmdObj = require("./utils").extractOpts(params);
+
+        switch(cmdObj.header){
+          case "export":
+            if (!cmdObj.l)
+              exportData();
+            else
+            {
+              console.log(cmdObj.l);
+              let lists;
+              try{
+                lists = JSON.parse(cmdObj.l);
+              }
+              catch(e){
+                return "warning: incorrect use of the -l option";
+              }
+
+              if (lists.constructor !== Array)
+                return "warning: incorrect use of the -l option";
+
+              console.log(lists);
+              exportData({lists: lists});
+            }
+            break;
+
+          default:
+            return "warning: incorrect use of the debug command";
+        }
+        break;
+
+      default:
+        return undefined;
+    }
+
+    return " ";
 }
 
 
