@@ -181,6 +181,12 @@
       "value": 5000
     },
     {
+      "name": "stats.send_to_debug",
+      "type": "bool",
+      "title": " ",
+      "value": true
+    },
+    {
       "name": "route.coefficient",
       "type": "string",
       "title": "Coefficient that scales the triggering behavior thresholds",

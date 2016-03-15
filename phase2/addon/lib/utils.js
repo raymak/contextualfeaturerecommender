@@ -60,8 +60,13 @@ exports.extractOpts = function(str){
 }
 
 
-//TODO: add simpleStorage
-////TODO: add function definition capabilities using closures
+//TODO: add OS.File
+//TODO: add function definition capabilities using closures, to make it a real persisten object,
+// and not only a JsonStore
+//TOTHINK: currently synchronous and immediate, could be more like simple-storage
+// by having a temporary object that is written to the disk/prefs every once in a while
+// TODO: work on this and make it an npm package
+// read sdk/simple-storage.js again for this
 exports.PersistentObject = function(type, options){
   if (type === "simplePref"){
     //create if pref does not exist

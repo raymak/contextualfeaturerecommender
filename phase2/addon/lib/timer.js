@@ -187,6 +187,9 @@ const onInactive = function(fn){
 
 }
 
+
+//TODO: use a pattern like https://github.com/mozilla/addon-sdk/blob/a44176661b1b61dffb46ce2ff5a4156bda38cf49/lib/sdk/simple-storage.js#L27-L36
+// to make all getter functions look like properties
 const elapsedTime = function(){
   return timerData.elapsedTime;
 }

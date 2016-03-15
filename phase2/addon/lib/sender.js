@@ -8,7 +8,7 @@
 const request = require("sdk/request");
 const unload = require("sdk/system/unload").when;
 const {Cu, Cc, Ci} = require("chrome");
-const ss = require("sdk/simple-storage");
+const {storage} = require("sdk/simple-storage");
 const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
 const {onTick} = require('./timer');
@@ -32,15 +32,14 @@ function init(){
 
   console.log("initializing sender");
 
-
   onTick(function(et, ett){
     if (Math.floor(ett) % prefs["sender.resend_period"] == 0)
       flush();
   });
 
-  if (!ss.storage.sender){
-    ss.storage.sender = {};
-    ss.storage.sender.messages = [];
+  if (!storage.sender){
+    storage.sender = {};
+    storage.sender.messages = [];
   }
 
   flush();
@@ -48,38 +47,38 @@ function init(){
 
 function remove(data){
   try{
-    ss.storage.sender.messages.splice(
-      ss.storage.sender.messages.findIndex(function(elem) elem.number === data.number),
+    storage.sender.messages.splice(
+      storage.sender.messages.findIndex(function(elem) elem.number === data.number),
       1);
   } catch(e){console.log(e)}
-  prefs["sender.data.queue_size"] = ss.storage.sender.messages.length;
+  prefs["sender.data.queue_size"] = storage.sender.messages.length;
 }
 
 function queue(data){
-  if (ss.storage.sender.messages.length <= prefs["sender.queue_quota"]){
-    ss.storage.sender.messages.push(data); 
+  if (storage.sender.messages.length <= prefs["sender.queue_quota"]){
+    storage.sender.messages.push(data); 
     console.log("http message queued");
   }
   else
     console.log("warning: http message dropped due to limited quota");
 
-  prefs["sender.data.queue_size"] = ss.storage.sender.messages.length;
+  prefs["sender.data.queue_size"] = storage.sender.messages.length;
 }
 
 function flush(){
-  let arr = ss.storage.sender.messages.slice();
+  let arr = storage.sender.messages.slice();
 
   if (arr.length > 0)
     console.log("flushing " + arr.length + " queued messages...");
 
-  ss.storage.sender.messages = [];
+  storage.sender.messages = [];
 
   while (arr.length  > 0){
     console.log(arr.length);
     sendToRemote(arr.shift());
   }
 
-  prefs["sender.data.queue_size"] = ss.storage.sender.messages.length;
+  prefs["sender.data.queue_size"] = storage.sender.messages.length;
 }
 
 function sendToRemote(data){

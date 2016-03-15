@@ -30,6 +30,7 @@ exports.main = function(options, callbacks){
   require("./logger").init();
   require("./sender").init();
   require("./debug").init();
+  require("./stats").init();
   require("./feature-report").init();
   console.timeEnd("initializations");
 

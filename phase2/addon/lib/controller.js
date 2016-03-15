@@ -36,6 +36,7 @@ const featReport = require("./feature-report");
 const events = require("sdk/system/events");
 const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
+const statEvent = require("./stats").event;
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -152,7 +153,7 @@ const listener = {
       tabsClicked.effect = function(){
         let baseRoute = this.preEvent.options.route;
 
-        let route = [baseRoute, "-position", this.preEvent.options.params.position].join(" ");
+        let route = [baseRoute, "position", this.preEvent.options.params.position].join(" ");
 
         this.options.route = route;
 
@@ -974,6 +975,8 @@ listener.dispatchRoute = function(route, options){
     if (options.featureUse)
       this.featureUse(route);
   }
+
+  statEvent(Route(route).header, "dispatch");
 }
 
 listener.listenForAddonEvents = function(callback){
@@ -1618,8 +1621,7 @@ listener.multipleRoute = function(baseEvent, options){
 
       let route = this.options.route;
 
-      listener.dispatchRoute(route);
-      
+      listener.dispatchRoute(route, options.dispatch);
 
       if (options.addedEffect)
         options.addedEffect();
