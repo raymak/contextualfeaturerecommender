@@ -172,7 +172,6 @@ const listener = {
 
       tabsEvent.wake();
 
-
     });
 
     this.listenForAddonEvents(function(eventType, params){
@@ -801,6 +800,9 @@ listener.behavior = function(route){
     return;
 
   recomms.forEach(function(aRecommendation){
+    let addedInfo = {};
+    if (route.n) addedInfo.n = route.n;
+    statEvent(aRecommendation.id, {prefix: "looseBehavior"}, addedInfo);
     if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
       logger.logLooseBehavior(behaviorInfo(aRecommendation));
     }
@@ -821,6 +823,7 @@ listener.behavior = function(route){
       deliverer.scheduleDelivery(aRecommendation);
     }
 
+    statEvent(aRecommendation.id, {prefix: "behavior"});
     logger.logBehavior(behaviorInfo(aRecommendation));
   });
 };
@@ -860,6 +863,9 @@ listener.featureUse = function(route){
     return;
 
   recomms.forEach(function(aRecommendation){
+    let addedInfo = {};
+    if (route.n) addedInfo.n = route.n;
+    statEvent(aRecommendation.id, {prefix: "looseFeatureUse"}, addedInfo);
     if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
       logger.logLooseFeatureUse(featureUseInfo(aRecommendation));
     }
@@ -882,8 +888,12 @@ listener.featureUse = function(route){
     shouldReport = false;
     let featReportInfo = {};
 
+
     let oldStatus = aRecommendation.status;
-    if (aRecommendation.status === 'active' || aRecommendation.status === 'outstanding' || aRecommendation.status === 'scheduled'){
+    if (aRecommendation.status === 'active' ||
+        aRecommendation.status === 'outstanding' ||
+        aRecommendation.status === 'scheduled'){
+
       aRecommendation.status = 'inactive';
       recommendations.update(aRecommendation);
 

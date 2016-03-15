@@ -283,6 +283,12 @@ function onPanelHide(){
   if (currRec.state.count == 1)
     report.firstopen = showLength;
 
+  require("./stats").event("dhHide", {collectInstance: true}, 
+    { showLength: showlength,
+      opencount: currRec.state.count,
+      closedwithreason: closedwithreason
+    });
+
   report.totalopen = report.totalopen + showLength;
 
   if (!closedwithreason)

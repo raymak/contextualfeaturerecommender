@@ -215,10 +215,10 @@ function getFhrData(callback){
   console.log("starting to get FHR data");
 
   try {
-    if (Cc["@mozilla.org/datareporting/service;1"])
-      getFhrDataV2(callback);
-    else
+    if (Cu.import("resource://gre/modules/TelemetryEnvironment.jsm"))
       getFhrDataV4(callback);
+    else
+      getFhrDataV2(callback);
   }
   catch(e){
     console.log("warning: could not get fhr data", e.message);
@@ -392,6 +392,22 @@ function parseFhrPayloadV4(map, callback){
 exports.cleanUp =  function(options){
   //note: preferences defined in package.json cannot be deleted
   if (options && options.reset){
+
+    console.log("cleaning up the stats indexeddb database");
+
+    const config = {
+      name: 'stats-db',
+      version: 1
+    }
+    
+    const AS = require("./async-storage").AsyncStorage;
+    
+    AS.open(config);
+
+    AS.clear().then(function(){
+      AS.length().then((l) => {if (l == 0) console.log("indexeddb clear confirmed")});
+    }).catch((e)=>{throw e});
+
     console.log("resetting preferences...");
     for (let pref in prefs){
       if (pref.slice(0,3) !== 'sdk'){

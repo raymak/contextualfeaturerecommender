@@ -11,10 +11,10 @@ const {storage} = require("sdk/simple-storage");
 const self = require("./self");
 const exp = require("./experiment");
 const AS = require("./async-storage").AsyncStorage; //TODO: use async storage as a mode of persistent object
-const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
+const {dumpUpdateObject, handleCmd, isEnabled, removeList} = require("./debug");
 const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {PersistentObject} = require("./utils");
-
+const {merge} = require("sdk/util/object");
 
 const statsDataAddress = "stats.data";
 const statsData = PersistentObject("simplePref", {address: statsDataAddress});
@@ -24,11 +24,11 @@ const config = {
   version: 1
 }
 
+AS.open(config);
+
 function init(){
 
   console.log("initializing stats");
-
-  AS.open(config);
 
   if (!statsData.count){
     statsData.eventCount = 0;
@@ -49,7 +49,7 @@ function getRouteStats(baseRoute){
 }
 
 
-function event(evtId, options){
+function event(evtId, options, addData){
 
   let prefix = options && options.prefix;
   let collectInstance = options && options.collectInstance;
@@ -57,7 +57,7 @@ function event(evtId, options){
   if (prefix)
     evtId = ["[", prefix, "] ", evtId].join("");
 
-  let instance = getContext();
+  let instance = merge({},getContext(),addData);
 
   const updateEvt = function(ev, inst){
     if (!ev){
@@ -147,6 +147,10 @@ const debug = {
 
   },
 
+  remove: function(){
+    removeList("Stats");
+  },
+
   parseCmd: function(cmd){
     const patt = /([^ ]*) *(.*)/; 
     let args = patt.exec(cmd);
@@ -171,6 +175,7 @@ const debug = {
 
           case "off":
             prefs["stats.send_to_debug"] = false;
+            debug.remove();
             return "stats off"
             break;
 

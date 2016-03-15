@@ -40,6 +40,9 @@ self.port.on("update", function(recs, options){
       
 });
 
+self.port.on("refresh", function(){
+  location.replace(window.location.protocol + "//" + window.location.hostname + window.location.pathname);
+});
 
 function updateObject(key){
   let item;

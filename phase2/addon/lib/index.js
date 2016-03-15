@@ -41,6 +41,8 @@ exports.main = function(options, callbacks){
 
   require('./controller').init();
 
+  require('./stats').event("startup", {collectInstance: true});
+
   console.timeEnd("full load");
 
 }
@@ -87,6 +89,10 @@ function installRun(){
 
 
 exports.onUnload = function(reason){
+
+  if (reason == "shutdown")
+    require('./stats').event("shutdown", {collectInstance: true});
+  
   console.log("unloading due to " + reason);
   require('./logger').logUnload(reason);
 

@@ -89,6 +89,17 @@ const tryParseJSON  = function(jsonString){
   return false;
 };
 
+function removeList(list){
+  for (let k in records){
+    if (records[k].list == list)
+      delete records[k];
+  }
+
+  workers.forEach(function(worker){
+    worker.port.emit("refresh");
+  });
+}
+
 function dumpUpdateObject(obj, options){
 
   if (!isEnabled) return;
@@ -364,4 +375,5 @@ exports.init = init;
 exports.handleCmd = handleCmd;
 exports.update = updateAll;
 exports.isEnabled = isEnabled;
+exports.removeList = removeList;
 exports.dumpUpdateObject = dumpUpdateObject;

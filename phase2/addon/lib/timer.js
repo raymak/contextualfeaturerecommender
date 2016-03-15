@@ -94,6 +94,7 @@ const watchActivity = function(){
       switch(topic){
         case "user-interaction-active":
 
+          require('./stats').event("activeTick");
           // console.log("active " + elapsedTime());
           clearInterval(inactiveCounter);
           if (activity.minor_inactive_s) activity.last_minor_inactive_s = activity.minor_inactive_s;
@@ -108,11 +109,14 @@ const watchActivity = function(){
           }
           activity.active = true;
 
-          if (activity.minor_active_s == 0) // to call the handlers only once
+          if (activity.minor_active_s == 0){ // to call the handlers only once
             userActiveHandlers.forEach((fn) => fn());
+            require('./stats').event("activation");
+          }
 
         break;
         case "user-interaction-inactive":
+          require('./stats').event("inactiveTick");
           console.log("user inactive (minor)");
           clearInterval(activeCounter);
           activeCounter = null;
@@ -206,6 +210,7 @@ const silence = function(){
 
   let info = {startett: ett};
   require('./logger').logSilenceStart(info);
+  require('./stats').event("silence");
 }
 
 const silenceElapsed = function(){
@@ -239,6 +244,8 @@ const endSilence = function(){
 
   require('./logger').logSilenceEnd(info);
 
+  require('./stats').event("silenceend");
+
   return ett;
 }
 
@@ -253,6 +260,7 @@ const isActive = function(){
 const deactivate = function(){
   activity.active = false;
   activity.active_s = 0;
+  require('./stats').event("deactivation");
   console.log("user inactive");
 }
 
