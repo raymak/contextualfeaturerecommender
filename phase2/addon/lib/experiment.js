@@ -168,11 +168,18 @@ const stages = {
     prefs["delivery.mode.observ_only"] = true;
     require('./presenter').stop();
 
-    // flush the remaining log messages
-    require('./sender').flush();
+    require("./self").getPeriodicInfo(function(info){
+        require("./logger").logPeriodicSelfInfo(info);
+
+        require("./feature-report").log();
+
+        // flush the remaining log messages
+        require('./sender').flush();
+    });
 
     // delay to give some time for the remaining message queue to be flushed
     setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"])
+    
   }
 };
 

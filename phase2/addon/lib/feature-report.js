@@ -21,7 +21,7 @@ function init(){
     featData.report = {};
 
   //set up periodic logging
-  timer.onTick(log);
+  timer.onTick(periodicLog);
   
 }
 
@@ -103,8 +103,13 @@ function postRecFeatureUse(id){
   featData.report = report;
 }
 
-function log(et, ett){
+function periodicLog(et, ett){
   if (Math.floor(et) % prefs["feature_report.log_period"] != 3) return;
+
+  log();
+}
+
+function log(){
   let info = featData.report;
   require("./logger").logFeatReport(info);
 }
@@ -113,4 +118,5 @@ exports.updateRow = updateRow;
 exports.addRow = addRow;
 exports.getRow = getRow;
 exports.postRecFeatureUse = postRecFeatureUse;
+exports.log = log;
 exports.init = init;

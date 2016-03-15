@@ -178,13 +178,13 @@
       "name": "experiment.modes.end.delay",
       "type": "integer",
       "title": " ",
-      "value": 5000
+      "value": 10000
     },
     {
       "name": "stats.send_to_debug",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
     },
     {
       "name": "route.coefficient",

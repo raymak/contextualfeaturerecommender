@@ -481,7 +481,6 @@ function stop(){
     updateReport();
     report(); //report the last recommendation
   }
-
 }
 
 const debug = {

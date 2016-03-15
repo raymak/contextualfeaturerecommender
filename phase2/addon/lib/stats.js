@@ -34,6 +34,8 @@ function init(){
     statsData.eventCount = 0;
   }
 
+  handleCmd(debug.parseCmd);
+
   debug.update();
 
 }
@@ -47,31 +49,44 @@ function getRouteStats(baseRoute){
 }
 
 
-function event(evtId, prefix){
+function event(evtId, options){
+
+  let prefix = options && options.prefix;
+  let collectInstance = options && options.collectInstance;
 
   if (prefix)
-    evtId = [prefix, "-", evtId].join("");
+    evtId = ["[", prefix, "] ", evtId].join("");
 
   let instance = getContext();
 
+  const updateEvt = function(ev, inst){
+    if (!ev){
+      ev = {};
+      ev.instances = [];
+      ev.count = 0;
+    }
+
+    if (collectInstance) ev.instances.push(inst);
+    ev.count = ev.count + 1;
+    ev.freq = ev.count / (inst.et+1);
+    ev.ifreq = (inst.et+1) / ev.count;
+    ev.tfreq = ev.count / (inst.ett);
+    ev.tifreq = inst.ett / ev.count;
+
+    if (!ev[inst.stage])
+      ev[inst.stage] = {count: 0}
+
+    ev[inst.stage].count = ev[inst.stage].count + 1;
+    ev[inst.stage].freq = ev[inst.stage].count / (inst.et+1);
+    ev[inst.stage].ifreq = (inst.et+1) / ev[inst.stage].count;
+    ev[inst.stage].tfreq = ev[inst.stage].count / (inst.ett);
+    ev[inst.stage].tifreq = inst.ett / ev[inst.stage].count;
+
+    return ev;
+  };
+
   AS.getItem(evtId).then(function(evt){
-      if (evt){
-        evt.instances.push(instance);
-        evt.count += 1;
-        evt.freq = evt.count / (instance.et+1);
-        evt.ifreq = (instance.et+1) / evt.count;
-        evt.tfreq = evt.count / (instance.ett);
-        evt.tifreq = instance.ett / evt.count;
-      }
-      else
-        evt = { instances: [instance],
-                count: 1,
-                freq: 1/(instance.et+1),
-                ifreq: instance.et+1,
-                tfreq: 1/(instance.ett+1),
-                tifreq: instance.ett+1 
-              };
-      return evt;
+      return updateEvt(evt, instance);
     }).then(function(evt){
         AS.setItem(evtId, evt);
         statsData.eventCount += 1;
@@ -143,6 +158,34 @@ const debug = {
 
     let name = args[1];
     let params = args[2];
+
+    switch(name){
+      case "stats":
+        switch(params){
+
+          case "on":
+            prefs["stats.send_to_debug"] = true;
+            debug.update();
+            return "stats on";
+            break;
+
+          case "off":
+            prefs["stats.send_to_debug"] = false;
+            return "stats off"
+            break;
+
+          default:
+            return "warning: incorrect use of the stats command.";
+
+        }
+
+        break;
+
+      default:
+        return undefined;
+    }
+
+    return " ";
   }
 }
 

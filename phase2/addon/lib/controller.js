@@ -976,7 +976,7 @@ listener.dispatchRoute = function(route, options){
       this.featureUse(route);
   }
 
-  statEvent(Route(route).header, "dispatch");
+  statEvent(Route(route).header, {prefix: "dispatch"});
 }
 
 listener.listenForAddonEvents = function(callback){
