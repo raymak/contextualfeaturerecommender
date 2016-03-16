@@ -65,6 +65,8 @@ function log(type, attrs){
   console.log(OUT);
   send(OUT);
 
+  require('./stats').event("log");
+
   recentMsgs[OUT.number] = OUT;
   if (recentMsgs[OUT.number - recentHistCount])
     delete recentMsgs[OUT.number - recentHistCount];
@@ -171,6 +173,10 @@ function logSilenceStart(info){
   log("SILENCE_START", info);
 }
 
+function logStatsReport(info){
+  log("STATS_REPORT", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -228,3 +234,4 @@ exports.logSilenceEnd = logSilenceEnd;
 exports.logSilenceStart = logSilenceStart;
 exports.logWarning = logWarning;
 exports.logError = logError;
+exports.logStatsReport = logStatsReport;

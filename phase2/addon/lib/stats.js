@@ -36,6 +36,8 @@ function init(){
 
   handleCmd(debug.parseCmd);
 
+  require('./timer').onTick(periodicLog);
+
   debug.update();
 
 }
@@ -54,16 +56,22 @@ function event(evtId, options, addData){
   let prefix = options && options.prefix;
   let collectInstance = options && options.collectInstance;
 
+  let evtKey;
+
   if (prefix)
-    evtId = ["[", prefix, "] ", evtId].join("");
+    evtKey = ["[", prefix, "] ", evtId].join("");
+  else
+    evtKey = evtId;
 
   let instance = merge({},getContext(),addData);
 
-  const updateEvt = function(ev, inst){
+  const updateEvt = function(ev, pref, id,  inst){
     if (!ev){
       ev = {};
       ev.instances = [];
       ev.count = 0;
+      ev.prefix = pref;
+      ev.id = id;
     }
 
     if (collectInstance) ev.instances.push(inst);
@@ -77,20 +85,20 @@ function event(evtId, options, addData){
       ev[inst.stage] = {count: 0}
 
     ev[inst.stage].count = ev[inst.stage].count + 1;
-    ev[inst.stage].freq = ev[inst.stage].count / (inst.et+1);
-    ev[inst.stage].ifreq = (inst.et+1) / ev[inst.stage].count;
-    ev[inst.stage].tfreq = ev[inst.stage].count / (inst.ett);
-    ev[inst.stage].tifreq = inst.ett / ev[inst.stage].count;
+    // ev[inst.stage].freq = ev[inst.stage].count / (inst.et+1);
+    // ev[inst.stage].ifreq = (inst.et+1) / ev[inst.stage].count;
+    // ev[inst.stage].tfreq = ev[inst.stage].count / (inst.ett);
+    // ev[inst.stage].tifreq = inst.ett / ev[inst.stage].count;
 
     return ev;
   };
 
-  AS.getItem(evtId).then(function(evt){
-      return updateEvt(evt, instance);
+  AS.getItem(evtKey).then(function(evt){
+      return updateEvt(evt, prefix, evtId, instance);
     }).then(function(evt){
-        AS.setItem(evtId, evt);
+        AS.setItem(evtKey, evt);
         statsData.eventCount += 1;
-        debug.update(evtId);
+        debug.update(evtKey);
       }).catch((e) => {throw e});
 } 
 
@@ -106,6 +114,47 @@ function getContext(){
     ett: elapsedTotalTime(),
     stage: exp.info.stage
   };
+}
+
+function periodicLog(et, ett){
+  if (et % (180) !== 150)
+    return;
+
+  log();
+}
+
+function getEvents(){
+  return AS.keys().then(function(ks){
+
+    let promises = [];
+    ks.forEach((k) => { promises.push(AS.getItem(k))});
+
+    return Promise.all(promises).then(function(vs){
+
+      return {keys: ks, vals: vs};
+    });
+  });
+}
+
+function log(){
+
+  // log general stats
+  
+  let info = {};
+  getEvents().then(function(items){
+
+    for (let i in items.keys){
+      let evt = items.vals[i];
+      let key = items.keys[i];
+
+      if (evt.prefix && !~["looseBehavior", "looseFeatureUse"].indexOf(evt.prefix)) continue;
+
+      info[key] = evt;
+    }
+  }).then(function(){require('./logger').logStatsReport(info);})
+    .catch((e) => {throw e});
+
+  
 }
 
 const debug = {
@@ -177,6 +226,10 @@ const debug = {
             prefs["stats.send_to_debug"] = false;
             debug.remove();
             return "stats off"
+            break;
+
+          case "log":
+            log();
             break;
 
           default:

@@ -156,6 +156,7 @@ const tick = function(){
 
   if (!activity.active){
     console.log("tick missed due to inactivity");
+    require('./stats').event("missedTick");
     return;
   }
 

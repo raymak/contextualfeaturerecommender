@@ -36,7 +36,7 @@ const featReport = require("./feature-report");
 const events = require("sdk/system/events");
 const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
-const statEvent = require("./stats").event;
+const statsEvent = require("./stats").event;
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -802,7 +802,8 @@ listener.behavior = function(route){
   recomms.forEach(function(aRecommendation){
     let addedInfo = {};
     if (route.n) addedInfo.n = route.n;
-    statEvent(aRecommendation.id, {prefix: "looseBehavior"}, addedInfo);
+    statsEvent(aRecommendation.id, {prefix: "looseBehavior"}, addedInfo);
+
     if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
       logger.logLooseBehavior(behaviorInfo(aRecommendation));
     }
@@ -823,7 +824,7 @@ listener.behavior = function(route){
       deliverer.scheduleDelivery(aRecommendation);
     }
 
-    statEvent(aRecommendation.id, {prefix: "behavior"});
+    statsEvent(aRecommendation.id, {prefix: "behavior"});
     logger.logBehavior(behaviorInfo(aRecommendation));
   });
 };
@@ -865,7 +866,8 @@ listener.featureUse = function(route){
   recomms.forEach(function(aRecommendation){
     let addedInfo = {};
     if (route.n) addedInfo.n = route.n;
-    statEvent(aRecommendation.id, {prefix: "looseFeatureUse"}, addedInfo);
+    statsEvent(aRecommendation.id, {prefix: "looseFeatureUse"}, addedInfo);
+
     if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
       logger.logLooseFeatureUse(featureUseInfo(aRecommendation));
     }
@@ -986,7 +988,6 @@ listener.dispatchRoute = function(route, options){
       this.featureUse(route);
   }
 
-  statEvent(Route(route).header, {prefix: "dispatch"});
 }
 
 listener.listenForAddonEvents = function(callback){

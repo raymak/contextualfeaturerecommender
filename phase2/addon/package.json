@@ -154,13 +154,13 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot007home"
+      "value": "prepilot007"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 360
+      "value": 120
     },
     {
       "name": "experiment.intervention_length_tick",
@@ -238,7 +238,7 @@
       "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "sender.send_to_file",
