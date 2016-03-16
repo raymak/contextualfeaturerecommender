@@ -1072,7 +1072,8 @@ listener.listenForWebApps = function(callback, options){
     gmail: new MatchPattern(/^(http|https):\/\/mail\.google\.com\/.*/),
     gdrive: new MatchPattern(/^(http|https):\/\/drive\.google\.com\/.*/),
     gdocs: new MatchPattern(/^(http|https):\/\/docs\.google\.com\/.*/),
-    twitter: new MatchPattern(/^(http|https):\/\/twitter\.com.*/)
+    twitter: new MatchPattern(/^(http|https):\/\/twitter\.com.*/),
+    slack: new MatchPattern(/^(http|https):\/\/.*\.slack\.com\/.*/)
   }
 
   tabs.on("ready", function(tab){
