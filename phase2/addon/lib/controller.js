@@ -6,6 +6,7 @@
 "use strict";
 
 const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
+const {isPrivate} = require("sdk/private-browsing");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
 const {Route, coefficient} = require("./route");
 const {Recommendation} = require("./recommendation");
@@ -184,13 +185,13 @@ const listener = {
         let route;
         switch(this.options.eventType){
           case "count":
-          route = ["addon", this.options.eventType, "-" + this.options.params.type, "-n", this.options.params.number].join(" ");
-          break;
+            route = ["addon", this.options.eventType, this.options.params.type, "-n", this.options.params.number].join(" ");
+            break;
           case "pageshow":
-          route = ["addon", this.options.eventType].join(" ");
-          break;
+            route = ["addon", this.options.eventType].join(" ");
+            break;
           default:
-          route = ["addon", this.options.eventType, params.addonId].join(" ");
+            route = ["addon", this.options.eventType, params.addonId].join(" ");
         }
         this.options.route = route;
         listener.dispatchRoute(route);
@@ -802,7 +803,7 @@ listener.behavior = function(route){
   recomms.forEach(function(aRecommendation){
     let addedInfo = {};
     if (route.n) addedInfo.n = route.n;
-    statsEvent(aRecommendation.id, {prefix: "looseBehavior"}, addedInfo);
+    statsEvent(aRecommendation.id, {type: "looseBehavior"}, addedInfo);
 
     if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
       logger.logLooseBehavior(behaviorInfo(aRecommendation));
@@ -824,7 +825,7 @@ listener.behavior = function(route){
       deliverer.scheduleDelivery(aRecommendation);
     }
 
-    statsEvent(aRecommendation.id, {prefix: "behavior"});
+    statsEvent(aRecommendation.id, {type: "behavior"});
     logger.logBehavior(behaviorInfo(aRecommendation));
   });
 };
@@ -866,7 +867,7 @@ listener.featureUse = function(route){
   recomms.forEach(function(aRecommendation){
     let addedInfo = {};
     if (route.n) addedInfo.n = route.n;
-    statsEvent(aRecommendation.id, {prefix: "looseFeatureUse"}, addedInfo);
+    statsEvent(aRecommendation.id, {type: "looseFeatureUse"}, addedInfo);
 
     if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
       logger.logLooseFeatureUse(featureUseInfo(aRecommendation));
@@ -993,6 +994,9 @@ listener.dispatchRoute = function(route, options){
 listener.listenForAddonEvents = function(callback){
 
   tabs.on('ready', function(tab){
+    if (isPrivate(tab))
+      return;
+
     if (tab.url == "about:addons")
       callback('pageshow');
   });
@@ -1029,6 +1033,9 @@ listener.listenForAddonEvents = function(callback){
 
 listener.listenForNewtab = function(callback){
   tabs.on('open', function(tab){
+    if (isPrivate(tab))
+      return;
+
     if ([NEWTAB_URL, HOME_URL].indexOf(tab.url) != -1) callback();
   });
 }
@@ -1036,7 +1043,7 @@ listener.listenForNewtab = function(callback){
 listener.listenForActiveTabHostnameProgress = function(callback, options){
 
   tabs.on("ready", function(tab){
-      if (require("sdk/private-browsing").isPrivate(tab))
+      if (isPrivate(tab))
         return;
 
       if (tab.id !== tabs.activeTab.id) return;//make sure it's the active tab
@@ -1080,6 +1087,9 @@ listener.listenForWebApps = function(callback, options){
     // if (tab.id !== tabs.activeTab.id) return;//make sure it's the active tab
       
     let appId = null;
+
+    if (isPrivate(tab))
+      return;
 
     for (let id in apps){
       if (apps[id].test(tab.url))
@@ -1133,7 +1143,7 @@ listener.listenForWebsiteCategories = function(callback, options){
   tabs.on("ready", function(tab){
     // if (tab.id !== tabs.activeTab.id) return;
 
-    if (require("sdk/private-browsing").isPrivate(tab)) return;
+    if (isPrivate(tab)) return;
 
     let cats = [];
 
@@ -1181,7 +1191,7 @@ listener.listenForTabs = function(callback, options){
   let windowTracker = new WindowTracker({
     onTrack: function (window){
 
-      if (!isBrowser(window)) return;
+      if (!isBrowser(window) || isPrivate(window)) return;
 
       let tabBrowser = window.gBrowser;
       let f = function(e){
@@ -1244,6 +1254,9 @@ listener.listenForTabs = function(callback, options){
 
   tabs.on('activate', function(tab){
 
+    if (isPrivate(tab))
+      return;
+
     reason = "activated";
     callback(reason);
 
@@ -1260,6 +1273,9 @@ listener.listenForTabs = function(callback, options){
 
   tabs.on('open', function(tab){
 
+    if (isPrivate(tab))
+      return;
+
     reason = "opened";
     callback(reason);
 
@@ -1275,6 +1291,10 @@ listener.listenForTabs = function(callback, options){
   //initial tabs that are not handled by tab.on(open)
   if (!options || !options.excludeInitialTabs){
     for (let i in tabs){
+
+      if (isPrivate(tabs[i]))
+        continue;
+
       let xulTab = viewFor(tabs[i]);
       xulTab.addEventListener("click", tabClick);
       unload(function(){xulTab.removeEventListener("click", tabClick)});
@@ -1307,7 +1327,7 @@ listener.listenForDownloads = function(callback, options){
 
   Task.spawn(function() {
     try {
-      let downloadList = yield Downloads.getList(Downloads.ALL);
+      let downloadList = yield Downloads.getList(Downloads.PUBLIC);
       yield downloadList.addView(dlView);
     } catch (ex) {
       console.error(ex);
@@ -1316,7 +1336,7 @@ listener.listenForDownloads = function(callback, options){
 
   unload(function(){
     Task.spawn(function(){
-      let list = yield Downloads.getList(Downloads.ALL);
+      let list = yield Downloads.getList(Downloads.PUBLIC);
       list.removeView(dlView);
     }).then(null, Cu.reportError);
   });
@@ -1347,7 +1367,7 @@ listener.listenForChromeEvents = function(callback, options){
 
   let windowTracker = new WindowTracker({
     onTrack: function(window){
-      if (!isBrowser(window)) return;
+      if (!isBrowser(window) || isPrivate(window)) return;
 
       for (let routeId in routesToListenFor){
         let route =routesToListenFor[routeId];
@@ -1372,7 +1392,7 @@ listener.listenForKeyboardEvent = function(callback, options){
   //TODO: merge hotkeys with other chrome events
   let keyTracker = new WindowTracker({
     onTrack: function (window){
-      if (!isBrowser(window)) return;   
+      if (!isBrowser(window) || isPrivate(window)) return;   
 
       window.addEventListener((options && options.eventName) || "keydown", callback );
       unload(function(){window.removeEventListener((options && options.eventName) || "keydown", callback)});
@@ -1572,7 +1592,7 @@ listener.listenForDevTools = function(callback){
   let windowTracker = new WindowTracker({
     onTrack: function (window){
 
-      if (!isBrowser(window)) return;
+      if (!isBrowser(window) || isPrivate(window)) return;
 
       let gDevTools = window.gDevTools;
       let gBrowser = window.gBrowser

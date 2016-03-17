@@ -53,24 +53,24 @@ function getRouteStats(baseRoute){
 
 function event(evtId, options, addData){
 
-  let prefix = options && options.prefix;
+  let type = options && options.type;
   let collectInstance = options && options.collectInstance;
 
   let evtKey;
 
-  if (prefix)
-    evtKey = ["[", prefix, "] ", evtId].join("");
+  if (type)
+    evtKey = ["[", type, "] ", evtId].join("");
   else
     evtKey = evtId;
 
   let instance = merge({},getContext(),addData);
 
-  const updateEvt = function(ev, pref, id,  inst){
+  const updateEvt = function(ev, typ, id,  inst){
     if (!ev){
       ev = {};
       ev.instances = [];
       ev.count = 0;
-      ev.prefix = pref;
+      ev.type = typ;
       ev.id = id;
     }
 
@@ -94,7 +94,7 @@ function event(evtId, options, addData){
   };
 
   AS.getItem(evtKey).then(function(evt){
-      return updateEvt(evt, prefix, evtId, instance);
+      return updateEvt(evt, type, evtId, instance);
     }).then(function(evt){
         AS.setItem(evtKey, evt);
         statsData.eventCount += 1;
@@ -147,7 +147,7 @@ function log(){
       let evt = items.vals[i];
       let key = items.keys[i];
 
-      if (evt.prefix && !~["looseBehavior", "looseFeatureUse"].indexOf(evt.prefix)) continue;
+      if (evt.type && !~["looseBehavior", "looseFeatureUse"].indexOf(evt.type)) continue;
 
       info[key] = evt;
     }

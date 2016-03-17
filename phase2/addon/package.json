@@ -34,7 +34,7 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "prepilot006recommendations.json"
+      "value": "prepilot007recommendations.json"
     },
     {
       "name": "timer.tick_length_s",
@@ -154,7 +154,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot007"
+      "value": "prepilot007.5"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -193,10 +193,16 @@
       "value": "1"
     },
     {
+      "name": "presentation.doorhanger.autofade_time_ms_flat",
+      "type": "integer",
+      "title": " ",
+      "value": 2000
+    },
+    {
       "name": "presentation.doorhanger.autofade_time_ms_per_word",
       "type": "integer",
       "title": " ",
-      "value": 800
+      "value": 900
     },
     {
       "name": "presentation.doorhanger.exitfade_time_ms_per_word",

@@ -186,7 +186,8 @@ function updateShow(options, panelOptions){
     .then(function() showPanel(delay, panelOptions))
     .then(function(){
     if (!noSchedule)
-      scheduleHide(prefs["presentation.doorhanger.autofade_time_ms_per_word"]*wrdCnt);
+      scheduleHide(prefs["presentation.doorhanger.autofade_time_ms_flat"]
+                  +prefs["presentation.doorhanger.autofade_time_ms_per_word"]*wrdCnt);
 
     buttonOn();
     });
