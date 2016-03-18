@@ -56,13 +56,33 @@ const str = function(){
 const matches = function(inRoute, looseMatch){
   looseMatch = !!looseMatch; //false by default
 
+  let twoWay = false;
+
+  // two-way match
+  // TODO: think about this and make it a general pattern)
+  if (~["hotkey"].indexOf(inRoute.header.split(" ")[0]))
+    twoWay = true;
+
   let defRoute = this;
 
   if (Object.keys(defRoute).length > Object.keys(inRoute).length) 
     return false;
 
-  for (let key in defRoute){
+  let keys = Object.keys(defRoute);
+
+  if (twoWay){
+    let xKeys = Object.keys(inRoute).filter(function(elm){
+      return !~["f", "if", "c"].indexOf(elm);
+    });
+
+    keys = keys.concat(xKeys);
+  }
+
+  for (let key of keys){
     if (!(key in inRoute))
+      return false;
+
+    if (twoWay && !(key in defRoute))
       return false;
     
     if (typeof defRoute[key] === "function" 

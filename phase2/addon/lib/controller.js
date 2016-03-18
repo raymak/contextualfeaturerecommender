@@ -344,12 +344,16 @@ const listener = {
 
     });
 
-    this.listenForChromeEvents(function(evtName, evt){
+    this.listenForChromeEvents(function(route, evt){
+
+      let evtName = route.eventName;
+      let id = route.id;
 
       let chromeEvent = Event("chromeEvent", {
-        route: ["chrome", evtName, evt.currentTarget.getAttribute("id")].join(" "),
+        route: ["chrome", evtName, id].join(" "),
         event: evt,
-        eventName: evtName
+        eventName: evtName,
+        id: route.id
       });
 
       chromeEvent.effect = function(){
@@ -374,6 +378,9 @@ const listener = {
       }
 
       chromeEventAnon.checkPreconditions = function(){
+        if (~["document", "window"].indexOf(this.preEvent.options.id))
+          return false;
+        
         return (!!this.preEvent.options.event.originalTarget.getAttribute("anonid"));
       }
 
@@ -598,6 +605,22 @@ const listener = {
     });
 
   
+    this.listenForTools(function(tool, reason){
+
+      let toolEvent = Event("toolEvent", {
+        tool: tool,
+        reason: reason,
+        route: [tool, reason].join(" ")
+      });
+
+      let multipleToolEvent = that.multipleRoute(toolEvent);
+
+      toolEvent.postEvents.push(multipleToolEvent);
+
+      toolEvent.wake();
+
+    });
+
     this.listenForHistory(function(reason){
       let histInteraction = Event(("historyInteraction"), {
         reason: reason,
@@ -689,8 +712,10 @@ const deliverer = {
     if (recomms.length === 0)
       return;
 
-    if (recomms.length > 1)
+    if (recomms.length > 1){
       console.log("warning: attempted to deliver multiple recommendations at the same time: " + recomms.length);
+      require('./stats').event("multiple-delivery", {type: "delivery"});
+    }
 
     //finding the recommendation with the highest priority
 
@@ -706,11 +731,20 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
+    if (isPrivate(getMostRecentBrowserWindow())){
+      console.log("delivery rejected due to private browsing");
+      return;
+    }
+
     if (self.delMode.observOnly || (timer.isSilent())){
-      if (self.delMode.observOnly)
+      if (self.delMode.observOnly){
         console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
-      else
+        require('./stats').event("observe-only-reject", {type: "delivery"});
+      }
+      else{
         console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
+        require('./stats').event("silence-reject", {type: "delivery"});
+      }
 
       if (self.delMode.moment === "random"){
         console.log("rescheduling delivery time: id -> " + aRecommendation.id);
@@ -1038,6 +1072,38 @@ listener.listenForNewtab = function(callback){
 
     if ([NEWTAB_URL, HOME_URL].indexOf(tab.url) != -1) callback();
   });
+}
+
+listener.listenForTools = function(callback){
+  //Findbar
+  
+  let findopened = function(e){
+    callback("finder", "opened");
+  }
+
+  let windowTracker = new WindowTracker({
+    onTrack: function (window){
+
+      if (!isBrowser(window) || isPrivate(window)) return;
+
+      let buttonListener = function(){
+        window.document.getElementById("find-button").addEventListener("click", findopened);
+        unload(function(){window.document.getElementById("find-button").removeEventListener("click", findopened);})
+      }
+
+      if (window.document.getElementById("find-button"))
+        buttonListener()
+      else { 
+        window.document.getElementById("PanelUI-menu-button").addEventListener("command", buttonListener);
+        unload(function(){window.document.getElementById("PanelUI-menu-button").removeEventListener("command", buttonListener)});
+      }
+
+      window.document.getElementById("cmd_find").addEventListener("command", findopened);
+      unload(function(){window.document.getElementById("cmd_find").removeEventListener("command", findopened);})
+
+    }
+  });
+
 }
 
 listener.listenForActiveTabHostnameProgress = function(callback, options){
@@ -1372,12 +1438,24 @@ listener.listenForChromeEvents = function(callback, options){
       for (let routeId in routesToListenFor){
         let route =routesToListenFor[routeId];
         // console.log(route.id);
-        let elem = window.document.getElementById(route.id);
+        let elem;
+        console.log(route.id);
+        switch(route.id){
+          case "window":
+            elem = window;
+            break
+          case "document":
+            elem = window.document;
+            break;
+          default:
+            elem = window.document.getElementById(route.id);
+        }
         
         let f = function(evt){
-          console.log(elem);
-          callback(route.eventName, evt);
+          // console.log(elem);
+          callback(route, evt);
         }
+
         elem.addEventListener(route.eventName, f);
         unload(function(){elem.removeEventListener(route.eventName, f)});
       } 

@@ -300,6 +300,11 @@ function onPanelHide(){
 
 function pHide(reason, fadeOut){
 
+  if (!panel || !panel.isShowing){
+    console.log("warning: no panel to hide");
+    require('./logger').logWarning({type: "panel-hide"});
+  }
+
   let currRec = dhData.currentRec;
   let report = currRec.report;
 

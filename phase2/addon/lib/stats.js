@@ -147,7 +147,7 @@ function log(){
       let evt = items.vals[i];
       let key = items.keys[i];
 
-      if (evt.type && !~["looseBehavior", "looseFeatureUse"].indexOf(evt.type)) continue;
+      if (evt.type && !~["looseBehavior", "looseFeatureUse", "delivery"].indexOf(evt.type)) continue;
 
       info[key] = evt;
     }
