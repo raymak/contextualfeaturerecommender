@@ -34,7 +34,7 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "prepilot007recommendations.json"
+      "value": "prepilot008recommendations.json"
     },
     {
       "name": "timer.tick_length_s",

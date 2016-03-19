@@ -54,8 +54,10 @@ const HOME_URL = 'about:home';
 const BLANK_URL = 'about:blank';
 
 const recSetAddress = "controller.recommData";
+const deliveryDataAddress = "delivery.data";
 
 let recommendations = PersistentRecSet("simplePref", {address: recSetAddress});
+let deliveryData = utils.PersistentObject("simplePref", {address: deliveryDataAddress});
 
 let hs;
 let sessObserver;
@@ -202,24 +204,18 @@ const listener = {
 
     this.listenForUserActivity(function(){
 
-      // TODO: resolve the duplicate issue 
-      // only multipleInterruptibleMomentEvent should issue a route
-      // have to change the equality check in context() to a match check
-      
       let interruptibleMomentEvent = Event("interruptibleMomentEvent",
       {
-        route: "*"
+        route: "moment interruptible"
       });
 
       interruptibleMomentEvent.checkPreconditions = function(){
         return timer.isRecentlyActive(10, 2*60);
       };
 
-      interruptibleMomentEvent.effect = function(){
-        listener.context(this.options.route);
-      };
-
-      let multipleInterruptibleMomentEvent = that.multipleRoute(interruptibleMomentEvent);
+      let multipleInterruptibleMomentEvent = that.multipleRoute(interruptibleMomentEvent, {
+        dispatch: {context: true}
+      });
 
       interruptibleMomentEvent.postEvents.push(multipleInterruptibleMomentEvent);
 
@@ -380,7 +376,7 @@ const listener = {
       chromeEventAnon.checkPreconditions = function(){
         if (~["document", "window"].indexOf(this.preEvent.options.id))
           return false;
-        
+
         return (!!this.preEvent.options.event.originalTarget.getAttribute("anonid"));
       }
 
@@ -746,10 +742,6 @@ const deliverer = {
         require('./stats').event("silence-reject", {type: "delivery"});
       }
 
-      if (self.delMode.moment === "random"){
-        console.log("rescheduling delivery time: id -> " + aRecommendation.id);
-        this.rescheduleDelivery(aRecommendation, 'silence or observation-only period');
-      }
       return;
     }
 
@@ -776,52 +768,47 @@ const deliverer = {
 
   },
   checkSchedule: function(et, ett){
-    let recomms = recommendations.getByRouteIndex('delivContext', '*', {status: 'scheduled'});
 
-    if (recomms.length === 0)
-      return;
-    
-    // delivering the scheduled recommendations
-    deliverer.deliver.apply(deliverer, recomms.filter(function(aRecommendation){ 
-      return aRecommendation.deliveryTime && (aRecommendation.deliveryTime === Math.floor(et));
-    }));
+    let deliveryTime = deliveryData.randomDeliveryTime;
 
-    // rescheduling the missed recommendations
-    // this should happpen only when 2 recommendations are scheduled to be delivered at the exact same active tick time
-    recomms.filter(function(aRecommendation){ 
-      return aRecommendation.deliveryTime && (aRecommendation.deliveryTime < Math.floor(et));
-    }).forEach(function(aRecommendation) deliverer.rescheduleDelivery(aRecommendation, 'missing the schedule'));
+    if (!deliveryTime){
+      deliverer.scheduleRandomDelivery();
+      deliveryTime = deliveryData.randomDeliveryTime
+    }
+
+    if (deliveryTime < et){
+      console.log("rescheduling random delivery");
+      deliverer.scheduleRandomDelivery();
+      deliveryTime = deliveryData.randomDeliveryTime
+    }
+
+    if (deliveryTime == et){
+      let randomMomentEvent = new Event("randomMoment", {
+        route: "moment random"
+      });
+
+      let multipleRandomMomentEvent = listener.multipleRoute(randomMomentEvent, {
+        dispatch: {context: true}
+      });
+
+      randomMomentEvent.postEvents(multipleRandomMomentEvent);
+      randomMomentEvent.wake();
+    }
 
   },
-  scheduleDelivery: function(aRecommendation){
+  scheduleRandomDelivery: function(){
     let et = timer.elapsedTime();
   
     let deliveryTime = timer.randomTime(et, et + prefs["timer.random_interval_length_tick"]);
 
-    aRecommendation.deliveryTime = deliveryTime;
+    deliveryData.randomDeliveryTime = deliveryTime;
 
-    aRecommendation.status = "scheduled";
-    recommendations.update(aRecommendation);
-
-    console.log("recommendation delivery scheduled: id -> " + aRecommendation.id + ", time -> " + deliveryTime + " ticks");
-
-    if (deliveryTime == et){
-      deliverer.deliver(aRecommendation);
-      console.log("immediate scheduled delivery")
-    }
-  },
-  rescheduleDelivery: function(aRecommendation, reason){
-    this.scheduleDelivery(aRecommendation);
-    
-    console.log("recommendation delivery rescheduled: id -> " + aRecommendation.id +
-                ", reason: " + reason + 
-                ", time -> " + aRecommendation.deliveryTime + " ticks");
-  }
+    console.log("random delivery scheduled: " +  deliveryTime + " ticks");  }
 };
 
 
 listener.behavior = function(route){
-  console.log("behavior -> route: " + route);
+  console.log("behavior -> route: ", route);
 
   route = Route(route); // converting to route object
 
@@ -849,15 +836,9 @@ listener.behavior = function(route){
   if (recomms.length === 0)
     return;
 
-  let random = (self.delMode.moment === "random");
-
   recomms.forEach(function(aRecommendation){
     aRecommendation.status = 'outstanding';
     recommendations.update(aRecommendation);
-
-    if (random){
-      deliverer.scheduleDelivery(aRecommendation);
-    }
 
     statsEvent(aRecommendation.id, {type: "behavior"});
     logger.logBehavior(behaviorInfo(aRecommendation));
@@ -866,26 +847,45 @@ listener.behavior = function(route){
 
 listener.context = function(route){
 
-  let mt = self.delMode.moment;
-  if ((mt === 'interruptible' && route != '*') 
-      || mt === 'random'
-      || mt != 'interruptible' && route === '*')
-    return;
+  console.log("context -> route: ", route);
 
-  console.log("context -> route: " + route);
+  route = Route(route); // convert to object
+  let header = route.header;
+
+  let mt = self.delMode.moment;
+
+  // handle random moments
+  if (mt === 'random'){
+    if (header != 'moment random')
+      return;
+    else {
+      route = '*';
+      statsEvent(header);
+    }
+  }
+
+  // handle interruptible moments
+  if (mt === 'interruptible'){
+    if (header != 'moment interruptible')
+      return;
+    else {
+      route = '*';
+      statsEvent(header);
+    }
+  }
  
   let recomms = recommendations.getByRouteIndex('delivContext', route, {status: 'outstanding'});
 
   if (recomms.length === 0)
     return;
 
-  //deliver recommendation
+  //deliver recommendations
   deliverer.deliver.apply(deliverer, recomms);
 };
 
 listener.featureUse = function(route){
 
-  console.log("featureUse -> route: " + route);
+  console.log("featureUse -> route: ", route);
 
   route = Route(route);
 
@@ -1007,6 +1007,8 @@ listener.command = function(cmd){
 }
 
 listener.dispatchRoute = function(route, options){
+  route = Route(route);
+
   if (!options){
     this.behavior(route);
     this.context(route);
@@ -1800,7 +1802,7 @@ const debug = {
         if (!recommendations[params])
           return ("error: recommendation with id " + params + "does not exist.")
 
-        deliverer.scheduleDelivery(recommendations[params]);
+        deliverer.scheduleRandomDelivery(recommendations[params]);
         break;
 
       case "route":

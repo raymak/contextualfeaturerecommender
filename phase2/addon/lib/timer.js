@@ -160,6 +160,8 @@ const tick = function(){
     return;
   }
 
+  require('./stats').event("tick");
+
   let et = timerData.elapsedTime + 1;
 
   timerData.elapsedTime = et;
@@ -329,21 +331,24 @@ const debug = {
     let params = args[2];
 
     switch(name){
+      case "tick":
+        tick();
+        break;
       case "silence":
         silence();
-      break;
+        break;
       case "issilent":
         return isSilent();
-      break;
+        break;
       case "endsilence":
         return "silence ended at " + endSilence() + " ticks";
-      break;
+        break;
       case "inactive":
         deactivate();
         observerService.notifyObservers(null, "user-interaction-inactive", "");
         debug.update();
         return "user inactivity forced"
-      break;
+        break;
 
       case "time":
         subArgs = params.split(" ");

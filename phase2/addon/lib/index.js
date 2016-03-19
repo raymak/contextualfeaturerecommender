@@ -61,8 +61,11 @@ function firstRun(){
   require('./self').setInitialized();
   require('./experiment').firstRun();
 
+
+  console.time("route scaling");
   //scaling routes
   require("./controller").scaleRoutes(require("./route").coefficient(), "trigBehavior");
+  console.timeEnd("route scaling");
 
   console.timeEnd("first run");
 }
@@ -92,7 +95,7 @@ exports.onUnload = function(reason){
 
   if (reason == "shutdown")
     require('./stats').event("shutdown", {collectInstance: true});
-  
+
   console.log("unloading due to " + reason);
   require('./logger').logUnload(reason);
 

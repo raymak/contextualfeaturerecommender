@@ -28,8 +28,7 @@ const Recommendation = function(data) {
     presentationData: data.presentationData,
     respCommandMap: data.respCommandMap,
     status: data.status || "active",
-    priority: data.priority || 1,
-    deliveryTime:undefined
+    priority: data.priority || 1
   }
 
   return nRecommendation;
@@ -37,6 +36,7 @@ const Recommendation = function(data) {
 
 const recSet = {
   routeIndexTables: ["trigBehavior", "delivContext", "featUseBehavior"],
+  length: 0,
   add: function(/* recommendations */){
     let that = this;
     Array.prototype.slice.call(arguments).forEach(function(aRecommendation){
@@ -63,6 +63,8 @@ const recSet = {
 
       featReport.addRow(aRecommendation.id, {status: aRecommendation.status, adopted: false});
 
+      that.length += 1;
+
       console.log("recommendation added: id -> " + aRecommendation.id);
     });
   },
@@ -79,6 +81,8 @@ const recSet = {
 
         that[indexTable] = currIndexTable;
       });
+
+      that.length -=1;
 
       console.log("recommendation removed: " + "id -> " + aRecommendation.id);
     });
@@ -169,7 +173,7 @@ const recSet = {
   forEach: function(callback) {
   let that = this;
   Object.keys(this).forEach(function(key){
-    return typeof that[key] === "function" ||  ["routeIndexTables", "delivContext", "trigBehavior", "featUseBehavior"].indexOf(key) != -1 || callback(that[key]);
+      return typeof that[key] === "function" ||  ["routeIndexTables", "delivContext", "trigBehavior", "featUseBehavior", "length"].indexOf(key) != -1 || callback(that[key]);
     });
   }
 };

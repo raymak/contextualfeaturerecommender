@@ -153,8 +153,6 @@ function log(){
     }
   }).then(function(){require('./logger').logStatsReport(info);})
     .catch((e) => {throw e});
-
-  
 }
 
 const debug = {
@@ -250,3 +248,4 @@ const debug = {
 
 exports.init = init;
 exports.event = event;
+exports.log = log;

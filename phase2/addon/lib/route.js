@@ -7,8 +7,13 @@
 
 const {prefs} = require("sdk/simple-prefs");
 
-function Route(routeStr){
-  let rRoute = require('./utils').extractOpts(routeStr);
+function Route(route){
+
+  if (typeof route === "object")
+    return route;
+
+  // convert str to object
+  let rRoute = require('./utils').extractOpts(route);
 
   return rRoute;
 }
@@ -56,14 +61,16 @@ const str = function(){
 const matches = function(inRoute, looseMatch){
   looseMatch = !!looseMatch; //false by default
 
+  // make sure routes are represented as objects
+  inRoute = Route(inRoute);
+  let defRoute = Route(this);
+
   let twoWay = false;
 
   // two-way match
   // TODO: think about this and make it a general pattern)
   if (~["hotkey"].indexOf(inRoute.header.split(" ")[0]))
     twoWay = true;
-
-  let defRoute = this;
 
   if (Object.keys(defRoute).length > Object.keys(inRoute).length) 
     return false;

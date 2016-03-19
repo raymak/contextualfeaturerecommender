@@ -154,11 +154,15 @@ const stages = {
     prefs["delivery.mode.observ_only"] = false;
     console.log("intervention stage started.");
 
+    require('./stats').log();
+
     require("./controller").welcome();
   },
   obs2: function(){
     prefs["delivery.mode.observ_only"] = true;
     require('./presenter').stop();
+
+    require('./stats').log();
 
     console.log("obs2 stage started.");
   },
@@ -172,6 +176,7 @@ const stages = {
         require("./logger").logPeriodicSelfInfo(info);
 
         require("./feature-report").log();
+        require('./stats').log();
 
         // flush the remaining log messages
         require('./sender').flush();
