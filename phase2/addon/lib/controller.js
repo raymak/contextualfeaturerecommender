@@ -791,7 +791,7 @@ const deliverer = {
         dispatch: {context: true}
       });
 
-      randomMomentEvent.postEvents(multipleRandomMomentEvent);
+      randomMomentEvent.postEvents.push(multipleRandomMomentEvent);
       randomMomentEvent.wake();
     }
 

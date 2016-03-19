@@ -30,8 +30,9 @@ let dhData; //initialized in init()
 let panel;
 let button;
 let hideTimeout;
+let letReopen = true;
 let wrdCnt; //for auto-adjuting fading time
-let buttonState = false;
+let buttonChecked = false;
 let command;
 let hideWatch;
 let closedwithreason;
@@ -108,7 +109,6 @@ function initButton(clickHandler){
       },
       onClick: buttonClick,
       onChange: buttonChange
-      // onChange: buttonChange
   });
 }
 
@@ -136,7 +136,7 @@ function present(aRecommendation, cmdCallback){
                        state:{like: false, dontlike: false, count: 0, negFbChoice: null, negFbOpened: false},
                        report:{number: dhData.count || 1, startett: timer.elapsedTotalTime(), durationtt: 0, primbtn: 0, secbtn: 0,
                        closebtn: 0, autohide: 0, autofade: 0, esc: 0,
-                       closeother: 0, responseclose: 0, firstclosereason: "", mouseenter: false,
+                       closeother: 0, responseclose: 0, bulbbutton: 0, firstclosereason: "", mouseenter: false,
                        totalopen: 0, firstopen: 0, rationaleopen: 0, infopage: 0, negfbopen: false}
                       };
   command = cmdCallback;
@@ -230,18 +230,17 @@ function hidePanel(fadeOut){
 
 }
 
-function buttonChange(state){
-  if (state.checked){
-    if (!panel.isShowing)
-     updateShow({noschedule: true, nodelay:true, noinit: true}, {autohide: true, focus: true});
-  }
-  else
-    hidePanel(true);
-}
-
 function buttonClick(state){
 
-
+ if (!buttonChecked){
+    if (!panel.isShowing)
+      if (letReopen)
+       updateShow({noschedule: true, nodelay:true, noinit: true}, {autohide: true, focus: true});
+     else
+      button.state("window", {checked: false}); 
+  }
+  else
+    pHide("bulbbutton", true);
 }
 
 function buttonSwitch(state){
@@ -251,19 +250,23 @@ function buttonSwitch(state){
     buttonOff();
 }
 
+function buttonChange(state){
+ 
+}
+
 function buttonOn(){
   button.icon = "./ui/icons/lightbulb_gr.png";
-  if (buttonState) return;
+  if (buttonChecked) return;
   //when sate is changed as below, button.state does not change, it only changes by button.click()
   button.state("window", {checked: true}); 
-  buttonState = true;
+  buttonChecked = true;
 }
 
 function buttonOff(){
   button.icon = "./ui/icons/lightbulb_bw.png";
-  if (!buttonState) return;
+  if (!buttonChecked) return;
   button.state("window", {checked: false});
-  buttonState = false;
+  buttonChecked = false;
 }
 
 function onPanelShow(){
@@ -271,6 +274,12 @@ function onPanelShow(){
 }
 
 function onPanelHide(){
+
+  letReopen = false;
+
+  setTimeout(function(){
+    letReopen = true;
+  }, 200);
 
   buttonOff();
 
@@ -302,7 +311,8 @@ function pHide(reason, fadeOut){
 
   if (!panel || !panel.isShowing){
     console.log("warning: no panel to hide");
-    require('./logger').logWarning({type: "panel-hide"});
+    // require('./../logger').logWarning({type: "panel-hide"});
+    return;
   }
 
   let currRec = dhData.currentRec;
@@ -327,6 +337,9 @@ function pHide(reason, fadeOut){
     case "response":
       report.responseclose = report.responseclose + 1;
       break;
+
+    case "bulbbutton":
+      report.bulbbutton = report.bulbbutton + 1;
 
     default:
       report.closeother = report.closeother + 1;   
@@ -533,7 +546,7 @@ const debug = {
           break;
 
           default:
-            return "waring: incorrect use of the dh report command.";
+            return "warning: incorrect use of the dh report command.";
         }
 
         break;
