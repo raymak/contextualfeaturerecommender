@@ -140,6 +140,7 @@ exports.PersistentObject = function(type, options){
 exports.isPowerOf2 = function(num){
   if (!num)
     return false;
+
   let num2 = num/2;
   if (num==1)
     return true;

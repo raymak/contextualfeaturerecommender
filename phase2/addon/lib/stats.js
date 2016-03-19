@@ -51,10 +51,12 @@ function getRouteStats(baseRoute){
 }
 
 
-function event(evtId, options, addData){
+function event(evtId, options, addData, aggregates){
 
   let type = options && options.type;
   let collectInstance = options && options.collectInstance;
+  aggregates = aggregates || {};
+  addData = addData || {};
 
   let evtKey;
 
@@ -63,18 +65,20 @@ function event(evtId, options, addData){
   else
     evtKey = evtId;
 
-  let instance = merge({},getContext(),addData);
+  let instance = merge({},getContext(), addData);
 
-  const updateEvt = function(ev, typ, id,  inst){
+  const updateEvt = function(ev, typ, id, inst, aggr){
     if (!ev){
       ev = {};
       ev.instances = [];
+      ev.aggregates = {};
       ev.count = 0;
       ev.type = typ;
       ev.id = id;
     }
 
     if (collectInstance) ev.instances.push(inst);
+    ev.lastInstance = inst;
     ev.count = ev.count + 1;
     ev.freq = ev.count / (inst.et+1);
     ev.ifreq = (inst.et+1) / ev.count;
@@ -90,11 +94,40 @@ function event(evtId, options, addData){
     // ev[inst.stage].tfreq = ev[inst.stage].count / (inst.ett);
     // ev[inst.stage].tifreq = inst.ett / ev[inst.stage].count;
 
+
+    // calculating the aggregate values
+    for (let k in aggr){
+
+      if (!(k in inst)){
+        console.log("warning: aggregate data not provided");
+        continue;
+      }
+
+      if (!(k in ev.aggregates)){
+        ev.aggregates[k] = {
+          type: aggr[k],
+          count: 0,
+          value: 0
+        }
+      }
+
+      switch(aggr[k]){
+        case 'average':
+          ev.aggregates[k].value = ev.aggregates[k].value*ev.aggregates[k].count + inst[k];
+          ev.aggregates[k].count += 1;
+          ev.aggregates[k].value /= ev.aggregates[k].count;
+          break;
+        default:
+
+      }
+
+    }
+
     return ev;
   };
 
   AS.getItem(evtKey).then(function(evt){
-      return updateEvt(evt, type, evtId, instance);
+      return updateEvt(evt, type, evtId, instance, aggregates);
     }).then(function(evt){
         AS.setItem(evtKey, evt);
         statsData.eventCount += 1;

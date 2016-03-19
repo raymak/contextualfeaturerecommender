@@ -813,7 +813,7 @@ listener.behavior = function(route){
   route = Route(route); // converting to route object
 
   let behaviorInfo =  function(aRecommendation){ 
-    return {id: aRecommendation.id, count: route.c, num: route.n, "if": route.if};
+    return {id: aRecommendation.id, count: Number(route.c), num: Number(route.n), "if": Number(route.if)};
   }
 
   //logging loose matches
@@ -823,11 +823,18 @@ listener.behavior = function(route){
 
   recomms.forEach(function(aRecommendation){
     let addedInfo = {};
-    if (route.n) addedInfo.n = route.n;
-    statsEvent(aRecommendation.id, {type: "looseBehavior"}, addedInfo);
+    let aggregates = {};
+    let bi = behaviorInfo(aRecommendation);
 
-    if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
-      logger.logLooseBehavior(behaviorInfo(aRecommendation));
+    if (bi.num) {
+      addedInfo.num = bi.num;
+      aggregates.num = 'average';
+    }
+
+    statsEvent(aRecommendation.id, {type: "looseBehavior"}, addedInfo, aggregates);
+
+    if (utils.isPowerOf2(bi.count) || (utils.isPowerOf2(bi.num) && bi.num > 10)){
+      logger.logLooseBehavior(bi);
     }
   });
 
@@ -840,8 +847,14 @@ listener.behavior = function(route){
     aRecommendation.status = 'outstanding';
     recommendations.update(aRecommendation);
 
-    statsEvent(aRecommendation.id, {type: "behavior"});
-    logger.logBehavior(behaviorInfo(aRecommendation));
+    let addedInfo = {};
+    let bi = behaviorInfo(aRecommendation);
+    if (bi.num) {
+      addedInfo.num = bi.num;
+    }
+
+    statsEvent(aRecommendation.id, {type: "behavior"}, addedInfo);
+    logger.logBehavior(bi);
   });
 };
 
@@ -890,7 +903,7 @@ listener.featureUse = function(route){
   route = Route(route);
 
   let featureUseInfo =  function(aRecommendation){ 
-    return {id: aRecommendation.id, count: route.c, num: route.n, "if": route.if};
+    return {id: aRecommendation.id, count: Number(route.c), num: Number(route.n), "if": Number(route.if)};
   }
 
   //logging loose matches
@@ -900,10 +913,13 @@ listener.featureUse = function(route){
 
   recomms.forEach(function(aRecommendation){
     let addedInfo = {};
-    if (route.n) addedInfo.n = route.n;
+
+    let fui = featureUseInfo(aRecommendation);
+
+    if (fui.num) addedInfo.num = route.num;
     statsEvent(aRecommendation.id, {type: "looseFeatureUse"}, addedInfo);
 
-    if (utils.isPowerOf2(route.c) || (utils.isPowerOf2(route.n) && route.n > 10)){
+    if (utils.isPowerOf2(fui.count) || (utils.isPowerOf2(fui.num) && fui.num > 10)){
       logger.logLooseFeatureUse(featureUseInfo(aRecommendation));
     }
 
@@ -928,17 +944,13 @@ listener.featureUse = function(route){
 
     let oldStatus = aRecommendation.status;
     if (aRecommendation.status === 'active' ||
-        aRecommendation.status === 'outstanding' ||
-        aRecommendation.status === 'scheduled'){
+        aRecommendation.status === 'outstanding'){
 
       aRecommendation.status = 'inactive';
       recommendations.update(aRecommendation);
 
       shouldReport = true;
     }
-    
-    if (utils.isPowerOf2(route.n) || utils.isPowerOf2(route.c))
-      shouldReport = true;
 
     if (oldStatus == 'delivered')
       shouldReport = true;  //might cause sending of too much redundant feature use log
