@@ -442,7 +442,7 @@
   {
     "id": "fbToolbarBtn",
     "priority": 3,
-    "trigBehavior": "visit hostname -c >10 -if <30",
+    "trigBehavior": "visit hostname www.facebook.com -c >10 -if <30",
     "delivContext": "visit hostname www.facebook.com",
     "featUseBehavior": "addon has {72c9fdff-bccd-4fac-a08e-857103c6e721}",
     "presentationData": {
@@ -543,7 +543,7 @@
     "id": "forecastfox",
     "priority": 4,
     "trigBehavior": "visit category weather -c >10 if <90",
-    "delivContext": "visit hostname www.weather.com",
+    "delivContext": "visit category weather",
     "featUseBehavior": "addon has forecastfox@s3_fix_version",
     "presentationData": {
       "*": {
@@ -617,7 +617,7 @@
   {
     "id": "tileTabs",
     "priority": 5,
-    "trigBehavior": "tabs switched -c >50 -if <5",
+    "trigBehavior": "tabs switched -c >75 -if <2",
     "delivContext": "tabs switched",
     "featUseBehavior": "addon has tiletabs@DW-dev",
     "presentationData": {

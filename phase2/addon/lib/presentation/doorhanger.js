@@ -469,7 +469,7 @@ function updateReport(){
                    || report.rationaleopen || (report.infopage > 0)),
                    id: currRec.recomm.id
                     };
-  let info = merge({}, currRec.recomm.id, currRec.state, currRec.report, addedInfo);
+  let info = merge({}, currRec.state, currRec.report, addedInfo);
 
   //reporting to feature report
   let featReportRow = {negfbchoice: info.negFbChoice, dontlike: info.dontlike, presnumber: info.number,

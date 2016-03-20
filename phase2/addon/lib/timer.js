@@ -279,7 +279,7 @@ const isRecentlyActive = function(activity_threshold_s, inactivity_threshold_s /
 }
 
 const isCertainlyActive = function(){
-  return (activity.minor_inactive_s === 0);
+  return (activity.minor_inactive_s < 10);
 }
 
 const randomTime = function(start, end){

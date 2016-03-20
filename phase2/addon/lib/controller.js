@@ -66,6 +66,7 @@ let searchEngineObserver;
 let addonListener;
 let historyObserver;
 let dlView;
+let hostNameList;
 
 const init = function(){
   console.log("initializing controller");
@@ -469,7 +470,7 @@ const listener = {
         hostVisit.postEvents.push(multipleHostVisit);
         hostVisit.wake();
 
-    }, {fresh: true});
+    }, {halfFresh: true});
 
     this.listenForSearchEngine(function(reason, params){
 
@@ -729,7 +730,13 @@ const deliverer = {
 
     if (isPrivate(getMostRecentBrowserWindow())){
       console.log("delivery rejected due to private browsing");
+      require('./stats').event("private-reject", {type: "delivery"});
       return;
+    }
+
+    if (!timer.isCertainlyActive()){
+      console.log("delivery rejected due to uncertain user activity status");
+      require('./stats').event("inactive-reject", {type: "delivery"});
     }
 
     if (self.delMode.observOnly || (timer.isSilent())){
@@ -745,12 +752,6 @@ const deliverer = {
       return;
     }
 
-    if (self.delMode.moment === "random" && !timer.isCertainlyActive()){
-        console.log("rescheduling delivery time: id -> " + aRecommendation.id);
-        this.rescheduleDelivery(aRecommendation, 'uncertain user activity status');
-
-        return;
-    }
 
     console.log("delivering " + aRecommendation.id);
 
@@ -1122,28 +1123,70 @@ listener.listenForTools = function(callback){
 
 listener.listenForActiveTabHostnameProgress = function(callback, options){
 
-  tabs.on("ready", function(tab){
+  hostNameList = {};
+
+  function evalRoute(route){
+    let res = route.match(/^visit hostname ([^ ]*)/);
+    if (res){
+      if (!hostNameList[res[1]]){
+        hostNameList[res[1]] = true;
+        console.log("hostname listener: ", res[1]);
+      } 
+
+    }
+  }
+
+  // initialize the host name list
+  recommendations.forEach(function(aRecommendation){
+    evalRoute(aRecommendation.trigBehavior);
+    evalRoute(aRecommendation.delivContext);
+    evalRoute(aRecommendation.featUseBehavior);
+  });
+
+  function tabProgress(hostname){
+      console.log("active tab progressed to: " + hostname);
+
+      callback(hostname);
+  }
+
+
+  tabs.on("pageshow", function(tab){
+
       if (isPrivate(tab))
         return;
 
       if (tab.id !== tabs.activeTab.id) return;//make sure it's the active tab
-        
-        let hostname = URL(tab.url).hostname;
+      
+      let hostname = URL(tab.url).hostname;
 
-        //TOTHINK: potential namespace conflict      
-        if (options && options.fresh && hostname === tab.hostname) return; //not a fresh url open
-
+      //TOTHINK: potential namespace conflict  
+      
+      if (!tab.hostname){
         tab.hostname = hostname;
-        unload(function(){if (tab) delete tab.hostname;})
+        tab.hostnameCount = 0;
 
-        //TODO: use pattern matching 
-        // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
-        if (!hostname) return;//to handle new tabs and blank pages
+        unload(function(){
+          if (tab) delete tab.hostname;
+          if (tab) delete tab.hostnameCount;
+        });
+      }
 
+      if (hostname != tab.hostname){
+        tab.hostname = hostname;
+        tab.hostnameCount = 1;
+      } else {
+        tab.hostnameCount += 1;
+        if (tab.hostnameCount == 5)
+          tab.hostnameCount = 1;
+      }
 
-        console.log("active tab progressed to: " + hostname);
+      if (!hostname) return;//to handle new tabs and blank pages
 
-        callback(hostname);
+      if (!hostNameList[hostname])
+          return;
+
+      console.log(tab.hostname + " : " + tab.hostnameCount);
+      if (options && options.halfFresh && tab.hostnameCount == 1) tabProgress(hostname);
 
   });
 };
@@ -1220,7 +1263,7 @@ listener.listenForWebsiteCategories = function(callback, options){
                         ]
   };
 
-  tabs.on("ready", function(tab){
+  tabs.on("pageshow", function(tab){
     // if (tab.id !== tabs.activeTab.id) return;
 
     if (isPrivate(tab)) return;

@@ -22,6 +22,8 @@ let workers = [];
 let records = {};
 let cmdHandlers = [];
 
+let cmdQueue = {};
+
 function init(){
   if (!isEnabled()) return;
 
@@ -284,7 +286,7 @@ function processCommand(worker, cmd){
   let out;
   cmdHandlers.forEach(function(h){
     if (h){
-      out = h(cmd);
+      out = h(cmd, worker);
       if (out !== undefined){
         handled = true;
         worker.port.emit("cmdOut", out, cmd);
@@ -304,7 +306,7 @@ function processCommand(worker, cmd){
   }
 }
 
-function handleCmd(handler){
+function handleCmd(handler, worker){
 
   if (!isEnabled()) return;
 
@@ -316,7 +318,7 @@ function handleCmd(handler){
   cmdHandlers.push(handler);
 }
 
-function parseCmd(cmd){
+function parseCmd(cmd, worker){
     const patt = /([^ ]*) *(.*)/; 
     let args = patt.exec(cmd);
 
@@ -356,6 +358,29 @@ function parseCmd(cmd){
               exportData({lists: lists});
             }
             break;
+
+        case "delay":
+          if (!cmdObj.d || !cmdObj.c){
+            return "warning: incorrect use of the delay command";
+          }
+
+          cmdQueue[cmdObj.c] = require('sdk/timers').setTimeout(function(){
+            processCommand(worker, cmdObj.c);
+            delete cmdQueue[cmdObj.c];
+          }, cmdObj.d);
+
+          return "command \"" + cmdObj.c + "\" will be executed in " + cmdObj.d + " ms.";
+          break;
+
+        case "cancel all":
+
+          for (let k in cmdQueue){
+            require('sdk/timers').clearTimeout(cmdQueue[k]);
+            delete cmdQueue[k];
+          }
+
+          return "all queued commands cancelled";
+          break;
 
           default:
             return "warning: incorrect use of the debug command";

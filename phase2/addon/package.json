@@ -52,7 +52,7 @@
       "name": "timer.random_interval_length_tick",
       "type": "integer",
       "title": "Maximum length of the random time interval",
-      "value": 10
+      "value": 30
     },
     {
       "name": "timer.inactive_threshold_s",
@@ -244,13 +244,13 @@
       "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
 
    }
   ]

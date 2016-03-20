@@ -21,7 +21,7 @@ const REMOTE_URL = "https://testpilot.mozillalabs.com/submit/" + "featurerecomme
 const TEST_URL = "http://logs-01.loggly.com/inputs/ac4fee9c-9dc4-4dc9-8a1b-4094253067bb/tag/http/";
 // const TEST_URL = "http://requestb.in/uzm38guz";
 
-const FILE_NAME = "wp-log";
+const FILE_NAME = "fr-prepilot007.5-log";
 const PATH_DIR = pathFor("Desk");
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
