@@ -41,12 +41,11 @@ const self = {
     }
   },
   get isTest(){
-    
+
     if (!("isTest" in prefs)){
         // throw Error("isTest state not specified properly. use --static-args to define set .isTest to either \"true\" or \"false\"");
         prefs["isTest"] = true;  //true by default
-    }
-          
+    }      
     return prefs["isTest"];
   },
   get locale(){
@@ -108,7 +107,7 @@ const self = {
         }
 
         //fhr
-        getFhrData(function(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, crashCount, sessionCount){
+        getFhrData(function(profileAgeDays, totalActiveTicks, isDefaultBrowser, crashCount, sessionCount){
           try {
             let result = {  
                extensioncount: extensionCount, themecount: themeCount,

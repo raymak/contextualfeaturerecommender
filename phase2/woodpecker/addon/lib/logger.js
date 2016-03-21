@@ -5,7 +5,7 @@
 
 "use strict";
 
-const {elapsedTime, elapsedTotalTime, tickCallback} = require("./timer");
+const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {merge} = require("sdk/util/object");
 const override  = function() merge.apply(null, arguments);
 const {PersistentObject} = require("./utils");
@@ -24,7 +24,6 @@ const recentHistCount = prefs["logger.recent_hist_count"];
 let recentMsgs;
 
 function init(){
-
   console.log("initializing logger");
 
   if (!loggerData.count)
@@ -32,7 +31,7 @@ function init(){
 
   recentMsgs = {};
 
-  tickCallback(periodicLog);
+  onTick(periodicLog);
 
   debug.init();
 }
@@ -44,14 +43,16 @@ function nextNumber(){
 
 function log(type, attrs){
 
-  let OUT = {ts: Date.now(),
-    et: elapsedTime(),
-    ett: elapsedTotalTime(),  
-    number: nextNumber(),
-    experiment_version: 1,
-    addon_version: addonSelf.version,
-    is_test: self.isTest,
+  let OUT = {
     userid: self.userId,
+    number: nextNumber(),
+    is_test: self.isTest,
+    deb_cmd_used: prefs["debug.command.used"],
+    ts: Date.now(),
+    et: elapsedTime(),
+    ett: elapsedTotalTime(),
+    localeTime: (new Date(Date.now())).toLocaleString(),
+    addon_version: addonSelf.version,
     locale: self.locale,
     update_channel: self.updateChannel
   }
@@ -64,6 +65,8 @@ function log(type, attrs){
   console.log(OUT);
   send(OUT);
 
+  require('./stats').event("log");
+
   recentMsgs[OUT.number] = OUT;
   if (recentMsgs[OUT.number - recentHistCount])
     delete recentMsgs[OUT.number - recentHistCount];
@@ -72,15 +75,15 @@ function log(type, attrs){
 }
 
 function periodicLog(et, ett){
-      if (Math.floor(ett) % 20 != 1) return;
+      if (Math.floor(et) % prefs["logger.periodic_log_period"] != 1) return;
       self.getPeriodicInfo(function(info){
         logPeriodicSelfInfo(info);
       });
 
 }
 
-function logRecommUpdate(oldStatus, newStatus){
-  log("RECOMM_STATUS_UPDATE", {oldStatus: oldStatus, newStatus: newStatus});
+function logRecommUpdate(id, oldStatus, newStatus){
+  log("RECOMM_STATUS_UPDATE", {id: id, oldStatus: oldStatus, newStatus: newStatus});
 }
 
 function logFirstRun(){
@@ -114,6 +117,10 @@ function logFeatureUse(info){
   log("FEATURE_USE", info)
 }
 
+function logLooseFeatureUse(info){
+  log("LOOSE_FEATURE_USE", info);
+}
+
 function logBehavior(info){
   log("BEHAVIOR", info);
 }
@@ -144,6 +151,30 @@ function logMomentDelivery(info){
 
 function logMomentReport(info){
   log("MOMENT_REPORT", info);
+}
+
+function logSelfDestruct(info){
+  log("SELF_DESTRUCT", info);
+}
+
+function logError(info){
+  log("ERROR", info);
+}
+
+function logWarning(info){
+  log("WARNING", info);
+}
+
+function logSilenceEnd(info){
+  log("SILENCE_END", info);
+}
+
+function logSilenceStart(info){
+  log("SILENCE_START", info);
+}
+
+function logStatsReport(info){
+  log("STATS_REPORT", info);
 }
 
 const debug = {
@@ -189,6 +220,7 @@ exports.logDisable = logDisable;
 exports.logPeriodicSelfInfo = logPeriodicSelfInfo;
 exports.logDhReport = logDhReport;
 exports.logFeatureUse = logFeatureUse;
+exports.logLooseFeatureUse = logLooseFeatureUse;
 exports.logBehavior = logBehavior;
 exports.logContext = logContext;
 exports.logDhPresent = logDhPresent;
@@ -197,3 +229,9 @@ exports.logFeatReport = logFeatReport;
 exports.logExpStageAdvance = logExpStageAdvance;
 exports.logMomentDelivery = logMomentDelivery;
 exports.logMomentReport = logMomentReport;
+exports.logSelfDestruct = logSelfDestruct;
+exports.logSilenceEnd = logSilenceEnd;
+exports.logSilenceStart = logSilenceStart;
+exports.logWarning = logWarning;
+exports.logError = logError;
+exports.logStatsReport = logStatsReport;

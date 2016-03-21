@@ -6,7 +6,7 @@
 "use strict";
 
 const {prefs} = require("sdk/simple-prefs");
-const {PersistentObject} = require("./../utils");
+const {PersistentObject} = require("./utils");
 
 const eventDataAddress = "event.data";
 

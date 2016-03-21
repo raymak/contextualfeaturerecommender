@@ -238,13 +238,18 @@ exports.show = show
 
 function fadeOut(panel){
   panel.style.transition = "opacity 0.4s ease-in 0s";
-
+  panel.firstChild.contentDocument.body.style.overflow = "hidden";
   panel.firstChild.style.transition = "height 0.5s, width 0.5s";
   panel.firstChild.style.height = "0px";
   panel.firstChild.style.width = "0px";
   // panel.firstChild.style.opacity = 0;
+
   panel.style.opacity = "0";
-  setTimeout(close, 400, panel);
+  setTimeout(function(panel){
+    close(panel);
+    panel.firstChild.style.removeProperty("transition");
+    panel.style.removeProperty("transition");
+  }, 400, panel);
 }
 exports.fadeOut = fadeOut
 

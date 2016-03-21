@@ -10,12 +10,31 @@
   "permissions": {"private-browsing": true},
   "preferences": [
     {
+      "name": "isTest",
+      "type": "bool",
+      "title": "Is it a test or field deployment.",
+      "value": true
+    },
+    {
+      "name": "cleanup_on_death",
+      "type": "bool",
+      "title": "Whether the preferences should be cleaned up when the addon is killed",
+      "value": true
+    },
+
+    {
       "name": "clean_install",
       "type": "bool",
       "title": "Whether or not all the preferences should be reset upon installation.",
       "value": true
     },
-     {
+    {
+      "name": "recomm_list_address",
+      "type": "string",
+      "title": "Address of the feature recommendations list to load.",
+      "value": "prepilot008recommendations.json"
+    },
+    {
       "type": "bool",
       "name": "delivery.mode.no_silence",
       "description": "",
@@ -24,10 +43,32 @@
 
     },
     {
-      "name": "delivery.mode.rate",
-      "type": "bool",
+      "name": "delivery.mode.rate_limit",
+      "type": "radio",
       "title": " ",
-      "value": false
+      "value": "easy",
+      "options": [
+        {
+          "value": "easy",
+          "label": "Easy"
+        },
+        {
+          "value": "strict",
+          "label": "Strict"
+        }
+      ]
+    },
+     {
+      "name" : "delivery.mode.silence_length.easy",
+      "type": "integer",
+      "title": "Length of the easy rate limit mode in ticks.",
+      "value": 10
+    },
+    {
+      "name" : "delivery.mode.silence_length.strict",
+      "type": "integer",
+      "title": "Length of the strict rate limit mode in ticks.",
+      "value": 60
     },
     {
       "name": "delivery.mode.observ_only",
@@ -128,6 +169,12 @@
       "value": "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]"
     },
     {
+      "name": "experiment.name",
+      "type": "string",
+      "title": "Name of the very deployed experiment.",
+      "value": "wp-pilot001"
+    },
+    {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
@@ -153,10 +200,22 @@
 
       },
     {
+      "name": "logger.periodic_log_period",
+      "type": "integer",
+      "title": "How often periodic log info is reported.",
+      "value": 30
+    },
+    {
       "name": "logger.recent_hist_count",
       "type": "integer",
       "title": "Maximum number of log records to store when connection fails.",
       "value": 5
+    },
+    {
+      "name": "feature_report.log_period",
+      "type": "integer",
+      "title": "How often the feature status has to be reported.",
+      "value": 30
     },
     {
       "name": "route.coefficient",
@@ -165,13 +224,43 @@
       "value": "1"
     },
     {
+      "name": "feature_report.immediate_try_period_s",
+      "type": "integer",
+      "title": " ",
+      "value": 30
+    },
+    {
+      "name": "stats.send_to_debug",
+      "type": "bool",
+      "title": " ",
+      "value": false
+    },
+    {
       "name": "debug.enabled",
       "type": "bool",
       "title": " ",
       "value": true
     },
     {
-      "name": "sender.send_to_tp",
+      "name": "debug.command.used",
+      "type": "bool",
+      "title": " ",
+      "value": false
+    },
+    {
+      "name": "sender.resend_period",
+      "type": "integer",
+      "title": "How often the sender should retry sending the queued messages",
+      "value": 2
+    },
+    {
+      "name": "sender.queue_quota",
+      "type": "integer",
+      "title": "The number of messages that can be stored in the queue before they start to drop.",
+      "value": 50
+    },
+    {
+      "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
       "value": false
@@ -180,7 +269,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
    }
   ], 
   "keywords": [

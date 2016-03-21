@@ -167,7 +167,6 @@ const stages = {
     console.log("obs2 stage started.");
   },
   end: function(){
-
     // to make sure no notifications are delivered during the delay
     prefs["delivery.mode.observ_only"] = true;
     require('./presenter').stop();

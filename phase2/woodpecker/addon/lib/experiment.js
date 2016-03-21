@@ -9,43 +9,79 @@ const {PersistentObject} = require("./utils");
 const {prefs} = require("sdk/simple-prefs");
 const {merge} = require("sdk/util/object");
 const timer = require("./timer");
+const {setTimeout} = require("sdk/timers");
 const {handleCmd, dumpUpdateObject, isEnabled} = require("./debug");
 
 const expDataAddress = "experiment.data";
 
 let expData;
 
+const modes = [
+  {rateLimit: 'easy', moment: 'random', coeff: 1}, //0
+  {rateLimit: 'easy', moment: 'random', coeff: 2}, //1
+  {rateLimit: 'easy', moment: 'in-context', coeff: 1}, //2
+  {rateLimit: 'easy', moment: 'in-context', coeff: 2}, //3
+  {rateLimit: 'easy', moment: 'interruptible', coeff: 1}, //4
+  {rateLimit: 'easy', moment: 'interruptible', coeff: 2}, //5
+  {rateLimit: 'strict', moment: 'random', coeff: 1}, //6
+  {rateLimit: 'strict', moment: 'random', coeff: 2}, //7
+  {rateLimit: 'strict', moment: 'in-context', coeff: 1}, //8
+  {rateLimit: 'strict', moment: 'in-context', coeff: 2}, //9
+  {rateLimit: 'strict', moment: 'interruptible', coeff: 1}, //10
+  {rateLimit: 'strict', moment: 'interruptible', coeff: 2} //11
+]
+
+const quickCodes = {
+  "er1": 0,
+  "er2": 1,
+  "ec1": 2,
+  "ec2": 3,
+  "ei1": 4,
+  "ei2": 5,
+  "sr1": 6,
+  "sr2": 7,
+  "sc1": 8,
+  "sc2": 9,
+  "si1": 10,
+  "si2": 11
+}
+
 const experiment = {
   init: function(){
-    // expData.mode = {rateLimit: true, moment: 'interruptible'};
-    //rate limit {true, false}
-    //moment {'interruptible', 'random', 'in-context'}
+
     console.log("initializing experiment");
 
     expData = PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update});
 
+    if (!expData.mode)
+      setMode();
+
     debug.init();
 
-    if (!("stageForced" in expData))
-      expData.stageForced = false;
+    if (!(expData["stageForced"]))
+    expData.stageForced = false;
 
-    if (!("stage" in expData))
+    if (!(expData["stage"])){
+      console.log("experiment stage set to obs1 due to no existing stage");
       expData.stage = "obs1";
+    }
 
-    timer.onTick(debug.update);
     timer.onTick(checkStage);
+    timer.onTick(debug.update);
 
   },
   get info(){
-    return {startTimeMs: startTimeMs(), stage: expData.stage};
-  }, 
+    const name = prefs["experiment.name"];
+
+    let stTimeMs = startTimeMs();
+    return {startTimeMs: stTimeMs,
+            startLocaleTime: (new Date(Number(stTimeMs))).toLocaleString(),  
+            name: name, stage: expData.stage,
+            mode: expData.mode};
+  },
   firstRun: function(){
     stages["obs1"]();
   }
-}
-
-function assignRandomMode(weightsArr){
-  return modes[require("./utils").weightedRandomInt(weightsArr)];  
 }
 
 // also sets start date when called for the first time
@@ -60,7 +96,7 @@ function startTimeMs(){
 
 function checkStage(et, ett){
 
-  if (expData.forcedStage)
+  if (expData.stageForced)
     return ;
 
   let stage = expData.stage;
@@ -85,12 +121,12 @@ function checkStage(et, ett){
   if (nStage === stage)
     return;
 
-  //prepare the new stage
-  stages[nStage]();
-
   expData.stage = nStage;
 
   require("./logger").logExpStageAdvance({newstage: nStage});
+
+   //prepare the new stage
+  stages[nStage]();
 
   console.log("starting new experiment stage: " + nStage);
 }
@@ -98,17 +134,43 @@ function checkStage(et, ett){
 const stages = {
   obs1: function(){
     prefs["delivery.mode.observ_only"] = true;
+    let mode = expData.mode;
+    // fr silence disabled and ignored in wp
+    // prefs["timer.silence_length_s"] = 
+    //   timer.tToS(prefs["delivery.mode.silence_length." + prefs["delivery.mode.rate_limit"]]);
+    prefs["delivery.mode.moment"] = mode.moment;
+    prefs["delivery.mode.rate_limit"] = mode.rateLimit;
+    prefs["route.coefficient"] = String(mode.coeff);
     console.log("obs1 stage started.");
   },
   intervention: function(){
     prefs["delivery.mode.observ_only"] = false;
     console.log("intervention stage started.");
+
+    require('./stats').log();
   },
   obs2: function(){
+    prefs["delivery.mode.observ_only"] = true;
+
+    require('./stats').log();
+
     console.log("obs2 stage started.");
   },
   end: function(){
+    prefs["delivery.mode.observ_only"] = true;
 
+     require("./self").getPeriodicInfo(function(info){
+        require("./logger").logPeriodicSelfInfo(info);
+
+        require("./feature-report").log();
+        require("./moment-report").log();
+        require('./stats').log();
+
+        // flush the remaining log messages
+        require('./sender').flush();
+    });
+
+    setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"])
   }
 };
 
@@ -194,13 +256,19 @@ const debug = {
 }
 
 function setMode(weights){
-  weights = weights || system.staticArgs.delMode_weights || JSON.parse(prefs["experiment.default_delMode_weights"]);
-  // let modeint = require("./utils").weightedRandomInt(weights);
-  // let mode = arms.arms[armint];
-  // prefs["config.armnumber"] = armint;
-  // prefs["config.arm"] = JSON.stringify(arm);
-  // return arm;
+  weights = weights || JSON.parse(prefs["experiment.default_delMode_weights"]);
+  console.log(weights);
+
+  let modeCode = require("./utils").weightedRandomInt(JSON.parse(prefs["experiment.default_delMode_weights"]));
+  
+  if (prefs["experiment.override_mode"]){
+    console.log("experiment mode overrided");
+    modeCode = quickCodes[prefs["experiment.override_mode"]];
   }
+
+  expData.mode = modes[modeCode];
+  console.log("assigned experimental mode: ", expData.mode, " code: ", modeCode);
+}
 
 // exports.expData = expData;
 module.exports = experiment;

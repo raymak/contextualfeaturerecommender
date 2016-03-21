@@ -7,30 +7,13 @@
 
 const {prefs} = require("sdk/simple-prefs");
 
-function Route(routeStr){
-  let rRoute = {};
+function Route(route){
 
-  let headerInd = routeStr.indexOf(" -");
-  if (headerInd < 0) headerInd = routeStr.length;
-  let headerExp = routeStr.slice(0, headerInd);
-  let keysExp = routeStr.slice(headerInd+1);
+  if (typeof route === "object")
+    return route;
 
-  rRoute.header = headerExp;
-
-  let i = 0;
-  let keysArr = keysExp.split(" ");
-
-  if (keysExp.length > 0)
-    while(i < keysArr.length){
-      if (keysArr[i+1] && keysArr[i+1].charAt(0) !== "-"){
-        rRoute[keysArr[i].slice(1)] = keysArr[i+1];
-        i = i + 2;
-      }
-      else {
-        rRoute[keysArr[i].slice(1)] = true;
-        i = i + 1;
-      }
-    }
+  // convert str to object
+  let rRoute = require('./utils').extractOpts(route);
 
   return rRoute;
 }
@@ -48,7 +31,7 @@ const equals = function(route){
 // coefficient of 1 is more conservative than 2
 const scale = function(coeff){
   for (let key in this){
-    if (typeof this[key] === "function") continue;
+    if (typeof this[key] === "function" || typeof this[key] === "boolean") continue;
 
     if (this[key].charAt(0) === ">")
       this[key] = ">" + String(Number(this[key].slice(1))/coeff);
@@ -64,32 +47,59 @@ const str = function(){
   let str = this.header;
 
   for (let key in this){
+    if (key == "header")
+      continue;
     str = str + " -" + key;
-    if (typeof this[key] === "boolean") continue; //only key and no value
+    if (typeof this[key] === "boolean") 
+      continue; //only key and no value
     str = str + " " + this[key];
   }
 
   return str;
 }
 
-const matches = function(route, looseMatch){
+const matches = function(inRoute, looseMatch){
   looseMatch = !!looseMatch; //false by default
 
-  if (Object.keys(this).length !== Object.keys(route).length) 
+  // make sure routes are represented as objects
+  inRoute = Route(inRoute);
+  let defRoute = Route(this);
+
+  let twoWay = false;
+
+  // two-way match
+  // TODO: think about this and make it a general pattern)
+  if (~["hotkey"].indexOf(inRoute.header.split(" ")[0]))
+    twoWay = true;
+
+  if (Object.keys(defRoute).length > Object.keys(inRoute).length) 
     return false;
 
-  for (let key in this){
-    if (typeof this[key] === "function" || this[key] === route[key]) continue;
+  let keys = Object.keys(defRoute);
 
-    if (this[key].charAt(0) === ">"){
-      if (Number(this[key].slice(1)) < Number(route[key])) continue;
-      if (looseMatch) continue;
-    }
+  if (twoWay){
+    let xKeys = Object.keys(inRoute).filter(function(elm){
+      return !~["f", "if", "c"].indexOf(elm);
+    });
 
-    if (this[key].charAt(0) === "<"){
-      if (Number(this[key].slice(1)) > Number(route[key])) continue;
-      if (looseMatch) continue;
-    }
+    keys = keys.concat(xKeys);
+  }
+
+  for (let key of keys){
+    if (!(key in inRoute))
+      return false;
+
+    if (twoWay && !(key in defRoute))
+      return false;
+    
+    if (typeof defRoute[key] === "function" 
+        || defRoute[key] === inRoute[key]) continue;
+
+    if (defRoute[key].charAt(0) === ">")
+      if (looseMatch || Number(defRoute[key].slice(1)) < Number(inRoute[key])) continue;
+
+    if (defRoute[key].charAt(0) === "<")
+      if (looseMatch || Number(defRoute[key].slice(1)) > Number(inRoute[key]) || looseMatch) continue;
 
     return false;
   }
@@ -99,7 +109,7 @@ const matches = function(route, looseMatch){
 
 function coefficient(coeff){
   if (coeff)
-    prefs["route.coefficient"] = String(coeff);
+    prefs["route.coefficient"] = String(coeff*Number(prefs["route.coefficient"]));
 
   return Number(prefs["route.coefficient"]);
 }

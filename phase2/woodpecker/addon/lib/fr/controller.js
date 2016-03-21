@@ -6,6 +6,7 @@
 "use strict";
 
 const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
+const {isPrivate} = require("sdk/private-browsing");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
 const {Route, coefficient} = require("./route");
 const {Recommendation} = require("./recommendation");
@@ -14,28 +15,35 @@ const {getBrowserForTab, getTabForId} = require("sdk/tabs/utils");
 const tabs = require("sdk/tabs");
 const {Event, eventData, eventDataAddress} = require("./event");
 const {Cu, Cc, Ci} = require("chrome");
-const {prefs} = require("sdk/simple-prefs");
+const sp = require("sdk/simple-prefs");
+const prefs = sp.prefs;
 const presenter = require("./presenter");
 const { MatchPattern } = require("sdk/util/match-pattern");
 const {PersistentRecSet} = require("./recommendation");
-const timer = require("./../timer");
-const utils = require("./../utils");
-const self = require("./../self");
+const {setTimeout} = require("sdk/timers");
+const timer = require("./timer");
+const utils = require("./utils");
+const self = require("./self");
 const system = require("sdk/system");
 const windows = require("sdk/windows");
 const {modelFor} = require("sdk/model/core");
 const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
-const {handleCmd} = require("./../debug");
+const {handleCmd} = require("./debug");
 const {data} = require("sdk/self");
 const unload = require("sdk/system/unload").when;
-const logger = require("./../logger");
+const logger = require("./logger");
 const featReport = require("./feature-report");
+const events = require("sdk/system/events");
+const {pathFor} = require('sdk/system');
+const file = require('sdk/io/file');
+const statsEvent = require("./stats").event;
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/osfile.jsm");
 const devtools = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools;
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
@@ -46,10 +54,11 @@ const HOME_URL = 'about:home';
 const BLANK_URL = 'about:blank';
 
 const recSetAddress = "controller.recommData";
+const deliveryDataAddress = "delivery.data";
 
 let recommendations = PersistentRecSet("simplePref", {address: recSetAddress});
+let deliveryData = utils.PersistentObject("simplePref", {address: deliveryDataAddress});
 
-let downloadList;
 let hs;
 let sessObserver;
 let contentTypeObserver;
@@ -57,22 +66,20 @@ let searchEngineObserver;
 let addonListener;
 let historyObserver;
 let dlView;
+let hostNameList;
 
 const init = function(){
   console.log("initializing controller");
 
+  console.time("controller init");
+
   unload(unloadController);
 
   listener.start();
-  // deliverer.init();
-  // debug.init();
+  deliverer.init();
+  debug.init();
 
-
-  //scaling routes
-  scaleRoutes(coefficient(), "trigBehavior");
-
-  //welcome message
-  // deliverer.deliver(recommendations.welcome);
+  console.timeEnd("controller init");
 }
 
 /**
@@ -82,7 +89,7 @@ const init = function(){
 const listener = {
   start: function(){
 
-    console.log("starting feature recommender listener");
+    console.log("starting listener");
 
     let that = this;
 
@@ -96,26 +103,26 @@ const listener = {
       tabsEvent.effect = function(){
         let route = this.options.route;
 
-        //pinned is not about tabs being pinned
+        //pin is not about tabs being pinned
         //it is about reporting the number of pinned tabs
-        //so should not be dispatched as tabs event
-        if (this.options.reason == "pinned") return;
+        //so should not be dispatched as tabs even
+        if (this.options.reason == "pin" || this.options.reason == "open") return;
         
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       };
 
       let multipleTabsEvent = that.multipleRoute(tabsEvent);
 
       //see above
       multipleTabsEvent.checkPreconditions = function(){
-        return (this.preEvent.options.reason != "pinned");
+        return (this.preEvent.options.reason != "pin" && this.preEvent.options.reason != "open");
       };
 
       tabsEvent.postEvents.push(multipleTabsEvent);
 
-      let tabsOpened = Event("tabsOpened");
+      let tabsOpen = Event("tabsOpen");
 
-      tabsOpened.effect = function(){
+      tabsOpen.effect = function(){
         let baseRoute = this.preEvent.options.route;
 
         let route = [baseRoute, "-n", this.preEvent.options.params.number].join(" ");
@@ -123,15 +130,15 @@ const listener = {
         listener.dispatchRoute(route);
       };
 
-      tabsOpened.checkPreconditions = function(){
-        return (this.preEvent.options.reason == "opened");
+      tabsOpen.checkPreconditions = function(){
+        return (this.preEvent.options.reason == "open");
       };
 
-      tabsEvent.postEvents.push(tabsOpened);
+      tabsEvent.postEvents.push(tabsOpen);
 
-      let tabsPinned = Event("tabsPinned");
+      let tabsPin= Event("tabsPin");
 
-      tabsPinned.effect = function(){
+      tabsPin.effect = function(){
         let baseRoute = this.preEvent.options.route;
 
         let route = [baseRoute, "-n", this.preEvent.options.params.number].join(" ");
@@ -139,18 +146,18 @@ const listener = {
         listener.dispatchRoute(route);
       };
 
-      tabsPinned.checkPreconditions = function(){
-        return (this.preEvent.options.reason == "pinned");
+      tabsPin.checkPreconditions = function(){
+        return (this.preEvent.options.reason == "pin");
       };
 
-      tabsEvent.postEvents.push(tabsPinned)
+      tabsEvent.postEvents.push(tabsPin)
 
       let tabsClicked = Event("tabsClicked");
 
       tabsClicked.effect = function(){
         let baseRoute = this.preEvent.options.route;
 
-        let route = [baseRoute, "-position", this.preEvent.options.params.position].join(" ");
+        let route = [baseRoute, "position", this.preEvent.options.params.position].join(" ");
 
         this.options.route = route;
 
@@ -169,7 +176,6 @@ const listener = {
 
       tabsEvent.wake();
 
-
     });
 
     this.listenForAddonEvents(function(eventType, params){
@@ -182,13 +188,13 @@ const listener = {
         let route;
         switch(this.options.eventType){
           case "count":
-          route = ["addon", this.options.eventType, "-" + this.options.params.type, "-n", this.options.params.number].join(" ");
-          break;
+            route = ["addon", this.options.eventType, this.options.params.type, "-n", this.options.params.number].join(" ");
+            break;
           case "pageshow":
-          route = ["addon", this.options.eventType].join(" ");
-          break;
+            route = ["addon", this.options.eventType].join(" ");
+            break;
           default:
-          route = ["addon", this.options.eventType, params.addonId].join(" ");
+            route = ["addon", this.options.eventType, params.addonId].join(" ");
         }
         this.options.route = route;
         listener.dispatchRoute(route);
@@ -197,26 +203,25 @@ const listener = {
       addonEvent.wake();
     });
 
-    // this.listenForContentType(function(contentType){
-    //   let contentTypeEvent = Event("contentTypeEvent",
-    //   {
-    //     route: ["contentType", contentType].join(" "),
-    //     contentType: contentType
-    //   });
+    this.listenForUserActivity(function(){
 
-    //   contentType.effect = function(){
-    //     let route = this.options.route;
+      let interruptibleMomentEvent = Event("interruptibleMomentEvent",
+      {
+        route: "moment interruptible"
+      });
 
-    //     listener.dispatchRoute(route);
-    //   };
+      interruptibleMomentEvent.checkPreconditions = function(){
+        return timer.isRecentlyActive(10, 2*60);
+      };
 
-    //   let multipleContentType = that.multipleRoute(contentTypeEvent);
+      let multipleInterruptibleMomentEvent = that.multipleRoute(interruptibleMomentEvent, {
+        dispatch: {context: true}
+      });
 
-    //   contentTypeEvent.postEvents.push(multipleContentType);
+      interruptibleMomentEvent.postEvents.push(multipleInterruptibleMomentEvent);
 
-    //   contentTypeEvent.wake();
-
-    // }, ["application/json", "application/epub+zip"]);
+      interruptibleMomentEvent.wake();
+    });
 
     this.listenForNewtab(function(){
       let newtabEvent = Event("newtabEvent", {
@@ -227,24 +232,68 @@ const listener = {
         listener.dispatchRoute(this.options.route);
       };
 
-      let interruptibeMomentEvent = Event("interruptibeMomentEvent", 
-      {
-        route: "*"
+      newtabEvent.wake();
+    });
+
+    this.listenForFirefoxEvents(function(reason, params){
+
+      let firefoxEvent = Event("firefoxEvent", {
+        route: ['firefox', reason].join(" "),
+        reason: reason,
+        params: params
       });
 
-      interruptibeMomentEvent.checkPreconditions = function(){
-        // return (self.delMode.moment === 'interruptible') ;
-        return (timer.isRecentlyActive());
-        
+      let updateChannelEvent = Event("updateChannel");
+
+      updateChannelEvent.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+
+        let route = [baseRoute, params.channel].join(" ");
+
+        listener.dispatchRoute(route);
       }
 
-      interruptibeMomentEvent.effect = function(){
-        listener.context(this.options.route);
+      updateChannelEvent.checkPreconditions = function() this.preEvent.options.reason == "channel";
+
+      firefoxEvent.postEvents.push(updateChannelEvent);
+
+      let profilesEvent = Event("profilesEvent");
+
+      profilesEvent.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+
+        let route = [baseRoute,
+                     "-n",
+                     this.preEvent.options.params.number]
+                     .join(" ");
+
+        listener.dispatchRoute(route);
+      }
+      
+      profilesEvent.checkPreconditions = function() this.preEvent.options.reason == "profiles";
+
+      firefoxEvent.postEvents.push(profilesEvent);
+
+      let startupEvent = Event("startupEvent");
+
+      startupEvent.effect = function(){
+
+        let baseRoute = this.preEvent.options.route;
+
+        let route = baseRoute;
+
+        this.options.route = route;
       }
 
-      newtabEvent.postEvents.push(interruptibeMomentEvent);
+      startupEvent.checkPreconditions = function() this.preEvent.options.reason == "startup";
+      firefoxEvent.postEvents.push(startupEvent);
 
-      newtabEvent.wake();
+      let multipleStartupEvent = that.multipleRoute(startupEvent);
+
+      startupEvent.postEvents.push(multipleStartupEvent);
+
+      firefoxEvent.wake();
+
     });
 
     //TODO: merge with chromeEvent
@@ -256,6 +305,8 @@ const listener = {
 
       hotkeyEvent.effect = function(){
         let e = this.options.event;
+
+        // os-dependent representation, not dispatched currently
         let route = ["hotkey", e.key,
                    e.metaKey ? "-meta" : "",
                    e.ctrlKey ? "-ctrl" : "",
@@ -264,21 +315,15 @@ const listener = {
                     return elm != "";
                    }).join(" ");
 
-        listener.dispatchRoute(route);
-
         let osDarwin = system.platform === 'darwin'; //TODO
 
+        // os-independent representation
         route = ["hotkey", e.key,
                 ((e.metaKey && osDarwin) || (e.ctrlKey && !osDarwin)) ? "-cmd" : "",
                 e.shiftKey ? "-shift" : "",
                 e.altKey ? "-alt" : ""].filter(function(elm){
                     return elm != "";
                    }).join(" ");
-
-        //TODO: solve thE multiple correct routes problem by adding the capability of having multople
-        //routes for behaviors and contexts (or adding route equivalence test)
-
-        listener.dispatchRoute(route);
 
         this.options.route = route; //TOTHINK: the first route is ignored for postEvents
       }
@@ -296,18 +341,22 @@ const listener = {
 
     });
 
-    this.listenForChromeEvents(function(evtName, evt){
+    this.listenForChromeEvents(function(route, evt){
+
+      let evtName = route.eventName;
+      let id = route.id;
 
       let chromeEvent = Event("chromeEvent", {
-        route: ["chrome", evtName, evt.currentTarget.getAttribute("id")].join(" "),
+        route: ["chrome", evtName, id].join(" "),
         event: evt,
-        eventName: evtName
+        eventName: evtName,
+        id: route.id
       });
 
       chromeEvent.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multipleChromeEvent = that.multipleRoute(chromeEvent);
@@ -318,14 +367,17 @@ const listener = {
       chromeEventAnon.effect = function(){
         let anonid = this.preEvent.options.event.originalTarget.getAttribute("anonid");
         let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, "-anonid", anonid].join(" ");
+        this.options.route = [baseRoute, "anonid", anonid].join(" ");
 
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       chromeEventAnon.checkPreconditions = function(){
+        if (~["document", "window"].indexOf(this.preEvent.options.id))
+          return false;
+
         return (!!this.preEvent.options.event.originalTarget.getAttribute("anonid"));
       }
 
@@ -351,7 +403,7 @@ const listener = {
       webAppOpen.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multipleWebAppOpen = that.multipleRoute(webAppOpen);
@@ -364,10 +416,10 @@ const listener = {
         let baseRoute = this.preEvent.options.route;
         let appId = this.preEvent.options.appId;
 
-        let route = [baseRoute, "-appId", appId].join(" ");
+        let route = [baseRoute, "appId", appId].join(" ");
         this.options.route = route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multipleWebAppOpenId = that.multipleRoute(webAppOpenId);
@@ -389,7 +441,7 @@ const listener = {
       websiteCategoryEvent.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multipleWebsiteCategoryEvent = that.multipleRoute(websiteCategoryEvent);
@@ -410,7 +462,7 @@ const listener = {
         let hostname = this.options.hostname; //TODO: remove if unnecessary
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
         };
 
         let multipleHostVisit = that.multipleRoute(hostVisit);
@@ -418,7 +470,7 @@ const listener = {
         hostVisit.postEvents.push(multipleHostVisit);
         hostVisit.wake();
 
-    }, {fresh: true});
+    }, {halfFresh: true});
 
     this.listenForSearchEngine(function(reason, params){
 
@@ -433,12 +485,17 @@ const listener = {
         let route = this.options.route;
         let reason = this.options.reason;
 
-        if (reason != "alias")
-          listener.dispatchRoute(route);
+        // if (reason != "alias")
+        //   listener.dispatchRoute(route);
       };
 
 
       let multipleSearchEngModify = that.multipleRoute(searchEngModify);
+
+      multipleSearchEngModify.checkPreconditions = function(){
+        return (this.preEvent.options.reason != "alias");
+      }
+
       searchEngModify.postEvents.push(multipleSearchEngModify);
 
       let searchEngAliasEvent = Event("searchEngModifyAliasEvent");
@@ -472,7 +529,7 @@ const listener = {
       devToolsEvent.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       };
 
       let multipleDevToolsEvent = that.multipleRoute(devToolsEvent);
@@ -485,12 +542,12 @@ const listener = {
         let baseRoute = this.preEvent.options.route;
         let toolId = this.preEvent.options.params.toolId;
 
-        let route = [baseRoute, "-tool", toolId].join(" ");
+        let route = [baseRoute, "tool", toolId].join(" ");
 
         this.options.route = route;
         this.options.toolId = toolId;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       devToolsSelect.checkPreconditions = function(){
@@ -514,7 +571,7 @@ const listener = {
 
       sessRestored.effect = function(){
         let route = this.options.route;
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       sessRestored.checkPreconditions = function(){
@@ -535,7 +592,7 @@ const listener = {
 
       privateBrowse.effect = function(){
         let route = this.options.route;
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       let multiplePrivateBrowse = that.multipleRoute(privateBrowse);
@@ -545,16 +602,32 @@ const listener = {
     });
 
   
+    this.listenForTools(function(tool, reason){
+
+      let toolEvent = Event("toolEvent", {
+        tool: tool,
+        reason: reason,
+        route: [tool, reason].join(" ")
+      });
+
+      let multipleToolEvent = that.multipleRoute(toolEvent);
+
+      toolEvent.postEvents.push(multipleToolEvent);
+
+      toolEvent.wake();
+
+    });
+
     this.listenForHistory(function(reason){
       let histInteraction = Event(("historyInteraction"), {
         reason: reason,
-        route: "history"
+        route: ["history", reason].join(" ")
       });
 
       histInteraction.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       };
 
       let multipleHistInteraction = that.multipleRoute(histInteraction);
@@ -566,13 +639,12 @@ const listener = {
       let histDelete = Event("historyDelete");
 
       histDelete.effect = function(){
-        let reason = this.preEvent.options.reason;
-        let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, "delete"].join(" ");
+
+        this.options.route = ['history', "delete"].join(" ");
 
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       }
 
       histDelete.checkPreconditions = function(){
@@ -591,81 +663,18 @@ const listener = {
 
       let downloadInteraction = Event("downloadInteraction", {
         reason: reason,
-        route: "download"
+        route: ["download", reason].join(" ")
       });
 
       downloadInteraction.effect = function(){
         let route = this.options.route;
 
-        listener.dispatchRoute(route);
+        // listener.dispatchRoute(route);
       };
 
       let multipleDownloadInteraction = that.multipleRoute(downloadInteraction);
       downloadInteraction.postEvents.push(multipleDownloadInteraction);
 
-      //Download Added
-      let downloadAdded = Event("downloadAdded");
-
-      downloadAdded.effect = function(){
-        let reason = this.preEvent.options.reason;
-        let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, reason].join(" ");
-
-        let route = this.options.route;
-
-        listener.dispatchRoute(route);
-      };
-
-      downloadAdded.checkPreconditions = function(){
-        return this.preEvent.options.reason === "added";
-      };
-
-      let multipleDownloadAdded = that.multipleRoute(downloadAdded);
-      downloadAdded.postEvents.push(multipleDownloadAdded);
-
-     
-      //Download Changed
-      let downloadChanged = Event("downloadChanged");
-
-      downloadChanged.effect = function(){
-        let reason = this.preEvent.options.reason;
-        let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, reason].join(" ");
-
-        let route = this.options.route;
-
-        listener.dispatchRoute(route);
-      };
-
-      downloadChanged.checkPreconditions = function(){
-        return this.preEvent.options.reason === "changed";
-      };
-
-      let multipleDownloadChanged = that.multipleRoute(downloadChanged);
-      downloadChanged.postEvents.push(multipleDownloadChanged);
-
-      //Download Removed
-      let downloadRemoved = Event("downloadRemoved");
-
-      downloadRemoved.effect = function(){
-        let reason = this.preEvent.options.reason;
-        let baseRoute = this.preEvent.options.route;
-        this.options.route = [baseRoute, reason].join(" ");
-
-        let route = this.options.route;
-
-        listener.dispatchRoute(route);
-      };
-
-      downloadRemoved.checkPreconditions = function(){
-        return this.preEvent.options.reason === "removed";
-      };
-
-      let multipleDownloadRemoved = that.multipleRoute(downloadRemoved);
-      downloadRemoved.postEvents.push(multipleDownloadRemoved);
-
-
-      downloadInteraction.postEvents.push(downloadAdded, downloadChanged, downloadRemoved);
       downloadInteraction.wake();
 
     });
@@ -680,24 +689,34 @@ const listener = {
 
 const deliverer = {
   init: function(){
-    timer.tickCallback(this.checkSchedule);
+
+    let f = function(p){
+      prefs["timer.silence_length_s"] = 
+        timer.tToS(prefs["delivery.mode.silence_length." + prefs[p]]);
+    };
+    sp.on("delivery.mode.rate_limit", f)
+    unload(function() sp.removeListener("delivery.mode.rate_limit", f));
+
+    f("delivery.mode.rate_limit");
+
+    timer.onTick(this.checkSchedule);
+
   },
   deliver: function (/* recommendations */) {
 
-    console.log("no recommendation delivery in woodpecker");
-    return ;
-    
     let recomms = Array.prototype.slice.call(arguments);
 
     if (recomms.length === 0)
       return;
 
-    if (recomms.length > 1)
-      console.log("warning: attempted to deliver multiple recommendations at the same time.");
+    if (recomms.length > 1){
+      console.log("warning: attempted to deliver multiple recommendations at the same time: " + recomms.length);
+      require('./stats').event("multiple-delivery", {type: "delivery"});
+    }
 
     //finding the recommendation with the highest priority
 
-    let minPriority = recomms[0];
+    let minPriority = recomms[0].priority;
     let minRec = recomms[0];
 
     recomms.forEach(function(aRecommendation){
@@ -709,24 +728,37 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
-    if (self.delMode.rateLimit){
-      if (self.delMode.observOnly || timer.isSilent()){
-        if (self.delMode.observOnly)
-          console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
-        else
-          console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
-
-
-        if (self.delMode.moment === "random"){
-          console.log("rescheduling delivery time: id -> " + aRecommendation.id);
-          this.rescheduleDelivery(aRecommendation);
-          recommendations.update(aRecommendation);
-        }
-        return;
-      }
+    if (isPrivate(getMostRecentBrowserWindow())){
+      console.log("delivery rejected due to private browsing");
+      require('./stats').event("private-reject", {type: "delivery"});
+      return;
     }
 
+    if (!timer.isCertainlyActive()){
+      console.log("delivery rejected due to uncertain user activity status");
+      require('./stats').event("inactive-reject", {type: "delivery"});
+    }
+
+    if (self.delMode.observOnly || (timer.isSilent())){
+      if (self.delMode.observOnly){
+        console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
+        require('./stats').event("observe-only-reject", {type: "delivery"});
+      }
+      else{
+        console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
+        require('./stats').event("silence-reject", {type: "delivery"});
+      }
+
+      return;
+    }
+
+
     console.log("delivering " + aRecommendation.id);
+
+    if (aRecommendation.status == "delivered"){
+      console.log("warning: delivering a recommendation that has already been delivered");
+      logger.logWarning({code: "delivery", message: "delivering a recommendation that has already been delivered: " + aRecommendation.id});
+    }
 
     aRecommendation.status = "delivered";
     recommendations.update(aRecommendation);
@@ -736,34 +768,54 @@ const deliverer = {
     timer.silence();
 
   },
-  checkSchedule: function(time, totalTime){
-    let recomms = recommendations.getByRouteIndex('delivContext', '*', {status: 'outstanding'});
+  checkSchedule: function(et, ett){
 
-    if (recomms.length === 0)
-      return;
-    
-    deliverer.deliver.apply(deliverer, recomms.filter(function(aRecommendation){ 
-      return aRecommendation.deliveryTime && (aRecommendation.deliveryTime <= time);
-    }));
-  },
-  scheduleDelivery: function(aRecommendation){
-    let time = timer.elapsedTime();
-    let deliveryTime = timer.randomTime(time, time + prefs["random_interval_length_tick"]);
-    aRecommendation.deliveryTime = deliveryTime;
-    aRecommendation.status = "scheduled";
+    let deliveryTime = deliveryData.randomDeliveryTime;
 
-    console.log("recommendation delivery scheduled: id -> " + aRecommendation.id + ", time -> " + deliveryTime + " ticks");
+    if (!deliveryTime){
+      deliverer.scheduleRandomDelivery();
+      deliveryTime = deliveryData.randomDeliveryTime
+    }
+
+    if (deliveryTime < et){
+      console.log("rescheduling random delivery");
+      deliverer.scheduleRandomDelivery();
+      deliveryTime = deliveryData.randomDeliveryTime
+    }
+
+    if (deliveryTime == et){
+      let randomMomentEvent = new Event("randomMoment", {
+        route: "moment random"
+      });
+
+      let multipleRandomMomentEvent = listener.multipleRoute(randomMomentEvent, {
+        dispatch: {context: true}
+      });
+
+      randomMomentEvent.postEvents.push(multipleRandomMomentEvent);
+      randomMomentEvent.wake();
+    }
+
   },
-  rescheduleDelivery: function(aRecommendation){
-    this.scheduleDelivery(aRecommendation);
-    
-    console.log("recommendation delivery rescheduled: id -> " + aRecommendation.id + ", time -> " + aRecommendation.deliveryTime + " ticks");
-  }
+  scheduleRandomDelivery: function(){
+    let et = timer.elapsedTime();
+  
+    let deliveryTime = timer.randomTime(et, et + prefs["timer.random_interval_length_tick"]);
+
+    deliveryData.randomDeliveryTime = deliveryTime;
+
+    console.log("random delivery scheduled: " +  deliveryTime + " ticks");  }
 };
 
 
 listener.behavior = function(route){
-  console.log("behavior -> route: " + route);
+  console.log("behavior -> route: ", route);
+
+  route = Route(route); // converting to route object
+
+  let behaviorInfo =  function(aRecommendation){ 
+    return {id: aRecommendation.id, count: Number(route.c), num: Number(route.n), "if": Number(route.if)};
+  }
 
   //logging loose matches
   let recomms = recommendations.getByRouteIndex('trigBehavior', route, {looseMatch: true});
@@ -771,13 +823,19 @@ listener.behavior = function(route){
     return;
 
   recomms.forEach(function(aRecommendation){
+    let addedInfo = {};
+    let aggregates = {};
+    let bi = behaviorInfo(aRecommendation);
 
-    let count = Route(route).c;
-    let num = Route(route).n;
-    let invf = Route(route)["if"];
-    if (utils.isPowerOf2(count) || utils.isPowerOf2(num)){
-      let behaviorInfo = {id: aRecommendation.id, count: count, num: num, "if": invf};
-      logger.logLooseBehavior(behaviorInfo);
+    if (bi.num) {
+      addedInfo.num = bi.num;
+      aggregates.num = 'average';
+    }
+
+    statsEvent(aRecommendation.id, {type: "looseBehavior"}, addedInfo, aggregates);
+
+    if (utils.isPowerOf2(bi.count) || (utils.isPowerOf2(bi.num) && bi.num > 10)){
+      logger.logLooseBehavior(bi);
     }
   });
 
@@ -786,69 +844,93 @@ listener.behavior = function(route){
   if (recomms.length === 0)
     return;
 
-  let random = (self.delMode.moment === "random");
-
   recomms.forEach(function(aRecommendation){
     aRecommendation.status = 'outstanding';
-
-    if (random){
-      deliverer.scheduleDelivery(aRecommendation);
-    }
-
     recommendations.update(aRecommendation);
 
-    let count = Route(route).c;
-    let num = Route(route).n;
-    let invf = Route(route)["if"];
-    let behaviorInfo = {id: aRecommendation.id, count: count, num: num, "if": invf};
-    logger.logBehavior(behaviorInfo);
-    });
+    let addedInfo = {};
+    let bi = behaviorInfo(aRecommendation);
+    if (bi.num) {
+      addedInfo.num = bi.num;
+    }
+
+    statsEvent(aRecommendation.id, {type: "behavior"}, addedInfo);
+    logger.logBehavior(bi);
+  });
 };
 
 listener.context = function(route){
 
-  if (self.delMode.observOnly) return;
+  console.log("context -> route: ", route);
+
+  route = Route(route); // convert to object
+  let header = route.header;
 
   let mt = self.delMode.moment;
-  if ((mt === 'interruptible' && route != '*') 
-      || mt === 'random'
-      || mt != 'interruptible' && route === '*')
-    return;
 
-  console.log("context -> route: " + route);
+  // handle random moments
+  if (mt === 'random'){
+    if (header != 'moment random')
+      return;
+    else {
+      route = '*';
+      statsEvent(header);
+    }
+  }
+
+  // handle interruptible moments
+  if (mt === 'interruptible'){
+    if (header != 'moment interruptible')
+      return;
+    else {
+      route = '*';
+      statsEvent(header);
+    }
+  }
  
   let recomms = recommendations.getByRouteIndex('delivContext', route, {status: 'outstanding'});
-  //TODO: use pattern matching 
-  // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
+
   if (recomms.length === 0)
     return;
 
-  //deliver recommendation
+  //deliver recommendations
   deliverer.deliver.apply(deliverer, recomms);
 };
 
 listener.featureUse = function(route){
 
-  let routeObj = Route(route);
- 
-  let count = routeObj.c;
-  let num = routeObj.n;
+  console.log("featureUse -> route: ", route);
 
-  console.log("featureUse -> route: " + route);
-  let shouldReport;
+  route = Route(route);
 
+  let featureUseInfo =  function(aRecommendation){ 
+    return {id: aRecommendation.id, count: Number(route.c), num: Number(route.n), "if": Number(route.if)};
+  }
+
+  //logging loose matches
   let recomms = recommendations.getByRouteIndex('featUseBehavior', route, {looseMatch: true});
-
   if (recomms.length === 0)
     return;
 
   recomms.forEach(function(aRecommendation){
+    let addedInfo = {};
+
+    let fui = featureUseInfo(aRecommendation);
+
+    if (fui.num) addedInfo.num = route.num;
+    statsEvent(aRecommendation.id, {type: "looseFeatureUse"}, addedInfo);
+
+    if (utils.isPowerOf2(fui.count) || (utils.isPowerOf2(fui.num) && fui.num > 10)){
+      logger.logLooseFeatureUse(featureUseInfo(aRecommendation));
+    }
 
     if (aRecommendation.status === 'delivered'){
       featReport.postRecFeatureUse(aRecommendation.id);
     } 
 
   });
+
+  let shouldReport;
 
   recomms = recommendations.getByRouteIndex('featUseBehavior', route);
 
@@ -860,30 +942,29 @@ listener.featureUse = function(route){
     shouldReport = false;
     let featReportInfo = {};
 
+
     let oldStatus = aRecommendation.status;
-    if (aRecommendation.status === 'active' || aRecommendation.status === 'outstanding' || aRecommendation.status === 'scheduled'){
+    if (aRecommendation.status === 'active' ||
+        aRecommendation.status === 'outstanding'){
+
       aRecommendation.status = 'inactive';
       recommendations.update(aRecommendation);
 
       shouldReport = true;
     }
-    
-    if (utils.isPowerOf2(num) || utils.isPowerOf2(count))
-      shouldReport = true;
 
     if (oldStatus == 'delivered')
       shouldReport = true;  //might cause sending of too much redundant feature use log
 
 
     if (shouldReport){
-      let featureUseInfo = {id: aRecommendation.id, oldstatus: oldStatus, count: count, num: num};
-      logger.logFeatureUse(featureUseInfo);
+      logger.logFeatureUse(featureUseInfo(aRecommendation));
 
       
       if (oldStatus == 'delivered')
         featReportInfo.adopted = true;
       else
-        featReportInfo.featureUse = true;
+        featReportInfo.featureuse = true;
 
       featReport.updateRow(aRecommendation.id, featReportInfo);
       
@@ -910,7 +991,6 @@ listener.command = function(cmd){
             isPrivate: cmdObj.private
           });
       else{
-        console.log(cmdObj.l);
         tabs.open(cmdObj.l);
       }
 
@@ -921,13 +1001,27 @@ listener.command = function(cmd){
 
       break;
 
+    case "pin tab":
+      tabs.activeTab.pin();
+
+      break;
+
+    case "pass":
+      break;
+
     default:
       console.log("command not recognized: " + cmd);
+
+      return undefined;
   }
+
+  return "";
 
 }
 
 listener.dispatchRoute = function(route, options){
+  route = Route(route);
+
   if (!options){
     this.behavior(route);
     this.context(route);
@@ -943,11 +1037,15 @@ listener.dispatchRoute = function(route, options){
     if (options.featureUse)
       this.featureUse(route);
   }
+
 }
 
 listener.listenForAddonEvents = function(callback){
 
   tabs.on('ready', function(tab){
+    if (isPrivate(tab))
+      return;
+
     if (tab.url == "about:addons")
       callback('pageshow');
   });
@@ -984,31 +1082,111 @@ listener.listenForAddonEvents = function(callback){
 
 listener.listenForNewtab = function(callback){
   tabs.on('open', function(tab){
+    if (isPrivate(tab))
+      return;
+
     if ([NEWTAB_URL, HOME_URL].indexOf(tab.url) != -1) callback();
   });
 }
 
+listener.listenForTools = function(callback){
+  //Findbar
+  
+  let findopened = function(e){
+    callback("finder", "opened");
+  }
+
+  let windowTracker = new WindowTracker({
+    onTrack: function (window){
+
+      if (!isBrowser(window) || isPrivate(window)) return;
+
+      let buttonListener = function(){
+        window.document.getElementById("find-button").addEventListener("click", findopened);
+        unload(function(){window.document.getElementById("find-button").removeEventListener("click", findopened);})
+      }
+
+      if (window.document.getElementById("find-button"))
+        buttonListener()
+      else { 
+        window.document.getElementById("PanelUI-menu-button").addEventListener("command", buttonListener);
+        unload(function(){window.document.getElementById("PanelUI-menu-button").removeEventListener("command", buttonListener)});
+      }
+
+      window.document.getElementById("cmd_find").addEventListener("command", findopened);
+      unload(function(){window.document.getElementById("cmd_find").removeEventListener("command", findopened);})
+
+    }
+  });
+
+}
+
 listener.listenForActiveTabHostnameProgress = function(callback, options){
 
-  tabs.on("ready", function(tab){
+  hostNameList = {};
+
+  function evalRoute(route){
+    let res = route.match(/^visit hostname ([^ ]*)/);
+    if (res){
+      if (!hostNameList[res[1]]){
+        hostNameList[res[1]] = true;
+        console.log("hostname listener: ", res[1]);
+      } 
+
+    }
+  }
+
+  // initialize the host name list
+  recommendations.forEach(function(aRecommendation){
+    evalRoute(aRecommendation.trigBehavior);
+    evalRoute(aRecommendation.delivContext);
+    evalRoute(aRecommendation.featUseBehavior);
+  });
+
+  function tabProgress(hostname){
+      console.log("active tab progressed to: " + hostname);
+
+      callback(hostname);
+  }
+
+
+  tabs.on("pageshow", function(tab){
+
+      if (isPrivate(tab))
+        return;
+
       if (tab.id !== tabs.activeTab.id) return;//make sure it's the active tab
-        
-        let hostname = URL(tab.url).hostname;
+      
+      let hostname = URL(tab.url).hostname;
 
-        //TOTHINK: potential namespace conflict      
-        if (options && options.fresh && hostname === tab.hostname) return; //not a fresh url open
-
+      //TOTHINK: potential namespace conflict  
+      
+      if (!tab.hostname){
         tab.hostname = hostname;
-        unload(function(){if (tab) delete tab.hostname;})
+        tab.hostnameCount = 0;
 
-        //TODO: use pattern matching 
-        // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
-        if (!hostname) return;//to handle new tabs and blank pages
+        unload(function(){
+          if (tab) delete tab.hostname;
+          if (tab) delete tab.hostnameCount;
+        });
+      }
 
+      if (hostname != tab.hostname){
+        tab.hostname = hostname;
+        tab.hostnameCount = 1;
+      } else {
+        tab.hostnameCount += 1;
+        if (tab.hostnameCount == 5)
+          tab.hostnameCount = 1;
+      }
 
-        console.log("active tab progressed to: " + hostname);
+      if (!hostname) return;//to handle new tabs and blank pages
 
-        callback(hostname);
+      if (!hostNameList[hostname])
+          return;
+
+      console.log(tab.hostname + " : " + tab.hostnameCount);
+      if (options && options.halfFresh && tab.hostnameCount == 1) tabProgress(hostname);
 
   });
 };
@@ -1020,16 +1198,21 @@ listener.listenForWebApps = function(callback, options){
   let apps = {};
 
   apps = {
-    googleCal: new MatchPattern(/https:\/\/www\.google\.com\/calendar\/.*/),
-    gmail: new MatchPattern(/https:\/\/mail\.google\.com\/.*/),
-    gdrive: new MatchPattern(/https:\/\/drive\.google\.com\/.*/),
-    twitter: new MatchPattern(/https:\/\/twitter\.com.*/)
+    googleCal: new MatchPattern(/^(http|https):\/\/calendar\.google\.com\/.*/),
+    gmail: new MatchPattern(/^(http|https):\/\/mail\.google\.com\/.*/),
+    gdrive: new MatchPattern(/^(http|https):\/\/drive\.google\.com\/.*/),
+    gdocs: new MatchPattern(/^(http|https):\/\/docs\.google\.com\/.*/),
+    twitter: new MatchPattern(/^(http|https):\/\/twitter\.com.*/),
+    slack: new MatchPattern(/^(http|https):\/\/.*\.slack\.com\/.*/)
   }
 
   tabs.on("ready", function(tab){
     // if (tab.id !== tabs.activeTab.id) return;//make sure it's the active tab
       
     let appId = null;
+
+    if (isPrivate(tab))
+      return;
 
     for (let id in apps){
       if (apps[id].test(tab.url))
@@ -1040,6 +1223,7 @@ listener.listenForWebApps = function(callback, options){
     if (options.fresh && appId === tab.appId) return; //not a fresh url open
 
     tab.appId = appId;
+    unload(function(){if (tab) delete tab.appId;})
 
     //TODO: use pattern matching 
     // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
@@ -1054,24 +1238,35 @@ listener.listenForWebsiteCategories = function(callback, options){
   let catIndx = {};
 
   catIndx = {
-    academic: [ new MatchPattern(/http:\/\/ieeexplore\.ieee\.org\/.*/),
-                new MatchPattern(/https:\/\/scholar\.google\..*/),
-                new MatchPattern(/http:\/\/www\.sciencedirect\.com\/.*/),
-                new MatchPattern(/http:\/\/dl\.acm\.org\/.*/)
-                ],
-    search:   [ new MatchPattern(/https:\/\/www\.google\.com\/\?.*/),
-                new MatchPattern(/https:\/\/www\.bing\.com\/search\?.*/),
-                new MatchPattern(/https:\/\/.*\.search\.yahoo\.com\/.*/)
-                ],
-    specializedSearch: [ new MatchPattern(/http:\/\/www\.google\.com\/maps\/search\/.*/),
-                         new MatchPattern(/http:\/\/www\.imdb\.com\/find\?.*/),
-                         new MatchPattern(/https:\/\/en\.wikipedia\.org\/wiki\/Special:Search\?.*/),
-                         new MatchPattern(/https:\/\/en\.wikipedia\.org\/w\/index\.php\?search.*/)
-                         ]
+    academic:           [ new MatchPattern(/^(http|https):\/\/ieeexplore\.ieee\.org\/.*/),
+                          new MatchPattern(/^(http|https):\/\/scholar\.google\..*/),
+                          new MatchPattern(/^(http|https):\/\/www\.sciencedirect\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/dl\.acm\.org\/.*/)
+                        ],
+    search:             [ new MatchPattern(/^(http|https):\/\/www\.google\.com\/\?.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.bing\.com\/search\?.*/),
+                          new MatchPattern(/^(http|https):\/\/.*\.search\.yahoo\.com\/.*/)
+                        ],
+    specializedSearch:  [ new MatchPattern(/^(http|https):\/\/www\.google\.com\/maps\/search\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.imdb\.com\/find\?.*/),
+                          new MatchPattern(/^(http|https):\/\/en\.wikipedia\.org\/wiki\/.*/)
+                        ],
+    weather:            [ new MatchPattern(/^(http|https):\/\/weather\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.accuweather\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.wunderground\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.weather\.gov\/.*/),
+                          new MatchPattern(/^(http|https):\/\/weather\.yahoo\.com\/.*/)
+                        ],
+    translation:        [ new MatchPattern(/^(http|https):\/\/translate\.google\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.translate\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.freetranslation\.com\/.*/)
+                        ]
   };
 
-  tabs.on("ready", function(tab){
+  tabs.on("pageshow", function(tab){
     // if (tab.id !== tabs.activeTab.id) return;
+
+    if (isPrivate(tab)) return;
 
     let cats = [];
 
@@ -1094,6 +1289,8 @@ listener.listenForWebsiteCategories = function(callback, options){
 
     if (cats.length == 0) return;
 
+    console.log("website categories:", cats);
+
     cats.forEach(function(cat){
       callback(cat);
     });
@@ -1111,28 +1308,54 @@ listener.listenForTabs = function(callback, options){
       if (tabs[i].isPinned)
         c++;
 
-    return c
+    return c;
   }
 
   let windowTracker = new WindowTracker({
     onTrack: function (window){
 
-      if (!isBrowser(window)) return;
+      if (!isBrowser(window) || isPrivate(window)) return;
 
       let tabBrowser = window.gBrowser;
       let f = function(e){
         reason = "pinned";
-        callback(reason, {number: countPinnedTabs()});
+        callback(reason);
+        callback("pin", {number: countPinnedTabs()}); 
       };
       tabBrowser.tabContainer.addEventListener("TabPinned", f);
       unload(function(){tabBrowser.tabContainer.removeEventListener("TabPinned", f)});
 
       f = function(e){
-        reason = "pinned";
-        callback(reason, {number: countPinnedTabs()});
+        reason = "unpinned";
+        callback(reason);
+        callback("pin", {number: countPinnedTabs()}); 
       };
       tabBrowser.tabContainer.addEventListener("TabUnpinned", f);
       unload(function(){tabBrowser.tabContainer.removeEventListener("TabUnpinned", f)});
+
+      // new-tab-button
+      // this would ideally be a union of 2 chrome events 
+      // (since a new element is created when tabs overflow),
+      // but you currently
+      // cannot take the union of two routes in 1 route
+      
+      f = function(e){
+        reason = "newtab-button";
+        callback(reason);
+      }
+
+      let button =  window.document
+      .getAnonymousElementByAttribute(
+        window.document.getElementById("tabbrowser-tabs")
+        , "anonid", "tabs-newtab-button");
+
+      button.addEventListener("click", f);
+      unload(function() button.removeEventListener("click", f));
+
+      button = window.document.getElementById("new-tab-button");
+      button.addEventListener("click", f);
+      unload(function() button.removeEventListener("click", f));
+
     }
   });
 
@@ -1152,9 +1375,35 @@ listener.listenForTabs = function(callback, options){
       //   callback(reason, {position: "1-8"});
     };
 
+  tabs.on('activate', function(tab){
+
+    if (isPrivate(tab))
+      return;
+
+    reason = "activated";
+    callback(reason);
+
+    if (!tab.initialized){
+      tab.initialized = true;
+      unload(function(){if (tab) delete tab.initialized});
+      return;
+    }
+   
+    reason = "switched";
+    callback(reason);
+
+  });
+
   tabs.on('open', function(tab){
+
+    if (isPrivate(tab))
+      return;
+
     reason = "opened";
-    callback(reason, {number: tabs.length});
+    callback(reason);
+
+    reason = "open";
+    callback(reason,  {number: tabs.length});
 
     //listen for clicks
     let xulTab = viewFor(tab);
@@ -1165,20 +1414,19 @@ listener.listenForTabs = function(callback, options){
   //initial tabs that are not handled by tab.on(open)
   if (!options || !options.excludeInitialTabs){
     for (let i in tabs){
+
+      if (isPrivate(tabs[i]))
+        continue;
+
       let xulTab = viewFor(tabs[i]);
       xulTab.addEventListener("click", tabClick);
       unload(function(){xulTab.removeEventListener("click", tabClick)});
 
-      reason = "opened";
+      reason = "open";
       callback(reason, {number: tabs.length});
 
-      callback("pinned", {number: countPinnedTabs()}); //in order to capture initial pinned tabs/ creates redundancy
+      callback("pin", {number: countPinnedTabs()}); //in order to capture initial pinned tabs/ creates redundancy
     }
-
-    tabs.on('activate', function(tab){
-      reason = "activated";
-      callback(reason);
-    });
   }
 }
 
@@ -1187,10 +1435,12 @@ listener.listenForDownloads = function(callback, options){
     onDownloadAdded: function(download) { 
       console.log("Download added");
       callback('added');
+      //just for testing
+      logger.logWarning({code: "download", source: download.source.url, startTime: download.startTime.getTime()});
     },
     onDownloadChanged: function(download) {
-      console.log("Download changed");
-      callback('changed');
+      // console.log("Download changed");
+      // callback('changed');
     },
     onDownloadRemoved: function(download) {
      console.log("Download removed");
@@ -1200,11 +1450,18 @@ listener.listenForDownloads = function(callback, options){
 
   Task.spawn(function() {
     try {
-      downloadList = yield Downloads.getList(Downloads.ALL);
+      let downloadList = yield Downloads.getList(Downloads.PUBLIC);
       yield downloadList.addView(dlView);
     } catch (ex) {
       console.error(ex);
     }
+  });
+
+  unload(function(){
+    Task.spawn(function(){
+      let list = yield Downloads.getList(Downloads.PUBLIC);
+      list.removeView(dlView);
+    }).then(null, Cu.reportError);
   });
 };
 
@@ -1233,16 +1490,29 @@ listener.listenForChromeEvents = function(callback, options){
 
   let windowTracker = new WindowTracker({
     onTrack: function(window){
-      if (!isBrowser(window)) return;
+      if (!isBrowser(window) || isPrivate(window)) return;
 
       for (let routeId in routesToListenFor){
         let route =routesToListenFor[routeId];
-        let elem = window.document.getElementById(route.id);
+        // console.log(route.id);
+        let elem;
+        console.log(route.id);
+        switch(route.id){
+          case "window":
+            elem = window;
+            break
+          case "document":
+            elem = window.document;
+            break;
+          default:
+            elem = window.document.getElementById(route.id);
+        }
         
         let f = function(evt){
-          console.log(elem);
-          callback(route.eventName, evt);
+          // console.log(elem);
+          callback(route, evt);
         }
+
         elem.addEventListener(route.eventName, f);
         unload(function(){elem.removeEventListener(route.eventName, f)});
       } 
@@ -1257,7 +1527,7 @@ listener.listenForKeyboardEvent = function(callback, options){
   //TODO: merge hotkeys with other chrome events
   let keyTracker = new WindowTracker({
     onTrack: function (window){
-      if (!isBrowser(window)) return;   
+      if (!isBrowser(window) || isPrivate(window)) return;   
 
       window.addEventListener((options && options.eventName) || "keydown", callback );
       unload(function(){window.removeEventListener((options && options.eventName) || "keydown", callback)});
@@ -1330,14 +1600,15 @@ listener.listenForHistory = function(callback){
     onBeforeDeleteURI: function(aURI) {},
     onDeleteURI: function(aURI) {
       callback('deletedURI');
+      console.log("deleted", aURI);
 
     },
     onClearHistory: function() {
       callback('cleared');
     },
     onPageChanged: function(aURI, aWhat, aValue) {},
-    onDeleteVisits: function() {
-      callback("deletedvisits");
+    onDeleteVisits: function(aURI, aVisitTime, aGUID) {
+      
     },
     QueryInterface: XPCOMUtils.generateQI([Ci.nsINavHistoryObserver])
   };
@@ -1351,9 +1622,9 @@ listener.listenForHistory = function(callback){
 
 listener.listenForPrivateBrowsing = function(callback){
   windows.browserWindows.on('open', function(window){
-
     if (require("sdk/private-browsing").isPrivate(window)){
       callback('open');
+      
     }
   });
 }
@@ -1417,12 +1688,46 @@ listener.listenForContentType = function(callback, contentTypes){
   contentTypeObserver.register();
 }
 
+listener.listenForUserActivity = function(callback){
+  timer.onUserActive(callback);
+}
+
+
+listener.listenForFirefoxEvents = function(callback){
+
+  // listen for update channel
+  let channel = self.updateChannel;
+
+  let reason = 'channel';
+
+  callback(reason, {channel: channel});
+  
+  // listen for profile number
+  
+  let toolkitProfileService = Cc["@mozilla.org/toolkit/profile-service;1"]
+                            .createInstance(Ci.nsIToolkitProfileService);
+
+  let enumerator = toolkitProfileService.profiles;
+
+  let prof;
+  let num = 0;
+  while (enumerator.hasMoreElements()){
+    prof = enumerator.getNext().QueryInterface(Ci.nsIToolkitProfile)
+    num++;
+  };
+
+  callback('profiles', {number: num});
+
+  callback('startup'); // not alwats right, e.g. when addon is installed
+}
+
 // listening for command invocations is not useful because the menu items directly call gDevTools functions
 listener.listenForDevTools = function(callback){
+
   let windowTracker = new WindowTracker({
     onTrack: function (window){
 
-      if (!isBrowser(window)) return;
+      if (!isBrowser(window) || isPrivate(window)) return;
 
       let gDevTools = window.gDevTools;
       let gBrowser = window.gBrowser
@@ -1471,26 +1776,19 @@ listener.multipleRoute = function(baseEvent, options){
         data.ifreq = 1/data.freq;
       }
       else {
-        data = {count: 1, freq: 1 / (timer.elapsedTime() + 1), ifreq: timer.elapsedTime()};
+        data = {count: 1, freq: 1 / (timer.elapsedTime() + 1), ifreq: timer.elapsedTime() + 1};
       }
 
       eventData[baseRoute] = data;
 
-      this.options.route = [baseRoute, "-c", String(data.count)].join(" ");
+      this.options.route = [baseRoute,
+                            "-c", String(data.count),
+                            "-if", String(data.ifreq),
+                            "-f", String(data.freq)].join(" ");
+
       let route = this.options.route;
 
-      listener.dispatchRoute(route);
-
-      this.options.route = [baseRoute, "-f", String(data.freq)].join(" ");
-      route = this.options.route;
-
-      listener.dispatchRoute(route);
-
-      this.options.route = [baseRoute, "-if", String(data.ifreq)].join(" ");
-      route = this.options.route;
-
-      listener.dispatchRoute(route);
-      
+      listener.dispatchRoute(route, options.dispatch);
 
       if (options.addedEffect)
         options.addedEffect();
@@ -1536,16 +1834,30 @@ const debug = {
 
       //deliverer
       case "deliver":
-        if (!recommendations[params])
-          return ("error: recommendation with id " + params + "does not exist.")
+        if (!recommendations[params] && params != "next")
+          return ("error: recommendation with id " + params + " does not exist.")
 
-        deliverer.deliver(recommendations[params]);
+        if (params != "next")
+          deliverer.deliver(recommendations[params]);
+        else {
+          let delivered = false;
+          recommendations.forEach(function(aRecommendation){
+            if (delivered) return;
+            if (aRecommendation.status != "delivered"){
+              timer.endSilence();
+              deliverer.deliver(aRecommendation);
+              delivered = true;
+            }
+          });
+          if (!delivered)
+            return "end of delivery list";
+        }
         break;
       case "schedule":
         if (!recommendations[params])
           return ("error: recommendation with id " + params + "does not exist.")
 
-        deliverer.scheduleDelivery(recommendations[params]);
+        deliverer.scheduleRandomDelivery(recommendations[params]);
         break;
 
       case "route":
@@ -1557,9 +1869,9 @@ const debug = {
         switch(subArgs[1]){
           case "coeff":
             if (subArgs[2]){
-              coefficient(Number(subArgs[2]));
+              let newCoeff = coefficient(Number(subArgs[2]));
               scaleRoutes(Number(subArgs[2]), "trigBehavior");
-              return "route coefficient set to " + subArgs[2];
+              return "route coefficient set to " + newCoeff;
             }
             else
               return getCoefficient();
@@ -1659,6 +1971,16 @@ const debug = {
 
         break;
 
+      case "suicide":
+
+        if (params === "framed"){
+          utils.selfDestruct("debug command");
+          return "Let the world end...";
+        }
+        else
+          return "One does not simply kill itself. Enter 'suicide framed' if you really want it dead.";
+
+        break;
       default:
         return undefined;
     }
@@ -1667,6 +1989,9 @@ const debug = {
   }
 };
 
+function welcome(){
+  deliverer.deliver(recommendations["welcome"]);
+}
 function loadRecFile(file){
   let recomms = JSON.parse(data.load(file)).map(function(recData){
     if ("auto-load" in recData && !recData["auto-load"])
@@ -1676,6 +2001,7 @@ function loadRecFile(file){
   });
 
   recommendations.add.apply(recommendations, recomms);
+
 }
 
 function loadRec(file, recId){
@@ -1693,6 +2019,8 @@ return isFound;
 }
 
 function scaleRoutes(coeff, indexTable){
+  if (coeff === 1)
+    return;
   recommendations.forEach(function(aRecommendation){
     recommendations.scaleRoute(aRecommendation, coeff, indexTable);
   });
@@ -1703,8 +2031,6 @@ function scaleRoutes(coeff, indexTable){
 function unloadController(reason){
 
   console.log("unloading controller...");
-
-  if (downloadList) downloadList.removeView(dlView);
 
   if (hs && historyObserver) hs.removeObserver(historyObserver);
 
@@ -1721,3 +2047,5 @@ function unloadController(reason){
 exports.init = init;
 exports.recommendations = recommendations;
 exports.loadRecFile = loadRecFile;
+exports.scaleRoutes = scaleRoutes;
+exports.welcome = welcome;
