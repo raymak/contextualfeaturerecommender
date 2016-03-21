@@ -33,9 +33,6 @@ exports.main = function(options, callbacks){
 
   if (isFirstRun)
     firstRun();
-  
-  if (isFirstRun)
-    firstRun();
 
   require('./logger').logLoad(options.loadReason);
 

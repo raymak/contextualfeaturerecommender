@@ -38,24 +38,6 @@ let fbCallback;
 
 function init(){
   console.log("initializing doorhanger");
-  // button = initButton(buttonClick);
-  // panel = initPanel(button);
-
-  // dhData = PersistentObject("simplePref", {address: dhDataAddress, updateListener: debug.update});
-  
-  // let wt = new WindowTracker({
-  //   onTrack: function(window){
-  //     if (!isBrowser(window)) return;
-
-  //     let f = function(e){
-  //      if (e.key === "Escape")
-  //       pHide("escape");
-  //     };
-
-  //     window.addEventListener("keydown", f);
-  //     unload(function(){window.removeEventListener("keydown", f)});
-  //   }
-  // });
 
 }
 
@@ -100,7 +82,7 @@ function fbSubmit(rate){
 }
 
 
-function present(callback){ 
+function present(callback. moment){ 
   // let dhPresentInfo = {id: aRecommendation.id, number: dhData.count};
   // logger.logDhPresent(dhPresentInfo);
 
@@ -110,6 +92,9 @@ function present(callback){
   }
 
   fbCallback = callback;
+
+  let dhPresentInfo = {moment: moment, number: dhData.count};
+  logDhPresent(dhPresentInfo);
   
   updateShow();  
 }
@@ -158,9 +143,6 @@ function hidePanel(fadeOut){
     panel.fadeOut();
   else
     panel.hide();
-
-
-
 }
 
 function buttonChange(state){

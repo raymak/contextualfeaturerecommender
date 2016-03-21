@@ -18,10 +18,8 @@ function init(){
   console.log("initializing moment report");
 
   //set up periodic logging
-  timer.tickCallback(log);
+  timer.onTick(log);
 }
-
-
 
 function log(et, ett){
   if (Math.floor(ett) % 20 != 1) return;
@@ -31,9 +29,7 @@ function log(et, ett){
     let data = momentData[moment];
     let info = merge({moment: moment}, data);
     logger.logMomentReport(info);
-  }
-  
-  
+  } 
 }   
 
 

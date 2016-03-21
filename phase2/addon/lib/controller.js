@@ -728,15 +728,18 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
+    let rejectDelivery = false;
+
     if (isPrivate(getMostRecentBrowserWindow())){
       console.log("delivery rejected due to private browsing");
       require('./stats').event("private-reject", {type: "delivery"});
-      return;
+      rejectDelivery = true;
     }
 
     if (!timer.isCertainlyActive()){
       console.log("delivery rejected due to uncertain user activity status");
       require('./stats').event("inactive-reject", {type: "delivery"});
+      rejectDelivery = true;
     }
 
     if (self.delMode.observOnly || (timer.isSilent())){
@@ -749,8 +752,11 @@ const deliverer = {
         require('./stats').event("silence-reject", {type: "delivery"});
       }
 
-      return;
+      rejectDelivery = true;
     }
+
+    if (rejectDelivery)
+      return;
 
 
     console.log("delivering " + aRecommendation.id);
@@ -764,6 +770,8 @@ const deliverer = {
     recommendations.update(aRecommendation);
 
     presenter.present(aRecommendation, listener.command.bind(listener));
+
+    statsEvent("delivery");
 
     timer.silence();
 

@@ -6,7 +6,7 @@
 "use strict";
 
 const {prefs} = require("sdk/simple-prefs");
-const {eventData} = require("./event");
+const {eventData} = require("./fr/event");
 const {storage} = require("sdk/simple-storage");
 const self = require("./self");
 const exp = require("./experiment");

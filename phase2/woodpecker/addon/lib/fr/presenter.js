@@ -15,6 +15,7 @@ const prefs = require("sdk/simple-prefs").prefs;
 const {extractPresentationData} = require("./recommendation");
 
 const present = function(aRecommendation, cmdCallback){
+  return ;
   let data = aRecommendation.presentationData;
   for (let channel in data){
       if (channels[channel])

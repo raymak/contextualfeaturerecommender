@@ -22,6 +22,7 @@ const {countRecent, updateFrequencies} = require("./moment");
 const events = require("sdk/system/events");
 const {merge} = require("sdk/util/object");
 const logger = require('./logger');
+const statsEvent = require('./stats').event;
 
 const momentDataAddress = "moment.data";
 
@@ -274,26 +275,33 @@ listener.moment = function(name, options){
   if (options && options.reject){
     deliver = false;
     console.log("delivery rejection forced");
+    statsEvent("forced-reject", {type: "delivery"})
   }
 
   if (prefs["delivery.mode.observ_only"]){
     deliver = false;
     console.log("delivery rejected due to: observation-only period");
+    statsEvent("observe-only--reject", {type: "delivery"})
+
   }
 
   if (timer.isSilent()){
     deliver = false;
     console.log("delivery rejected due to: silence");
+    statsEvent("silence-reject", {type: "delivery"})
   }
 
   if (data.effFrequency && 1/data.effFrequency < prefs["moment.min_effFrequency_i"]){
     deliver = false;
     console.log("delivery rejected due to: effective frequency = " + data.effFrequency);
+    statsEvent("effective-frequency-reject", {type: "delivery"})
   }
 
   if (data.rEffCount && data.rEffCount > prefs["moment.max_rEffCount"]){
     deliver = false;
     console.log("delivery rejected due to: recent effective count = " + data.effCount);
+    statsEvent("recent-effective-count-reject", {type: "delivery"})
+
   }
 
   let prob = 1; 
@@ -305,6 +313,7 @@ listener.moment = function(name, options){
   if (Math.random() > prob){
     deliver = false; 
     console.log("delivery rejected due to: sampling, prob = " + prob);
+    statsEvent("sampling-prob-reject", {type: "delivery"})
   }
 
   if (options && options.force){
@@ -353,12 +362,12 @@ listener.moment = function(name, options){
 
       if (prefs["delivery.mode.no_silence"])
         timer.endSilence();
-    });
+    }, name);
+
+    statsEvent("moment delivered", {collectInstance: true}, {name: name});
 
     timer.silence();
   }
-
-  
   // momentData[name] = data;
 
 };

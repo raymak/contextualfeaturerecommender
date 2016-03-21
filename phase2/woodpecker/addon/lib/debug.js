@@ -16,7 +16,7 @@ Cu.import("resource://gre/modules/osfile.jsm");
 
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
-const DEBUG_URL = "about:fr-d";
+const DEBUG_URL = "about:wp-d";
 
 let workers = [];
 let records = {};

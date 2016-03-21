@@ -6,8 +6,8 @@
 "use strict";
 
 const {merge} = require("sdk/util/object");
-const {PersistentObject} = require("./utils");
-const timer = require("./timer");
+const {PersistentObject} = require("./../utils");
+const timer = require("./../timer");
 const {prefs} = require("sdk/simple-prefs");
 
 const featDataAddress = "feature_report.data";
@@ -111,7 +111,7 @@ function periodicLog(et, ett){
 
 function log(){
   let info = featData.report;
-  require("./logger").logFeatReport(info);
+  require("./../logger").logFeatReport(info);
 }
 
 exports.updateRow = updateRow;

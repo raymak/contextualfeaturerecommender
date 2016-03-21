@@ -13,7 +13,7 @@ function Route(route){
     return route;
 
   // convert str to object
-  let rRoute = require('./utils').extractOpts(route);
+  let rRoute = require('./../utils').extractOpts(route);
 
   return rRoute;
 }

@@ -17,27 +17,27 @@ const {Event, eventData, eventDataAddress} = require("./event");
 const {Cu, Cc, Ci} = require("chrome");
 const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
-const presenter = require("./presenter");
+// const presenter = require("./presenter");
 const { MatchPattern } = require("sdk/util/match-pattern");
 const {PersistentRecSet} = require("./recommendation");
 const {setTimeout} = require("sdk/timers");
-const timer = require("./timer");
-const utils = require("./utils");
-const self = require("./self");
+const timer = require("./../timer");
+const utils = require("./../utils");
+const self = require("./../self");
 const system = require("sdk/system");
 const windows = require("sdk/windows");
 const {modelFor} = require("sdk/model/core");
 const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
-const {handleCmd} = require("./debug");
+const {handleCmd} = require("./../debug");
 const {data} = require("sdk/self");
 const unload = require("sdk/system/unload").when;
-const logger = require("./logger");
+const logger = require("./../logger");
 const featReport = require("./feature-report");
 const events = require("sdk/system/events");
 const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
-const statsEvent = require("./stats").event;
+const statsEvent = require("./../stats").event;
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -704,6 +704,8 @@ const deliverer = {
   },
   deliver: function (/* recommendations */) {
 
+    return;
+    
     let recomms = Array.prototype.slice.call(arguments);
 
     if (recomms.length === 0)
