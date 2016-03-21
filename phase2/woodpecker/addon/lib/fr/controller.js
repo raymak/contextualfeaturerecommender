@@ -705,7 +705,7 @@ const deliverer = {
   deliver: function (/* recommendations */) {
 
     return;
-    
+
     let recomms = Array.prototype.slice.call(arguments);
 
     if (recomms.length === 0)
@@ -1720,7 +1720,8 @@ listener.listenForFirefoxEvents = function(callback){
 
   callback('profiles', {number: num});
 
-  callback('startup'); // not alwats right, e.g. when addon is installed
+  if (require('sdk/self').loadReason == "startup")
+    callback('startup');
 }
 
 // listening for command invocations is not useful because the menu items directly call gDevTools functions

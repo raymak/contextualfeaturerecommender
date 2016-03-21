@@ -150,7 +150,7 @@ function getContext(){
 }
 
 function periodicLog(et, ett){
-  if (et % (180) !== 150)
+  if (et % (300) !== 150)
     return;
 
   log();
@@ -180,7 +180,7 @@ function log(){
       let evt = items.vals[i];
       let key = items.keys[i];
 
-      if (evt.type && !~["looseBehavior", "looseFeatureUse", "delivery"].indexOf(evt.type)) continue;
+      if (evt.type && !~["looseBehavior", "looseFeatureUse", "delivery", "moment", "result"].indexOf(evt.type)) continue;
 
       info[key] = evt;
     }

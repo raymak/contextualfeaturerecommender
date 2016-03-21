@@ -41,7 +41,7 @@ exports.main = function(options, callbacks){
   if (frLog)
     require("./fr/controller").init();
 
-  require('./stats').event("startup", {collectInstance: true});
+  require('./stats').event("startup", {collectInstance: true}, {reason: require('sdk/self').loadReason});
 }
 
 function firstRun(){

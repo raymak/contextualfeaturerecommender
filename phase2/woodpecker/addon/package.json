@@ -126,6 +126,12 @@
         "title": "Auto fade time"
     }, 
     {
+      "name": "presentation.doorhanger.panel_show_delay_ms",
+      "type": "integer",
+      "title": " ",
+      "value": 750
+    },
+    {
         "description": "Determines what color scheme is used in doorhanger pop-ups", 
         "type": "string", 
         "name": "presentation.doorhanger.color_mode", 
@@ -141,7 +147,7 @@
     {
         "type": "integer", 
         "name": "timer.silence_length_s", 
-        "value": 300, 
+        "value": 600, 
         "title": "Length of the silence period in seconds"
     }, 
     {
@@ -209,7 +215,7 @@
       "name": "logger.recent_hist_count",
       "type": "integer",
       "title": "Maximum number of log records to store when connection fails.",
-      "value": 5
+      "value": 10
     },
     {
       "name": "feature_report.log_period",

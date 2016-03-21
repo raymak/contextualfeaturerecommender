@@ -115,7 +115,7 @@ const self = {
                activeThemeId: activeThemeId, activeThemeName: activeThemeName,
                searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
                profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks,
-               totalTime: totalTime, isDefaultBrowser: isDefaultBrowser, crashCount: crashCount, sessionCount: sessionCount,
+               isDefaultBrowser: isDefaultBrowser, crashCount: crashCount, sessionCount: sessionCount,
                browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart
               };
 

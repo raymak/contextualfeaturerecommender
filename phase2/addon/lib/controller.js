@@ -30,7 +30,7 @@ const {modelFor} = require("sdk/model/core");
 const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
 const {handleCmd} = require("./debug");
-const {data} = require("sdk/self");
+const {data}= require("sdk/self");
 const unload = require("sdk/system/unload").when;
 const logger = require("./logger");
 const featReport = require("./feature-report");
@@ -1726,7 +1726,8 @@ listener.listenForFirefoxEvents = function(callback){
 
   callback('profiles', {number: num});
 
-  callback('startup'); // not alwats right, e.g. when addon is installed
+  if (require('sdk/self').loadReason == "startup")
+    callback('startup'); 
 }
 
 // listening for command invocations is not useful because the menu items directly call gDevTools functions

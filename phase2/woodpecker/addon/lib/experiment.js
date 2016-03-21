@@ -61,6 +61,9 @@ const experiment = {
     if (!(expData["stageForced"]))
     expData.stageForced = false;
 
+    if (!expData["stageTimes"])
+      expData["stageTimes"] = {};
+
     if (!(expData["stage"])){
       console.log("experiment stage set to obs1 due to no existing stage");
       expData.stage = "obs1";
@@ -68,6 +71,7 @@ const experiment = {
 
     timer.onTick(checkStage);
     timer.onTick(debug.update);
+    timer.onTick(updateStageEt);
 
   },
   get info(){
@@ -77,10 +81,11 @@ const experiment = {
     return {startTimeMs: stTimeMs,
             startLocaleTime: (new Date(Number(stTimeMs))).toLocaleString(),  
             name: name, stage: expData.stage,
-            mode: expData.mode};
+            mode: expData.mode,
+            stageTimes: expData.stageTimes};
   },
   firstRun: function(){
-    stages["obs1"]();
+    setStage("obs1");
   }
 }
 
@@ -92,6 +97,42 @@ function startTimeMs(){
     prefs["experiment.startTimeMs"] = Date.now().toString(); //set for the first time
     return prefs["experiment.startTimeMs"];
   }
+}
+ function updateStageEt(){
+  let stageTimes = expData.stageTimes;
+  stageTimes[expData.stage].elapsedTime += 1;
+  expData.stageTimes = stageTimes;
+ }
+
+function setStage(nStage){
+
+  let stageTimes = expData.stageTimes;
+
+  let stage = expData.stage;
+  let duration;
+  let et;
+
+  if (stage && stageTimes[stage]){
+    stageTimes[stage].end = Date.now().toString();
+    duration = Number(Date.now() - Number(stageTimes[stage].start))/(1000 * prefs["timer.tick_length_s"]);
+    stageTimes[stage].duration = duration;
+    et = stageTimes[stage].elapsedTime;
+  }
+
+  expData.stage = nStage;
+
+  if (!stageTimes[nStage]){
+    stageTimes[nStage] = {start: Date.now().toString(), end: null, elapsedTime: 0}
+  }
+
+  expData.stageTimes = stageTimes;
+
+  require("./logger").logExpStageAdvance({newstage: nStage, oldStage: stage, duration: duration, elapsedTime: et});
+
+   //prepare the new stage
+  stages[nStage]();
+
+  console.log("starting new experiment stage: " + nStage);
 }
 
 function checkStage(et, ett){
@@ -121,14 +162,7 @@ function checkStage(et, ett){
   if (nStage === stage)
     return;
 
-  expData.stage = nStage;
-
-  require("./logger").logExpStageAdvance({newstage: nStage});
-
-   //prepare the new stage
-  stages[nStage]();
-
-  console.log("starting new experiment stage: " + nStage);
+ setStage(nStage);
 }
 
 const stages = {
@@ -147,11 +181,15 @@ const stages = {
     prefs["delivery.mode.observ_only"] = false;
     console.log("intervention stage started.");
 
+    require("./moment-report").log();
+
     require('./stats').log();
   },
   obs2: function(){
     prefs["delivery.mode.observ_only"] = true;
 
+    require("./fr/feature-report").log();
+    require("./moment-report").log();
     require('./stats').log();
 
     console.log("obs2 stage started.");
@@ -162,7 +200,7 @@ const stages = {
      require("./self").getPeriodicInfo(function(info){
         require("./logger").logPeriodicSelfInfo(info);
 
-        require("./feature-report").log();
+        require("./fr/feature-report").log();
         require("./moment-report").log();
         require('./stats').log();
 
@@ -170,6 +208,7 @@ const stages = {
         require('./sender').flush();
     });
 
+    // delay to give some time for the remaining message queue to be flushed
     setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"])
   }
 };
@@ -212,8 +251,8 @@ const debug = {
     updateObj.nextStage = ({"obs1": "intervention", "intervention": "obs2", "obs2": "end"})[updateObj.stage];
     updateObj.stageForced = expData.stageForced;
     updateObj.timeUntilNextStage = timeUntilNextStage();
+    updateObj.mode = expData.mode;
 
-   
     dumpUpdateObject(updateObj, {list: "Experiment"});
   },
 
@@ -230,22 +269,24 @@ const debug = {
     switch(name){
       case "stage": //forces the stage
 
-        if (params == "none"){
-          expData.stageForced = false;
-          return "back to normal stage determination";
-        }
+        let subArgs = params.split(" ");
 
-        if (!stages[params])
-          return "error: no such stage exists.";
+        if (subArgs[0] !== "force") return;
 
-        stages[params]();
-        expData.stageForced = true;
+          if (subArgs[1] == "none"){
+            expData.stageForced = false;
+            return "back to normal stage determination";
+          }
 
-        expData.stage = params;
+          if (!stages[subArgs[1]])
+            return "error: no such stage exists.";
 
-        return "warning: experiment stage forced to " + params;
+          setStage(subArgs[1]);
+          expData.stageForced = true;
 
-        break;
+          return "warning: experiment stage forced to " + subArgs[1];
+
+          break;
       default: 
         return undefined;
     }

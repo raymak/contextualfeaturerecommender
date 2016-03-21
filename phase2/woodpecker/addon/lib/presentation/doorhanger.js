@@ -77,12 +77,16 @@ function initButton(clickHandler){
 
 
 function fbSubmit(rate){
-  let result = {type: "rate", rate: rate};
+  clearTimeout(hideTimeout);
+
+  let showLength = Date.now()-hideWatch;
+
+  let result = {type: "rate", rate: rate, length: showLength};
   fbCallback(result);
 }
 
 
-function present(callback. moment){ 
+function present(callback, moment){ 
   // let dhPresentInfo = {id: aRecommendation.id, number: dhData.count};
   // logger.logDhPresent(dhPresentInfo);
 
@@ -108,7 +112,7 @@ function updateEntry(){
 function updateShow(options, panelOptions){
   updateEntry();
 
-  showPanel(150, panelOptions);
+  showPanel(prefs["presentation.doorhanger.panel_show_delay_ms"], panelOptions);
 
   let noSchedule = options && options.noschedule;
 

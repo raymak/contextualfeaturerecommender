@@ -22,7 +22,7 @@ function init(){
 }
 
 function log(et, ett){
-  if (Math.floor(ett) % 20 != 1) return;
+  if (Math.floor(et) % 60 != 1) return;
 
   for (let moment of Object.keys(momentData)){
     console.log(moment);
@@ -34,3 +34,4 @@ function log(et, ett){
 
 
 exports.init = init;
+exports.log = log;

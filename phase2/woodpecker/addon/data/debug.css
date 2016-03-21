@@ -1,3 +1,8 @@
+/*! This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 
 .list-label {
 	color: red;
@@ -39,5 +44,19 @@
 	width: 700px;
 	resize: none;
 	font-size: 15px;
+	max-height: 10em;
+	overflow: auto;
+	font-family: courier;
+}
 
+.outout {
+	color: blue;
+}
+
+.outcmd {
+}
+
+.outunrecognized {
+	color:red;
+	font-style: italic;
 }
