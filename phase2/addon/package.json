@@ -244,13 +244,13 @@
       "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
     },
     {
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
 
    }
   ]
