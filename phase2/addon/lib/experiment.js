@@ -12,7 +12,6 @@ const timer = require("./timer");
 const {setTimeout} = require("sdk/timers");
 const {handleCmd, dumpUpdateObject, isEnabled} = require("./debug");
 
-
 const expDataAddress = "experiment.data";
 
 let expData;
@@ -155,7 +154,8 @@ const stages = {
     console.log("intervention stage started.");
 
     require('./stats').log();
-
+    require("./feature-report").log();
+    
     require("./controller").welcome();
   },
   obs2: function(){
@@ -167,7 +167,6 @@ const stages = {
     console.log("obs2 stage started.");
   },
   end: function(){
-
     // to make sure no notifications are delivered during the delay
     prefs["delivery.mode.observ_only"] = true;
     require('./presenter').stop();
@@ -245,26 +244,26 @@ const debug = {
     switch(name){
       case "stage": //forces the stage
 
-      let subArgs = params.split(" ");
+        let subArgs = params.split(" ");
 
-      if (subArgs[0] !== "force") return;
+        if (subArgs[0] !== "force") return;
 
-        if (subArgs[1] == "none"){
-          expData.stageForced = false;
-          return "back to normal stage determination";
-        }
+          if (subArgs[1] == "none"){
+            expData.stageForced = false;
+            return "back to normal stage determination";
+          }
 
-        if (!stages[subArgs[1]])
-          return "error: no such stage exists.";
+          if (!stages[subArgs[1]])
+            return "error: no such stage exists.";
 
-        stages[subArgs[1]]();
-        expData.stageForced = true;
+          stages[subArgs[1]]();
+          expData.stageForced = true;
 
-        expData.stage = subArgs[1];
+          expData.stage = subArgs[1];
 
-        return "warning: experiment stage forced to " + subArgs[1];
+          return "warning: experiment stage forced to " + subArgs[1];
 
-        break;
+          break;
       default: 
         return undefined;
     }

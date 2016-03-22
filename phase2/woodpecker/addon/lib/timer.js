@@ -19,6 +19,8 @@ const timerDataAddress = "timer.data";
 const timerData = PersistentObject("simplePref", {address: timerDataAddress});
 
 const tickHandlers = [];
+const userActiveHandlers = [];
+const userInactiveHandlers = [];
 
 let activityObs;
 let activity;
@@ -26,6 +28,8 @@ let tickInterval;
 
 const init = function(){
   console.log("initializing timer");
+
+  console.time("timer init");
   
   if (!timerData.elapsedTime)
     timerData.elapsedTime = 0;
@@ -36,11 +40,7 @@ const init = function(){
   if (!timerData.events)
     timerData.events = [];
 
-  event('startup');
-
-  unload(function(){event('shutdown')});
-
-  elapsedTotalTime();
+  silenceLeft(); //to update the silence status;
 
   watchActivity();
 
@@ -62,14 +62,37 @@ const init = function(){
 
   debug.init();
   debug.update();
+
+  console.timeEnd("timer init");
+
 }
 
 // updates the ett preference records in addition to returning it
-const elapsedTotalTime = function(){
+const elapsedTotalTime = function(stage){
   let exp = require("./experiment");
-  let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
 
-  timerData.elapsedTotalTime = ett; //update the elapsed total time at the beginning
+  if (!stage){
+    let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
+
+    timerData.elapsedTotalTime = ett; //update the elapsed total time at the beginning
+    return ett;
+  }
+
+  let stageTimes = exp.info.stageTimes;
+
+  if (!stageTimes[stage])
+    return 0;
+
+  // in the stage
+  if (!stageTimes[stage].duration){
+    let ett = (Date.now() - Number(stageTimes[stage].start)) / (1000 * prefs["timer.tick_length_s"]);
+
+    return ett;
+  }
+
+  // stage has ended
+  let ett = stageTimes[stage].duration;
+
   return ett;
 }
 
@@ -90,6 +113,8 @@ const watchActivity = function(){
     observe: function(subject, topic, data){
       switch(topic){
         case "user-interaction-active":
+
+          require('./stats').event("activeTick");
           // console.log("active " + elapsedTime());
           clearInterval(inactiveCounter);
           if (activity.minor_inactive_s) activity.last_minor_inactive_s = activity.minor_inactive_s;
@@ -99,13 +124,19 @@ const watchActivity = function(){
               activity.minor_active_s += 1;
               activity.active_s += 1;
               debug.update();
+
             }, 1000);
           }
-          if (!activity.active)
-            event('active');
           activity.active = true;
+
+          if (activity.minor_active_s == 0){ // to call the handlers only once
+            userActiveHandlers.forEach((fn) => fn());
+            require('./stats').event("activation");
+          }
+
         break;
         case "user-interaction-inactive":
+          require('./stats').event("inactiveTick");
           console.log("user inactive (minor)");
           clearInterval(activeCounter);
           activeCounter = null;
@@ -118,7 +149,6 @@ const watchActivity = function(){
 
             if (activity.minor_inactive_s > prefs["timer.inactive_threshold_s"] && activity.active){
               deactivate();
-              event('inactive');
             }
             debug.update();
           }, 1000);
@@ -146,21 +176,20 @@ const tick = function(){
 
   if (!activity.active){
     console.log("tick missed due to inactivity");
+    require('./stats').event("missedTick");
     return;
   }
 
-  const SILENCE_LENGTH_TICK = prefs["timer.silence_length_s"] / prefs["timer.tick_length_s"];
+  require('./stats').event("tick");
 
   let et = timerData.elapsedTime + 1;
 
   timerData.elapsedTime = et;
   console.log("elapsed time: " + et + " ticks = " + et*prefs["timer.tick_length_s"]/60 + " minutes");
 
-  if (timerData.silenceStart != -1 && silenceLeft() <= 0)
-    endSilence();
-
+  let ett = elapsedTotalTime();
   tickHandlers.forEach(function(callback){
-    callback(et, elapsedTotalTime());
+    callback(et, ett);
   });
 
   debug.update();
@@ -176,15 +205,44 @@ const onTick = function(callback){
   tickHandlers.push(callback);
 }
 
-const elapsedTime = function(){
-  return timerData.elapsedTime;
+const onUserActive = function(fn){
+  userActiveHandlers.push(fn);
+}
+
+//TOTHINK: major or minor inactive?
+const onInactive = function(fn){
+
+}
+
+
+//TODO: use a pattern like https://github.com/mozilla/addon-sdk/blob/a44176661b1b61dffb46ce2ff5a4156bda38cf49/lib/sdk/simple-storage.js#L27-L36
+// to make all getter functions look like properties
+const elapsedTime = function(stage){
+  if (!stage)
+    return timerData.elapsedTime;
+
+  let exp = require('./experiment');
+  let stageTimes = exp.info.stageTimes;
+  
+  if (!stageTimes[stage])
+    return 0;
+  else
+    return stageTimes[stage].elapsedTime;
 }
 
 const silence = function(){
-  let time = elapsedTotalTime();
-  timerData.silenceStart = time;
-  console.log("silence started at " + time + " ticks");
-  console.log("silence ends at " + Number(time + silence_length_tick()) + " ticks");
+  let ett = elapsedTotalTime();
+  timerData.silenceStart = ett;
+
+  console.log("silence started at " + ett + " ticks");
+  console.log("silence is expected to end at " + Number(ett + silence_length_tick()) + " ticks");
+
+  silenceLeft(); //to update all variables
+  debug.update();
+
+  let info = {startett: ett};
+  require('./logger').logSilenceStart(info);
+  require('./stats').event("silence");
 }
 
 const silenceElapsed = function(){
@@ -194,22 +252,37 @@ const silenceElapsed = function(){
 const silenceLeft = function(){
   let ett = elapsedTotalTime();
 
-  if (!isSilent())
+  if (timerData.silenceStart == -1)
     return 0;
 
-  return (silence_length_tick() - ett + timerData.silenceStart);
+  let left = silence_length_tick() - ett + timerData.silenceStart;
+  
+  //updating silence status
+  if (left <= 0)
+    endSilence();
+
+  return left;
 }
 
 const endSilence = function(){
+  let start = timerData.silenceStart;
+
   timerData.silenceStart = -1;
-  let time = elapsedTotalTime();
-  console.log("silence ended at " + time + " ticks");
-  return time;
+  let ett = elapsedTotalTime();
+
+  console.log("silence ended at " + ett + " ticks");
+
+  let info = {startett: start, endett: ett, effectiveLength: ett-start};
+
+  require('./logger').logSilenceEnd(info);
+
+  require('./stats').event("silenceend");
+
+  return ett;
 }
 
 const isSilent = function(){
-  let ett = elapsedTotalTime();
-  return (timerData.silenceStart != -1 && (ett - timerData.silenceStart <= silence_length_tick()));
+  return (silenceLeft() > 0);
 }
 
 const isActive = function(){
@@ -219,6 +292,7 @@ const isActive = function(){
 const deactivate = function(){
   activity.active = false;
   activity.active_s = 0;
+  require('./stats').event("deactivation");
   console.log("user inactive");
 }
 
@@ -234,15 +308,15 @@ const isRecentlyActive = function(activity_threshold_s, inactivity_threshold_s /
 }
 
 const isCertainlyActive = function(){
-  return (activity.minor_inactive_s === 0);
+  return (activity.minor_inactive_s < 10);
 }
 
 const randomTime = function(start, end){
-  return Math.floor(Math.random()*(end-start) + start + 1);
+  return Math.floor(Math.random()*(end-start) + start);
 }
 
 const silence_length_tick = function(){
-  return prefs["timer.silence_length_s"] / prefs["timer.tick_length_s"];
+  return sToT(prefs["timer.silence_length_s"]);
 }
 
 const tToS = function(t){
@@ -250,8 +324,7 @@ const tToS = function(t){
 }
 
 const sToT = function(s){
-  return s/prefs
-  ["timer.tick_length_s"];;
+  return s/prefs["timer.tick_length_s"];
 }
 
 const debug = {
@@ -268,9 +341,8 @@ const debug = {
       isSilent: isSilent(),
       silenceStart: timerData.silenceStart,
       silenceEnd: isSilent()? timerData.silenceStart + silence_length_tick() : 0,
-      silenceElapsed: elapsedTime() - silence,
-      silenceLeft: silenceLeft(),
-      silenceElapsed: silenceElapsed()
+      silenceElapsed: silenceElapsed(),
+      silenceLeft: silenceLeft()
     }
     dumpUpdateObject(silenceObj, {list: "Silence Status"});
   },
@@ -288,21 +360,24 @@ const debug = {
     let params = args[2];
 
     switch(name){
+      case "tick":
+        tick();
+        break;
       case "silence":
         silence();
-      break;
+        break;
       case "issilent":
         return isSilent();
-      break;
+        break;
       case "endsilence":
-        return console.log("silence ended at " + endSilence() + " ticks");
-      break;
+        return "silence ended at " + endSilence() + " ticks";
+        break;
       case "inactive":
         deactivate();
         observerService.notifyObservers(null, "user-interaction-inactive", "");
         debug.update();
         return "user inactivity forced"
-      break;
+        break;
 
       case "time":
         subArgs = params.split(" ");
@@ -351,8 +426,26 @@ const debug = {
             }
             break;
 
-            default:
-              return "error: invalid use of time command.";
+          case "get":
+
+            if (!subArgs[1])
+              return "error: invalid use of time set command.";
+
+            switch(subArgs[1]){
+              case "et":
+                return elapsedTime(subArgs[2]);
+                break;
+              case "ett":
+                return elapsedTotalTime(subArgs[2]);
+                break;
+              
+              default:
+
+            }
+            break;
+
+          default:
+            return "error: invalid use of time command.";
         }
       default: 
         return undefined;
@@ -374,6 +467,7 @@ exports.silence = silence;
 exports.endSilence = endSilence;
 exports.randomTime = randomTime;
 exports.onTick = onTick;
+exports.onUserActive = onUserActive;
 exports.tToS = tToS;
 exports.sToT = sToT;
 exports.init = init;

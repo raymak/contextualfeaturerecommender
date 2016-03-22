@@ -1,6 +1,9 @@
+/*! This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 "use strict";
-
-
 
 const items = {};
 const records = {};
@@ -37,6 +40,9 @@ self.port.on("update", function(recs, options){
       
 });
 
+self.port.on("refresh", function(){
+  location.replace(window.location.protocol + "//" + window.location.hostname + window.location.pathname);
+});
 
 function updateObject(key){
   let item;
@@ -45,10 +51,10 @@ function updateObject(key){
   else
   {
     item = document.createElement("li");
-    let lst = document.getElementById(records[key].list.replace(/ /g, "-") + "-list");
+    let lst = document.getElementById(listToId(records[key].list));
     if (!lst){ //creating a new list
       lst = document.createElement("ul");
-      lst.setAttribute("id", records[key].list.replace(/ /g, "-") + "-list");
+      lst.setAttribute("id", listToId(records[key].list));
       let lsts = document.getElementById("lists");
       let lstLabel = document.createElement("p");
       lstLabel.classList.add("list-label");
@@ -64,14 +70,22 @@ function updateObject(key){
   
   if (records[key].type === 'json'){ //viewing json
     item.innerHTML = "<span class='key'>"+ key + "</span>" + ": " +
-       "<div id='key-" + key + "' class='value json'>" +  "</div>";
+       "<div id='" + keyToId(key) + "' class='value json'>" +  "</div>";
 
-    $("#key-" + key.replace(/\./g, "\\.")).JSONView(records[key].data, { collapsed: true, nl2br: true, recursive_collapser: true });
+    $(document.getElementById(keyToId(key))).JSONView(records[key].data, { collapsed: true, nl2br: true, recursive_collapser: true });
   }
   else //anything other than json
     item.innerHTML = "<span class='key'>"+ key + "</span>" + ": " + 
       "<span class='value " + mapJsType2JsonViewClass(records[key].type) + "'>"+ records[key].data + "</span>"; 
 
+}
+
+function keyToId(key){
+  return "key-" + key.replace(/ /g, "-");
+}
+
+function listToId(list){
+  return list.replace(/ /g, "-") + "-list";
 }
 
 function mapJsType2JsonViewClass(type){
@@ -90,8 +104,12 @@ function submitCmd(){
   self.port.emit("cmd", $("#cmdText").val());
 }
 
-function cmdOut(out){
-  $("#cmdOut").html($("#cmdOut").html()+ "> " + out + "<br>" );
+function cmdOut(out, cmd){
+  $("#cmdOut").html(">> &nbsp" + "<span class='outcmd'>"+ cmd + "</span>" + "<br>"  
+                    + " &nbsp"+ "<span class='outout'>"+ out + "</span>"+ "<br><br>" + $("#cmdOut").html());
+
+  window.location.href = "#cmdOut";
+  $("#cmdText").focus();
 }
 
 self.port.on("cmdOut", cmdOut);

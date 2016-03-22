@@ -22,6 +22,7 @@ const {countRecent, updateFrequencies} = require("./moment");
 const events = require("sdk/system/events");
 const {merge} = require("sdk/util/object");
 const logger = require('./logger');
+const statsEvent = require('./stats').event;
 
 const momentDataAddress = "moment.data";
 
@@ -47,8 +48,6 @@ function init(){
 const listener = {
   init: function(){
 
-      //initialize moments //TODO: first run
-
     for (let moment in listener.momentListeners){
       if (!momentData[moment]){
         momentData[moment] = {
@@ -61,6 +60,7 @@ const listener = {
           rEffCount: 0,
           rEffFrequency: 0,
           rates: [],
+          lengths: [],
           timestamps: []
         };
       }
@@ -87,7 +87,8 @@ listener.momentListeners = {
   },
 
   "startup": function(){
-    listener.moment("startup");
+    if (require("sdk/self").loadReason == "startup")
+      listener.moment("startup"); 
   },
 
   "tab-new": function(){
@@ -131,30 +132,10 @@ listener.momentListeners = {
 
   },
 
-  "tab-new-recently-active5s": function(){
-     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
-
-        if (!timer.isRecentlyActive(5, 5))
-         return;
-
-         listener.moment('tab-new-recently-active5s', {reject: true});
-      });
-  },
-
-  "tab-new-recently-active5s-no-tab": function(){
-    listener.listenForUserActivity(function(e){
-      
-      if (!timer.isRecentlyActive(5, 5)) 
-       return;
-
-      listener.moment('tab-new-recently-active5s-no-tab', {reject: true});
-    });
-  },
-
   "tab-new-recently-active10s": function(){
      listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
 
-        if (!timer.isRecentlyActive(5, 10))
+        if (!timer.isRecentlyActive(10, 10))
          return;
 
          listener.moment('tab-new-recently-active10s');
@@ -169,16 +150,6 @@ listener.momentListeners = {
 
       listener.moment('tab-new-recently-active10s-no-tab', {reject: true});
     });
-  },
-
-  "tab-new-recently-active0s": function(){
-     listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
-
-        if (!timer.isRecentlyActive(5))
-         return;
-
-         listener.moment('tab-new-recently-active0s', {reject: true});
-      });
   },
 
   "tab-new-recently-active10m": function(){
@@ -221,24 +192,16 @@ listener.momentListeners = {
     });
   },
 
-  "tab-new-recently-active30m": function(){
-    listener.addEventListener("#cmd_newNavigatorTab", "command", function(e){
-      if (!timer.isRecentlyActive(10, 30*60)) 
+  "tab-new-recently-active5m-no-tab": function(){
+    
+    listener.listenForUserActivity(function(e){
+      
+      if (!timer.isRecentlyActive(10, 5*60)) 
        return;
 
-       listener.moment('tab-new-recently-active30m', {reject: true});
+      listener.moment('tab-new-recently-active5m-no-tab', {reject: true});
     });
   },
-
-  "tab-new-recently-active30m-no-tab": function(){
-    listener.listenForUserActivity(function(e){
-
-      if (!timer.isRecentlyActive(10, 30*60)) 
-       return;
-
-      listener.moment('tab-new-recently-active30m-no-tab', {reject: true});
-    });
-  }
 }
 
 listener.addEventListener = function(querySelector, eventName, handler){
@@ -256,9 +219,11 @@ listener.addEventListener = function(querySelector, eventName, handler){
 
 listener.moment = function(name, options){
 
+  statsEvent(name, {type: "moment"});
+
   let dEffFrequency = 1/prefs["moment.dEffFrequency_i"];
 
-  let deliver = true;
+  let canDeliver = true;
   let data = momentData[name];
   let allData = momentData["*"];
 
@@ -272,28 +237,35 @@ listener.moment = function(name, options){
   updateFrequencies(name);
 
   if (options && options.reject){
-    deliver = false;
+    canDeliver = false;
     console.log("delivery rejection forced");
+    statsEvent("forced-reject", {type: "delivery"})
   }
 
   if (prefs["delivery.mode.observ_only"]){
-    deliver = false;
+    canDeliver = false;
     console.log("delivery rejected due to: observation-only period");
+    statsEvent("observe-only--reject", {type: "delivery"})
+
   }
 
   if (timer.isSilent()){
-    deliver = false;
+    canDeliver = false;
     console.log("delivery rejected due to: silence");
+    statsEvent("silence-reject", {type: "delivery"})
   }
 
   if (data.effFrequency && 1/data.effFrequency < prefs["moment.min_effFrequency_i"]){
-    deliver = false;
+    canDeliver = false;
     console.log("delivery rejected due to: effective frequency = " + data.effFrequency);
+    statsEvent("effective-frequency-reject", {type: "delivery"})
   }
 
   if (data.rEffCount && data.rEffCount > prefs["moment.max_rEffCount"]){
-    deliver = false;
+    canDeliver = false;
     console.log("delivery rejected due to: recent effective count = " + data.effCount);
+    statsEvent("recent-effective-count-reject", {type: "delivery"})
+
   }
 
   let prob = 1; 
@@ -303,16 +275,17 @@ listener.moment = function(name, options){
     prob = dEffFrequency/data.frequency;
 
   if (Math.random() > prob){
-    deliver = false; 
+    canDeliver = false; 
     console.log("delivery rejected due to: sampling, prob = " + prob);
+    statsEvent("sampling-prob-reject", {type: "delivery"})
   }
 
   if (options && options.force){
     console.log("moment notification delivery forced");
-    deliver = true;
+    canDeliver = true;
   }
 
-  if (deliver){
+  if (canDeliver){
 
     console.log("moment notification delivered -> " + name);
 
@@ -338,12 +311,20 @@ listener.moment = function(name, options){
       if (result.type === "rate"){
         console.log("rate submitted for " + name + ": " + result.rate);
         data.rates.push(result.rate);
+        data.lengths.push(result.length);
         allData.rates.push(result.rate);
+
+        statsEvent(name , {collectInstance: true, type: "result"},
+         {moment: name, type: result.type, length: result.length, rate: result.rate});
       }
       if (result.type === "timeout"){
         console.log("panel for " + name + " timed out");
         data.rates.push("timeout");
+        data.lengths.push("timeout");
         allData.rates.push("timeout");
+
+         statsEvent(name , {collectInstance: true, type: "result"},
+         {moment: name, type: "timeout", length: "timeout", rate: "timeout"});
       }
 
       momentData[name] = data;
@@ -353,19 +334,19 @@ listener.moment = function(name, options){
 
       if (prefs["delivery.mode.no_silence"])
         timer.endSilence();
-    });
+
+    }, name);
+
+    statsEvent("moment delivered", {moment: name});
 
     timer.silence();
   }
-
-  
   // momentData[name] = data;
 
 };
 
 listener.listenForUserActivity = function(callback){
-  events.on("user-interaction-active", callback, true);
-  unload(function(){events.off("user-interaction-active", callback)});
+ timer.onUserActive(callback);
 }
 
 const debug = {

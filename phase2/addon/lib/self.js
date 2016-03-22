@@ -41,12 +41,11 @@ const self = {
     }
   },
   get isTest(){
-    
+
     if (!("isTest" in prefs)){
         // throw Error("isTest state not specified properly. use --static-args to define set .isTest to either \"true\" or \"false\"");
         prefs["isTest"] = true;  //true by default
-    }
-          
+    }      
     return prefs["isTest"];
   },
   get locale(){
@@ -115,8 +114,8 @@ const self = {
                addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
                activeThemeId: activeThemeId, activeThemeName: activeThemeName,
                searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
-               profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks,
-               totalTime: totalTime, isDefaultBrowser: isDefaultBrowser, crashCount: crashCount, sessionCount: sessionCount,
+               profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks, totalTime: totalTime,
+               isDefaultBrowser: isDefaultBrowser, crashCount: crashCount, sessionCount: sessionCount,
                browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart
               };
 

@@ -8,7 +8,7 @@
 const system = require("sdk/system");
 const {prefs} = require("sdk/simple-prefs");
 
-const recommFileAddress = "mozlando-recommendations.json";
+const recommFileAddress = prefs["recomm_list_address"];
 
 exports.main = function(options, callbacks){
 
@@ -18,7 +18,7 @@ exports.main = function(options, callbacks){
   const frLog = !!prefs["experiment.fr_usage_logging.enabled"];
 
   if (options.loadReason === "install")
-    installRun(isFirstRun);
+    installRun();
 
   require("./self").init();
   require("./experiment").init();
@@ -26,11 +26,10 @@ exports.main = function(options, callbacks){
   require("./logger").init();
   require("./sender").init();
   require("./debug").init();
+  require("./stats").init();
   require("./moment-report").init();
-  
   if (frLog)
     require("./fr/feature-report").init();
-
 
   if (isFirstRun)
     firstRun();
@@ -42,10 +41,12 @@ exports.main = function(options, callbacks){
   if (frLog)
     require("./fr/controller").init();
 
-
+  require('./stats').event("startup", {collectInstance: true}, {reason: require('sdk/self').loadReason});
 }
 
 function firstRun(){
+  console.log("preparing first run");
+
   if (prefs["experiment.fr_usage_logging.enabled"])
     require("./fr/controller").loadRecFile(recommFileAddress);
 
@@ -54,23 +55,19 @@ function firstRun(){
   require('./experiment').firstRun();
 }
 
-function installRun(isFirstRun){
+function installRun(){
+  console.time("install run")
+
   let clean = false;
 
-  //static args have precedence over default preferences
-  if (system.staticArgs && system.staticArgs["clean_install"])
-    clean = true;
-  else
-    if (system.staticArgs && system.staticArgs["clean_install"] === false)
-      clean = false;
-    else
-      clean = prefs["clean_install"];
+  clean = !!prefs["clean_install"];
 
   if (clean)
     require('./utils').cleanUp({reset: true});
 
+  const isFirstRun = !prefs["isInitialized"];
 
-  if (clean || isFirstRun){
+  if (isFirstRun){
     try{require('./utils').overridePrefs("../prefs.json");}
     catch(e){console.log("skipped overriding preferences");}
   }
@@ -78,9 +75,15 @@ function installRun(isFirstRun){
 
 
 exports.onUnload = function(reason){
+
+  if (reason == "shutdown")
+    require('./stats').event("shutdown", {collectInstance: true});
+
   console.log("unloading due to " + reason);
   require('./logger').logUnload(reason);
 
   if (reason == "uninstall" || reason == "disable")
     logger.logDisable(reason);
+
+  require('./sender').flush();
 }

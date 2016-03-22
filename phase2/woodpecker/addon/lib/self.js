@@ -26,7 +26,7 @@ const self = {
   },
   get delMode(){
     return {
-      rateLimit: prefs["delivery.mode.rate"],
+      rateLimit: prefs["delivery.mode.rate_limit"],
       moment: prefs["delivery.mode.moment"],
       observOnly: prefs["delivery.mode.observ_only"]
     }
@@ -42,14 +42,10 @@ const self = {
   },
   get isTest(){
 
-    if (system.staticArgs && ("isTest" in system.staticArgs))
-      prefs["isTest"] =  system.staticArgs.isTest;
-    else
-      if (!( "isTest" in prefs)){
-          // throw Error("isTest state not specified properly. use --static-args to define set .isTest to either \"true\" or \"false\"");
-          prefs["isTest"] = true;  //true by default
-      }
-          
+    if (!("isTest" in prefs)){
+        // throw Error("isTest state not specified properly. use --static-args to define set .isTest to either \"true\" or \"false\"");
+        prefs["isTest"] = true;  //true by default
+    }      
     return prefs["isTest"];
   },
   get locale(){
@@ -111,15 +107,16 @@ const self = {
         }
 
         //fhr
-        getFhrData(function(profileAgeDays, totalActiveMs){
+        getFhrData(function(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, crashCount, sessionCount){
           try {
             let result = {  
                extensioncount: extensionCount, themecount: themeCount,
                addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
                activeThemeId: activeThemeId, activeThemeName: activeThemeName,
                searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
-               profileAgeDays: profileAgeDays, totalActiveMs: totalActiveMs,
-               browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart,
+               profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks, totalTime: totalTime,
+               isDefaultBrowser: isDefaultBrowser, crashCount: crashCount, sessionCount: sessionCount,
+               browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart
               };
 
             f(result);

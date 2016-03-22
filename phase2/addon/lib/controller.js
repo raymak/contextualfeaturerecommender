@@ -30,7 +30,7 @@ const {modelFor} = require("sdk/model/core");
 const {viewFor} = require("sdk/view/core");
 const tab_utils = require("sdk/tabs/utils");
 const {handleCmd} = require("./debug");
-const {data} = require("sdk/self");
+const {data}= require("sdk/self");
 const unload = require("sdk/system/unload").when;
 const logger = require("./logger");
 const featReport = require("./feature-report");
@@ -728,15 +728,18 @@ const deliverer = {
 
     let aRecommendation = minRec;
 
+    let rejectDelivery = false;
+
     if (isPrivate(getMostRecentBrowserWindow())){
       console.log("delivery rejected due to private browsing");
       require('./stats').event("private-reject", {type: "delivery"});
-      return;
+      rejectDelivery = true;
     }
 
     if (!timer.isCertainlyActive()){
       console.log("delivery rejected due to uncertain user activity status");
       require('./stats').event("inactive-reject", {type: "delivery"});
+      rejectDelivery = true;
     }
 
     if (self.delMode.observOnly || (timer.isSilent())){
@@ -749,8 +752,11 @@ const deliverer = {
         require('./stats').event("silence-reject", {type: "delivery"});
       }
 
-      return;
+      rejectDelivery = true;
     }
+
+    if (rejectDelivery)
+      return;
 
 
     console.log("delivering " + aRecommendation.id);
@@ -764,6 +770,8 @@ const deliverer = {
     recommendations.update(aRecommendation);
 
     presenter.present(aRecommendation, listener.command.bind(listener));
+
+    statsEvent("delivery");
 
     timer.silence();
 
@@ -1718,7 +1726,8 @@ listener.listenForFirefoxEvents = function(callback){
 
   callback('profiles', {number: num});
 
-  callback('startup'); // not alwats right, e.g. when addon is installed
+  if (require('sdk/self').loadReason == "startup")
+    callback('startup'); 
 }
 
 // listening for command invocations is not useful because the menu items directly call gDevTools functions

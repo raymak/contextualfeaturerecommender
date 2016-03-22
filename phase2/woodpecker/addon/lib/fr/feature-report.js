@@ -7,8 +7,8 @@
 
 const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("./../utils");
-const logger = require("./../logger");
 const timer = require("./../timer");
+const {prefs} = require("sdk/simple-prefs");
 
 const featDataAddress = "feature_report.data";
 const featData = PersistentObject("simplePref", {address: featDataAddress});
@@ -21,7 +21,7 @@ function init(){
     featData.report = {};
 
   //set up periodic logging
-  timer.onTick(log);
+  timer.onTick(periodicLog);
   
 }
 
@@ -50,7 +50,8 @@ function addRow(id, obj){
     primbtn: null, secbtn: null, response: null,
     manualopen: null, presnumber: null,
     rationaleopen: null, firstclosereason: null, firstopen: null,
-    featureuse: null, firstusesincepres: null, tried: null
+    featureuse: null, firstusesincepres: null, tried: null, immediate_try: null,
+    interaction: null
     };
 
   for (let k in obj )
@@ -92,17 +93,30 @@ function postRecFeatureUse(id){
   report[id].firstusesincepres = ett - startett;
   report[id].tried = true;
 
+  let immediate_try_period_s = prefs["feature_report.immediate_try_period_s"];
+
+  if (report[id].firstusesincepres < timer.sToT(immediate_try_period_s))
+    report[id].immediate_try = true;
+  else
+    report[id].immediate_try = false;
+
   featData.report = report;
 }
 
-function log(et, ett){
-  if (Math.floor(ett) % 20 != 3) return;
+function periodicLog(et, ett){
+  if (Math.floor(et) % prefs["feature_report.log_period"] != 3) return;
+
+  log();
+}
+
+function log(){
   let info = featData.report;
-  logger.logFeatReport(info);
+  require("./../logger").logFeatReport(info);
 }
 
 exports.updateRow = updateRow;
 exports.addRow = addRow;
 exports.getRow = getRow;
 exports.postRecFeatureUse = postRecFeatureUse;
+exports.log = log;
 exports.init = init;

@@ -132,7 +132,7 @@ const Panel = Class({
   setup: function setup(options) {
     let model = merge({
       defaultWidth: 320,
-      defaultHeight: 240,
+      defaultHeight: 220,
       focus: true,
       position: Object.freeze({}),
     }, panelContract(options));

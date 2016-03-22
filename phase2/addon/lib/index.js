@@ -56,11 +56,9 @@ function firstRun(){
   require("./controller").loadRecFile(recommFileAddress);
   console.timeEnd("recomm list load");
 
-  
   require('./logger').logFirstRun();
   require('./self').setInitialized();
   require('./experiment').firstRun();
-
 
   console.time("route scaling");
   //scaling routes

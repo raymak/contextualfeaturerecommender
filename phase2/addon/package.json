@@ -52,7 +52,7 @@
       "name": "timer.random_interval_length_tick",
       "type": "integer",
       "title": "Maximum length of the random time interval",
-      "value": 30
+      "value": 60
     },
     {
       "name": "timer.inactive_threshold_s",

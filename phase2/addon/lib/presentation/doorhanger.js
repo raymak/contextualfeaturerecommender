@@ -176,7 +176,6 @@ function updateEntry(options){
 }
 
 function updateShow(options, panelOptions){
- 
 
   let delay = (options && options.nodelay)? 0: prefs["presentation.doorhanger.panel_show_delay_ms"];
   let noInit = options && options.noinit;
@@ -279,7 +278,7 @@ function onPanelHide(){
 
   setTimeout(function(){
     letReopen = true;
-  }, 200);
+  }, 150);
 
   buttonOff();
 
@@ -294,7 +293,8 @@ function onPanelHide(){
     report.firstopen = showLength;
 
   require("./../stats").event("dhHide", {collectInstance: true}, 
-    { showlength: showLength,
+    { id: currRec.recomm.id,
+      showlength: showLength,
       opencount: currRec.state.count,
       closedwithreason: closedwithreason
     });

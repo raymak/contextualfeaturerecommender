@@ -18,23 +18,20 @@ function init(){
   console.log("initializing moment report");
 
   //set up periodic logging
-  timer.tickCallback(log);
+  timer.onTick(log);
 }
 
-
-
 function log(et, ett){
-  if (Math.floor(ett) % 20 != 1) return;
+  if (Math.floor(et) % 60 != 1) return;
 
   for (let moment of Object.keys(momentData)){
     console.log(moment);
     let data = momentData[moment];
     let info = merge({moment: moment}, data);
     logger.logMomentReport(info);
-  }
-  
-  
+  } 
 }   
 
 
 exports.init = init;
+exports.log = log;

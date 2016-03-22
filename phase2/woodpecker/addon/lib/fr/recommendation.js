@@ -5,10 +5,10 @@
 
 "use strict";
 
+
 const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("./../utils");
 const {Route, equals, matches, scale, str} = require("./route");
-const logger = require("./../logger");
 const featReport = require("./feature-report");
 
 const Recommendation = function(data) {
@@ -24,21 +24,19 @@ const Recommendation = function(data) {
     delivContext: data.delivContext || "null",
     delivContextRoute: Route(data.delivContext),
     feature: data.feature,
-    classTags: data.classTags,
+    tags: data.tags,
     presentationData: data.presentationData,
     respCommandMap: data.respCommandMap,
     status: data.status || "active",
-    priority: data.priority || 1,
-    deliveryTime:undefined
+    priority: data.priority || 1
   }
-
-
 
   return nRecommendation;
 }
 
 const recSet = {
   routeIndexTables: ["trigBehavior", "delivContext", "featUseBehavior"],
+  length: 0,
   add: function(/* recommendations */){
     let that = this;
     Array.prototype.slice.call(arguments).forEach(function(aRecommendation){
@@ -65,6 +63,8 @@ const recSet = {
 
       featReport.addRow(aRecommendation.id, {status: aRecommendation.status, adopted: false});
 
+      that.length += 1;
+
       console.log("recommendation added: id -> " + aRecommendation.id);
     });
   },
@@ -81,6 +81,8 @@ const recSet = {
 
         that[indexTable] = currIndexTable;
       });
+
+      that.length -=1;
 
       console.log("recommendation removed: " + "id -> " + aRecommendation.id);
     });
@@ -103,7 +105,7 @@ const recSet = {
       console.log("recommendation updated: id -> " + aRecommendation.id + ", status -> " + aRecommendation.status);
 
       if (oldStatus != newStatus){
-        logger.logRecommUpdate(oldStatus, newStatus);
+        require("./../logger").logRecommUpdate(aRecommendation.id, oldStatus, newStatus);
         featReport.updateRow(aRecommendation.id, {status: newStatus});
       }
 
@@ -111,7 +113,6 @@ const recSet = {
   },
   getByRouteIndex: function(indexTable, route, options){
     let that = this;
-    console.log(route);
 
     let status = options && options.status;
     let looseMatch = options && options.looseMatch;
@@ -131,7 +132,7 @@ const recSet = {
       route = Route(route);
 
     if (this[indexTable][route.header]){
-      console.log(this[indexTable][route.header]);
+      // console.log(this[indexTable][route.header]);
       let recomms = this[indexTable][route.header].map(function(id){
         return that[id];
       }).filter(function(aRecommendation){
@@ -172,10 +173,11 @@ const recSet = {
   forEach: function(callback) {
   let that = this;
   Object.keys(this).forEach(function(key){
-    return typeof that[key] === "function" ||  ["routeIndexTables", "delivContext", "trigBehavior", "featUseBehavior"].indexOf(key) != -1 || callback(that[key]);
+      return typeof that[key] === "function" ||  ["routeIndexTables", "delivContext", "trigBehavior", "featUseBehavior", "length"].indexOf(key) != -1 || callback(that[key]);
     });
   }
 };
+
 
 const RecSet = function(options){
   let nObj =  Object.create(recSet);
@@ -213,6 +215,9 @@ const recommendationToString = function(){
       return previousValue + "\n" + currentValue + "-> " + that[currentValue];
     }, "");
   }
+
+
+
 
 exports.extractPresentationData = extractPresentationData;
 exports.RecSet = RecSet;

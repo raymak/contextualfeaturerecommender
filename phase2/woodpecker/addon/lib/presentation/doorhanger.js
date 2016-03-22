@@ -38,24 +38,6 @@ let fbCallback;
 
 function init(){
   console.log("initializing doorhanger");
-  // button = initButton(buttonClick);
-  // panel = initPanel(button);
-
-  // dhData = PersistentObject("simplePref", {address: dhDataAddress, updateListener: debug.update});
-  
-  // let wt = new WindowTracker({
-  //   onTrack: function(window){
-  //     if (!isBrowser(window)) return;
-
-  //     let f = function(e){
-  //      if (e.key === "Escape")
-  //       pHide("escape");
-  //     };
-
-  //     window.addEventListener("keydown", f);
-  //     unload(function(){window.removeEventListener("keydown", f)});
-  //   }
-  // });
 
 }
 
@@ -95,12 +77,16 @@ function initButton(clickHandler){
 
 
 function fbSubmit(rate){
-  let result = {type: "rate", rate: rate};
+  clearTimeout(hideTimeout);
+
+  let showLength = Date.now()-hideWatch;
+
+  let result = {type: "rate", rate: rate, length: showLength};
   fbCallback(result);
 }
 
 
-function present(callback){ 
+function present(callback, moment){ 
   // let dhPresentInfo = {id: aRecommendation.id, number: dhData.count};
   // logger.logDhPresent(dhPresentInfo);
 
@@ -110,6 +96,9 @@ function present(callback){
   }
 
   fbCallback = callback;
+
+  let dhPresentInfo = {moment: moment, number: dhData.count};
+  logDhPresent(dhPresentInfo);
   
   updateShow();  
 }
@@ -123,7 +112,7 @@ function updateEntry(){
 function updateShow(options, panelOptions){
   updateEntry();
 
-  showPanel(150, panelOptions);
+  showPanel(prefs["presentation.doorhanger.panel_show_delay_ms"], panelOptions);
 
   let noSchedule = options && options.noschedule;
 
@@ -158,9 +147,6 @@ function hidePanel(fadeOut){
     panel.fadeOut();
   else
     panel.hide();
-
-
-
 }
 
 function buttonChange(state){
