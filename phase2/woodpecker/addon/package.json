@@ -153,7 +153,7 @@
     {
         "type": "integer", 
         "name": "timer.random_interval_length_tick", 
-        "value": 20, 
+        "value": 60, 
         "title": "Maximum length of the random time interval"
     }, 
     {
@@ -184,19 +184,19 @@
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 3
+      "value": 60
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 5760
+      "value": 600
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 5
+      "value": 60
     },
     { 
       "name": "experiment.fr_usage_logging.enabled",
@@ -275,7 +275,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
    }
   ], 
   "keywords": [
