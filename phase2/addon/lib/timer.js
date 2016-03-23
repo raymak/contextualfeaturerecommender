@@ -361,6 +361,9 @@ const debug = {
       case "endsilence":
         return "silence ended at " + endSilence() + " ticks";
         break;
+      case "iscertainlyactive":
+        return isCertainlyActive();
+        break;
       case "inactive":
         deactivate();
         observerService.notifyObservers(null, "user-interaction-inactive", "");
