@@ -194,7 +194,7 @@ const debug = {
   },
   update: function(key){
 
-    if (!isEnabled) return;
+    if (!isEnabled()) return;
 
     if (!prefs["stats.send_to_debug"]) return;
 

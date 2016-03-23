@@ -218,7 +218,7 @@ const debug = {
   },
   update: function(){
 
-    if (!isEnabled) return;
+    if (!isEnabled()) return;
 
     let updateObj = {};
     updateObj.stage = expData.stage;

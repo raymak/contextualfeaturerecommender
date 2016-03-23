@@ -513,7 +513,7 @@ const debug = {
     handleCmd(this.parseCmd);
   },
   update: function(){
-    if (!isEnabled) return;
+    if (!isEnabled()) return;
 
     let data = dhData;
     let updateObj = {count: data.count, currentRecomm: data.currentRec.recomm, state: data.currentRec.state, report: data.currentRec.report};

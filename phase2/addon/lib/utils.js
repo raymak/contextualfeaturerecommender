@@ -83,10 +83,12 @@ exports.PersistentObject = function(type, options){
     //TOTHINK: some way to cache data to improve performance
     let rObj = new Proxy(targetObj, {
         get: function(target, name) {
+
           if (!target[name])
             return JSON.parse(prefs[options.address])[name];
           else
             return target[name];
+
         },
         set: function(target, name, value) {
           if (!Object.hasOwnProperty(target, name)){
