@@ -116,7 +116,7 @@ const watchActivity = function(){
       switch(topic){
         case "user-interaction-active":
 
-          require('./stats').event("activeTick");
+          // require('./stats').event("activeTick");
           // console.log("active " + elapsedTime());
           clearInterval(inactiveCounter);
           if (activity.minor_inactive_s) activity.last_minor_inactive_s = activity.minor_inactive_s;

@@ -41,12 +41,11 @@ function init(){
   handleCmd(debug.parseCmd);
 
   require('./timer').onTick(periodicLog);
-  requie('./timer').onTick(checkForMemoryLoss);
+  require('./timer').onTick(checkForMemoryLoss);
 
   checkForMemoryLoss();
 
   debug.update();
-
 }
 
 function checkForMemoryLoss(){
@@ -161,7 +160,7 @@ function event(evtId, options, addData, aggregates){
         AS.setItem(evtKey, evt);
         eventCount += 1;
         if (eventCount % 50 == 0)
-          eventData.eventCount = eventCount;
+          statsData.eventCount = eventCount;
         debug.update(evtKey);
       }).catch((e) => {throw e});
 } 
