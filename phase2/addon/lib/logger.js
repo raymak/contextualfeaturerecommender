@@ -26,7 +26,7 @@ let recentMsgs;
 function init(){
   console.log("initializing logger");
 
-  if (!loggerData.count)
+  if (!("count" in loggerData))
     loggerData.count = 0;
 
   recentMsgs = {};

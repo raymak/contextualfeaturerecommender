@@ -8,7 +8,6 @@
 const {PersistentObject} = require("./utils");
 const {prefs} = require("sdk/simple-prefs");
 const {merge} = require("sdk/util/object");
-const timer = require("./timer");
 const {setTimeout} = require("sdk/timers");
 const {handleCmd, dumpUpdateObject, isEnabled} = require("./debug");
 
@@ -60,16 +59,18 @@ const experiment = {
 
     debug.init();
 
-    if (!(expData["stageForced"]))
+    if (!("stageForced" in expData))
       expData.stageForced = false;
 
-    if (!(expData["stage"])){
+    if (!(expData.stage)){
       console.log("experiment stage set to obs1 due to no existing stage");
       expData.stage = "obs1";
     }
 
-    timer.onTick(checkStage);
-    timer.onTick(debug.update);
+    require('./timer').onTick(checkStage);
+    require('./timer').onTick(debug.update);
+
+    debug.update();
 
     console.timeEnd("experiment init");
 
@@ -82,6 +83,9 @@ const experiment = {
             startLocaleTime: (new Date(Number(stTimeMs))).toLocaleString(),  
             name: name, stage: expData.stage,
             mode: expData.mode};
+  },
+  get stage(){
+    return expData.stage;
   },
   firstRun: function(){
     stages["obs1"]();
@@ -142,7 +146,7 @@ const stages = {
     let mode = expData.mode;
     prefs["delivery.mode.rate_limit"] = mode.rateLimit;
     prefs["timer.silence_length_s"] = 
-        timer.tToS(prefs["delivery.mode.silence_length." + prefs["delivery.mode.rate_limit"]]);
+        require('./timer').tToS(prefs["delivery.mode.silence_length." + prefs["delivery.mode.rate_limit"]]);
     prefs["delivery.mode.moment"] = mode.moment;
     prefs["route.coefficient"] = String(mode.coeff);
 
@@ -194,7 +198,7 @@ function timeUntilNextStage(){
 
   let stage = expData.stage;
 
-  let ett = timer.elapsedTotalTime();
+  let ett = require('./timer').elapsedTotalTime();
 
   switch(stage){
     case "obs1":

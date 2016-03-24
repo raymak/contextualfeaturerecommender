@@ -30,9 +30,9 @@ function init(){
 
   console.log("initializing stats");
 
-  if (!statsData.count){
-    statsData.eventCount = 0;
-  }
+  // if (!statsData.count){
+  //   statsData.eventCount = 0;
+  // }
 
   handleCmd(debug.parseCmd);
 
@@ -130,7 +130,7 @@ function event(evtId, options, addData, aggregates){
       return updateEvt(evt, type, evtId, instance, aggregates);
     }).then(function(evt){
         AS.setItem(evtKey, evt);
-        statsData.eventCount += 1;
+        // statsData.eventCount += 1;
         debug.update(evtKey);
       }).catch((e) => {throw e});
 } 
@@ -145,7 +145,7 @@ function getContext(){
     day: now.getDay(),
     et: elapsedTime(),
     ett: elapsedTotalTime(),
-    stage: exp.info.stage
+    stage: exp.stage
   };
 }
 

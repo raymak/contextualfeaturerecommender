@@ -37,30 +37,47 @@ function updateRow(id, obj){
   featData.report = report;
 }
 
-function addRow(id, obj){
+function addRows(ids, objs){
+  addRow(ids, objs, {batch: true});
+}
+
+function addRow(id, obj, options){
   let report = featData.report;
 
-  if (report[id]){
-    console.log("warning: feature id already exists in the report table.");
-    return;
-  }
+  let batch = options && options.batch;
 
-  let rowTemp = {status: null, adopted: null, negfbchoice: null,
-    dontlike: null, interaction: null,
-    primbtn: null, secbtn: null, response: null,
-    manualopen: null, presnumber: null,
-    rationaleopen: null, firstclosereason: null, firstopen: null,
-    featureuse: null, firstusesincepres: null, tried: null, immediate_try: null,
-    interaction: null
-    };
+  let rowTemp = { status: null, adopted: null, negfbchoice: null,
+                  dontlike: null, interaction: null,
+                  primbtn: null, secbtn: null, response: null,
+                  manualopen: null, presnumber: null,
+                  rationaleopen: null, firstclosereason: null, firstopen: null,
+                  featureuse: null, firstusesincepres: null, tried: null, immediate_try: null,
+                  interaction: null
+                };
 
-  for (let k in obj )
-    if ((!k in rowTemp)){
-      console.log("error: cannot add row to the feature report table.");
+  let ids = batch? id: [id];
+  let objs = batch? obj: [obj];
+
+  ids.forEach(function(id, i){
+   
+    let obj = objs[i];
+
+    for (let k in obj)
+      if ((!k in rowTemp)){
+        console.log("error: cannot add row to the feature report table.");
+        return;
+      }
+
+    obj = merge(rowTemp, obj);
+
+    if (report[id]){
+      console.log("warning: feature id already exists in the report table.");
       return;
     }
 
-  report[id] = merge(rowTemp, obj);
+    report[id] = obj;
+  });
+
   featData.report = report;
 
 }
@@ -115,6 +132,7 @@ function log(){
 }
 
 exports.updateRow = updateRow;
+exports.addRows = addRows;
 exports.addRow = addRow;
 exports.getRow = getRow;
 exports.postRecFeatureUse = postRecFeatureUse;

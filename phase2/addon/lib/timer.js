@@ -35,19 +35,13 @@ const init = function(){
 
   startTimeMs = Number(require('./experiment').info.startTimeMs);
   
-  if (!timerData.elapsedTime)
+  if (!("elapsedTime" in timerData))
     timerData.elapsedTime = 0;
 
-  if (!timerData.elapsedTotalTime)
-    timerData.elapsedTotalTime = 0;
-  else
-    timerData.elapsedTotalTime = elapsedTotalTime();
+  timerData.elapsedTotalTime = elapsedTotalTime();
 
-  if (!timerData.silenceStart)
+  if (!("silenceStart" in timerData))
     timerData.silenceStart = -1;
-
-  if (!timerData.events)
-    timerData.events = [];
 
   silenceLeft(); //to update the silence status;
 
@@ -66,6 +60,7 @@ const init = function(){
   f = function(pref){
     timerData.elapsedTotalTime = elapsedTotalTime();
   };
+
   sp.on("experiment.startTimeMs", f);
   unload(function(){sp.removeListener("experiment.startTimeMs"), f});
 

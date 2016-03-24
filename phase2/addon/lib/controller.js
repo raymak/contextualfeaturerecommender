@@ -2001,6 +2001,7 @@ const debug = {
 function welcome(){
   deliverer.deliver(recommendations["welcome"]);
 }
+
 function loadRecFile(file){
   let recomms = JSON.parse(data.load(file)).map(function(recData){
     if ("auto-load" in recData && !recData["auto-load"])

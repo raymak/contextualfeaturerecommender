@@ -91,14 +91,14 @@ function installRun(){
 
 exports.onUnload = function(reason){
 
-  if (reason == "shutdown")
-    require('./stats').event("shutdown", {collectInstance: true});
-
   console.log("unloading due to " + reason);
   require('./logger').logUnload(reason);
 
   if (reason == "uninstall" || reason == "disable")
     logger.logDisable(reason);
+
+  if (reason == "shutdown")
+    require('./stats').event("shutdown", {collectInstance: true});
 
   require('./sender').flush();
 }
