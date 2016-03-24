@@ -249,7 +249,7 @@ function getFhrData(callback){
   }
   catch(e){
     console.log("warning: could not get fhr data", e.message);
-    require('./../logger').logWarning({code: "no_fhr", message: "could not receive fhr info."});
+    require('./logger').logWarning({code: "no_fhr", message: "could not receive fhr info."});
     callback(0,0,0, null);
   }
 
@@ -434,7 +434,7 @@ exports.cleanUp =  function(options){
       version: 1
     }
     
-    const AS = require("./../async-storage").AsyncStorage;
+    const AS = require("./async-storage").AsyncStorage;
     
     AS.open(config);
 
@@ -487,7 +487,7 @@ exports.selfDestruct = function(reason){
   if (reason === undefined)
     reason = "unknown";
 
-  require("./../logger").logSelfDestruct({reason: reason});
+  require("./logger").logSelfDestruct({reason: reason});
 
   if (prefs["cleanup_on_death"])
     exports.cleanUp({reset: true});

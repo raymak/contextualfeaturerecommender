@@ -36,7 +36,7 @@ const init = function(){
   startTimeMs = Number(require('./experiment').info.startTimeMs);
   
   if (!("elapsedTime" in timerData))
-    timerData.elapsedTime = 0;
+  timerData.elapsedTime = 0;
 
   timerData.elapsedTotalTime = elapsedTotalTime();
 
@@ -176,7 +176,6 @@ const tick = function(){
 
   let ett = elapsedTotalTime();
   timerData.elapsedTotalTime = ett;
-
 
   if (!activity.active){
     console.log("tick missed due to inactivity");

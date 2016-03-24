@@ -83,8 +83,7 @@ const experiment = {
     return {startTimeMs: stTimeMs,
             startLocaleTime: (new Date(Number(stTimeMs))).toLocaleString(),  
             name: name, stage: expData.stage,
-            mode: expData.mode,
-            stageTimes: expData.stageTimes};
+            mode: expData.mode};
   },
   get stage(){
     return expData.stage;

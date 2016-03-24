@@ -1077,7 +1077,8 @@ listener.listenForAddonEvents = function(callback){
   AddonManager.getAllAddons(function(addons){
     reportCount();
     addons.forEach(function(addon){
-      callback('has', {addonId: addon.id});
+      if (addon.type !== "plugin")
+        callback('has', {addonId: addon.id});
     });
   });
 }

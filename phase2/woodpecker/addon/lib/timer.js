@@ -60,6 +60,7 @@ const init = function(){
   f = function(pref){
     timerData.elapsedTotalTime = elapsedTotalTime();
   };
+  
   sp.on("experiment.startTimeMs", f);
   unload(function(){sp.removeListener("experiment.startTimeMs"), f});
 
@@ -175,7 +176,6 @@ const tick = function(){
 
   let ett = elapsedTotalTime();
   timerData.elapsedTotalTime = ett;
-
 
   if (!activity.active){
     console.log("tick missed due to inactivity");

@@ -32,7 +32,7 @@ function init(){
 
   console.log("initializing stats");
 
-  if (!statsData.count){
+  if (!("eventCount" in statsData)){
     statsData.eventCount = 0;
   }
 
@@ -41,9 +41,36 @@ function init(){
   handleCmd(debug.parseCmd);
 
   require('./timer').onTick(periodicLog);
+  requie('./timer').onTick(checkForMemoryLoss);
+
+  checkForMemoryLoss();
+
+
 
   debug.update();
 
+}
+
+function checkForMemoryLoss(){
+  AS.getItem("tick").then(function(evt){
+
+    if (!evt){
+      console.log("memory loss checker: no previous active tick record found.");
+      return;
+    }
+
+    let et = evt.lastInstance.et;
+    console.log("last et:", et);
+
+    if (elapsedTime() < et){
+      require('./logger').logWarning({type: "memory-loss", length: et - elapsedTime()});
+      console.log("warning: memory loss detected.");
+    }
+    else
+    {
+      console.log("memory loss checker: no memory loss detected.")
+    }
+  });
 }
 
 function getRouteStats(baseRoute){
@@ -156,7 +183,7 @@ function getContext(){
 }
 
 function periodicLog(et, ett){
-  if (et % (180) !== 150)
+  if (et % 240 !== 150)
     return;
 
   log();

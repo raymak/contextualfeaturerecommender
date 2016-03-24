@@ -315,7 +315,7 @@ listener.moment = function(name, options){
         allData.rates.push(result.rate);
 
         statsEvent(name , {collectInstance: true, type: "result"},
-         {moment: name, type: result.type, length: result.length, rate: result.rate});
+         {moment: name, type: result.type, length: result.length, rate: result.rate, mouseenter: result.mouseenter, iscertainlyactive: timer.iseCertainlyActive()});
       }
       if (result.type === "timeout"){
         console.log("panel for " + name + " timed out");
