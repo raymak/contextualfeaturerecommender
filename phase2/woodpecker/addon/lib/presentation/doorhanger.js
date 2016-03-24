@@ -30,11 +30,11 @@ let panel;
 let button;
 let hideTimeout;
 let wrdCnt; //for auto-adjuting fading time
-let buttonState = false;
 let command;
 let hideWatch;
 let closedwithreason;
 let fbCallback;
+let mouseenter;
 
 function init(){
   console.log("initializing doorhanger");
@@ -54,6 +54,7 @@ function initPanel(button){
 
   nPanel.port.on("log", function(m){console.log(m)});
   nPanel.port.on("hide", pHide);
+  nPanel.port.on("mouseenter", pMouseenter);
   nPanel.port.on("resize", resize);
   nPanel.port.on("infoPage", openInfoPage);
   nPanel.port.on("fbSubmit", fbSubmit);
@@ -81,7 +82,7 @@ function fbSubmit(rate){
 
   let showLength = Date.now()-hideWatch;
 
-  let result = {type: "rate", rate: rate, length: showLength};
+  let result = {type: "rate", rate: rate, length: showLength, mouseenter: mouseenter};
   fbCallback(result);
 }
 
@@ -96,6 +97,8 @@ function present(callback, moment){
   }
 
   fbCallback = callback;
+
+  mouseenter = false;
 
   let dhPresentInfo = {moment: moment, number: dhData.count};
   logDhPresent(dhPresentInfo);
@@ -137,6 +140,10 @@ function showPanel(delay_ms, panelOptions){
     panel.show(merge({position: {top: 0, right: 50}}, panelOptions));
   }, delay_ms || 0);
 
+}
+
+function pMouseenter(){
+  mouseenter = true;
 }
 
 function hidePanel(fadeOut){

@@ -80,59 +80,85 @@ exports.PersistentObject = function(type, options){
     else
       targetObj = options.target;
 
-    //TOTHINK: some way to cache data to improve performance
+    // data property lets the cachedObj be easily reset
+    let cachedObj = {data: JSON.parse(prefs[options.address])};
+
+    let updatePref = function(prop){
+      console.log("pref update", options.address, prop);
+      prefs[options.address] = JSON.stringify(cachedObj.data);
+    };
+
+
+    let wrapper = {
+      _copyCache: function(){
+        return Object.assign({}, cachedObj.data);
+      },
+      _pasteCache: function(obj){
+        cachedObj.data = obj;
+        updatePref();
+      }
+    }
+
     let rObj = new Proxy(targetObj, {
         get: function(target, name) {
-          if (!target[name])
-            return JSON.parse(prefs[options.address])[name];
-          else
+
+          if (name in target)
             return target[name];
+          else
+            if (cachedObj.data.hasOwnProperty(name)){
+              return cachedObj.data[name];
+            }
+            else {
+              return wrapper[name];
+            }
+
         },
         set: function(target, name, value) {
-          if (!Object.hasOwnProperty(target, name)){
-            let dataObj = JSON.parse(prefs[options.address]);
-            dataObj[name] = value;
-            prefs[options.address] = JSON.stringify(dataObj);
+          if (target.hasOwnProperty(name)){
+            target[name] = value;
           }
           else
-            target[name] = value;
+          {
+            cachedObj.data[name] = value;
+            updatePref(name);
+          }
 
           return true;
         },
         has: function(target, prop){
           if (!(prop in target))
-            return prop in JSON.parse(prefs[options.address]);
+            return prop in cachedObj.data;
           else
             return true;
         },
         ownKeys: function(target){
-          return Object.getOwnPropertyNames(target).concat(Object.keys(JSON.parse(prefs[options.address])));
+          return Object.getOwnPropertyNames(target).concat(Object.keys(cachedObj.data));
         },
         //ownKeys does not work properly without getOwnDescriptor
         //here is why: https://bugzilla.mozilla.org/show_bug.cgi?id=1110332
         getOwnPropertyDescriptor: function (target, prop){
-          return Object.getOwnPropertyDescriptor(target, prop) || Object.getOwnPropertyDescriptor(JSON.parse(prefs[options.address]), prop);
+          return Object.getOwnPropertyDescriptor(target, prop) || Object.getOwnPropertyDescriptor(cachedObj.data, prop);
         },
         deleteProperty: function(target, prop){
           if (prop in target){
             return delete target[prop];
           }
           else {
-            let dataObj = JSON.parse(prefs[options.address]);
-            let res = delete dataObj[prop];
-            prefs[options.address] = JSON.stringify(dataObj);
+            let res = delete cachedObj.data[prop];
+            updatePref(prop);
             return res;
           }
-
-          if (options.updateListener)
-            options.updateListener(this);
         }
     });
 
-    if (options.updateListener)
-      sp.on(options.address, function(pref){
-        options.updateListener(rObj);
+    // to handle external pref changes
+    sp.on(options.address, function(p){
+      cachedObj.data = JSON.parse(prefs[p]);
+
+      if (options.updateListener)
+        options.updateListener(rObj, p);
     });
+
     return rObj;
   }
 };

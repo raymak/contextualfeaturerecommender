@@ -36,9 +36,14 @@ const Recommendation = function(data) {
 
 const recSet = {
   routeIndexTables: ["trigBehavior", "delivContext", "featUseBehavior"],
-  length: 0,
   add: function(/* recommendations */){
-    let that = this;
+    let routeIndexTables = this.routeIndexTables;
+
+    let that = this._copyCache(); // to reduce the number of prefs hits
+
+    let frIds = [];
+    let frObjs = [];
+
     Array.prototype.slice.call(arguments).forEach(function(aRecommendation){
       if (!aRecommendation)
         return;
@@ -50,7 +55,7 @@ const recSet = {
       
       that[aRecommendation.id] = aRecommendation;
 
-      that.routeIndexTables.forEach(function(indexTable){
+      routeIndexTables.forEach(function(indexTable){
         let currIndexTable = that[indexTable];
 
         if (currIndexTable[aRecommendation[indexTable + "Route"].header])
@@ -61,20 +66,30 @@ const recSet = {
         that[indexTable] = currIndexTable;
       });
 
-      featReport.addRow(aRecommendation.id, {status: aRecommendation.status, adopted: false});
+      frIds.push(aRecommendation.id);
+      frObjs.push({status: aRecommendation.status, adopted: false});
 
       that.length += 1;
 
       console.log("recommendation added: id -> " + aRecommendation.id);
     });
+
+    featReport.addRows(frIds, frObjs);
+
+    this._pasteCache(that);
+
   },
   remove: function(/* recommendations */){
-    let that = this;
+
+    let routeIndexTables = this.routeIndexTables;
+
+    let that = this._copyCache();
+
     Array.prototype.slice.call(arguments).forEach(function(aRecommendation){
       if (!that[aRecommendation.id]) return;
       delete that[aRecommendation.id];
 
-      that.routeIndexTables.forEach(function(indexTable){
+      routeIndexTables.forEach(function(indexTable){
         let currIndexTable = that[indexTable];
         currIndexTable[aRecommendation[indexTable + "Route"].header] = currIndexTable[aRecommendation[indexTable + "Route"].header]
           .filter(function(id){return id!==aRecommendation.id});
@@ -86,9 +101,12 @@ const recSet = {
 
       console.log("recommendation removed: " + "id -> " + aRecommendation.id);
     });
+
+    this._pasteCache(that);
   },
   update: function(/* recommendations */){
     let that = this;
+
     Array.prototype.slice.call(arguments).forEach(function(aRecommendation){
       if (!that[aRecommendation.id]){
         console.log("error: unable to update recommendation. No recommendation with this ID exists: id -> " + aRecommendation.id);
@@ -105,7 +123,7 @@ const recSet = {
       console.log("recommendation updated: id -> " + aRecommendation.id + ", status -> " + aRecommendation.status);
 
       if (oldStatus != newStatus){
-        require("./../logger").logRecommUpdate(aRecommendation.id, oldStatus, newStatus);
+        require("./logger").logRecommUpdate(aRecommendation.id, oldStatus, newStatus);
         featReport.updateRow(aRecommendation.id, {status: newStatus});
       }
 
@@ -194,6 +212,9 @@ const PersistentRecSet = function(type, options){
     if (!nObj[indexTable])
       nObj[indexTable] = {};
   });
+
+  if (!nObj.length)
+      nObj.length = 0;
 
   return nObj;
 }

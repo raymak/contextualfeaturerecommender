@@ -16,7 +16,7 @@ Cu.import("resource://gre/modules/osfile.jsm");
 
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
-const DEBUG_URL = "about:fr-d";
+const DEBUG_URL = sp.prefs["debug.url"];
 
 let workers = [];
 let records = {};
@@ -104,7 +104,7 @@ function removeList(list){
 
 function dumpUpdateObject(obj, options){
 
-  if (!isEnabled) return;
+  if (!isEnabled()) return;
 
   let recs = {};
   for (let k in obj){

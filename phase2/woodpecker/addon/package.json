@@ -6,6 +6,7 @@
   }, 
   "author": "Kamyar Ardekani", 
   "title": "Woodpecker", 
+  "id": "woodpecker@insights.mozilla.com",
   "version": "0.0.31", 
   "permissions": {"private-browsing": true},
   "preferences": [
@@ -21,7 +22,6 @@
       "title": "Whether the preferences should be cleaned up when the addon is killed",
       "value": true
     },
-
     {
       "name": "clean_install",
       "type": "bool",
@@ -58,7 +58,7 @@
         }
       ]
     },
-     {
+    {
       "name" : "delivery.mode.silence_length.easy",
       "type": "integer",
       "title": "Length of the easy rate limit mode in ticks.",
@@ -248,6 +248,12 @@
       "value": true
     },
     {
+      "name": "debug.url",
+      "type": "string",
+      "title": " ",
+      "value": "about:wp-d"
+    },
+    {
       "name": "debug.command.used",
       "type": "bool",
       "title": " ",
@@ -275,7 +281,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
    }
   ], 
   "keywords": [

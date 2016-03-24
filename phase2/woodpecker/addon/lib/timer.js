@@ -26,19 +26,22 @@ let activityObs;
 let activity;
 let tickInterval;
 
+let startTimeMs;
+
 const init = function(){
   console.log("initializing timer");
 
   console.time("timer init");
+
+  startTimeMs = Number(require('./experiment').info.startTimeMs);
   
-  if (!timerData.elapsedTime)
-    timerData.elapsedTime = 0;
+  if (!("elapsedTime" in timerData))
+  timerData.elapsedTime = 0;
 
-  if (!timerData.silenceStart)
+  timerData.elapsedTotalTime = elapsedTotalTime();
+
+  if (!("silenceStart" in timerData))
     timerData.silenceStart = -1;
-
-  if (!timerData.events)
-    timerData.events = [];
 
   silenceLeft(); //to update the silence status;
 
@@ -61,24 +64,22 @@ const init = function(){
   unload(function(){sp.removeListener("experiment.startTimeMs"), f});
 
   debug.init();
-  debug.update();
+  debug.update({silenceStatus: true});
 
   console.timeEnd("timer init");
 
 }
 
-// updates the ett preference records in addition to returning it
 const elapsedTotalTime = function(stage){
   let exp = require("./experiment");
 
   if (!stage){
-    let ett = (Date.now() - Number(exp.info.startTimeMs)) / (1000 * prefs["timer.tick_length_s"]);
+    let ett = (Date.now() - startTimeMs) / (1000 * prefs["timer.tick_length_s"]);
 
-    timerData.elapsedTotalTime = ett; //update the elapsed total time at the beginning
     return ett;
   }
 
-  let stageTimes = exp.info.stageTimes;
+  let stageTimes = exp.stageTimes;
 
   if (!stageTimes[stage])
     return 0;
@@ -172,11 +173,14 @@ const watchActivity = function(){
 
 const tick = function(){
 
-  timerData.elapsedTotalTime = elapsedTotalTime();
+  let ett = elapsedTotalTime();
+  timerData.elapsedTotalTime = ett;
+
 
   if (!activity.active){
     console.log("tick missed due to inactivity");
     require('./stats').event("missedTick");
+    debug.update({silenceStatus: true});
     return;
   }
 
@@ -187,12 +191,11 @@ const tick = function(){
   timerData.elapsedTime = et;
   console.log("elapsed time: " + et + " ticks = " + et*prefs["timer.tick_length_s"]/60 + " minutes");
 
-  let ett = elapsedTotalTime();
   tickHandlers.forEach(function(callback){
     callback(et, ett);
   });
 
-  debug.update();
+  debug.update({silenceStatus: true});
 }
 
 const event = function(name){
@@ -215,14 +218,12 @@ const onInactive = function(fn){
 }
 
 
-//TODO: use a pattern like https://github.com/mozilla/addon-sdk/blob/a44176661b1b61dffb46ce2ff5a4156bda38cf49/lib/sdk/simple-storage.js#L27-L36
-// to make all getter functions look like properties
 const elapsedTime = function(stage){
   if (!stage)
     return timerData.elapsedTime;
 
   let exp = require('./experiment');
-  let stageTimes = exp.info.stageTimes;
+  let stageTimes = exp.stageTimes;
   
   if (!stageTimes[stage])
     return 0;
@@ -238,7 +239,8 @@ const silence = function(){
   console.log("silence is expected to end at " + Number(ett + silence_length_tick()) + " ticks");
 
   silenceLeft(); //to update all variables
-  debug.update();
+
+  debug.update({silenceStatus: true});
 
   let info = {startett: ett};
   require('./logger').logSilenceStart(info);
@@ -250,10 +252,11 @@ const silenceElapsed = function(){
 }
 
 const silenceLeft = function(){
-  let ett = elapsedTotalTime();
 
   if (timerData.silenceStart == -1)
     return 0;
+
+  let ett = elapsedTotalTime();
 
   let left = silence_length_tick() - ett + timerData.silenceStart;
   
@@ -277,6 +280,8 @@ const endSilence = function(){
   require('./logger').logSilenceEnd(info);
 
   require('./stats').event("silenceend");
+
+  debug.update({silenceStatus: true});
 
   return ett;
 }
@@ -331,20 +336,22 @@ const debug = {
   init: function(){
     handleCmd(this.parseCmd);
   },
-  update: function(){
+  update: function(options){
 
-    if (!isEnabled) return;
+    if (!isEnabled()) return;
     
     dumpUpdateObject(activity, {list: "Activity Status"});
 
-    let silenceObj = {
-      isSilent: isSilent(),
-      silenceStart: timerData.silenceStart,
-      silenceEnd: isSilent()? timerData.silenceStart + silence_length_tick() : 0,
-      silenceElapsed: silenceElapsed(),
-      silenceLeft: silenceLeft()
+    if (options && options.silenceStatus){
+      let silenceObj = {
+        isSilent: isSilent(),
+        silenceStart: timerData.silenceStart,
+        silenceEnd: isSilent()? timerData.silenceStart + silence_length_tick() : 0,
+        silenceElapsed: silenceElapsed(),
+        silenceLeft: silenceLeft()
+      }
+      dumpUpdateObject(silenceObj, {list: "Silence Status"});
     }
-    dumpUpdateObject(silenceObj, {list: "Silence Status"});
   },
 
   parseCmd: function(cmd){
@@ -371,6 +378,9 @@ const debug = {
         break;
       case "endsilence":
         return "silence ended at " + endSilence() + " ticks";
+        break;
+      case "iscertainlyactive":
+        return isCertainlyActive();
         break;
       case "inactive":
         deactivate();

@@ -24,6 +24,8 @@ const config = {
   version: 1
 }
 
+let eventCount;
+
 AS.open(config);
 
 function init(){
@@ -33,6 +35,8 @@ function init(){
   if (!statsData.count){
     statsData.eventCount = 0;
   }
+
+  eventCount = statsData.eventCount;
 
   handleCmd(debug.parseCmd);
 
@@ -130,7 +134,9 @@ function event(evtId, options, addData, aggregates){
       return updateEvt(evt, type, evtId, instance, aggregates);
     }).then(function(evt){
         AS.setItem(evtKey, evt);
-        statsData.eventCount += 1;
+        eventCount += 1;
+        if (eventCount % 50 == 0)
+          eventData.eventCount = eventCount;
         debug.update(evtKey);
       }).catch((e) => {throw e});
 } 
@@ -194,7 +200,7 @@ const debug = {
   },
   update: function(key){
 
-    if (!isEnabled) return;
+    if (!isEnabled()) return;
 
     if (!prefs["stats.send_to_debug"]) return;
 

@@ -71,10 +71,29 @@ const init = function(){
 
 }
 
-// updates the ett preference records in addition to returning it
-const elapsedTotalTime = function(){
+const elapsedTotalTime = function(stage){
+  let exp = require("./experiment");
 
-  let ett = (Date.now() - startTimeMs)/ (1000 * prefs["timer.tick_length_s"]);
+  if (!stage){
+    let ett = (Date.now() - startTimeMs) / (1000 * prefs["timer.tick_length_s"]);
+
+    return ett;
+  }
+
+  let stageTimes = exp.stageTimes;
+
+  if (!stageTimes[stage])
+    return 0;
+
+  // in the stage
+  if (!stageTimes[stage].duration){
+    let ett = (Date.now() - Number(stageTimes[stage].start)) / (1000 * prefs["timer.tick_length_s"]);
+
+    return ett;
+  }
+
+  // stage has ended
+  let ett = stageTimes[stage].duration;
 
   return ett;
 }
@@ -200,10 +219,17 @@ const onInactive = function(fn){
 }
 
 
-//TODO: use a pattern like https://github.com/mozilla/addon-sdk/blob/a44176661b1b61dffb46ce2ff5a4156bda38cf49/lib/sdk/simple-storage.js#L27-L36
-// to make all getter functions look like properties
-const elapsedTime = function(){
-  return timerData.elapsedTime;
+const elapsedTime = function(stage){
+  if (!stage)
+    return timerData.elapsedTime;
+
+  let exp = require('./experiment');
+  let stageTimes = exp.stageTimes;
+  
+  if (!stageTimes[stage])
+    return 0;
+  else
+    return stageTimes[stage].elapsedTime;
 }
 
 const silence = function(){
@@ -220,8 +246,6 @@ const silence = function(){
   let info = {startett: ett};
   require('./logger').logSilenceStart(info);
   require('./stats').event("silence");
-
-
 }
 
 const silenceElapsed = function(){
@@ -412,9 +436,27 @@ const debug = {
                 return "error: invalid use of time set command.";
             }
             break;
+          
+          case "get":
 
-            default:
-              return "error: invalid use of time command.";
+            if (!subArgs[1])
+              return "error: invalid use of time set command.";
+
+            switch(subArgs[1]){
+              case "et":
+                return elapsedTime(subArgs[2]);
+                break;
+              case "ett":
+                return elapsedTotalTime(subArgs[2]);
+                break;
+              
+              default:
+
+            }
+            break;
+
+          default:
+            return "error: invalid use of time command.";
         }
       default: 
         return undefined;

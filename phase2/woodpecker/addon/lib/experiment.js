@@ -58,13 +58,13 @@ const experiment = {
 
     debug.init();
 
-    if (!(expData["stageForced"]))
-    expData.stageForced = false;
+    if (!("stageForced" in expData))
+      expData.stageForced = false;
 
-    if (!expData["stageTimes"])
+    if (!("stageTimes" in expData))
       expData["stageTimes"] = {};
 
-    if (!(expData["stage"])){
+    if (!(expData.stage)){
       console.log("experiment stage set to obs1 due to no existing stage");
       expData.stage = "obs1";
     }
@@ -72,6 +72,8 @@ const experiment = {
     timer.onTick(checkStage);
     timer.onTick(debug.update);
     timer.onTick(updateStageEt);
+
+    debug.update();
 
   },
   get info(){
@@ -83,6 +85,12 @@ const experiment = {
             name: name, stage: expData.stage,
             mode: expData.mode,
             stageTimes: expData.stageTimes};
+  },
+  get stage(){
+    return expData.stage;
+  },
+  get stageTimes(){
+    return expData.stageTimes;
   },
   firstRun: function(){
     setStage("obs1");
@@ -98,11 +106,12 @@ function startTimeMs(){
     return prefs["experiment.startTimeMs"];
   }
 }
- function updateStageEt(){
+
+function updateStageEt(){
   let stageTimes = expData.stageTimes;
   stageTimes[expData.stage].elapsedTime += 1;
   expData.stageTimes = stageTimes;
- }
+}
 
 function setStage(nStage){
 
@@ -162,7 +171,7 @@ function checkStage(et, ett){
   if (nStage === stage)
     return;
 
- setStage(nStage);
+  setStage(nStage);
 }
 
 const stages = {
@@ -244,7 +253,7 @@ const debug = {
   },
   update: function(){
 
-    if (!isEnabled) return;
+    if (!isEnabled()) return;
 
     let updateObj = {};
     updateObj.stage = expData.stage;

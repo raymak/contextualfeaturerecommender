@@ -41,7 +41,7 @@ exports.main = function(options, callbacks){
 
   require('./controller').init();
 
-  require('./stats').event("startup", {collectInstance: true});
+  require('./stats').event("startup", {collectInstance: true}, {reason: require('sdk/self').loadReason});
 
   console.timeEnd("full load");
 

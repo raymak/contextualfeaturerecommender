@@ -8,6 +8,7 @@
 const {PersistentObject} = require("./utils");
 const {prefs} = require("sdk/simple-prefs");
 const {merge} = require("sdk/util/object");
+const timer = require("./timer");
 const {setTimeout} = require("sdk/timers");
 const {handleCmd, dumpUpdateObject, isEnabled} = require("./debug");
 
@@ -62,13 +63,17 @@ const experiment = {
     if (!("stageForced" in expData))
       expData.stageForced = false;
 
+    if (!("stageTimes" in expData))
+      expData["stageTimes"] = {};
+
     if (!(expData.stage)){
       console.log("experiment stage set to obs1 due to no existing stage");
       expData.stage = "obs1";
     }
 
-    require('./timer').onTick(checkStage);
-    require('./timer').onTick(debug.update);
+    timer.onTick(checkStage);
+    timer.onTick(debug.update);
+    timer.onTick(updateStageEt);
 
     debug.update();
 
@@ -82,13 +87,17 @@ const experiment = {
     return {startTimeMs: stTimeMs,
             startLocaleTime: (new Date(Number(stTimeMs))).toLocaleString(),  
             name: name, stage: expData.stage,
-            mode: expData.mode};
+            mode: expData.mode,
+            stageTimes: expData.stageTimes};
   },
   get stage(){
     return expData.stage;
   },
+  get stageTimes(){
+    return expData.stageTimes;
+  },
   firstRun: function(){
-    stages["obs1"]();
+    setStage("obs1");
   }
 }
 
@@ -102,6 +111,42 @@ function startTimeMs(){
   }
 }
 
+function updateStageEt(){
+  let stageTimes = expData.stageTimes;
+  stageTimes[expData.stage].elapsedTime += 1;
+  expData.stageTimes = stageTimes;
+}
+
+function setStage(nStage){
+
+  let stageTimes = expData.stageTimes;
+
+  let stage = expData.stage;
+  let duration;
+  let et;
+
+  if (stage && stageTimes[stage]){
+    stageTimes[stage].end = Date.now().toString();
+    duration = Number(Date.now() - Number(stageTimes[stage].start))/(1000 * prefs["timer.tick_length_s"]);
+    stageTimes[stage].duration = duration;
+    et = stageTimes[stage].elapsedTime;
+  }
+
+  expData.stage = nStage;
+
+  if (!stageTimes[nStage]){
+    stageTimes[nStage] = {start: Date.now().toString(), end: null, elapsedTime: 0}
+  }
+
+  expData.stageTimes = stageTimes;
+
+  require("./logger").logExpStageAdvance({newstage: nStage, oldStage: stage, duration: duration, elapsedTime: et});
+
+   //prepare the new stage
+  stages[nStage]();
+
+  console.log("starting new experiment stage: " + nStage);
+}
 function checkStage(et, ett){
 
   if (expData.stageForced)
@@ -129,14 +174,8 @@ function checkStage(et, ett){
   if (nStage === stage)
     return;
 
-  expData.stage = nStage;
+  setStage(nStage);
 
-  require("./logger").logExpStageAdvance({newstage: nStage});
-
-  //prepare the new stage
-  stages[nStage]();
-
-  console.log("starting new experiment stage: " + nStage);
 }
 
 const stages = {
@@ -146,7 +185,7 @@ const stages = {
     let mode = expData.mode;
     prefs["delivery.mode.rate_limit"] = mode.rateLimit;
     prefs["timer.silence_length_s"] = 
-        require('./timer').tToS(prefs["delivery.mode.silence_length." + prefs["delivery.mode.rate_limit"]]);
+        timer.tToS(prefs["delivery.mode.silence_length." + prefs["delivery.mode.rate_limit"]]);
     prefs["delivery.mode.moment"] = mode.moment;
     prefs["route.coefficient"] = String(mode.coeff);
 
@@ -187,7 +226,6 @@ const stages = {
 
     // delay to give some time for the remaining message queue to be flushed
     setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"])
-    
   }
 };
 
@@ -198,7 +236,7 @@ function timeUntilNextStage(){
 
   let stage = expData.stage;
 
-  let ett = require('./timer').elapsedTotalTime();
+  let ett = timer.elapsedTotalTime();
 
   switch(stage){
     case "obs1":
@@ -231,7 +269,6 @@ const debug = {
     updateObj.timeUntilNextStage = timeUntilNextStage();
     updateObj.mode = expData.mode;
 
-   
     dumpUpdateObject(updateObj, {list: "Experiment"});
   },
 
@@ -260,10 +297,8 @@ const debug = {
           if (!stages[subArgs[1]])
             return "error: no such stage exists.";
 
-          stages[subArgs[1]]();
+          setStage(subArgs[1]);
           expData.stageForced = true;
-
-          expData.stage = subArgs[1];
 
           return "warning: experiment stage forced to " + subArgs[1];
 

@@ -17,6 +17,10 @@ $(document).ready(function(){
 
   updatePanelSize();
 
+  $(document.body).on("mouseenter", function(e){
+    self.port.emit("mouseenter");
+  });
+
   $('.ratings_circles').hover(
   // Handles the mouseover
   function() {

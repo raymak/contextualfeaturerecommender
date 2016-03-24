@@ -82,7 +82,7 @@ exports.onUnload = function(reason){
   if (reason == "uninstall" || reason == "disable")
     logger.logDisable(reason);
 
- if (reason == "shutdown")
+  if (reason == "shutdown")
   require('./stats').event("shutdown", {collectInstance: true});
 
   require('./sender').flush();
