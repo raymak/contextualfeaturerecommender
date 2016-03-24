@@ -126,7 +126,7 @@ const self = {
         }
 
         let addonsData = { extensioncount: extensionCount, themecount: themeCount,
-                           addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
+                           addonnames: addonNames, addonids: addonIds, addontypes: addonTypes, addonForeignInstalls: addonForeignInstalls,
                            activeThemeId: activeThemeId, activeThemeName: activeThemeName }
 
         //fhr
