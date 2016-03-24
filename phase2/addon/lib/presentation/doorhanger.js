@@ -360,14 +360,14 @@ function pMouseenter(){
   let currRec = dhData.currentRec;
   let report = currRec.report;
 
-  report.mouseenter = true;
+  if (!report.mouseenter){
+    report.mouseenter = true;
 
   dhData.currentRec = merge(currRec, {report: report});
+  }
 }
 
 function pMouseleave(){
-  clearTimeout(hideTimeout);
-
   scheduleHide(prefs["presentation.doorhanger.exitfade_time_ms_per_word"]*wrdCnt);
 }
 

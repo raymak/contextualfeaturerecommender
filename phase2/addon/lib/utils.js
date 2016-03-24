@@ -347,8 +347,11 @@ function parseFhrPayloadV2(data, callback){
   console.log("profileAgeDays", profileAgeDays, "totalActiveTicks", totalActiveTicks, "totalTime", totalTime, "isDefaultBrowser", isDefaultBrowser);
 
   // no crash count or session count reported for v2
-  callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, 0, 0);
-
+       callback({
+                profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks,
+                totalTime: totalTime, isDefaultBrowser: isDefaultBrowser,
+                crashCount: null, sessionCount: null
+              });
     // console.log(JSON.stringify(data.data, null, 2));
     // return usage statistic
 }
@@ -412,7 +415,11 @@ function parseFhrPayloadV4(map, callback){
     }).then(function(oldestTimestamp){
       profileAgeDays = (Date.now() - oldestTimestamp)/(86400*1000);
       console.log("profileAgeDays", profileAgeDays, "totalActiveTicks", totalActiveTicks, "totalTime", totalTime, "isDefaultBrowser", isDefaultBrowser);
-      callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, crashCount, sessionCount);
+      callback({
+                profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks,
+                totalTime: totalTime, isDefaultBrowser: isDefaultBrowser,
+                crashCount: crashCount, sessionCount: sessionCount
+              });
     });     
 }
 

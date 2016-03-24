@@ -72,15 +72,32 @@ const self = {
     let addonIds = [];
     let addonTypes = [];
     let addonActivities = [];
+    let addonForeignInstalls = [];
     let arr = [];
     let extensionCount = 0;
     let themeCount = 0;
-    let searchenginename = genPrefs.get("browser.search.defaultenginename");
-    let isdntenabled = genPrefs.get("privacy.donottrackheader.enabled");
-    let dntvalue = genPrefs.get("privacy.donottrackheader.value");
-    let ishistoryenabled = genPrefs.get("places.history.enabled");
-    let browsertabsremote = genPrefs.get("browser.tabs.remote");
-    let browsertabsremoteautostart = genPrefs.get("browser.tabs.remote.autostart");
+
+    let prefList = [
+                    "browser.search.defaultenginename",
+                    "privacy.donottrackheader.enabled",
+                    "privacy.donottrackheader.value",
+                    "places.history.enabled",
+                    "browser.tabs.remote",
+                    "browser.tabs.remote.autostart",
+                    "services.sync.enabled",
+                    "browser.uiCustomization.state",
+                    "toolkit.telemetry.archive.enabled",
+                    "browser.urlbar.suggest.searches",
+                    "browser.urlbar.userMadeSearchSuggestionsChoice",
+                    "app.update.enabled"
+                    ]
+
+    let prefsData = {};
+
+    prefList.forEach(function(p){
+      prefsData[p] = genPrefs.get(p, null);
+    });
+
 
     AddonManager.getAddonsByTypes(['extension'], function(addons){
   
@@ -91,6 +108,7 @@ const self = {
         addonIds.push(addons[i].id);
         addonTypes.push(addons[i].type);
         addonActivities.push(addons[i].isActive);
+        addonForeignInstalls.push(addons[i].foreignInstall);  
       }
 
 
@@ -103,21 +121,18 @@ const self = {
           addonIds.push(addons[i].id);
           addonTypes.push(addons[i].type);
           addonActivities.push(addons[i].isActive);
+          addonForeignInstalls.push(addons[i].foreignInstall);
           if (addons[i].isActive) {activeThemeId = addons[i].id; activeThemeName = addons[i].name;}
         }
 
+        let addonsData = { extensioncount: extensionCount, themecount: themeCount,
+                           addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
+                           activeThemeId: activeThemeId, activeThemeName: activeThemeName }
+
         //fhr
-        getFhrData(function(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, crashCount, sessionCount){
+        getFhrData(function(fhrData){
           try {
-            let result = {  
-               extensioncount: extensionCount, themecount: themeCount,
-               addonnames: addonNames, addonids: addonIds, addontypes: addonTypes,
-               activeThemeId: activeThemeId, activeThemeName: activeThemeName,
-               searchenginename: searchenginename, isdntenabled: isdntenabled, dntvalue: dntvalue, ishistoryenabled: ishistoryenabled,
-               profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks, totalTime: totalTime,
-               isDefaultBrowser: isDefaultBrowser, crashCount: crashCount, sessionCount: sessionCount,
-               browsertabsremote: browsertabsremote, browsertabsremoteautostart: browsertabsremoteautostart
-              };
+            let result = merge({}, addonsData, prefsData, fhrData);
 
             f(result);
           }

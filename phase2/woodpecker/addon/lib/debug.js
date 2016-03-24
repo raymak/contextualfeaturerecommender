@@ -16,7 +16,6 @@ Cu.import("resource://gre/modules/osfile.jsm");
 
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
-const DEBUG_URL = sp.prefs["debug.url"];
 
 let workers = [];
 let records = {};
@@ -40,7 +39,7 @@ function init(){
   // http://stackoverflow.com/questions/23748077/firefox-extension-differences-of-the-chrome-and-resource-protocols
   // https://developer.mozilla.org/en-US/Add-ons/SDK/Guides/XUL_Migration_Guide
   tabs.on('ready', function(tab){
-  	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
+  	if (tab.url === sp.prefs["debug.url"]) tab.url = HTML_URL;
   });
   
 

@@ -18,16 +18,16 @@
       "title": "Is it a test or field deployment.",
       "value": true
     },
+     {
+      "name": "cleanup_on_death",
+      "type": "bool",
+      "title": "Whether the preferences should be cleaned up when the addon is killed",
+      "value": true
+    },
     {
       "name": "clean_install",
       "type": "bool",
       "title": "Whether or not all the preferences should be reset upon installation.",
-      "value": true
-    },
-    {
-      "name": "cleanup_on_death",
-      "type": "bool",
-      "title": "Whether the preferences should be cleaned up when the addon is killed",
       "value": true
     },
     {
@@ -221,6 +221,12 @@
       "type": "bool",
       "title": " ",
       "value": true
+    },
+    {
+      "name": "debug.url",
+      "type": "string",
+      "title": " ",
+      "value": "about:fr-d"
     },
     {
       "name": "debug.command.used",

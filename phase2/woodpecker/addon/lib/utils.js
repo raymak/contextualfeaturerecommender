@@ -249,7 +249,7 @@ function getFhrData(callback){
   }
   catch(e){
     console.log("warning: could not get fhr data", e.message);
-    require('./logger').logWarning({code: "no_fhr", message: "could not receive fhr info."});
+    require('./../logger').logWarning({code: "no_fhr", message: "could not receive fhr info."});
     callback(0,0,0, null);
   }
 
@@ -347,8 +347,11 @@ function parseFhrPayloadV2(data, callback){
   console.log("profileAgeDays", profileAgeDays, "totalActiveTicks", totalActiveTicks, "totalTime", totalTime, "isDefaultBrowser", isDefaultBrowser);
 
   // no crash count or session count reported for v2
-  callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, 0, 0);
-
+       callback({
+                profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks,
+                totalTime: totalTime, isDefaultBrowser: isDefaultBrowser,
+                crashCount: null, sessionCount: null
+              });
     // console.log(JSON.stringify(data.data, null, 2));
     // return usage statistic
 }
@@ -412,7 +415,11 @@ function parseFhrPayloadV4(map, callback){
     }).then(function(oldestTimestamp){
       profileAgeDays = (Date.now() - oldestTimestamp)/(86400*1000);
       console.log("profileAgeDays", profileAgeDays, "totalActiveTicks", totalActiveTicks, "totalTime", totalTime, "isDefaultBrowser", isDefaultBrowser);
-      callback(profileAgeDays, totalActiveTicks, totalTime, isDefaultBrowser, crashCount, sessionCount);
+      callback({
+                profileAgeDays: profileAgeDays, totalActiveTicks: totalActiveTicks,
+                totalTime: totalTime, isDefaultBrowser: isDefaultBrowser,
+                crashCount: crashCount, sessionCount: sessionCount
+              });
     });     
 }
 
@@ -427,7 +434,7 @@ exports.cleanUp =  function(options){
       version: 1
     }
     
-    const AS = require("./async-storage").AsyncStorage;
+    const AS = require("./../async-storage").AsyncStorage;
     
     AS.open(config);
 
@@ -480,7 +487,7 @@ exports.selfDestruct = function(reason){
   if (reason === undefined)
     reason = "unknown";
 
-  require("./logger").logSelfDestruct({reason: reason});
+  require("./../logger").logSelfDestruct({reason: reason});
 
   if (prefs["cleanup_on_death"])
     exports.cleanUp({reset: true});
