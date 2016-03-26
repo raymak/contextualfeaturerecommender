@@ -47,8 +47,11 @@ exports.main = function(options, callbacks){
 function firstRun(){
   console.log("preparing first run");
 
-  if (prefs["experiment.fr_usage_logging.enabled"])
+  if (prefs["experiment.fr_usage_logging.enabled"]){
     require("./fr/controller").loadRecFile(recommFileAddress);
+    //scaling routes
+    require("./fr/controller").scaleRoutes(require("./route").coefficient(), "trigBehavior");
+  }
 
   require('./logger').logFirstRun();
   require('./self').setInitialized();
@@ -83,7 +86,7 @@ exports.onUnload = function(reason){
     logger.logDisable(reason);
 
   if (reason == "shutdown")
-  require('./stats').event("shutdown", {collectInstance: true});
+    require('./stats').event("shutdown", {collectInstance: true});
 
   require('./sender').flush();
 }

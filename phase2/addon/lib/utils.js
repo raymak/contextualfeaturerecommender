@@ -11,24 +11,6 @@ const {merge} = require("sdk/util/object");
 const {URL} = require("sdk/url");
 const {Cu, Cc, Ci} = require("chrome");
 
-
-/**
- * Applies partial arguments to a function
- *
- * @param fn {function} The original function to call
- * @param [arguments] {arguments} The partial arguments to be sent to fn
- *
- * @returns {function} The function that accepts partial arguments to be sent to fn
- */
-exports.partial = function(fn /*, arguments */) {
-  
-  let args = Array.prototype.slice.call(arguments, 1);
-
-  return function(){
-    return fn.apply(this, args.concat(Array.prototype.slice.call(arguments, 0)));
-  };
-};
-
 exports.extractOpts = function(str){
   let obj = {};
 
@@ -106,7 +88,7 @@ exports.PersistentObject = function(type, options){
             return target[name];
           else
             if (cachedObj.data.hasOwnProperty(name)){
-              return cachedObj.data[name];
+              return (typeof cachedObj.data[name] === "object"? Object.assign({}, cachedObj.data[name]): cachedObj.data[name]);
             }
             else {
               return wrapper[name];

@@ -39,10 +39,7 @@ function init(){
 
   handleCmd(debug.parseCmd);
 
-  unload(unloadController);
-
   listener.init();
-
 }
 
 const listener = {
@@ -64,17 +61,15 @@ const listener = {
           timestamps: []
         };
       }
-  }
+    }
     
     // start moment listeners
     for (let moment in this.momentListeners)
       this.momentListeners[moment]();
 
-
     timer.onTick(function(et){updateFrequencies()});
 
     updateFrequencies();
-
   }
 }
 
@@ -201,8 +196,8 @@ listener.momentListeners = {
 
       listener.moment('tab-new-recently-active5m-no-tab', {reject: true});
     });
-  },
-}
+  }
+};
 
 listener.addEventListener = function(querySelector, eventName, handler){
   let windowTracker = new WindowTracker({
@@ -214,8 +209,7 @@ listener.addEventListener = function(querySelector, eventName, handler){
         unload(function(){elem.removeEventListener(eventName, handler)});
       }
     });
-}
-
+};
 
 listener.moment = function(name, options){
 
@@ -265,7 +259,6 @@ listener.moment = function(name, options){
     canDeliver = false;
     console.log("delivery rejected due to: recent effective count = " + data.effCount);
     statsEvent("recent-effective-count-reject", {type: "delivery"})
-
   }
 
   let prob = 1; 
@@ -315,7 +308,7 @@ listener.moment = function(name, options){
         allData.rates.push(result.rate);
 
         statsEvent(name , {collectInstance: true, type: "result"},
-         {moment: name, type: result.type, length: result.length, rate: result.rate, mouseenter: result.mouseenter, iscertainlyactive: timer.iseCertainlyActive()});
+         {moment: name, type: result.type, length: result.length, rate: result.rate, mouseenter: result.mouseenter, certainlyactive: result.certainlyactive});
       }
       if (result.type === "timeout"){
         console.log("panel for " + name + " timed out");
@@ -324,7 +317,7 @@ listener.moment = function(name, options){
         allData.rates.push("timeout");
 
          statsEvent(name , {collectInstance: true, type: "result"},
-         {moment: name, type: "timeout", length: "timeout", rate: "timeout"});
+         {moment: name, type: "timeout", length: "timeout", rate: "timeout", mouseenter: result.mouseenter, certainlyactive: result.certainlyactive});
       }
 
       momentData[name] = data;
@@ -342,11 +335,10 @@ listener.moment = function(name, options){
     timer.silence();
   }
   // momentData[name] = data;
-
 };
 
 listener.listenForUserActivity = function(callback){
- timer.onUserActive(callback);
+  timer.onUserActive(callback);
 }
 
 const debug = {
@@ -362,6 +354,11 @@ const debug = {
     let subArgs;
 
     switch (name){
+
+      case "moments":
+        return Object.keys(listener.momentListeners);
+        break;
+
       case "moment":
 
         subArgs = params.split(" ");
@@ -420,12 +417,10 @@ const debug = {
         return undefined;
     }
 
+     return " ";
   }
-}
-
-
-function unloadController(){
 
 }
+
 
 exports.init = init;

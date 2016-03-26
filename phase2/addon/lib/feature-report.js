@@ -14,6 +14,16 @@ const featDataAddress = "feature_report.data";
 const featData = PersistentObject("simplePref", {address: featDataAddress});
 const dhDataAddress = "presentation.doorhanger.data";
 
+const rowTemp = {
+                status: null, adopted: null, negfbchoice: null,
+                dontlike: null, interaction: null,
+                primbtn: null, secbtn: null, response: null,
+                manualopen: null, presnumber: null,
+                rationaleopen: null, firstclosereason: null, firstopen: null,
+                featureuse: null, firstusesincepres: null, tried: null, immediate_try: null,
+                interaction: null
+            };
+
 function init(){
   console.log("initializing feature report");
 
@@ -27,10 +37,17 @@ function init(){
 
 function updateRow(id, obj){
   let report = featData.report;
+
   if (!report[id]){
     console.log("error: feature id does not exist in the report table.");
     return;
   }
+
+  for (let k in obj)
+    if (!(k in rowTemp)){
+      console.log("error: cannot add row to the feature report table.");
+      return;
+    }
 
   report[id] = merge(report[id], obj);
 
@@ -46,34 +63,25 @@ function addRow(id, obj, options){
 
   let batch = options && options.batch;
 
-  let rowTemp = { status: null, adopted: null, negfbchoice: null,
-                  dontlike: null, interaction: null,
-                  primbtn: null, secbtn: null, response: null,
-                  manualopen: null, presnumber: null,
-                  rationaleopen: null, firstclosereason: null, firstopen: null,
-                  featureuse: null, firstusesincepres: null, tried: null, immediate_try: null,
-                  interaction: null
-                };
-
   let ids = batch? id: [id];
   let objs = batch? obj: [obj];
 
   ids.forEach(function(id, i){
-   
-    let obj = objs[i];
-
-    for (let k in obj)
-      if ((!k in rowTemp)){
-        console.log("error: cannot add row to the feature report table.");
-        return;
-      }
-
-    obj = merge(rowTemp, obj);
 
     if (report[id]){
       console.log("warning: feature id already exists in the report table.");
       return;
     }
+   
+    let obj = objs[i];
+
+    for (let k in obj)
+      if (!(k in rowTemp)){
+        console.log("error: cannot add row to the feature report table.");
+        return;
+      }
+
+    obj = merge(rowTemp, obj);
 
     report[id] = obj;
   });

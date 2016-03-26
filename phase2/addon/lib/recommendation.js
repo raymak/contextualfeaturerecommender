@@ -183,16 +183,17 @@ const recSet = {
 
   },
   scaleRoute: function(aRecommendation, coeff, indexTable){
+
     scale.call(aRecommendation[indexTable + "Route"], coeff);
     aRecommendation[indexTable] = str.call(aRecommendation[indexTable + "Route"]);
 
     this.update(aRecommendation);
   },
   forEach: function(callback) {
-  let that = this;
-  Object.keys(this).forEach(function(key){
-      return typeof that[key] === "function" ||  ["routeIndexTables", "delivContext", "trigBehavior", "featUseBehavior", "length"].indexOf(key) != -1 || callback(that[key]);
-    });
+    let that = this._copyCache();
+    Object.keys(that).forEach(function(key){
+        return typeof that[key] === "function" ||  ["routeIndexTables", "delivContext", "trigBehavior", "featUseBehavior", "length"].indexOf(key) != -1 || callback(that[key]);
+      });
   }
 };
 

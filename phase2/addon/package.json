@@ -154,7 +154,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot007.5"
+      "value": "prepilot008"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -220,7 +220,7 @@
       "name": "debug.enabled",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
     },
     {
       "name": "debug.url",

@@ -1,3 +1,4 @@
 deprecated/*
 scripts/*
 *.xpi
+.DS_Store

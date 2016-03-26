@@ -10,16 +10,15 @@ const {WindowTracker} = require("sdk/deprecated/window-utils");
 const {ActionButton} = require("sdk/ui/button/action");
 const {Panel} = require("../panel");
 const {setTimeout, clearTimeout} = require("sdk/timers");
-// const {PersistentObject, wordCount, weightedRandomInt} = require("../utils");
+const {PersistentObject} = require("../utils");
 const {prefs} = require("sdk/simple-prefs");
 const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 const {merge} = require("sdk/util/object");
 // const {dumpUpdateObject, handleCmd, isEnabled} = require("../debug");
-// const {logDhReport} = require("../logger");
-// const timer = require("../timer");
+const {logDhReport, logDhPresent} = require("../logger");
+const timer = require("../timer");
 // const self = require("../self");
-// const logger = require("../logger");
 const unload = require("sdk/system/unload").when;
 
 const dhDataAddress = "presentation.doorhanger.data";
@@ -35,9 +34,12 @@ let hideWatch;
 let closedwithreason;
 let fbCallback;
 let mouseenter;
+let certainlyactive;
 
 function init(){
   console.log("initializing doorhanger");
+
+  dhData = PersistentObject("simplePref", {address: dhDataAddress});
 
 }
 
@@ -82,14 +84,12 @@ function fbSubmit(rate){
 
   let showLength = Date.now()-hideWatch;
 
-  let result = {type: "rate", rate: rate, length: showLength, mouseenter: mouseenter};
+  let result = {type: "rate", rate: rate, length: showLength, mouseenter: mouseenter, certainlyactive: certainlyactive};
   fbCallback(result);
 }
 
 
 function present(callback, moment){ 
-  // let dhPresentInfo = {id: aRecommendation.id, number: dhData.count};
-  // logger.logDhPresent(dhPresentInfo);
 
   if (panel && panel.isShowing){
     console.log("warning: doorhanger panel already open");
@@ -99,8 +99,9 @@ function present(callback, moment){
   fbCallback = callback;
 
   mouseenter = false;
+  certainlyactive = timer.isCertainlyActive();
 
-  let dhPresentInfo = {moment: moment, number: dhData.count};
+  let dhPresentInfo = {moment: moment};
   logDhPresent(dhPresentInfo);
   
   updateShow();  
@@ -129,7 +130,8 @@ function scheduleHide(time_ms){
   clearTimeout(hideTimeout);
   hideTimeout = setTimeout(function(){
     pHide("autohide", true);
-    fbCallback({type: "timeout"});
+    fbCallback({type: "timeout", 
+      result: {mouseenter: mouseenter, certainlyactive: certainlyactive}});
   }, time_ms);
 }
 

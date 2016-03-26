@@ -443,9 +443,6 @@ function negFbOpen(){
   report.negfbopen = true;
 
   dhData.currentRec = merge(currRec, {state: state}, {report: report});
-
-
-
 }
 
 function rationaleOpen(){
