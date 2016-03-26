@@ -11,10 +11,10 @@ const override  = function() merge.apply(null, arguments);
 const {PersistentObject} = require("./utils");
 const self = require("./self");
 const addonSelf = require("sdk/self");
-const exp = require("./experiment");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
 const {send} = require("./sender");
 const {prefs} = require("sdk/simple-prefs");
+const {defer} = require("sdk/lang/functional");
 
 const loggerDataAddress = "logger.data";
 const loggerData = PersistentObject("simplePref", {address: loggerDataAddress});
@@ -42,6 +42,10 @@ function nextNumber(){
 }
 
 function log(type, attrs){
+  (defer(_log))(type, attrs);
+}
+
+function _log(type, attrs){
 
   let OUT = {
     userid: self.userId,
@@ -58,7 +62,7 @@ function log(type, attrs){
   }
 
   OUT = override(OUT, self.sysInfo);
-  OUT = override(OUT, exp.info);
+  OUT = override(OUT, require('./experiment').info);
 
   OUT = override(OUT, {type: type, attrs: attrs});
 

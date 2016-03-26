@@ -88,7 +88,7 @@ exports.PersistentObject = function(type, options){
             return target[name];
           else
             if (cachedObj.data.hasOwnProperty(name)){
-              return cachedObj.data[name];
+              return (typeof cachedObj.data[name] === "object"? Object.assign({}, cachedObj.data[name]): cachedObj.data[name]);
             }
             else {
               return wrapper[name];
