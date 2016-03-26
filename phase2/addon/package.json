@@ -220,7 +220,7 @@
       "name": "debug.enabled",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "debug.url",

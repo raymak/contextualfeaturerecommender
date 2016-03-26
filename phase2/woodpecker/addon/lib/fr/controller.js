@@ -11,7 +11,6 @@ const {WindowTracker} = require("sdk/deprecated/window-utils");
 const {Route, coefficient} = require("./route");
 const {Recommendation} = require("./recommendation");
 const {URL} = require("sdk/url");
-const {getBrowserForTab, getTabForId} = require("sdk/tabs/utils");
 const tabs = require("sdk/tabs");
 const {Event, eventData, eventDataAddress} = require("./event");
 const {Cu, Cc, Ci} = require("chrome");
@@ -20,15 +19,12 @@ const prefs = sp.prefs;
 // const presenter = require("./presenter");
 const { MatchPattern } = require("sdk/util/match-pattern");
 const {PersistentRecSet} = require("./recommendation");
-const {setTimeout} = require("sdk/timers");
 const timer = require("./../timer");
 const utils = require("./../utils");
 const self = require("./../self");
 const system = require("sdk/system");
 const windows = require("sdk/windows");
-const {modelFor} = require("sdk/model/core");
 const {viewFor} = require("sdk/view/core");
-const tab_utils = require("sdk/tabs/utils");
 const {handleCmd} = require("./../debug");
 const {data} = require("sdk/self");
 const unload = require("sdk/system/unload").when;
@@ -38,12 +34,12 @@ const events = require("sdk/system/events");
 const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
 const statsEvent = require("./../stats").event;
+const {defer} = require("sdk/lang/functional");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/osfile.jsm");
 const devtools = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools;
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
@@ -1052,7 +1048,7 @@ listener.listenForAddonEvents = function(callback){
       callback('pageshow');
   });
 
-  function reportCount(){
+  function _reportCount(){
     AddonManager.getAllAddons(function(addons){
         callback('count', {number: addons.length, type: 'all'});
       });
@@ -1063,6 +1059,8 @@ listener.listenForAddonEvents = function(callback){
         callback('count', {number: addons.length, type: 'theme'});
     });
   }
+
+  let reportCount = defer(_reportCount);
 
   addonListener = {
     onInstallEnded: function(install, addon){
