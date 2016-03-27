@@ -76,7 +76,13 @@ exports.PersistentObject = function(type, options){
         return Object.assign({}, cachedObj.data);
       },
       _pasteCache: function(obj){
-        cachedObj.data = obj;
+        cachedObj.data = Object.assign({}, obj);
+        updatePref();
+      },
+      _updateCache: function(callback){
+        let obj = cachedObj.data;
+        console.log(obj);
+        callback(obj);
         updatePref();
       }
     }
