@@ -79,7 +79,6 @@ exports.PersistentObject = function(type, options){
           else
           {
             cachedObj.data[name] = value;
-            // updatePref(name);
             cachedObj.synced = false;
 
             if (options.updateListener)
@@ -108,7 +107,7 @@ exports.PersistentObject = function(type, options){
           }
           else {
             let res = delete cachedObj.data[prop];
-            // updatePref(prop);
+
             cachedObj.synced = false;
             return res;
           }

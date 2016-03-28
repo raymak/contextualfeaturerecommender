@@ -168,6 +168,12 @@
         "value": 5, 
         "title": "Maximum length of activity time to conclude user has become active recently"
     },
+     {
+      "name": "utils.persistent_object.update_interval",
+      "type": "integer",
+      "title": " ",
+      "value": 1500
+    },
     {
       "name": "experiment.default_delMode_weights",
       "type": "string",
