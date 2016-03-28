@@ -67,6 +67,12 @@
       "value": 5
     },
     {
+      "name": "utils.persistent_object.update_interval",
+      "type": "integer",
+      "title": " ",
+      "value": 1500
+    },
+    {
       "name": "delivery.mode.moment",
       "type": "radio",
       "title": "Determines what is considered interruptible moment.",

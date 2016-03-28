@@ -7,8 +7,8 @@
 
 const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {merge} = require("sdk/util/object");
+const {PersistentObject} = require("./storage");
 const override  = function() merge.apply(null, arguments);
-const {PersistentObject} = require("./utils");
 const self = require("./self");
 const addonSelf = require("sdk/self");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
@@ -62,7 +62,7 @@ function _log(type, attrs){
   }
 
   OUT = override(OUT, self.sysInfo);
-  OUT = override(OUT, exp.info);
+  OUT = override(OUT, require('./experiment').info);
 
   OUT = override(OUT, {type: type, attrs: attrs});
 

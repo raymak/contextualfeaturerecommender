@@ -8,7 +8,7 @@
 const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {merge} = require("sdk/util/object");
 const override  = function() merge.apply(null, arguments);
-const {PersistentObject} = require("./utils");
+const {PersistentObject} = require("./storage");
 const self = require("./self");
 const addonSelf = require("sdk/self");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");

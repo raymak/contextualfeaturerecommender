@@ -6,7 +6,7 @@
 "use strict";
 
 const timer = require("./timer");
-const {PersistentObject} = require("./utils");
+const {PersistentObject} = require("./storage");
 const {prefs} = require("sdk/simple-prefs");
 const {tToS, sToT} = require("./timer");
 

@@ -9,7 +9,8 @@
 const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
 const {setTimeout, clearTimeout} = require("sdk/timers");
-const {PersistentObject, wordCount, weightedRandomInt} = require("../utils");
+const {wordCount, weightedRandomInt} = require("../utils");
+const {PersistentObject} = require("../storage");
 const {extractPresentationData, extractResponseCommandMap} = require("../recommendation");
 const {prefs} = require("sdk/simple-prefs");
 const tabs = require("sdk/tabs");

@@ -8,7 +8,7 @@
 const logger = require("./logger");
 const timer = require("./timer");
 const {merge} = require("sdk/util/object");
-const {PersistentObject} = require("./utils");
+const {PersistentObject} = require("./storage");
 
 const momentDataAddress = "moment.data";
 

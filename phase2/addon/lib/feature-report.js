@@ -6,7 +6,7 @@
 "use strict";
 
 const {merge} = require("sdk/util/object");
-const {PersistentObject} = require("./utils");
+const {PersistentObject} = require("./storage");
 const timer = require("./timer");
 const {prefs} = require("sdk/simple-prefs");
 

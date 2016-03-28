@@ -7,7 +7,7 @@
 
 
 const {merge} = require("sdk/util/object");
-const {PersistentObject} = require("./utils");
+const {PersistentObject} = require("./storage");
 const {Route, equals, matches, scale, str} = require("./route");
 const featReport = require("./feature-report");
 

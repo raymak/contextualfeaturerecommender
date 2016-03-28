@@ -13,7 +13,7 @@ const exp = require("./experiment");
 const AS = require("./async-storage").AsyncStorage; //TODO: use async storage as a mode of persistent object
 const {dumpUpdateObject, handleCmd, isEnabled, removeList} = require("./debug");
 const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
-const {PersistentObject} = require("./utils");
+const {PersistentObject} = require("./storage");
 const {merge} = require("sdk/util/object");
 
 const statsDataAddress = "stats.data";

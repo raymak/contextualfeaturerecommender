@@ -6,7 +6,7 @@
 "use strict";
 
 const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
-const {PersistentObject, dateTimeToString} = require("./utils");
+const {PersistentObject} = require("./storage");
 const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
 const {Cu, Cc, Ci} = require("chrome");
@@ -196,12 +196,6 @@ const tick = function(){
   });
 
   debug.update({silenceStatus: true});
-}
-
-const event = function(name){
-  let events = timerData.events;
-  events.push([name, dateTimeToString(new Date())]);
-  timerData.events = events;
 }
 
 const onTick = function(callback){
@@ -429,7 +423,7 @@ const debug = {
                 console.log(dateNum);
                 prefs["experiment.startTimeMs"] = String(dateNum);
 
-                return "new start time set to: " + dateTimeToString(new Date(dateNum));
+                return "new start time set to: " + require('./timer').dateTimeToString(new Date(dateNum));
                 break;
               default:
                 return "error: invalid use of time set command.";

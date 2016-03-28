@@ -50,7 +50,7 @@ function firstRun(){
   if (prefs["experiment.fr_usage_logging.enabled"]){
     require("./fr/controller").loadRecFile(recommFileAddress);
     //scaling routes
-    require("./fr/controller").scaleRoutes(require("./route").coefficient(), "trigBehavior");
+    require("./fr/controller").scaleRoutes(require("./fr/route").coefficient(), "trigBehavior");
   }
 
   require('./logger').logFirstRun();

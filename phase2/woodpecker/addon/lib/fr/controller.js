@@ -35,6 +35,7 @@ const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
 const statsEvent = require("./../stats").event;
 const {defer} = require("sdk/lang/functional");
+const {PersistentObject} = require("./../storage");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -53,7 +54,7 @@ const recSetAddress = "controller.recommData";
 const deliveryDataAddress = "delivery.data";
 
 let recommendations = PersistentRecSet("simplePref", {address: recSetAddress});
-let deliveryData = utils.PersistentObject("simplePref", {address: deliveryDataAddress});
+let deliveryData = PersistentObject("simplePref", {address: deliveryDataAddress});
 
 let hs;
 let sessObserver;
