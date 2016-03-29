@@ -10,7 +10,6 @@ const prefs = sp.prefs;
 const {merge} = require("sdk/util/object");
 const {URL} = require("sdk/url");
 const {Cu, Cc, Ci} = require("chrome");
-const {setInterval} = require("sdk/timers");
 
 exports.extractOpts = function(str){
   let obj = {};

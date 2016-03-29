@@ -402,7 +402,6 @@ const listener = {
 
       pageVisit.wake();
 
-
     }, {halfFresh: true});
 
     this.listenForSearchEngine(function(reason, params){
