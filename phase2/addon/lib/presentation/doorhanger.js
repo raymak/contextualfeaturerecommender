@@ -22,6 +22,7 @@ const timer = require("../timer");
 const self = require("../self");
 const featReport = require("../feature-report");
 const unload = require("sdk/system/unload").when;
+const {Cu} = require("chrome");
 
 
 const dhDataAddress = "presentation.doorhanger.data";
@@ -53,13 +54,18 @@ function init(){
     onTrack: function(window){
       if (!isBrowser(window)) return;
 
+      let wd = Cu.getWeakReference(window);
+
       let f = function(e){
        if (e.key === "Escape")
         pHide("escape");
       };
 
-      window.addEventListener("keydown", f);
-      unload(function(){window.removeEventListener("keydown", f)});
+      wd.get().addEventListener("keydown", f);
+      unload(function(){
+        if (wd.get())
+          wd.get().removeEventListener("keydown", f)
+      });
     }
   });
 

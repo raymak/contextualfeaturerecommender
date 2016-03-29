@@ -70,6 +70,19 @@ exports.weightedRandomInt = function(weightsArr){
   }
 };
 
+exports.arraysEqual = function(arr1, arr2){
+  if (arr1.length != arr2.length)
+    return false;
+
+  let equal = true;
+
+  arr1.forEach(function(val, ind){
+    if (val !== arr2[ind])
+      equal = false;
+  });
+
+  return equal;
+}
 
 exports.wordCount = function(str){
   return str.split(" ").length;

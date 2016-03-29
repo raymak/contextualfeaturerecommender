@@ -63,7 +63,6 @@ let searchEngineObserver;
 let addonListener;
 let historyObserver;
 let dlView;
-let hostNameList;
 
 const init = function(){
   console.log("initializing controller");
@@ -388,84 +387,21 @@ const listener = {
 
     });
 
-    //TODO: combine webapp, category, and hostname progress into url progress
 
-    this.listenForWebApps(function(appId){
+    this.listenForPageVisit(function(type, param){
 
-      let webAppOpen = Event("webAppOpen",{
-        route: "visit webapp",
-        appId: appId
+      let pageVisit = Event("pageVisit", {
+        route: ["visit", type, param].join(" "),
+        type: type,
+        param: param
       });
 
-      webAppOpen.effect = function(){
-        let route = this.options.route;
+      let multiplePageVisit = that.multipleRoute(pageVisit);
 
-        // listener.dispatchRoute(route);
-      }
+      pageVisit.postEvents.push(multiplePageVisit);
 
-      let multipleWebAppOpen = that.multipleRoute(webAppOpen);
+      pageVisit.wake();
 
-      webAppOpen.postEvents.push(multipleWebAppOpen);
-
-      let webAppOpenId = Event("webAppOpenId");
-
-      webAppOpenId.effect = function(){
-        let baseRoute = this.preEvent.options.route;
-        let appId = this.preEvent.options.appId;
-
-        let route = [baseRoute, "appId", appId].join(" ");
-        this.options.route = route;
-
-        // listener.dispatchRoute(route);
-      }
-
-      let multipleWebAppOpenId = that.multipleRoute(webAppOpenId);
-
-      webAppOpenId.postEvents.push(multipleWebAppOpenId);
-
-      webAppOpen.postEvents.push(webAppOpenId);
-
-      webAppOpen.wake();
-      
-    }, {fresh: true});
-
-    this.listenForWebsiteCategories(function(category){
-      let websiteCategoryEvent = Event("websiteCategoryEvent", {
-        route: ["visit category", category].join(" "),
-        category: category
-      });
-
-      websiteCategoryEvent.effect = function(){
-        let route = this.options.route;
-
-        // listener.dispatchRoute(route);
-      }
-
-      let multipleWebsiteCategoryEvent = that.multipleRoute(websiteCategoryEvent);
-      websiteCategoryEvent.postEvents.push(multipleWebsiteCategoryEvent);
-
-      websiteCategoryEvent.wake();
-
-    }, {fresh: false});
-
-    this.listenForActiveTabHostnameProgress(function(hostname){
-
-      let hostVisit = Event("activeTabHostnameVisit", {
-        hostname: hostname,
-        route: ["visit", "hostname", hostname].join(" ")
-      });
-
-      hostVisit.effect = function(){
-        let hostname = this.options.hostname; //TODO: remove if unnecessary
-        let route = this.options.route;
-
-        // listener.dispatchRoute(route);
-        };
-
-        let multipleHostVisit = that.multipleRoute(hostVisit);
-
-        hostVisit.postEvents.push(multipleHostVisit);
-        hostVisit.wake();
 
     }, {halfFresh: true});
 
@@ -1129,9 +1065,14 @@ listener.listenForTools = function(callback){
 
 }
 
-listener.listenForActiveTabHostnameProgress = function(callback, options){
 
-  hostNameList = {};
+
+listener.listenForPageVisit = function(callback, options){
+  
+  const tabData = new WeakMap();  
+
+  // extracting hostnames to listen for
+  const hostNameList = {};
 
   function evalRoute(route){
     let res = route.match(/^visit hostname ([^ ]*)/);
@@ -1140,7 +1081,6 @@ listener.listenForActiveTabHostnameProgress = function(callback, options){
         hostNameList[res[1]] = true;
         console.log("hostname listener: ", res[1]);
       } 
-
     }
   }
 
@@ -1151,61 +1091,9 @@ listener.listenForActiveTabHostnameProgress = function(callback, options){
     evalRoute(aRecommendation.featUseBehavior);
   });
 
-  function tabProgress(hostname){
-      console.log("active tab progressed to: " + hostname);
+  // web apps to listen for
 
-      callback(hostname);
-  }
-
-
-  tabs.on("pageshow", function(tab){
-
-      if (isPrivate(tab))
-        return;
-
-      if (tab.id !== tabs.activeTab.id) return;//make sure it's the active tab
-      
-      let hostname = URL(tab.url).hostname;
-
-      //TOTHINK: potential namespace conflict  
-      
-      if (!tab.hostname){
-        tab.hostname = hostname;
-        tab.hostnameCount = 0;
-
-        unload(function(){
-          if (tab) delete tab.hostname;
-          if (tab) delete tab.hostnameCount;
-        });
-      }
-
-      if (hostname != tab.hostname){
-        tab.hostname = hostname;
-        tab.hostnameCount = 1;
-      } else {
-        tab.hostnameCount += 1;
-        if (tab.hostnameCount == 5)
-          tab.hostnameCount = 1;
-      }
-
-      if (!hostname) return;//to handle new tabs and blank pages
-
-      if (!hostNameList[hostname])
-          return;
-
-      console.log(tab.hostname + " : " + tab.hostnameCount);
-      if (options && options.halfFresh && tab.hostnameCount == 1) tabProgress(hostname);
-
-  });
-};
-
-
-//TODO: make this a more general listener (can be combined with listener for MIME types)
-listener.listenForWebApps = function(callback, options){
-
-  let apps = {};
-
-  apps = {
+  const apps = {
     googleCal: new MatchPattern(/^(http|https):\/\/calendar\.google\.com\/.*/),
     gmail: new MatchPattern(/^(http|https):\/\/mail\.google\.com\/.*/),
     gdrive: new MatchPattern(/^(http|https):\/\/drive\.google\.com\/.*/),
@@ -1214,38 +1102,8 @@ listener.listenForWebApps = function(callback, options){
     slack: new MatchPattern(/^(http|https):\/\/.*\.slack\.com\/.*/)
   }
 
-  tabs.on("ready", function(tab){
-    // if (tab.id !== tabs.activeTab.id) return;//make sure it's the active tab
-      
-    let appId = null;
-
-    if (isPrivate(tab))
-      return;
-
-    for (let id in apps){
-      if (apps[id].test(tab.url))
-        appId = id;
-    }
-
-    //TOTHINK: potential namespace conflict      
-    if (options.fresh && appId === tab.appId) return; //not a fresh url open
-
-    tab.appId = appId;
-    unload(function(){if (tab) delete tab.appId;})
-
-    //TODO: use pattern matching 
-    // https://developer.mozilla.org/en-US/Add-ons/SDK/Low-Level_APIs/util_match-pattern
-    if (!appId) return; //app not recognized
-
-    callback(appId);
-  });
-};
-
-listener.listenForWebsiteCategories = function(callback, options){
-
-  let catIndx = {};
-
-  catIndx = {
+  // categories to listen for
+  const catIndx = {
     academic:           [ new MatchPattern(/^(http|https):\/\/ieeexplore\.ieee\.org\/.*/),
                           new MatchPattern(/^(http|https):\/\/scholar\.google\..*/),
                           new MatchPattern(/^(http|https):\/\/www\.sciencedirect\.com\/.*/),
@@ -1268,43 +1126,185 @@ listener.listenForWebsiteCategories = function(callback, options){
     translation:        [ new MatchPattern(/^(http|https):\/\/translate\.google\.com\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.translate\.com\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.freetranslation\.com\/.*/)
+                        ],
+    webApp:             [ new MatchPattern(/^(http|https):\/\/calendar\.google\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/mail\.google\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/drive\.google\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/docs\.google\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/twitter\.com.*/),
+                          new MatchPattern(/^(http|https):\/\/.*\.slack\.com\/.*/)  
                         ]
   };
 
   tabs.on("pageshow", function(tab){
-    // if (tab.id !== tabs.activeTab.id) return;
 
-    if (isPrivate(tab)) return;
+      if (isPrivate(tab))
+        return;
 
-    let cats = [];
+      let isActiveTab = (tab === tabs.activeTab);
 
-    for (let c in catIndx){
-      let arr = catIndx[c];
+      let data = tabData.get(tab);
+      
+      let hostname = URL(tab.url).hostname;
 
-      for (let i in arr){
-        let pattern = arr[i];
-        if (pattern.test(tab.url)){
-          cats.push(c);
-          break;
+      if (!hostname){
+        tabData.delete(tab);
+        return; //to handle new tabs and blank pages
+      } 
+
+
+      // process hostname
+      
+      (()=>{
+
+        if (!isActiveTab)
+          return;
+
+        if (!hostNameList[hostname]){
+          if (data && data.hostname){
+            delete data.hostname;
+            delete data.hostnameCount;
+          }
+
+          return;
         }
-      }
-    }
 
-    //TOTHINK: potential namespace conflict    
-    if (options.fresh && JSON.stringify(cats) === JSON.stringify(tab.cats)) return;
+        if (!data){
+          tabData.set(tab, {});
+          data = tabData.get(tab);
+        }
 
-    tab.cats = cats;
+        if (!data.hostname){
+          data.hostname = hostname;
+          data.hostnameCount = 0;
+        }
 
-    if (cats.length == 0) return;
+        if (hostname != data.hostname){
+          data.hostname = hostname;
+          data.hostnameCount = 1;
+        } else {
+          data.hostnameCount += 1;
+          if (data.hostnameCount == 5)
+            data.hostnameCount = 1;
+        }
 
-    console.log("website categories:", cats);
+        console.log(data.hostname + " : " + data.hostnameCount);
 
-    cats.forEach(function(cat){
-      callback(cat);
+        if (options && options.halfFresh && data.hostnameCount == 1) {
+          callback("hostname", hostname);
+          console.log("hostname visit:", data.hostname);
+        }
+
+      })();
+
+      // process web apps
+    
+      (()=>{
+      
+        let appId = null;
+
+        for (let id in apps){
+          if (apps[id].test(tab.url))
+            appId = id;
+        }
+
+        if (!appId){
+          if (data && data.appId){
+            delete data.appId;
+            delete data.appIdCount;
+          }
+
+          return;
+        }
+
+        if (!data){
+          tabData.set(tab, {});
+          data = tabData.get(tab);
+        }
+
+        if (!data.appId){
+          data.appId = appId;
+          data.appIdCount = 0;
+        }
+
+        if (appId != data.appId){
+          data.appId = appId;
+          data.appIdCount = 1;
+        } else {
+          data.appIdCount += 1;
+          if (data.appId == 5)
+            data.appIdCount = 1;
+        }
+
+        console.log(data.appId + " : " + data.appIdCount);
+
+        if (options && options.halfFresh && data.appIdCount == 1) {
+          callback("webapp", appId);
+          console.log("webapp visit:", data.appId);
+        }
+
+      })();
+
+      // process website categories
+      
+      (()=>{
+
+        let cats = [];
+
+        for (let c in catIndx){
+          let arr = catIndx[c];
+
+          for (let i in arr){
+            let pattern = arr[i];
+            if (pattern.test(tab.url)){
+              cats.push(c);
+              break;
+            }
+          }
+        }
+
+        if (cats.length == 0){
+          if (data && data.cats){
+            delete data.cats;
+            delete data.catsCount;
+          }
+
+          return;
+        }
+
+        if (!data){
+          tabData.set(tab, {});
+          data = tabData.get(tab);
+        }        
+
+        if (!data.cats){
+          data.cats = cats;
+          data.catsCount = 0;
+        }
+
+        if (!utils.arraysEqual(cats, data.cats)){
+          data.cats = cats;
+          data.catsCount = 1;
+        } else {
+          data.catsCount += 1;
+          if (data.catsCount == 5)
+            data.catsCount = 1;
+        }
+
+        console.log(data.cats + " : " + data.catsCount);
+
+        if (options && options.halfFresh && data.catsCount == 1){
+          data.cats.forEach(function(cat){
+            callback("category", cat);
+            console.log("category visit:", cat);
+
+          });
+        } 
+
+      })();
+
     });
-  });
-
-}
+  }
 
 listener.listenForTabs = function(callback, options){
   let reason;
@@ -1324,22 +1324,28 @@ listener.listenForTabs = function(callback, options){
 
       if (!isBrowser(window) || isPrivate(window)) return;
 
-      let tabBrowser = window.gBrowser;
+      let tb = Cu.getWeakReference(window.gBrowser);
       let f = function(e){
         reason = "pinned";
         callback(reason);
         callback("pin", {number: countPinnedTabs()}); 
       };
-      tabBrowser.tabContainer.addEventListener("TabPinned", f);
-      unload(function(){tabBrowser.tabContainer.removeEventListener("TabPinned", f)});
+      tb.get().tabContainer.addEventListener("TabPinned", f);
+      unload(function(){
+        if (tb.get() && tb.get().tabContainer)
+            tb.get().tabContainer.removeEventListener("TabPinned", f)
+      });
 
       f = function(e){
         reason = "unpinned";
         callback(reason);
         callback("pin", {number: countPinnedTabs()}); 
       };
-      tabBrowser.tabContainer.addEventListener("TabUnpinned", f);
-      unload(function(){tabBrowser.tabContainer.removeEventListener("TabUnpinned", f)});
+      tb.get().tabContainer.addEventListener("TabUnpinned", f);
+      unload(function(){
+        if (tb.get() && tb.get().tabContainer)
+          tb.get().tabContainer.removeEventListener("TabUnpinned", f)
+      });
 
       // new-tab-button
       // this would ideally be a union of 2 chrome events 
@@ -1352,17 +1358,23 @@ listener.listenForTabs = function(callback, options){
         callback(reason);
       }
 
-      let button =  window.document
+      let button =  Cu.getWeakReference(window.document
       .getAnonymousElementByAttribute(
         window.document.getElementById("tabbrowser-tabs")
-        , "anonid", "tabs-newtab-button");
+        , "anonid", "tabs-newtab-button"));
 
-      button.addEventListener("click", f);
-      unload(function() button.removeEventListener("click", f));
+      button.get().addEventListener("click", f);
+      unload(function() {
+        if (button.get())
+          button.get().removeEventListener("click", f);
+      });
 
-      button = window.document.getElementById("new-tab-button");
-      button.addEventListener("click", f);
-      unload(function() button.removeEventListener("click", f));
+      button = Cu.getWeakReference(window.document.getElementById("new-tab-button"));
+      button.get().addEventListener("click", f);
+      unload(function() {
+        if (button.get())
+          button.get().removeEventListener("click", f);
+      });
 
     }
   });
@@ -1507,13 +1519,13 @@ listener.listenForChromeEvents = function(callback, options){
         console.log(route.id);
         switch(route.id){
           case "window":
-            elem = window;
+            elem = Cu.getWeakReference(window);
             break
           case "document":
-            elem = window.document;
+            elem = Cu.getWeakReference(window.document);
             break;
           default:
-            elem = window.document.getElementById(route.id);
+            elem = Cu.getWeakReference(window.document.getElementById(route.id));
         }
         
         let f = function(evt){
@@ -1521,8 +1533,11 @@ listener.listenForChromeEvents = function(callback, options){
           callback(route, evt);
         }
 
-        elem.addEventListener(route.eventName, f);
-        unload(function(){elem.removeEventListener(route.eventName, f)});
+        elem.get().addEventListener(route.eventName, f);
+        unload(function(){
+          if (elem.get())
+            elem.get().removeEventListener(route.eventName, f)
+        });
       } 
     }
   });
@@ -1535,10 +1550,15 @@ listener.listenForKeyboardEvent = function(callback, options){
   //TODO: merge hotkeys with other chrome events
   let keyTracker = new WindowTracker({
     onTrack: function (window){
-      if (!isBrowser(window) || isPrivate(window)) return;   
+      if (!isBrowser(window) || isPrivate(window)) return;
 
-      window.addEventListener((options && options.eventName) || "keydown", callback );
-      unload(function(){window.removeEventListener((options && options.eventName) || "keydown", callback)});
+      let wd = Cu.getWeakReference(window);
+
+      wd.get().addEventListener((options && options.eventName) || "keydown", callback );
+      unload(function(){
+        if (wd.get())
+          wd.get().removeEventListener((options && options.eventName) || "keydown", callback)
+      });
     }
   });
 }
@@ -1738,28 +1758,49 @@ listener.listenForDevTools = function(callback){
 
       if (!isBrowser(window) || isPrivate(window)) return;
 
-      let gDevTools = window.gDevTools;
-      let gBrowser = window.gBrowser
+      let gDevTools = Cu.getWeakReference(window.gDevTools);
+      let gBrowser = Cu.getWeakReference(window.gBrowser);
       
-      
-      gDevTools.on("toolbox-ready", function(e, toolbox){
+      let f = function(e, toolbox){
         let reason = "toolbox-ready";
 
-        let target = devtools.TargetFactory.forTab(gBrowser.selectedTab);
-        toolbox = gDevTools.getToolbox(target);
+        let target = devtools.TargetFactory.forTab(gBrowser.get().selectedTab);
+        toolbox = Cu.getWeakReference(gDevTools.get().getToolbox(target));
 
-        toolbox.on("select", function(e, toolId){
+        let h = function(e, toolId){
           let reason = "select";
           callback(reason, {toolId: toolId});
+        };
+
+        toolbox.get().on("select", h);
+
+        unload(function(){
+          if (toolbox.get()){
+            toolbox.get().off("select", h);
+          }
         });
 
         callback(reason);
-      });
+      };
 
-      gDevTools.on("select-tool-command", function(e, toolId){
+      gDevTools.get().on("toolbox-ready", f);
+
+      unload(function(){
+        if (gDevTools.get())
+          gDevTools.get().off("toolbox-ready", f);
+      })
+
+      f = function(e, toolId){
         let reason = "select";
         callback(reason, {toolId: toolId});
-      });
+      };
+
+      gDevTools.get().on("select-tool-command", f);
+
+      unload(function(){
+        if (gDevTools.get())
+          gDevTools.get().off("select-tool-command", f);
+      })
 
     }
   });
