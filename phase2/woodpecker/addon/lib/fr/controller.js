@@ -387,6 +387,34 @@ const listener = {
 
     });
 
+    this.listenForInternalEvents(function(reason, params){
+
+      let frEvent = Event("frEvent", {
+        route: "fr",
+        reason: reason,
+        params: params
+      });
+      
+      let tickEvent = Event("tick");
+
+      tickEvent.checkPreconditions = function(){
+        return this.preEvent.options.reason === "tick";
+      }
+
+      tickEvent.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+        let params = this.preEvent.options.params;
+        let route = [baseRoute, "tick", "-et", params.et, "-ett", params.ett].join(" ");
+        this.options.route = route;
+
+        listener.dispatchRoute(route);
+      }
+
+      frEvent.postEvents.push(tickEvent);
+
+      frEvent.wake(); 
+    });
+
 
     this.listenForPageVisit(function(type, param){
 
@@ -643,7 +671,7 @@ const deliverer = {
 
     if (recomms.length > 1){
       console.log("warning: attempted to deliver multiple recommendations at the same time: " + recomms.length);
-      require('./stats').event("multiple-delivery", {type: "delivery"});
+      require('./../stats').event("multiple-delivery", {type: "delivery"});
     }
 
     //finding the recommendation with the highest priority
@@ -662,30 +690,38 @@ const deliverer = {
 
     let rejectDelivery = false;
 
+    if (prefs["passive_mode"]){
+      console.log("delivery rejected due to passive mode");
+      require('./../stats').event("passive-mode-reject", {type: "delivery"});
+      rejectDelivery = true;
+    }
+
     if (isPrivate(getMostRecentBrowserWindow())){
       console.log("delivery rejected due to private browsing");
-      require('./stats').event("private-reject", {type: "delivery"});
+      require('./../stats').event("private-reject", {type: "delivery"});
       rejectDelivery = true;
     }
 
     if (!timer.isCertainlyActive()){
       console.log("delivery rejected due to uncertain user activity status");
-      require('./stats').event("inactive-reject", {type: "delivery"});
+      require('./../stats').event("inactive-reject", {type: "delivery"});
       rejectDelivery = true;
     }
 
     if (self.delMode.observOnly || (timer.isSilent())){
       if (self.delMode.observOnly){
         console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
-        require('./stats').event("observe-only-reject", {type: "delivery"});
+        require('./../stats').event("observe-only-reject", {type: "delivery"});
       }
       else{
         console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
-        require('./stats').event("silence-reject", {type: "delivery"});
+        require('./../stats').event("silence-reject", {type: "delivery"});
       }
 
       rejectDelivery = true;
     }
+
+    rejectDelivery = true;
 
     if (rejectDelivery)
       return;
@@ -702,8 +738,6 @@ const deliverer = {
     recommendations.update(aRecommendation);
 
     statsEvent("delivery");
-
-    return;
 
     presenter.present(aRecommendation, listener.command.bind(listener));
 
@@ -1848,6 +1882,15 @@ listener.multipleRoute = function(baseEvent, options){
     return rEvent;
   };
 
+listener.listenForInternalEvents= function(callback){
+  // tick
+  timer.onTick(function(et, ett){
+    let reason = "tick";
+    let params = {et: et, ett: ett};
+    callback("tick", params);
+  });
+};
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -2041,7 +2084,11 @@ const debug = {
 };
 
 function welcome(){
-  deliverer.deliver(recommendations["welcome"]);
+  let rec = recommendations["welcome"];
+
+  rec.status = "outstanding";
+
+  recommendations.update(rec);
 }
 
 function loadRecFile(file){

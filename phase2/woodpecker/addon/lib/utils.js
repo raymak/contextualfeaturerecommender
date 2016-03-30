@@ -176,7 +176,6 @@ function getFhrDataV4(callback){
     
 }
 // parses the fhr 'data' object and calls the callback function when the result is ready.
-// callback(profileAgeDays, sumMs)
 // https://github.com/raymak/contextualfeaturerecommender/issues/136
 
 function parseFhrPayloadV2(data, callback){

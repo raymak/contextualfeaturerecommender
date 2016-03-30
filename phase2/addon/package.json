@@ -1,16 +1,22 @@
 {
+  "license": "MPL 2.0",
+  "description": "This addon recommends Firefox interface features when they are needed. It is an experimental addon installed temporarily.",
+  "engines": {
+    "firefox": ">=38.0a1"
+  }, 
   "name": "featurerecommender",
   "title": "Feature Recommender",
   "id": "featurerecommender@insights.mozilla.com",
-  "description": "This addon recommends Firefox interface features when they are needed. It is an experimental addon installed temporarily.",
-  "author": "Kamyar Ardekani <kamyar@mozilla.com>",
+  "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "license": "MPL 2.0",
-  "main": "./lib/index.js",
   "version": "0.0.1-beta",
   "permissions": {
     "private-browsing": true  
   },
+  "keywords": [
+    "jetpack"
+  ], 
+  "main": "./lib/index.js",
   "preferences": [
     {
       "name": "isTest",
@@ -18,7 +24,7 @@
       "title": "Is it a test or field deployment.",
       "value": true
     },
-     {
+    {
       "name": "cleanup_on_death",
       "type": "bool",
       "title": "Whether the preferences should be cleaned up when the addon is killed",
@@ -29,6 +35,12 @@
       "type": "bool",
       "title": "Whether or not all the preferences should be reset upon installation.",
       "value": true
+    },
+    {
+      "name": "passive_mode",
+      "type": "bool",
+      "title": "Passive mode prevents the addon from showing notifications. Everything else works however.",
+      "value": false
     },
     {
       "name": "recomm_list_address",
@@ -135,7 +147,7 @@
     {
       "name": "logger.recent_hist_count",
       "type": "integer",
-      "title": " ",
+      "title": "Maximum number of log records to store when connection fails.",
       "value": 50
     },
     {
@@ -199,30 +211,6 @@
       "value": "1"
     },
     {
-      "name": "presentation.doorhanger.autofade_time_ms_flat",
-      "type": "integer",
-      "title": " ",
-      "value": 2000
-    },
-    {
-      "name": "presentation.doorhanger.autofade_time_ms_per_word",
-      "type": "integer",
-      "title": " ",
-      "value": 900
-    },
-    {
-      "name": "presentation.doorhanger.exitfade_time_ms_per_word",
-      "type": "integer",
-      "title": " ",
-      "value": 300
-    },
-    {
-      "name": "presentation.doorhanger.panel_show_delay_ms",
-      "type": "integer",
-      "title": " ",
-      "value": 750
-    },
-    {
       "name": "debug.enabled",
       "type": "bool",
       "title": " ",
@@ -263,7 +251,30 @@
       "type": "bool",
       "title": " ",
       "value": false
-
-   }
+    },
+    {
+      "name": "presentation.doorhanger.autofade_time_ms_flat",
+      "type": "integer",
+      "title": " ",
+      "value": 2000
+    },
+    {
+      "name": "presentation.doorhanger.autofade_time_ms_per_word",
+      "type": "integer",
+      "title": " ",
+      "value": 900
+    },
+    {
+      "name": "presentation.doorhanger.exitfade_time_ms_per_word",
+      "type": "integer",
+      "title": " ",
+      "value": 300
+    },
+    {
+      "name": "presentation.doorhanger.panel_show_delay_ms",
+      "type": "integer",
+      "title": " ",
+      "value": 750
+    }
   ]
 }

@@ -387,6 +387,33 @@ const listener = {
 
     });
 
+    this.listenForInternalEvents(function(reason, params){
+
+      let frEvent = Event("frEvent", {
+        route: "fr",
+        reason: reason,
+        params: params
+      });
+      
+      let tickEvent = Event("tick");
+
+      tickEvent.checkPreconditions = function(){
+        return this.preEvent.options.reason === "tick";
+      }
+
+      tickEvent.effect = function(){
+        let baseRoute = this.preEvent.options.route;
+        let params = this.preEvent.options.params;
+        let route = [baseRoute, "tick", "-et", params.et, "-ett", params.ett].join(" ");
+        this.options.route = route;
+
+        listener.dispatchRoute(route);
+      }
+
+      frEvent.postEvents.push(tickEvent);
+
+      frEvent.wake(); 
+    });
 
     this.listenForPageVisit(function(type, param){
 
@@ -662,6 +689,12 @@ const deliverer = {
 
     let rejectDelivery = false;
 
+    if (prefs["passive_mode"]){
+      console.log("delivery rejected due to passive mode");
+      require('./stats').event("passive-mode-reject", {type: "delivery"});
+      rejectDelivery = true;
+    }
+
     if (isPrivate(getMostRecentBrowserWindow())){
       console.log("delivery rejected due to private browsing");
       require('./stats').event("private-reject", {type: "delivery"});
@@ -701,9 +734,9 @@ const deliverer = {
     aRecommendation.status = "delivered";
     recommendations.update(aRecommendation);
 
-    presenter.present(aRecommendation, listener.command.bind(listener));
-
     statsEvent("delivery");
+
+    presenter.present(aRecommendation, listener.command.bind(listener));
 
     timer.silence();
 
@@ -1846,6 +1879,15 @@ listener.multipleRoute = function(baseEvent, options){
     return rEvent;
   };
 
+listener.listenForInternalEvents= function(callback){
+  // tick
+  timer.onTick(function(et, ett){
+    let reason = "tick";
+    let params = {et: et, ett: ett};
+    callback("tick", params);
+  });
+};
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -2039,7 +2081,11 @@ const debug = {
 };
 
 function welcome(){
-  deliverer.deliver(recommendations["welcome"]);
+  let rec = recommendations["welcome"];
+
+  rec.status = "outstanding";
+
+  recommendations.update(rec);
 }
 
 function loadRecFile(file){
