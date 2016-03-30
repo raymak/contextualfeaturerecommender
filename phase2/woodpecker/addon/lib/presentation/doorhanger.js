@@ -41,6 +41,10 @@ function init(){
 
   dhData = PersistentObject("simplePref", {address: dhDataAddress});
 
+  unload(()=>{
+    clearTimeout(hideTimeout);
+  });
+
 }
 
 function initPanel(button){
@@ -82,12 +86,28 @@ function initButton(clickHandler){
 function fbSubmit(rate){
   clearTimeout(hideTimeout);
 
+  certainlyactive = timer.isCertainlyActive();
+
   let showLength = Date.now()-hideWatch;
 
   let result = {type: "rate", rate: rate, length: showLength, mouseenter: mouseenter, certainlyactive: certainlyactive};
   fbCallback(result);
 }
 
+
+function timeoutSubmit(){
+
+  certainlyactive = timer.isCertainlyActive();
+  
+  fbCallback(
+    {
+      type: "timeout", 
+      result: {
+        mouseenter: mouseenter, certainlyactive: certainlyactive
+      }
+    });
+
+}
 
 function present(callback, moment){ 
 
@@ -99,7 +119,6 @@ function present(callback, moment){
   fbCallback = callback;
 
   mouseenter = false;
-  certainlyactive = timer.isCertainlyActive();
 
   let dhPresentInfo = {moment: moment};
   logDhPresent(dhPresentInfo);
@@ -130,9 +149,8 @@ function scheduleHide(time_ms){
   clearTimeout(hideTimeout);
   hideTimeout = setTimeout(function(){
     pHide("autohide", true);
-    fbCallback({type: "timeout", 
-      result: {mouseenter: mouseenter, certainlyactive: certainlyactive}});
-  }, time_ms);
+    timeoutSubmit();
+    }, time_ms);
 }
 
 function showPanel(delay_ms, panelOptions){

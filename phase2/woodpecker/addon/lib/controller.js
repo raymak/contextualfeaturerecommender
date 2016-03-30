@@ -246,7 +246,13 @@ listener.moment = function(name, options){
   if (timer.isSilent()){
     canDeliver = false;
     console.log("delivery rejected due to: silence");
-    statsEvent("silence-reject", {type: "delivery"})
+    statsEvent("silence-reject", {type: "delivery"});
+  }
+
+  if (!timer.isCertainlyActive()){
+    canDeliver = false;
+    console.log("delivery rejected due to: uncertain activity");
+    statsEvent("inactive-reject", {type: "delivery"});
   }
 
   if (data.effFrequency && 1/data.effFrequency < prefs["moment.min_effFrequency_i"]){

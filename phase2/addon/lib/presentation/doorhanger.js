@@ -74,9 +74,11 @@ function init(){
     updateEntry();
   }
 
+  unload(()=>{
+    clearTimeout(hideTimeout);
+  });
+
   console.timeEnd("doorhanger init");
-
-
 }
 
 function initPanel(button){
@@ -139,12 +141,14 @@ function present(aRecommendation, cmdCallback){
     report(); //report the last recommendation
   }
 
-  dhData.currentRec = {recomm: aRecommendation, 
-                       state:{like: false, dontlike: false, count: 0, negFbChoice: null, negFbOpened: false},
-                       report:{number: dhData.count || 1, startett: timer.elapsedTotalTime(), durationtt: 0, primbtn: 0, secbtn: 0,
-                       closebtn: 0, autohide: 0, autofade: 0, esc: 0,
-                       closeother: 0, responseclose: 0, bulbbutton: 0, firstclosereason: "", mouseenter: false,
-                       totalopen: 0, firstopen: 0, rationaleopen: 0, infopage: 0, negfbopen: false}
+  dhData.currentRec = {
+                        recomm: aRecommendation, 
+                        state:{like: false, dontlike: false, count: 0, negFbChoice: null, negFbOpened: false},
+                        report:{number: dhData.count || 1, startett: timer.elapsedTotalTime(), durationtt: 0, primbtn: 0, secbtn: 0,
+                        closebtn: 0, autohide: 0, autofade: 0, esc: 0,
+                        closeother: 0, responseclose: 0, bulbbutton: 0, firstclosereason: "", mouseenter: false,
+                        totalopen: 0, firstopen: 0, rationaleopen: 0, infopage: 0, negfbopen: false,
+                        certainlyactive: false}
                       };
   command = cmdCallback;
   console.log("showing " + aRecommendation.id);
@@ -325,8 +329,10 @@ function pHide(reason, fadeOut){
   let currRec = dhData.currentRec;
   let report = currRec.report;
 
-  if (currRec.state.count == 1)
+  if (currRec.state.count == 1){
     report.firstclosereason = reason;
+    report.certainlyactive = timer.isCertainlyActive();
+  }
 
   switch(reason){
     case "escape":
@@ -466,8 +472,9 @@ function updateReport(){
   let state = currRec.state;
   let report = currRec.report;
 
-  let addedInfo = {durationtt: timer.elapsedTotalTime() - currRec.report.startett,
-                   interaction: Boolean(state.like || state.dontlike || (state.count > 1) 
+  let addedInfo = {
+                    durationtt: timer.elapsedTotalTime() - currRec.report.startett,
+                    interaction: Boolean(state.like || state.dontlike || (state.count > 1) 
                    || state.negFbChoice || (report.primbtn > 0) || (report.secbtn > 0)
                    || (report.closebtn > 0) || (report.esc > 0) || report.mouseenter
                    || report.rationaleopen || (report.infopage > 0)),
@@ -476,11 +483,12 @@ function updateReport(){
   let info = merge({}, currRec.state, currRec.report, addedInfo);
 
   //reporting to feature report
-  let featReportRow = {negfbchoice: info.negFbChoice, dontlike: info.dontlike, presnumber: info.number,
-                    interaction: info.interaction, primbtn: (info.primbtn > 0),
-                    secbtn: (info.secbtn > 0), manualopen: (info.count > 1),
-                    response: (info.primbtn > 0 || info.secbtn > 0), rationaleopen: (info.rationaleopen > 0),
-                    firstclosereason: info.firstclosereason, firstopen: info.firstopen, interaction: info.interaction
+  let featReportRow = {
+                        negfbchoice: info.negFbChoice, dontlike: info.dontlike, presnumber: info.number,
+                        interaction: info.interaction, primbtn: (info.primbtn > 0),
+                        secbtn: (info.secbtn > 0), manualopen: (info.count > 1),
+                        response: (info.primbtn > 0 || info.secbtn > 0), rationaleopen: (info.rationaleopen > 0),
+                        firstclosereason: info.firstclosereason, firstopen: info.firstopen, interaction: info.interaction
                      }
   featReport.updateRow(currRec.recomm.id, featReportRow);
 
