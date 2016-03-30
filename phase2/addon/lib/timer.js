@@ -460,7 +460,6 @@ const debug = {
 
 }
 
-
 exports.elapsedTime = elapsedTime;
 exports.elapsedTotalTime = elapsedTotalTime;
 exports.isActive = isActive;
