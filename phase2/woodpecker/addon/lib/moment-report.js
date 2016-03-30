@@ -21,8 +21,7 @@ function init(){
   timer.onTick(log);
 }
 
-function log(et, ett){
-  if (Math.floor(et) % 60 != 1) return;
+function log(){
 
   for (let moment of Object.keys(momentData)){
     console.log(moment);
@@ -31,6 +30,12 @@ function log(et, ett){
     logger.logMomentReport(info);
   } 
 }   
+
+function periodicLog(et, ett){
+  if (Math.floor(et) % 120 != 10) return;
+
+  log();
+}
 
 
 exports.init = init;

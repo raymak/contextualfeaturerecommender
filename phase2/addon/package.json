@@ -142,7 +142,7 @@
       "name": "logger.periodic_log_period",
       "type": "integer",
       "title": "How often periodic log info is reported.",
-      "value": 30
+      "value": 60
     },
     {
       "name": "logger.recent_hist_count",

@@ -142,7 +142,7 @@
       "name": "logger.periodic_log_period",
       "type": "integer",
       "title": "How often periodic log info is reported.",
-      "value": 30
+      "value": 120
     },
     {
       "name": "logger.recent_hist_count",
@@ -154,7 +154,7 @@
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
-      "value": 30
+      "value": 120
     },
     {
       "name": "feature_report.immediate_try_period_s",
