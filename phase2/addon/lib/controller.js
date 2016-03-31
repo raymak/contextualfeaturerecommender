@@ -1487,8 +1487,6 @@ listener.listenForDownloads = function(callback, options){
     onDownloadAdded: function(download) { 
       console.log("Download added");
       callback('added');
-      //just for testing
-      logger.logWarning({code: "download", source: download.source.url, startTime: download.startTime.getTime()});
     },
     onDownloadChanged: function(download) {
       // console.log("Download changed");
