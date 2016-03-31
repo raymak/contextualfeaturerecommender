@@ -121,7 +121,7 @@ exports.PersistentObject = function(type, options){
 
     let syncTimer = setInterval(()=>{wrapper._syncCache()}, prefs["utils.persistent_object.update_interval"]);
 
-    unload(()=>{wrapper._syncCache()});
+    unload(()=>{wrapper._syncCache();});
     return rObj;
   }
 };

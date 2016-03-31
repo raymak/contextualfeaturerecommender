@@ -159,7 +159,7 @@ function event(evtId, options, addData, aggregates){
     }).then(function(evt){
         AS.setItem(evtKey, evt);
         eventCount += 1;
-        if (eventCount % 50 == 0)
+        if (eventCount % 20 == 0)
           statsData.eventCount = eventCount;
         debug.update(evtKey);
       }).catch((e) => {throw e});

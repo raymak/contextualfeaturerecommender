@@ -15,6 +15,7 @@ const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
 const {send} = require("./sender");
 const {prefs} = require("sdk/simple-prefs");
 const {defer} = require("sdk/lang/functional");
+const unload = require("sdk/system/unload").when;
 
 const loggerDataAddress = "logger.data";
 const loggerData = PersistentObject("simplePref", {address: loggerDataAddress});
@@ -34,6 +35,8 @@ function init(){
   onTick(periodicLog);
 
   debug.init();
+
+  unload(onUnload);
 }
 
 function nextNumber(){
@@ -41,8 +44,15 @@ function nextNumber(){
   return loggerData.count;
 }
 
-function log(type, attrs){
-  (defer(_log))(type, attrs);
+function log(type, attrs, options){
+
+  // asynchronous logging fails when unloading, that's why critical logs are reported immediately
+  let immediate = options && options.immediate;
+
+  if (!immediate)
+    (defer(_log))(type, attrs, options);
+  else
+    _log(type, attrs, options); 
 }
 
 function _log(type, attrs){
@@ -56,6 +66,7 @@ function _log(type, attrs){
     et: elapsedTime(),
     ett: elapsedTotalTime(),
     localeTime: (new Date(Date.now())).toLocaleString(),
+    addon_id: addonSelf.id,
     addon_version: addonSelf.version,
     locale: self.locale,
     update_channel: self.updateChannel
@@ -79,10 +90,10 @@ function _log(type, attrs){
 }
 
 function periodicLog(et, ett){
-      if (Math.floor(et) % prefs["logger.periodic_log_period"] != 1) return;
-      self.getPeriodicInfo(function(info){
-        logPeriodicSelfInfo(info);
-      });
+  if (Math.floor(et) % prefs["logger.periodic_log_period"] != 1) return;
+  self.getPeriodicInfo(function(info){
+    logPeriodicSelfInfo(info);
+  });
 
 }
 
@@ -99,11 +110,11 @@ function logLoad(reason){
 }
 
 function logUnload(reason){
-  log("UNLOAD", {reason: reason});
+  log("UNLOAD", {reason: reason}, {immediate: true});
 }
 
 function logDisable(reason){
-  log("DISABLE", {reason: reason});
+  log("DISABLE", {reason: reason}, {immediate: true});
 }
 
 function logPeriodicSelfInfo(info){
@@ -158,15 +169,15 @@ function logMomentReport(info){
 }
 
 function logSelfDestruct(info){
-  log("SELF_DESTRUCT", info);
+  log("SELF_DESTRUCT", info, {immediate: true});
 }
 
 function logError(info){
-  log("ERROR", info);
+  log("ERROR", info, {immediate: true});
 }
 
 function logWarning(info){
-  log("WARNING", info);
+  log("WARNING", info, {immediate: true});
 }
 
 function logSilenceEnd(info){
@@ -213,6 +224,13 @@ const debug = {
     return " ";
   }
 
+}
+
+function onUnload(reason){
+  if (reason == "uninstall" || reason == "disable")
+    logDisable(reason);
+
+  logUnload(reason);
 }
 
 exports.init = init;

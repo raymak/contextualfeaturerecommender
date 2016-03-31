@@ -41,7 +41,7 @@ exports.main = function(options, callbacks){
 
   require('./controller').init();
 
-  require('./stats').event("startup", {collectInstance: true}, {reason: require('sdk/self').loadReason});
+  require('./stats').event("load", {collectInstance: true}, {reason: require('sdk/self').loadReason});
 
   console.timeEnd("full load");
 
@@ -93,15 +93,12 @@ function installRun(){
 exports.onUnload = function(reason){
 
   console.log("unloading due to " + reason);
-  require('./logger').logUnload(reason);
 
-  if (reason == "uninstall" || reason == "disable")
-    require('./logger').logDisable(reason);
-
-  if (reason == "shutdown")
-    require('./stats').event("shutdown", {collectInstance: true});
+  require('./stats').event("unload", {collectInstance: true}, {reason: require('sdk/self').loadReason});
 
   require('./sender').flush();
+
+  console.log("end of unload");
 }
 
 
