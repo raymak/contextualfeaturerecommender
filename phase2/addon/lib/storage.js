@@ -115,9 +115,12 @@ exports.PersistentObject = function(type, options){
     });
 
     // to handle external pref changes
-    sp.on(options.address, function(p){
+    let f = function(p){
       cachedObj.data = JSON.parse(prefs[p]);
-    });
+    }
+    sp.on(options.address, f);
+   
+    unload(function(){sp.removeListener(options.address, f)});
 
     let syncTimer = setInterval(()=>{wrapper._syncCache()}, prefs["utils.persistent_object.update_interval"]);
 

@@ -178,19 +178,19 @@
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 120
+      "value": 90
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 1200
+      "value": 360
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 360
+      "value": 60
     },
     {
       "name": "experiment.modes.end.delay",

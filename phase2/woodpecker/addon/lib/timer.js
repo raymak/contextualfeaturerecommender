@@ -55,14 +55,14 @@ const init = function(){
   };
 
   sp.on("timer.tick_length_s", f);
-  unload(function(){sp.removeListener("timer.tick_length_s"), f});
+  unload(function(){sp.removeListener("timer.tick_length_s", f)});
 
   f = function(pref){
     timerData.elapsedTotalTime = elapsedTotalTime();
   };
   
   sp.on("experiment.startTimeMs", f);
-  unload(function(){sp.removeListener("experiment.startTimeMs"), f});
+  unload(function(){sp.removeListener("experiment.startTimeMs", f)});
 
   debug.init();
   debug.update({silenceStatus: true});

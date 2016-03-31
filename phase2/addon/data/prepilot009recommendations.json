@@ -267,8 +267,8 @@
   {
     "id": "lastTabShortcut",
     "priority": 5,
-    "trigBehavior": "tabs clicked position last -c >20 -if <15",
-    "delivContext": "tabs clicked position last",
+    "trigBehavior": "tabs switched position last -c >20 -if <10",
+    "delivContext": "tabs switched position last",
     "featUseBehavior": "hotkey 9 -cmd -c >1",
     "presentationData": {
       "*": {
@@ -542,7 +542,7 @@
   {
     "id": "forecastfox",
     "priority": 4,
-    "trigBehavior": "visit category weather -c >10 if <90",
+    "trigBehavior": "visit category weather -c >5 -if <90",
     "delivContext": "visit category weather",
     "featUseBehavior": "addon has forecastfox@s3_fix_version",
     "presentationData": {
@@ -617,7 +617,7 @@
   {
     "id": "tileTabs",
     "priority": 5,
-    "trigBehavior": "tabs switched -c >75 -if <2",
+    "trigBehavior": "tabs switched -c >75 -if <1",
     "delivContext": "tabs switched",
     "featUseBehavior": "addon has tiletabs@DW-dev",
     "presentationData": {
@@ -667,7 +667,7 @@
   {
     "id": "zotero",
     "priority": 3,
-    "trigBehavior": "visit category academic -c >20 -if <30",
+    "trigBehavior": "visit category academic -c >10 -if <30",
     "delivContext": "visit category academic",
     "featUseBehavior": "addon has zotero@chnm.gmu.edu",
     "presentationData": {
@@ -742,7 +742,7 @@
   {
     "id": "s3GoogleTranslator",
     "priority": 3,
-    "trigBehavior": "visit category translation -c >20 -if <60",
+    "trigBehavior": "visit category translation -c >10 -if <60",
     "delivContext": "visit category translation",
     "featUseBehavior": "addon has s3google@translator",
     "presentationData": {
@@ -817,7 +817,7 @@
   {
     "id": "pinTab",
     "priority": 3,
-    "trigBehavior": "visit category webApp -c >30 -if <45",
+    "trigBehavior": "visit category webApp -c >10 -if <45",
     "delivContext": "visit category webApp",
     "featUseBehavior": "tabs pin -n >1",
     "presentationData": {
@@ -842,7 +842,7 @@
   {
     "id": "smartKeywords",
     "priority": 4,
-    "trigBehavior": "visit category specializedSearch -c >20 -if <60",
+    "trigBehavior": "visit category specializedSearch -c >20 -if <45",
     "delivContext": "visit category specializedSearch",
     "featUseBehavior": "search-engine alias -n >0",
     "presentationData": {

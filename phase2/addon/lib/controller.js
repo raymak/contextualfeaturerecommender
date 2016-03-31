@@ -726,7 +726,6 @@ const deliverer = {
     if (rejectDelivery)
       return;
 
-
     console.log("delivering " + aRecommendation.id);
 
     if (aRecommendation.status == "delivered"){
@@ -2094,7 +2093,7 @@ function welcome(){
 
   if (rec.status != "active")
     return;
-  
+
   rec.status = "outstanding";
 
   recommendations.update(rec);
