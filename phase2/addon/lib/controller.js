@@ -31,10 +31,10 @@ const unload = require("sdk/system/unload").when;
 const logger = require("./logger");
 const featReport = require("./feature-report");
 const events = require("sdk/system/events");
-const {pathFor} = require('sdk/system');
+const {pathFor} = require('sdk/system');  
 const file = require('sdk/io/file');
 const statsEvent = require("./stats").event;
-const {defer} = require("sdk/lang/functional");
+const {defer, once} = require("sdk/lang/functional");
 const {PersistentObject} = require("./storage");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
@@ -74,6 +74,8 @@ const init = function(){
   listener.start();
   deliverer.init();
   debug.init();
+
+  welcome();
 
   console.timeEnd("controller init");
 }
@@ -148,9 +150,9 @@ const listener = {
 
       tabsEvent.postEvents.push(tabsPin)
 
-      let tabsClicked = Event("tabsClicked");
+      let tabsSwitchedPosition = Event("tabsSwitchedPosition");
 
-      tabsClicked.effect = function(){
+      tabsSwitchedPosition.effect = function(){
         let baseRoute = this.preEvent.options.route;
 
         let route = [baseRoute, "position", this.preEvent.options.params.position].join(" ");
@@ -160,15 +162,16 @@ const listener = {
         // listener.dispatchRoute(route);
       };
 
-      tabsEvent.postEvents.push(tabsClicked);
+      tabsEvent.postEvents.push(tabsSwitchedPosition);
 
-      tabsClicked.checkPreconditions = function(){
-        return (this.preEvent.options.reason == "clicked");
+      tabsSwitchedPosition.checkPreconditions = function(){
+        return (this.preEvent.options.reason == "switched"
+             && this.preEvent.options.params.position);
       };
 
-      let multipleTabsClicked = that.multipleRoute(tabsClicked);
+      let multipleTabsSwitchedPosition = that.multipleRoute(tabsSwitchedPosition);
 
-      tabsClicked.postEvents.push(multipleTabsClicked);
+      tabsSwitchedPosition.postEvents.push(multipleTabsSwitchedPosition);
 
       tabsEvent.wake();
 
@@ -1077,20 +1080,32 @@ listener.listenForTools = function(callback){
 
       if (!isBrowser(window) || isPrivate(window)) return;
 
+      let doc = Cu.getWeakReference(window.document);
+
       let buttonListener = function(){
-        window.document.getElementById("find-button").addEventListener("click", findopened);
-        unload(function(){window.document.getElementById("find-button").removeEventListener("click", findopened);})
+        doc.get().getElementById("find-button").addEventListener("click", findopened);
+        unload(function(){
+          if (doc.get() && doc.get().getElementById("find-button"))
+            doc.get().getElementById("find-button").removeEventListener("click", findopened);
+        });
+        console.log("button listener");
       }
 
-      if (window.document.getElementById("find-button"))
+      if (doc.get().getElementById("find-button"))
         buttonListener()
       else { 
-        window.document.getElementById("PanelUI-menu-button").addEventListener("command", buttonListener);
-        unload(function(){window.document.getElementById("PanelUI-menu-button").removeEventListener("command", buttonListener)});
+        doc.get().getElementById("PanelUI-menu-button").addEventListener("command", once(buttonListener));
+        unload(function(){
+          if (doc.get() && doc.get().getElementById("PanelUI-menu-button"))
+            doc.get().getElementById("PanelUI-menu-button").removeEventListener("command", buttonListener)
+        });
       }
 
-      window.document.getElementById("cmd_find").addEventListener("command", findopened);
-      unload(function(){window.document.getElementById("cmd_find").removeEventListener("command", findopened);})
+      doc.get().getElementById("cmd_find").addEventListener("command", findopened);
+      unload(function(){
+        if (doc.get() && doc.get().getElementById("cmd_find"))
+          doc.get().getElementById("cmd_find").removeEventListener("command", findopened);
+      });
 
     }
   });
@@ -1339,6 +1354,9 @@ listener.listenForPageVisit = function(callback, options){
   }
 
 listener.listenForTabs = function(callback, options){
+
+  const tabData = new WeakMap();
+
   let reason;
 
   let countPinnedTabs = function(){
@@ -1412,20 +1430,23 @@ listener.listenForTabs = function(callback, options){
   });
 
 
-  let tabClick = function(e){
-      reason = "clicked";
+  let tabSwitch = function(t){
 
-      if (e.currentTarget.getAttribute("last-tab") === "true"){
-        callback(reason, {position: "last"});
-      };
+    reason = "switched";
 
-      if (e.currentTarget.getAttribute("first-tab") === "true"){
-        callback(reason, {position: "first"});
-      };
+    let ts = t.window.tabs;
 
-      // if (e.currentTarget.tabIndex < 8)
-      //   callback(reason, {position: "1-8"});
-    };
+    let params = {};
+
+    if (t === ts[ts.length-1])
+      params.position = "last";
+    else if (t === ts[0])
+        params.position = "first";
+
+    // callback(reason, {position: "1-8"});
+
+    callback(reason, params);
+  };
 
   tabs.on('activate', function(tab){
 
@@ -1435,14 +1456,14 @@ listener.listenForTabs = function(callback, options){
     reason = "activated";
     callback(reason);
 
-    if (!tab.initialized){
-      tab.initialized = true;
-      unload(function(){if (tab) delete tab.initialized});
+    let data = tabData.get(tab);
+
+    if (!data || !data.initialized){
+      tabData.set(tab, {initialized: true});
       return;
     }
    
-    reason = "switched";
-    callback(reason);
+    tabSwitch(tab);
 
   });
 
@@ -1456,29 +1477,15 @@ listener.listenForTabs = function(callback, options){
 
     reason = "open";
     callback(reason,  {number: tabs.length});
-
-    //listen for clicks
-    let xulTab = viewFor(tab);
-    xulTab.addEventListener("click", tabClick);
-    unload(function(){xulTab.removeEventListener("click", tabClick)});
   });
 
   //initial tabs that are not handled by tab.on(open)
   if (!options || !options.excludeInitialTabs){
-    for (let i in tabs){
 
-      if (isPrivate(tabs[i]))
-        continue;
+    reason = "open";
+    callback(reason, {number: tabs.length});
 
-      let xulTab = viewFor(tabs[i]);
-      xulTab.addEventListener("click", tabClick);
-      unload(function(){xulTab.removeEventListener("click", tabClick)});
-
-      reason = "open";
-      callback(reason, {number: tabs.length});
-
-      callback("pin", {number: countPinnedTabs()}); //in order to capture initial pinned tabs/ creates redundancy
-    }
+    callback("pin", {number: countPinnedTabs()}); 
   }
 }
 
@@ -1486,15 +1493,19 @@ listener.listenForDownloads = function(callback, options){
   dlView = {
     onDownloadAdded: function(download) { 
       console.log("Download added");
-      callback('added');
+      // the condition tries work around the problem that Firefox emits the downloadAdded event
+      // even after the download has been done
+      if (download.startTime.getTime() > Date.now() - 10000) 
+        callback('added');
     },
     onDownloadChanged: function(download) {
       // console.log("Download changed");
       // callback('changed');
     },
     onDownloadRemoved: function(download) {
-     console.log("Download removed");
-     callback('removed');
+      console.log("Download removed");  
+      if (download.startTime.getTime() > Date.now() - 10000)
+        callback('removed');
     } 
   };
 
@@ -2081,6 +2092,9 @@ const debug = {
 function welcome(){
   let rec = recommendations["welcome"];
 
+  if (rec.status != "active")
+    return;
+  
   rec.status = "outstanding";
 
   recommendations.update(rec);

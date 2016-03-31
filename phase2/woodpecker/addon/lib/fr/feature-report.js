@@ -24,7 +24,6 @@ const rowTemp = {
                 interaction: null
             };
 
-
 function init(){
   console.log("initializing feature report");
 
@@ -38,6 +37,7 @@ function init(){
 
 function updateRow(id, obj){
   let report = featData.report;
+
   if (!report[id]){
     console.log("error: feature id does not exist in the report table.");
     return;
@@ -81,9 +81,7 @@ function addRow(id, obj, options){
         return;
       }
 
-    obj = merge(rowTemp, obj);
-
-
+    obj = merge({}, rowTemp, obj);
 
     report[id] = obj;
   });

@@ -47,7 +47,7 @@ function updateRow(id, obj){
     if (!(k in rowTemp)){
       console.log("error: cannot add row to the feature report table.");
       return;
-    }
+  }
 
   report[id] = merge(report[id], obj);
 
@@ -81,7 +81,7 @@ function addRow(id, obj, options){
         return;
       }
 
-    obj = merge(rowTemp, obj);
+    obj = merge({}, rowTemp, obj);
 
     report[id] = obj;
   });

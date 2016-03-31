@@ -172,7 +172,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot008"
+      "value": "prepilot009home"
     },
     {
       "name": "experiment.obs1_length_tick",

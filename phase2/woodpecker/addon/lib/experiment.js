@@ -205,7 +205,7 @@ const stages = {
   end: function(){
     prefs["delivery.mode.observ_only"] = true;
 
-     require("./self").getPeriodicInfo(function(info){
+    require("./self").getPeriodicInfo(function(info){
         require("./logger").logPeriodicSelfInfo(info);
 
         require("./fr/feature-report").log();

@@ -195,10 +195,9 @@ const stages = {
     prefs["delivery.mode.observ_only"] = false;
     console.log("intervention stage started.");
 
-    require('./stats').log();
     require("./feature-report").log();
-    
-    require("./controller").welcome();
+
+    require('./stats').log();
   },
   obs2: function(){
     prefs["delivery.mode.observ_only"] = true;

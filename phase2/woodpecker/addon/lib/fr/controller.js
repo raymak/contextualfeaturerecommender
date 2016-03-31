@@ -1489,16 +1489,20 @@ listener.listenForDownloads = function(callback, options){
   dlView = {
     onDownloadAdded: function(download) { 
       console.log("Download added");
-      callback('added');
+      // the condition tries work around the problem that Firefox emits the downloadAdded event
+      // even after the download has been done
+      if (download.startTime.getTime() > Date.now() - 10000) 
+        callback('added');
     },
     onDownloadChanged: function(download) {
       // console.log("Download changed");
       // callback('changed');
     },
     onDownloadRemoved: function(download) {
-     console.log("Download removed");
-     callback('removed');
-    } 
+      console.log("Download removed");  
+      if (download.startTime.getTime() > Date.now() - 10000)
+        callback('removed');
+    }
   };
 
   Task.spawn(function() {

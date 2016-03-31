@@ -81,7 +81,7 @@ exports.onUnload = function(reason){
 
   console.log("unloading due to " + reason);
 
-  require('./stats').event("unload", {collectInstance: true}, {reason: require('sdk/self').loadReason});
+  require('./stats').event("unload", {collectInstance: true}, {reason: reason});
 
   require('./sender').flush();
 
