@@ -172,7 +172,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot009home"
+      "value": "prepilot009"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -190,7 +190,7 @@
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 60
+      "value": 90
     },
     {
       "name": "experiment.modes.end.delay",
@@ -238,7 +238,7 @@
       "name": "sender.queue_quota",
       "type": "integer",
       "title": "The number of messages that can be stored in the queue before they start to drop.",
-      "value": 50
+      "value": 25
     },
     {
       "name": "sender.send_to_remote",
