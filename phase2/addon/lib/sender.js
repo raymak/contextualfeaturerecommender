@@ -13,7 +13,6 @@ const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
 const {onTick} = require('./timer');
 const {prefs} = require("sdk/simple-prefs");
-const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/osfile.jsm");
 

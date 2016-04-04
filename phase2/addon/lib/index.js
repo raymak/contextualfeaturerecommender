@@ -7,6 +7,7 @@
 
 const system = require("sdk/system");
 const {prefs} = require("sdk/simple-prefs");
+const {defer, resolve} = require("sdk/core/promise")
 
 const recommFileAddress = prefs["recomm_list_address"];
 
@@ -15,6 +16,7 @@ exports.main = function(options, callbacks){
   console.log("Hello World! I am alive :)");
 
   console.time("full load");
+  console.time("initial load");
 
   if (options.loadReason === "install")
     installRun();
@@ -22,29 +24,29 @@ exports.main = function(options, callbacks){
   const isFirstRun = !prefs["isInitialized"];
 
   console.time("initializations");
-  require("./self").init();
-  require("./presentation/splitpage").init();  
-  require("./presentation/doorhanger").init();
-  require("./experiment").init();
-  require("./timer").init();
-  require("./logger").init();
-  require("./sender").init();
-  require("./debug").init();
-  require("./stats").init();
-  require("./feature-report").init();
-  console.timeEnd("initializations");
+  resolve()
+  .then(()=> require("./self").init())
+  .then(()=> require("./presentation/doorhanger").init())
+  .then(()=> require("./experiment").init())
+  .then(()=> require("./timer").init())
+  .then(()=> require("./logger").init())
+  .then(()=> require("./sender").init())
+  .then(()=> require("./debug").init())
+  .then(()=> require("./stats").init())
+  .then(()=> require("./feature-report").init())
+  .then(()=> {
+    console.timeEnd("initializations");
+    if (isFirstRun)
+      return firstRun();
+  }).then(()=> {
+    require('./logger').logLoad(options.loadReason);
+    require('./stats').event("load", {collectInstance: true}, {reason: require('sdk/self').loadReason});
+    return require('./controller').init();
 
-  if (isFirstRun)
-    firstRun();
+    console.timeEnd("full load");
+  });
 
-  require('./logger').logLoad(options.loadReason);
-
-  require('./controller').init();
-
-  require('./stats').event("load", {collectInstance: true}, {reason: require('sdk/self').loadReason});
-
-  console.timeEnd("full load");
-
+  console.timeEnd("initial load");
 }
 
 function firstRun(){
