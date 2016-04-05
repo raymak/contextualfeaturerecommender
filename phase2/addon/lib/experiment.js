@@ -48,12 +48,16 @@ const quickCodes = {
 
 const experiment = {
   init: function(){
+    PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update})
+    .then((obj)=> {
+      expData = obj;
+    }).then(this._init);
+  },
+  _init: function(){
 
     console.log("initializing experiment");
 
     console.time("experiment init");
-
-    expData = PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update});
 
     if (!expData.mode)
       setMode();
@@ -145,7 +149,7 @@ function setStage(nStage){
   stages[nStage]();
 
   console.log("starting new experiment stage: " + nStage);
-}
+  }
 function checkStage(et, ett){
 
   if (expData.stageForced)

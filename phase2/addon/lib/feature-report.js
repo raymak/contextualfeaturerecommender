@@ -11,7 +11,7 @@ const timer = require("./timer");
 const {prefs} = require("sdk/simple-prefs");
 
 const featDataAddress = "feature_report.data";
-const featData = PersistentObject("simplePref", {address: featDataAddress});
+let featData;
 const dhDataAddress = "presentation.doorhanger.data";
 
 const rowTemp = {
@@ -25,6 +25,13 @@ const rowTemp = {
             };
 
 function init(){
+  return PersistentObject("simplePref", {address: featDataAddress})
+  .then((obj)=> {
+    featData = obj;
+  }).then(_init);
+}
+
+function _init(){
   console.log("initializing feature report");
 
   if (!featData.report)
@@ -101,13 +108,21 @@ function getRow(id){
 }
 
 function postRecFeatureUse(id){
+  PersistentObject("simplePref", {address: dhDataAddress})
+  .then((dhData)=> {
+    _postRecFeatureUse(id, dhData);
+  });
+}
+
+function _postRecFeatureUse(id, dhData){
+
   let report = featData.report;
   
   if (report[id].firstusesincepres)
     return;
 
   let ett = timer.elapsedTotalTime();
-  let dhCurrRec = PersistentObject("simplePref", {address: dhDataAddress}).currentRec;
+  let dhCurrRec = dhData.currentRec;
 
   if (dhCurrRec.recomm.id != id)
     return;

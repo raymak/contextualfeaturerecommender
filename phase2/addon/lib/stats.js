@@ -17,7 +17,7 @@ const {PersistentObject} = require("./storage");
 const {merge} = require("sdk/util/object");
 
 const statsDataAddress = "stats.data";
-const statsData = PersistentObject("simplePref", {address: statsDataAddress});
+let statsData;
 
 const config = {
   name: 'stats-db',
@@ -29,6 +29,12 @@ let eventCount;
 AS.open(config);
 
 function init(){
+  return PersistentObject("simplePref", {address: statsDataAddress})
+  .then((obj)=> {
+    statsData = obj;
+  }).then(_init);
+}
+function _init(){
 
   console.log("initializing stats");
 

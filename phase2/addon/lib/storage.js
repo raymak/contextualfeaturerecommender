@@ -26,7 +26,8 @@ exports.PersistentObject = function(type, options){
 
   switch(type){
     case "simplePref":
-      return SimplePrefStorage(options);
+
+      return require('sdk/core/promise').resolve(SimplePrefStorage(options));
       break;
     case "osFile":
       return OsFileStorage(options);

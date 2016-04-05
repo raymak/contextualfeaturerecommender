@@ -40,12 +40,16 @@ let hideWatch;
 let closedwithreason;
 
 function init(){
+  return PersistentObject("simplePref", {address: dhDataAddress, updateListener: debug.update})
+  .then((obj)=> {
+    dhData = obj;
+  }).then(_init);
+}
+function _init(){
   console.log("initializing doorhanger");
   // panel = initPanel(button);
   
   console.time("doorhanger init");
-
-  dhData = PersistentObject("simplePref", {address: dhDataAddress, updateListener: debug.update});
 
   debug.init();
   // debug.update();

@@ -34,7 +34,8 @@ const events = require("sdk/system/events");
 const {pathFor} = require('sdk/system');  
 const file = require('sdk/io/file');
 const statsEvent = require("./stats").event;
-const {defer, once} = require("sdk/lang/functional");
+const functional = require("sdk/lang/functional");
+const {defer, all} = require("sdk/core/promise")
 const {PersistentObject} = require("./storage");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
@@ -53,8 +54,8 @@ const BLANK_URL = 'about:blank';
 const recSetAddress = "controller.recommData";
 const deliveryDataAddress = "delivery.data";
 
-let recommendations = PersistentRecSet("simplePref", {address: recSetAddress});
-let deliveryData = PersistentObject("simplePref", {address: deliveryDataAddress});
+let recommendations; //inited in init()
+let deliveryData; //inited in init()
 
 let hs;
 let sessObserver;
@@ -65,6 +66,18 @@ let historyObserver;
 let dlView;
 
 const init = function(){
+  return all(
+    [ 
+      initRecs(),
+      PersistentObject("simplePref", {address: deliveryDataAddress})
+    ])
+    .then((result)=> {
+      deliveryData = result[1];
+    }).then(_init);
+}
+
+const _init = function(){
+
   console.log("initializing controller");
 
   console.time("controller init");
@@ -78,6 +91,21 @@ const init = function(){
   welcome();
 
   console.timeEnd("controller init");
+}
+
+function initRecs(){
+
+  let {promise, resolve} = defer();
+
+  if (!recommendations){
+    PersistentRecSet("simplePref", {address: recSetAddress}).then((recSet)=> {
+      recommendations = recSet;
+    }).then(resolve);
+  }
+  else
+    resolve();
+
+  return promise;
 }
 
 /**
@@ -1037,7 +1065,7 @@ listener.listenForAddonEvents = function(callback){
     });
   }
 
-  let reportCount = defer(_reportCount);
+  let reportCount = functional.defer(_reportCount);
 
   addonListener = {
     onInstallEnded: function(install, addon){
@@ -1093,7 +1121,7 @@ listener.listenForTools = function(callback){
       if (doc.get().getElementById("find-button"))
         buttonListener()
       else { 
-        doc.get().getElementById("PanelUI-menu-button").addEventListener("command", once(buttonListener));
+        doc.get().getElementById("PanelUI-menu-button").addEventListener("command", functional.once(buttonListener));
         unload(function(){
           if (doc.get() && doc.get().getElementById("PanelUI-menu-button"))
             doc.get().getElementById("PanelUI-menu-button").removeEventListener("command", buttonListener)
@@ -2100,15 +2128,22 @@ function welcome(){
 }
 
 function loadRecFile(file){
-  let recomms = JSON.parse(data.load(file)).map(function(recData){
-    if ("auto-load" in recData && !recData["auto-load"])
-      return null;
-    
-    return Recommendation(recData);
-  });
+  let {resolve, promise} = defer();
 
-  recommendations.add.apply(recommendations, recomms);
+  initRecs().then(()=>{
+    let recomms = JSON.parse(data.load(file)).map(function(recData){
+      if ("auto-load" in recData && !recData["auto-load"])
+        return null;
+      
+      return Recommendation(recData);
+    });
 
+    recommendations.add.apply(recommendations, recomms);
+
+    resolve();
+  })
+
+  return promise;
 }
 
 function loadRec(file, recId){

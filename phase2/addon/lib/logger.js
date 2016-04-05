@@ -18,13 +18,20 @@ const {defer} = require("sdk/lang/functional");
 const unload = require("sdk/system/unload").when;
 
 const loggerDataAddress = "logger.data";
-const loggerData = PersistentObject("simplePref", {address: loggerDataAddress});
+let loggerData;
 
 const recentHistCount = prefs["logger.recent_hist_count"];
 
 let recentMsgs;
 
 function init(){
+  return PersistentObject("simplePref", {address: loggerDataAddress})
+  .then((obj)=> {
+    loggerData = obj;
+  }).then(_init);
+}
+
+function _init(){
   console.log("initializing logger");
 
   if (!("count" in loggerData))

@@ -208,16 +208,18 @@ const RecSet = function(options){
 }
 
 const PersistentRecSet = function(type, options){
-  let nObj = PersistentObject(type, merge({}, options, {target: Object.create(recSet)}));
-  nObj.routeIndexTables.forEach(function(indexTable){
+  return PersistentObject(type, merge({}, options, {target: Object.create(recSet)}))
+  .then((nObj)=>{
+    nObj.routeIndexTables.forEach(function(indexTable){
     if (!nObj[indexTable])
       nObj[indexTable] = {};
-  });
+    });
 
-  if (!nObj.length)
+    if (!nObj.length)
       nObj.length = 0;
 
-  return nObj;
+    return nObj;
+  });
 }
 const extractPresentationData = function(channel){
   return merge({}, this.presentationData["*"] || {}, this.presentationData[channel] || {});

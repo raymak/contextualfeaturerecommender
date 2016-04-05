@@ -38,12 +38,15 @@ exports.main = function(options, callbacks){
     console.timeEnd("initializations");
     if (isFirstRun)
       return firstRun();
-  }).then(()=> {
+  })
+  .then(()=> {
     require('./logger').logLoad(options.loadReason);
     require('./stats').event("load", {collectInstance: true}, {reason: require('sdk/self').loadReason});
     return require('./controller').init();
-
-    console.timeEnd("full load");
+  })
+  .then(()=> console.timeEnd("full load"))
+  .catch((e)=>{ 
+    console.log(e.name, e.message, e.fileNumber, e.stack);
   });
 
   console.timeEnd("initial load");
@@ -54,21 +57,16 @@ function firstRun(){
 
   console.log("preparing first run");
 
-  require('./logger').logFirstRun();
-  require('./self').setInitialized();
-  require('./experiment').firstRun();
-
-
-  console.time("recomm list load");
-  require("./controller").loadRecFile(recommFileAddress);
-  console.timeEnd("recomm list load");
-
-  console.time("route scaling");
-  //scaling routes
-  require("./controller").scaleRoutes(require("./route").coefficient(), "trigBehavior");
-  console.timeEnd("route scaling");
-
-  console.timeEnd("first run");
+  return resolve()
+  .then(()=> require('./logger').logFirstRun())
+  .then(()=> require('./self').setInitialized())
+  .then(()=> require('./experiment').firstRun())
+  .then(()=> {
+    console.time("recomm list load");
+    return require("./controller").loadRecFile(recommFileAddress);
+  })
+  .then(()=> console.timeEnd("recomm list load"))
+  .then(()=> console.timeEnd("first run"));
 }
 
 function installRun(){
@@ -78,17 +76,20 @@ function installRun(){
 
   clean = !!prefs["clean_install"];
 
-  if (clean)
-    require('./utils').cleanUp({reset: true});
+  return resolve()
+  .then(()=> {
+    if (clean)
+      return require('./utils').cleanUp({reset: true});
+  })
+  .then(()=> {
+    const isFirstRun = !prefs["isInitialized"];
 
-  const isFirstRun = !prefs["isInitialized"];
-
-  if (isFirstRun){
-    try{require('./utils').overridePrefs("../prefs.json");}
-    catch(e){console.log("skipped overriding preferences");}
-  }
-
-  console.timeEnd("install run");
+    if (isFirstRun){
+      try{require('./utils').overridePrefs("../prefs.json");}
+      catch(e){console.log("skipped overriding preferences");}
+    }
+  })
+  .then(()=> console.timeEnd("install run"));
 }
 
 

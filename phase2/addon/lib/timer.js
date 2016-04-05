@@ -16,7 +16,7 @@ const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
 
 const timerDataAddress = "timer.data";
-const timerData = PersistentObject("simplePref", {address: timerDataAddress});
+let timerData;
 
 const tickHandlers = [];
 const userActiveHandlers = [];
@@ -29,6 +29,13 @@ let tickInterval;
 let startTimeMs;
 
 const init = function(){
+  return PersistentObject("simplePref", {address: timerDataAddress})
+  .then((obj)=> {
+    timerData = obj;
+  }).then(_init);
+}
+
+const _init = function(){
   console.log("initializing timer");
 
   console.time("timer init");
@@ -68,7 +75,6 @@ const init = function(){
   debug.update({silenceStatus: true});
 
   console.timeEnd("timer init");
-
 }
 
 const elapsedTotalTime = function(stage){
