@@ -48,9 +48,10 @@ const quickCodes = {
 
 const experiment = {
   init: function(){
-    PersistentObject("simplePref", {address: expDataAddress, updateListener: debug.update})
+    PersistentObject("simplePref", {address: expDataAddress})
     .then((obj)=> {
       expData = obj;
+      expData.on('update', debug.update);
     }).then(this._init);
   },
   _init: function(){

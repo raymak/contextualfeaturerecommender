@@ -227,7 +227,6 @@ let registerStorageListeners = (function(){ // can be executed only once
     if (executed) return;
 
     let f = function(e){
-      console.log(e);
       let address = e.address;
       // console.log(address);
       let recs = {};

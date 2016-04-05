@@ -40,9 +40,10 @@ let hideWatch;
 let closedwithreason;
 
 function init(){
-  return PersistentObject("simplePref", {address: dhDataAddress, updateListener: debug.update})
+  return PersistentObject("simplePref", {address: dhDataAddress})
   .then((obj)=> {
     dhData = obj;
+    obj.on('update', debug.update);
   }).then(_init);
 }
 function _init(){

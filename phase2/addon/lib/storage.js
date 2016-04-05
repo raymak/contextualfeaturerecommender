@@ -3,6 +3,8 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+"use strict";
+
 const unload = require("sdk/system/unload").when;
 const {setInterval} = require("sdk/timers");
 const {EventTarget} = require("sdk/event/target");
@@ -17,9 +19,7 @@ Cu.import("resource://gre/modules/osfile.jsm");
 
 const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').id + "-storage");
 
-"use strict";
-
-osFileObjects = {}
+const osFileObjects = {}
 
 //TODO: add OS.File
 //TODO: add function definition capabilities using closures, to make it a real persistent object,
@@ -143,7 +143,7 @@ function StorageObject(updateFn, cachedObj, options){
   else
     targetObj = options.target;
 
-  evtTarget = EventTarget();
+  let evtTarget = EventTarget();
 
   let wrapper = {
       _copyCache: function(){
@@ -169,6 +169,7 @@ function StorageObject(updateFn, cachedObj, options){
         }
       },
       on: function(type, listener){
+        console.log("event listener", type);
         evtTarget.on(type, listener);
       },
       off: function(type, listener){

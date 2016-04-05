@@ -16,10 +16,17 @@ const PAGE_URL = "about:fr-sp";
 
 const spDataAddress = "presentation.splitpage.data";
 
-const spData = PersistentObject("simplePref", {address: spDataAddress});
-
+let spData;
 
 function init(){
+
+	return PersistentObject("simplePref", {address: spDataAddress})
+	.then((obj)=> {
+		spData = obj;
+	}).then(_init);
+}
+
+function _init(){
 
 	console.log("initializing splitpage");
 
