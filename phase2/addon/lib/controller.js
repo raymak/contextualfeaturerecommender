@@ -12,7 +12,7 @@ const {Route, coefficient} = require("./route");
 const {Recommendation} = require("./recommendation");
 const {URL} = require("sdk/url");
 const tabs = require("sdk/tabs");
-const {Event, eventData, eventDataAddress} = require("./event");
+const {Event, getEventData, eventDataAddress} = require("./event");
 const {Cu, Cc, Ci} = require("chrome");
 const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
@@ -1875,6 +1875,8 @@ listener.listenForDevTools = function(callback){
 };
 
 listener.multipleRoute = function(baseEvent, options){
+
+    let eventData = getEventData();
 
     if (!options)
       options = {};

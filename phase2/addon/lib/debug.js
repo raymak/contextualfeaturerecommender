@@ -11,7 +11,9 @@ const {data} = require("sdk/self");
 const sp = require("sdk/simple-prefs");
 const unload = require("sdk/system/unload").when;
 const {Cu, Cc, Ci} = require("chrome");
-const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
+const {TextEncoder} = require('sdk/io/buffer');
+const storage = require('./storage');
+const osFileObjects = storage.osFileObjects;
 Cu.import("resource://gre/modules/osfile.jsm");
 
 const HTML_URL = data.url("./debug.html");
@@ -59,6 +61,8 @@ function init(){
       worker.port.emit("init");
       loadPrefs();
       registerPrefListeners();
+      loadStorages();
+      registerStorageListeners();
       initWorker(worker);
     }
   });
@@ -194,6 +198,52 @@ let registerPrefListeners = (function(){ // can be executed only once
     Object.keys(sp.prefs).sort().forEach(function(pref){
       sp.on(pref, f);
       unload(function(){sp.removeListener(pref, f)});
+    });
+    executed = true;
+  }
+})();
+
+let loadStorages = (function(){ // can be executed only once
+  let executed = false;
+  return function(){
+    if (executed) return;
+
+    let recs = {};
+    Object.keys(osFileObjects).sort().forEach(function(address){
+      recs[address] = {};
+      recs[address].data = osFileObjects[address];
+      recs[address].type = 'json';
+      recs[address].list = 'os file storage';
+    });
+
+    updateRecords(recs);
+    executed = true;
+  }
+})();
+
+let registerStorageListeners = (function(){ // can be executed only once
+  let executed = false;
+  return function(){
+    if (executed) return;
+
+    let f = function(e){
+      console.log(e);
+      let address = e.address;
+      // console.log(address);
+      let recs = {};
+      recs[address] = {};
+      //does not update the type
+      recs[address].type = null;
+      recs[address].data = osFileObjects[address];
+      recs[address].list = 'os file storage';
+
+      updateAll(recs);
+    };
+
+    Object.keys(osFileObjects).sort().forEach(function(address){
+      storage.on(address, f)
+      // osFileObjects[address].on('update', f);
+      unload(function(){storage.removeListener(address, f)});
     });
     executed = true;
   }

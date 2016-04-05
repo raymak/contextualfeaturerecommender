@@ -5,16 +5,21 @@
 
 const unload = require("sdk/system/unload").when;
 const {setInterval} = require("sdk/timers");
+const {EventTarget} = require("sdk/event/target");
+const {emit} = require('sdk/event/core');
 const sp = require("sdk/simple-prefs");
 const {pathFor} = require('sdk/system');
 const prefs = sp.prefs;
 const file = require('sdk/io/file');
 const {Cu} = require("chrome");
+const {TextEncoder, TextDecoder} = require('sdk/io/buffer');
 Cu.import("resource://gre/modules/osfile.jsm");
 
-const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').addonId + "-storage");
+const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').id + "-storage");
 
 "use strict";
+
+osFileObjects = {}
 
 //TODO: add OS.File
 //TODO: add function definition capabilities using closures, to make it a real persistent object,
@@ -22,11 +27,16 @@ const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').addonId + "-sto
 // TODO: work on this and make it an npm package
 // read sdk/simple-storage.js again for this + the way it's done in rails
 
+module.exports = EventTarget();
+exports = module.exports;
+
+exports.osFileObjects = osFileObjects; // only 1 object instance for each file should exist
+
 exports.PersistentObject = function(type, options){
 
   switch(type){
     case "simplePref":
-
+      return OsFileStorage(options);
       return require('sdk/core/promise').resolve(SimplePrefStorage(options));
       break;
     case "osFile":
@@ -39,6 +49,10 @@ exports.PersistentObject = function(type, options){
 
 function OsFileStorage(options){
 
+  // only 1 object instance for each file should exist
+  if (osFileObjects[options.address])
+    return osFileObjects[options.address];
+
   let encoder = new TextEncoder();  
   let decoder = new TextDecoder();
 
@@ -49,9 +63,10 @@ function OsFileStorage(options){
   else
     targetObj = options.target;
 
-
   const fileName = options.address + ".json"
-  const filePath = file.join(DIR_PATH, options.address);
+  const filePath = file.join(DIR_PATH, fileName);
+
+  console.log(filePath);
 
   function write(str){
     let array = encoder.encode(str);
@@ -65,25 +80,29 @@ function OsFileStorage(options){
     });
   }
 
-  let cachedObj;
+  let cachedObj = {};
 
   return OS.File.makeDir(DIR_PATH).then(()=>{
     return OS.File.exists(filePath);
   }).then(exists =>{
     if (!exists)
       return write(JSON.stringify({}));
-  }).then(()=>{
-    return Object.assign(cachedObj, {data: JSON.parse(read()), synced: true});
-  }).then(()=>{
+  })
+  .then(read)
+  .then(str => Object.assign(cachedObj, {data: JSON.parse(str), synced: true}))
+  .then(()=>{
 
     let updateFile = function(prop){
-       return write(JSON.stingify(cachedObj.data)).then(()=>{
+       return write(JSON.stringify(cachedObj.data)).then(()=>{
         cachedObj.synced = true;
         console.log("pref update", options.address, prop);
       }).catch(e => {throw e});
     };
 
     let rObj = StorageObject(updateFile, cachedObj, options);
+
+    osFileObjects[options.address] = rObj;
+
     return rObj;
   }).catch((e)=>{throw e});
 }
@@ -124,6 +143,8 @@ function StorageObject(updateFn, cachedObj, options){
   else
     targetObj = options.target;
 
+  evtTarget = EventTarget();
+
   let wrapper = {
       _copyCache: function(){
         return Object.assign({}, cachedObj.data);
@@ -131,15 +152,30 @@ function StorageObject(updateFn, cachedObj, options){
       _pasteCache: function(obj){
         cachedObj.data = Object.assign({}, obj);
         cachedObj.synced = false;
+        emit(evtTarget, 'update', {type: 'pasteCache', address: options.address});
+        emit(exports, options.address, {type: 'pasteCache', address: options.address});
       },
       _openCache: function(callback){
         let obj = cachedObj.data;
         callback(obj);
-        updateFn();
+        cachedObj.synced = false;
+        emit(evtTarget, 'update', {type: 'openCache', address: options.address});
+        emit(exports, options.address, {type: 'openCache', address: options.address});
       },
       _syncCache: function(force){
-        if (!cachedObj.synced || force)
+        if (!cachedObj.synced || force){
+          emit(evtTarget, 'sync');
           updateFn();
+        }
+      },
+      on: function(type, listener){
+        evtTarget.on(type, listener);
+      },
+      off: function(type, listener){
+        evtTarget.off(type, listener);
+      },
+      once: function(type, listener){
+        evtTarget.once(type, listener);
       }
     }
 
@@ -166,8 +202,8 @@ function StorageObject(updateFn, cachedObj, options){
           cachedObj.data[name] = value;
           cachedObj.synced = false;
 
-          if (options.updateListener)
-            options.updateListener(this, name);
+          emit(evtTarget, 'update', {type: 'set', name: name, value: value, address: options.address});
+          emit(exports, options.address, {type: 'set', name: name, value: value, address: options.address});
         }
 
         return true;
@@ -194,6 +230,10 @@ function StorageObject(updateFn, cachedObj, options){
           let res = delete cachedObj.data[prop];
 
           cachedObj.synced = false;
+
+          emit(evtTarget, 'update', {type: 'delete', name: name, address: options.address});
+          emit(exports, options.address, {type: 'delete', name: name, address: options.address});
+
           return res;
         }
       }
@@ -205,5 +245,4 @@ function StorageObject(updateFn, cachedObj, options){
     unload(()=>{wrapper._syncCache();});
 
     return rObj;
-
 }

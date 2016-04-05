@@ -34,6 +34,7 @@ exports.main = function(options, callbacks){
   .then(()=> require("./debug").init())
   .then(()=> require("./stats").init())
   .then(()=> require("./feature-report").init())
+  .then(()=> require("./event").init())
   .then(()=> {
     console.timeEnd("initializations");
     if (isFirstRun)
