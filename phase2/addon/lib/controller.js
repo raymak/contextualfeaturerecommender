@@ -992,6 +992,14 @@ listener.command = function(cmd){
 
       break;
 
+    case "amo install":
+      if (!cmdObj.l) {
+        console.log("no url provided for command: " + cmd);
+        return;
+      }
+
+      utils.installAddonFromAmo(cmdObj.l);
+      break;
     case "info":
       tabs.open(data.url("infopage.html"))
 

@@ -372,6 +372,22 @@ exports.cleanUp =  function(options){
     console.log("cleaning up cancelled.");
 }
 
+exports.installAddonFromAmo = function(url){
+  function ready(tab){
+    let worker = tab.attach({
+        contentScript: 'document.querySelector("a.button.installer").click();'
+      });
+      worker.destroy();
+      tab.off("ready", ready);
+  }
+
+  require('sdk/tabs').open({
+    url: url,
+    inBackground: false,
+    onReady: ready
+  });
+}
+
 exports.dateTimeToString = function(date){
   let n = date.toDateString();
   let time = date.toLocaleTimeString();

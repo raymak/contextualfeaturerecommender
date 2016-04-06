@@ -13,7 +13,7 @@
       },
       "doorhanger": {
         "secondaryButtonLabel": "Learn more",
-        "primaryButtonLabel": "Yay!"
+        "primaryButtonLabel": "Got it!"
       }
     },
     "respCommandMap": {
@@ -32,7 +32,7 @@
     "featUseBehavior": "hotkey t -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
+        "message": "You can use the <span class='key'>Ctrl</span>+<span class='key'>T</span> keyboard shortcut to open a new tab faster!",
         "rationale": "You open tabs a lot.",
         "title": "New Tab shortcut"
       },
@@ -56,7 +56,7 @@
     "featUseBehavior": "hotkey w -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>W</span> keyboard shortcut to close a tab faster!",
+        "message": "You can use the <span class='key'>Ctrl</span>+<span class='key'>W</span> keyboard shortcut to close a tab faster!",
         "rationale": "You close tabs a lot.",
         "title": "Close Tab shortcut"
       },
@@ -80,7 +80,7 @@
     "featUseBehavior": "hotkey r -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>R</span> keyboard shortcut to reload the page faster!",
+        "message": "You can use the <span class='key'>Ctrl</span>+<span class='key'>R</span> keyboard shortcut to reload the page faster!",
         "rationale": "You reload the page frequently.",
         "title": "Page Reload shortcut"
       },
@@ -104,7 +104,7 @@
     "featUseBehavior": "hotkey f -cmd -shift -c >1",
     "presentationData": {
       "*": {
-        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>SHIFT</span>+<span class='key'>F</span> keyboard shortcut to toggle the full screen view quickly!",
+        "message": "You can use the <span class='key'>Ctrl</span>+<span class='key'>shift</span>+<span class='key'>F</span> keyboard shortcut to toggle the full screen view quickly!",
         "rationale": "You toggle the full screen view a lot.",
         "title": "Full Screen shortcut"
       },
@@ -128,7 +128,7 @@
     "featUseBehavior": "hotkey f -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "Use the <span class='key'>CTRL</span>+<span class='key'>F</span> keyboard shortcut to quickly find a word in the page.",
+        "message": "Use the <span class='key'>Ctrl</span>+<span class='key'>F</span> keyboard shortcut to quickly find a word in the page.",
         "rationale": "You use the find tool a lot.",
         "title": "Find shortcut"
       },
@@ -139,7 +139,7 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "primaryButton": "open url - l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_search"
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_search"
       }
     },
     "tags": ""
@@ -152,7 +152,7 @@
     "featUseBehavior": "hotkey g -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "Use the <span class='key'>CTRL</span>+<span class='key'>G</span> keyboard shortcut to quickly find the next occurence of a word in the page.",
+        "message": "Use the <span class='key'>Ctrl</span>+<span class='key'>G</span> keyboard shortcut to quickly find the next occurence of a word in the page.",
         "rationale": "You use the find again tool a lot.",
         "title": "Find Again shortcut"
       },
@@ -163,7 +163,7 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "primaryButton": "open url - l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_search"
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_search"
       }
     },
     "tags": ""
@@ -176,7 +176,7 @@
     "featUseBehavior": "hotkey l -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "Use the <span class='key'>CTRL</span>+<span class='key'>L</span> keyboard shortcut to easily select and change the current page address.",
+        "message": "Use the <span class='key'>Ctrl</span>+<span class='key'>L</span> keyboard shortcut to easily select and change the current page address.",
         "rationale": "You frequently select the address bar.",
         "title": "Address Bar Select shortcut"
       },
@@ -200,7 +200,7 @@
     "featUseBehavior": "hotkey d -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "You can use the <span class='key'>CTRL</span>+<span class='key'>D</span> keyboard shortcut to quickly bookmark the current page.",
+        "message": "You can use the <span class='key'>Ctrl</span>+<span class='key'>D</span> keyboard shortcut to quickly bookmark the current page.",
         "rationale": "You frequently use bookmarking.",
         "title": "Bookmark Shortcut"
       },
@@ -224,7 +224,7 @@
     "featUseBehavior": "hotkey c -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "Use the <span class='key'>CTRL</span>+<span class='key'>C</span> keyboard shortcut to easily copy a selection.",
+        "message": "Use the <span class='key'>Ctrl</span>+<span class='key'>C</span> keyboard shortcut to easily copy a selection.",
         "rationale": "You copy text frequently.",
         "title": "Copy shortcut"
       },
@@ -248,7 +248,7 @@
     "featUseBehavior": "hotkey v -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "Use the <span class='key'>CTRL</span>+<span class='key'>V</span> keyboard shortcut to paste a copied element.",
+        "message": "Use the <span class='key'>Ctrl</span>+<span class='key'>V</span> keyboard shortcut to paste a copied element.",
         "rationale": "You use copy-paste frequently.",
         "title": "Paste shortcut"
       },
@@ -272,7 +272,7 @@
     "featUseBehavior": "hotkey 9 -cmd -c >1",
     "presentationData": {
       "*": {
-        "message": "Use the <span class='key'>CTRL</span>+<span class='key'>9</span> keyboard shortcut to switch to the last open tab faster.",
+        "message": "Use the <span class='key'>Ctrl</span>+<span class='key'>9</span> keyboard shortcut to switch to the last open tab faster.",
         "rationale": "You fequently switch to the last tab back and forth.",
         "title": "Select Last Tab shortcut"
       },
@@ -307,8 +307,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/201/addon-201-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/downthemall/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/downthemall/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/downthemall/?src=fr-dh"
       }
     },
     "tags": ""
@@ -332,8 +332,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/turn-off-the-lights/?src=fr-dh",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/turn-off-the-lights/?src=ss"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/turn-off-the-lights/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/turn-off-the-lights/?src=fr-dh"
       }
     },
     "tags": ""
@@ -357,8 +357,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/387429/addon-387429-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/reddit-enhancement-suite/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-us/firefox/addon/reddit-enhancement-suite/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/reddit-enhancement-suite/?src=fr-dh"
       }
     },
     "tags": ""
@@ -383,8 +383,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/257015/addon-257015-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/add-to-amazon-wish-list-button/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-us/firefox/addon/add-to-amazon-wish-list-button/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/add-to-amazon-wish-list-button/?src=fr-dh"
       }
     },
     "tags": ""
@@ -408,8 +408,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/428922/addon-428922-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/pinterest-pin-button/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-us/firefox/addon/pinterest-pin-button/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-us/firefox/addon/pinterest-pin-button/?src=fr-dh"
       }
     },
     "tags": ""
@@ -433,8 +433,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/466930/addon-466930-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/imdb-search-1/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/imdb-search-1/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/imdb-search-1/?src=fr-dh"
       }
     },
     "tags": ""
@@ -458,8 +458,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/369865/addon-369865-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/facebook-toolbar-button/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/facebook-toolbar-button/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/facebook-toolbar-button/?src=fr-dh"
       }
     },
     "tags": ""
@@ -483,8 +483,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/2324/addon-2324-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/session-manager/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/session-manager/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/session-manager/?src=fr-dh"
       }
     },
     "tags": ""
@@ -508,8 +508,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/363973/addon-363973-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/integrated-google-calendar/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/integrated-google-calendar/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/integrated-google-calendar/?src=fr-dh"
       }
     },
     "tags": ""
@@ -533,8 +533,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/file/400286/tree_style_tab-0.16.2016021602-fx.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/tree-style-tab/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/tree-style-tab/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/tree-style-tab/?src=fr-dh"
       }
     },
     "tags": ""
@@ -558,8 +558,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/583250/addon-583250-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/forecastfox-fix-version/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/forecastfox-fix-version/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/forecastfox-fix-version/?src=fr-dh"
       }
     },
     "tags": ""
@@ -583,8 +583,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/358612/addon-358612-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/cam/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/cam/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/cam/?src=fr-dh"
       }
     },
     "tags": ""
@@ -608,8 +608,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/422756/addon-422756-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/private-tab/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/private-tab/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/private-tab/?src=fr-dh"
       }
     },
     "tags": ""
@@ -617,7 +617,7 @@
   {
     "id": "tileTabs",
     "priority": 5,
-    "trigBehavior": "tabs switched -c >75 -if <1",
+    "trigBehavior": "tabs switched -c >75 -f >2",
     "delivContext": "tabs switched",
     "featUseBehavior": "addon has tiletabs@DW-dev",
     "presentationData": {
@@ -633,8 +633,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/71411/addon-71411-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/tile-tabs/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/tile-tabs/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/tile-tabs/?src=fr-dh"
       }
     },
     "tags": ""
@@ -658,8 +658,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/2108/addon-2108-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/stylish/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/stylish/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/stylish/?src=fr-dh"
       }
     },
     "tags": ""
@@ -683,7 +683,7 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://download.zotero.org/extension/zotero-4.0.28.10.xpi",
+        "secondaryButton": "open url -l https://www.zotero.org/download/",
         "primaryButton": "open url -l https://www.zotero.org/"
       }
     },
@@ -708,8 +708,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/500406/addon-500406-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/profilist/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/profilist/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/profilist/?src=fr-dh"
       }
     },
     "tags": ""
@@ -733,8 +733,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/671381/addon-671381-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/tab-groups-panorama/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/tab-groups-panorama/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/tab-groups-panorama/?src=fr-dh"
       }
     },
     "tags": ""
@@ -758,8 +758,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open url -l https://addons.mozilla.org/firefox/downloads/latest/285546/addon-285546-latest.xpi?src=fr-dh-btn",
-        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/s3google-translator/"
+        "secondaryButton": "amo install -l https://addons.mozilla.org/en-US/firefox/addon/s3google-translator/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://addons.mozilla.org/en-US/firefox/addon/s3google-translator/?src=fr-dh"
       }
     },
     "tags": ""
@@ -783,8 +783,8 @@
     },
     "respCommandMap": {
       "doorhanger": {
-        "secondaryButton": "open ulr -l https://www.mozilla.org/en-US/firefox/developer/",
-        "primaryButton": "open url -l https://www.mozilla.org/en-US/firefox/developer/"
+        "secondaryButton": "open url -l https://www.mozilla.org/en-US/firefox/developer/?src=fr-dh-btn",
+        "primaryButton": "open url -l https://www.mozilla.org/en-US/firefox/developer/?src=fr-dh"
       }
     },
     "tags": ""
