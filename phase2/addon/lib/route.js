@@ -6,6 +6,20 @@
 "use strict";
 
 const {prefs} = require("sdk/simple-prefs");
+const {PersistentObject} = require('./storage');
+
+let routeData;
+const routeDataAddress = "route.data";
+
+
+function init(){
+  return PersistentObject('osFile', {address: routeDataAddress})
+  .then((obj)=> {
+    routeData = obj;
+    if (!("coefficient" in routeData))
+      routeData.coefficient = 1;
+  });
+}
 
 function Route(route){
 
@@ -109,9 +123,9 @@ const matches = function(inRoute, looseMatch){
 
 function coefficient(coeff){
   if (coeff)
-    prefs["route.coefficient"] = String(coeff*Number(prefs["route.coefficient"]));
+    routeData.coefficient = Number(coeff)*prefs["route.default_coefficient"];
 
-  return Number(prefs["route.coefficient"]);
+  return routeData.coefficient;
 }
 
 // exports.init = init;
@@ -122,3 +136,4 @@ exports.matches = matches;
 exports.scale = scale;
 exports.coefficient = coefficient;
 exports.str = str;
+exports.init = init;

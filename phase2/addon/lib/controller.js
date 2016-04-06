@@ -36,7 +36,7 @@ const file = require('sdk/io/file');
 const statsEvent = require("./stats").event;
 const functional = require("sdk/lang/functional");
 const {defer, all} = require("sdk/core/promise")
-const {PersistentObject} = require("./storage");
+const {PersistentObject, osFileObjects} = require("./storage");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -66,6 +66,8 @@ let historyObserver;
 let dlView;
 
 const init = function(){
+  console.log("initializing controller");
+
   return all(
     [ 
       initRecs(),
@@ -77,9 +79,6 @@ const init = function(){
 }
 
 const _init = function(){
-
-  console.log("initializing controller");
-
   console.time("controller init");
 
   unload(unloadController);
@@ -680,14 +679,8 @@ const listener = {
 const deliverer = {
   init: function(){
 
-    let f = function(p){
-      prefs["timer.silence_length_s"] = 
-        timer.tToS(prefs["delivery.mode.silence_length." + prefs[p]]);
-    };
-    sp.on("delivery.mode.rate_limit", f)
-    unload(function() sp.removeListener("delivery.mode.rate_limit", f));
-
-    f("delivery.mode.rate_limit");
+    osFileObjects["timer.data"].silence_length_s = 
+      timer.tToS(prefs["delivery.mode.silence_length." + osFileObjects["delivery.data"].mode.rate_limit]);
 
     timer.onTick(this.checkSchedule);
 
@@ -2049,7 +2042,8 @@ const debug = {
             if (subArgs[2] != "true" && subArgs[2] != "false") 
               return "error: incorrect use of delmode observ_only command.";
 
-            prefs["delivery.mode.observ_only"] = JSON.parse(subArgs[2]);
+            osFileObjects["delivery.data"].mode = 
+              merge(osFileObjects["delivery.data"].mode, {observ_only: modeJSON.parse(subArgs[2])});
 
             return "observ_only mode is now " + (JSON.parse(subArgs[2]) ? "on": "off");
 
@@ -2165,10 +2159,10 @@ return isFound;
 function scaleRoutes(coeff, indexTable){
   if (coeff === 1)
     return;
+
   recommendations.forEach(function(aRecommendation){
     recommendations.scaleRoute(aRecommendation, coeff, indexTable);
   });
-
 
 }
 

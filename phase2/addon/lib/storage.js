@@ -26,6 +26,8 @@ const osFileObjects = {}
 // and not only a JsonStore
 // TODO: work on this and make it an npm package
 // read sdk/simple-storage.js again for this + the way it's done in rails
+// TODO: make direct manipulation with an arbitrary depth possible (e.g. sample-storage.sample-p1.sample-p2 = sample-v)
+//  this requires checking and refactoring some code to avoid breaking anything
 
 module.exports = EventTarget();
 exports = module.exports;
@@ -33,6 +35,10 @@ exports = module.exports;
 exports.osFileObjects = osFileObjects; // only 1 object instance for each file should exist
 
 exports.PersistentObject = function(type, options){
+
+  // if only a string is passed, assume that it's the address
+  if (typeof options === "string")
+    options = {address: options}
 
   switch(type){
     case "simplePref":
@@ -51,7 +57,7 @@ function OsFileStorage(options){
 
   // only 1 object instance for each file should exist
   if (osFileObjects[options.address])
-    return osFileObjects[options.address];
+    return require('sdk/core/promise').resolve(osFileObjects[options.address]);
 
   let encoder = new TextEncoder();  
   let decoder = new TextDecoder();
@@ -169,7 +175,6 @@ function StorageObject(updateFn, cachedObj, options){
         }
       },
       on: function(type, listener){
-        console.log("event listener", type);
         evtTarget.on(type, listener);
       },
       off: function(type, listener){

@@ -205,7 +205,7 @@
       "value": false
     },
     {
-      "name": "route.coefficient",
+      "name": "route.default_coefficient",
       "type": "string",
       "title": "Coefficient that scales the triggering behavior thresholds",
       "value": "1"

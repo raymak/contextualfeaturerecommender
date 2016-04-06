@@ -40,6 +40,9 @@ let hideWatch;
 let closedwithreason;
 
 function init(){
+
+  console.log("initializing doorhanger");
+
   return PersistentObject("simplePref", {address: dhDataAddress})
   .then((obj)=> {
     dhData = obj;
@@ -47,7 +50,6 @@ function init(){
   }).then(_init);
 }
 function _init(){
-  console.log("initializing doorhanger");
   // panel = initPanel(button);
   
   console.time("doorhanger init");
@@ -533,7 +535,14 @@ const debug = {
     if (!isEnabled()) return;
 
     let data = dhData;
-    let updateObj = {count: data.count, currentRecomm: data.currentRec.recomm, state: data.currentRec.state, report: data.currentRec.report};
+
+    let updateObj;
+
+    if (!data.currentRec)
+      updateObj = {};
+    else
+      updateObj = {count: data.count, currentRecomm: data.currentRec.recomm, state: data.currentRec.state, report: data.currentRec.report};
+    
     dumpUpdateObject(updateObj, {list: "Presentation: Doorhanger"});
   },
   parseCmd: function(cmd){

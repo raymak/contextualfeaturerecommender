@@ -29,14 +29,15 @@ let eventCount;
 AS.open(config);
 
 function init(){
+
+  console.log("initializing stats");
+  
   return PersistentObject("simplePref", {address: statsDataAddress})
   .then((obj)=> {
     statsData = obj;
   }).then(_init);
 }
 function _init(){
-
-  console.log("initializing stats");
 
   if (!("eventCount" in statsData)){
     statsData.eventCount = 0;

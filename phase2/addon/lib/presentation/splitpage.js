@@ -20,6 +20,8 @@ let spData;
 
 function init(){
 
+	console.log("initializing splitpage");
+
 	return PersistentObject("simplePref", {address: spDataAddress})
 	.then((obj)=> {
 		spData = obj;
@@ -27,8 +29,6 @@ function init(){
 }
 
 function _init(){
-
-	console.log("initializing splitpage");
 
 	console.time("splitpage init");
 

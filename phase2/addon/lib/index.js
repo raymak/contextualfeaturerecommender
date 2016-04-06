@@ -18,16 +18,18 @@ exports.main = function(options, callbacks){
   console.time("full load");
   console.time("initial load");
 
-  if (options.loadReason === "install")
-    installRun();
+  let installRunPromise = resolve()
+  .then(()=> {
+    if (options.loadReason === "install")
+      return installRun();
+  });
 
-  const isFirstRun = !prefs["isInitialized"];
-
-  console.time("initializations");
-  resolve()
+  installRunPromise
+  .then(()=> console.time("initializations"))
   .then(()=> require("./self").init())
   .then(()=> require("./presentation/doorhanger").init())
   .then(()=> require("./experiment").init())
+  .then(()=> require("./route").init())
   .then(()=> require("./timer").init())
   .then(()=> require("./logger").init())
   .then(()=> require("./sender").init())
@@ -35,11 +37,13 @@ exports.main = function(options, callbacks){
   .then(()=> require("./stats").init())
   .then(()=> require("./feature-report").init())
   .then(()=> require("./event").init())
-  .then(()=> {
+  .then(isFirstRun)
+  .then((first)=> {
     console.timeEnd("initializations");
-    if (isFirstRun)
+    if (first)
       return firstRun();
   })
+  .then(()=> require("./experiment").checkStage())
   .then(()=> {
     require('./logger').logLoad(options.loadReason);
     require('./stats').event("load", {collectInstance: true}, {reason: require('sdk/self').loadReason});
@@ -47,7 +51,7 @@ exports.main = function(options, callbacks){
   })
   .then(()=> console.timeEnd("full load"))
   .catch((e)=>{ 
-    console.log(e.name, e.message, e.fileNumber, e.stack);
+    console.log(e.name, e.message, e.stack);
   });
 
   console.timeEnd("initial load");
@@ -67,6 +71,11 @@ function firstRun(){
     return require("./controller").loadRecFile(recommFileAddress);
   })
   .then(()=> console.timeEnd("recomm list load"))
+  .then(()=> {
+    console.time("route scaling");
+    require("./controller").scaleRoutes(require("./route").coefficient(), "trigBehavior");
+  })
+  .then(()=> console.timeEnd("route scaling"))
   .then(()=> console.timeEnd("first run"));
 }
 
@@ -82,10 +91,10 @@ function installRun(){
     if (clean)
       return require('./utils').cleanUp({reset: true});
   })
-  .then(()=> {
-    const isFirstRun = !prefs["isInitialized"];
+  .then(isFirstRun)
+  .then((first)=> {
 
-    if (isFirstRun){
+    if (first){
       try{require('./utils').overridePrefs("../prefs.json");}
       catch(e){console.log("skipped overriding preferences");}
     }
@@ -93,6 +102,10 @@ function installRun(){
   .then(()=> console.timeEnd("install run"));
 }
 
+function isFirstRun(){
+  return require('./storage').PersistentObject('osFile', 'self.data')
+  .then(data => !data.isInitialized) 
+}
 
 exports.onUnload = function(reason){
 
@@ -101,6 +114,9 @@ exports.onUnload = function(reason){
   require('./stats').event("unload", {collectInstance: true}, {reason: reason});
 
   require('./sender').flush();
+
+  if (reason == "uninstall" && prefs["cleanup_on_death"])
+    require('./utils').cleanUp({reset: true});
 
   console.log("end of unload");
 }

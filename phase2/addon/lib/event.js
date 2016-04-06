@@ -15,10 +15,13 @@ let eventData;
 //TOTHINK: to use the event API from the SDK to emit and listen
 
 function init(){
-    return PersistentObject("simplePref", {address: eventDataAddress})
-    .then((obj)=> {
-        eventData = obj;
-    }).then(_init);
+
+  console.log("initializing event");
+
+  return PersistentObject("simplePref", {address: eventDataAddress})
+  .then((obj)=> {
+      eventData = obj;
+  }).then(_init);
 }
 function _init(){
 

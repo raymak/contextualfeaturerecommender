@@ -321,7 +321,7 @@ const randomTime = function(start, end){
 }
 
 const silence_length_tick = function(){
-  return sToT(prefs["timer.silence_length_s"]);
+  return sToT(timerData.silence_length_s);
 }
 
 const tToS = function(t){
@@ -421,13 +421,14 @@ const debug = {
                 if (!subArgs[2])
                   return "error: invalid use of time set st command.";
 
-                console.log(Number(prefs["experiment.startTimeMs"]));
+                let startTimeMs = Number(require('./storage').osFileObjects['experiment.data'].startTimeMs);
+                console.log(startTimeMs);
 
-                let dateNum = Number(prefs["experiment.startTimeMs"]) 
+                let dateNum = startTimeMs
                               + Number(subArgs[2])*prefs["timer.tick_length_s"]*1000;
 
                 console.log(dateNum);
-                prefs["experiment.startTimeMs"] = String(dateNum);
+                require('./storage').osFileObjects['experiment.data'].startTimeMs = String(dateNum);
 
                 return "new start time set to: " + require('./timer').dateTimeToString(new Date(dateNum));
                 break;

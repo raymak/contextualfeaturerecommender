@@ -65,7 +65,7 @@ function log(type, attrs, options){
 function _log(type, attrs){
 
   let OUT = {
-    userid: self.userId,
+    userid: require('./experiment').userId,
     number: nextNumber(),
     is_test: self.isTest,
     deb_cmd_used: prefs["debug.command.used"],

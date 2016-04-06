@@ -48,6 +48,9 @@ const quickCodes = {
 
 const experiment = {
   init: function(){
+
+    console.log("initializing experiment");
+
     PersistentObject("simplePref", {address: expDataAddress})
     .then((obj)=> {
       expData = obj;
@@ -55,8 +58,6 @@ const experiment = {
     }).then(this._init);
   },
   _init: function(){
-
-    console.log("initializing experiment");
 
     console.time("experiment init");
 
@@ -75,6 +76,9 @@ const experiment = {
       console.log("experiment stage set to obs1 due to no existing stage");
       expData.stage = "obs1";
     }
+
+    if (expData.stage === "end")
+      end();  // in case the end stage has not been properly executed (e.g. due to crash)
 
     timer.onTick(checkStage);
     timer.onTick(debug.update);
@@ -101,18 +105,42 @@ const experiment = {
     return expData.stageTimes;
   },
   firstRun: function(){
-    setStage("obs1");
+    return setStage("obs1");
+  },
+  // also sets user id for the first time
+  get userId(){
+    if (!expData.userId){
+      expData.userId = require("sdk/util/uuid").uuid().toString().slice(1,-1); //set for the first time
+      prefs["userId"] = expData.userId; // for easier reading of userId
+    }
+    
+    return expData.userId
+  },
+  checkStage: checkStage
+}
+
+function initExpData(){
+  let {promise, resolve} = defer();
+
+  if (!expData){
+    PersistentRecSet("osFile", {address: expDataAddress}).then((data)=> {
+      expData = data;
+    }).then(resolve);
   }
+  else
+    resolve();
+
+  return promise;
 }
 
 // also sets start date when called for the first time
-function startTimeMs(){
-  if (prefs["experiment.startTimeMs"]) 
-    return prefs["experiment.startTimeMs"];
-  else {
-    prefs["experiment.startTimeMs"] = Date.now().toString(); //set for the first time
-    return prefs["experiment.startTimeMs"];
+function startTimeMs(){  
+  if (!("startTimeMs" in expData)){
+    expData.startTimeMs = Date.now().toString(); // set for the first time 
+    prefs["startTimeMs"] = expData.startTimeMs; // for easier reading og start time
   }
+
+  return expData.startTimeMs;
 }
 
 function updateStageEt(){
@@ -147,14 +175,21 @@ function setStage(nStage){
   require("./logger").logExpStageAdvance({newstage: nStage, oldStage: stage, duration: duration, elapsedTime: et});
 
    //prepare the new stage
-  stages[nStage]();
+  return stages[nStage]();
 
   console.log("starting new experiment stage: " + nStage);
-  }
+}
+
 function checkStage(et, ett){
+
 
   if (expData.stageForced)
     return ;
+  
+  // when called from index.js
+  if (ett === undefined)
+    ett = timer.elapsedTotalTime(); 
+
 
   let stage = expData.stage;
 
@@ -185,52 +220,78 @@ function checkStage(et, ett){
 const stages = {
   obs1: function(){
 
-    prefs["delivery.mode.observ_only"] = true;
-    let mode = expData.mode;
-    prefs["delivery.mode.rate_limit"] = mode.rateLimit;
-    prefs["timer.silence_length_s"] = 
-        timer.tToS(prefs["delivery.mode.silence_length." + prefs["delivery.mode.rate_limit"]]);
-    prefs["delivery.mode.moment"] = mode.moment;
-    prefs["route.coefficient"] = String(mode.coeff);
+    return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
+    .then((deliveryData)=> {
 
-    console.log("obs1 stage started.");
+      deliveryData.observ_only= true;
+
+      let mode = expData.mode;
+
+      deliveryData.mode = {observ_only: true, rate_limit: mode.rateLimit, moment: mode.moment};
+    })
+    .then(()=> PersistentObject("osFile", {address: "timer.data"}))
+    .then((timerData)=> {
+      timerData.silence_length_s = 
+          timer.tToS(prefs["delivery.mode.silence_length." + expData.mode.rate_limit]);
+
+      require('./route').coefficient(String(expData.mode.coeff));
+
+      console.log("obs1 stage started.");
+    });
 
   },
   intervention: function(){
-    prefs["delivery.mode.observ_only"] = false;
-    console.log("intervention stage started.");
 
-    require("./feature-report").log();
+    return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
+    .then((deliveryData)=> {
 
-    require('./stats').log();
+      deliveryData.mode = merge(deliveryData.mode, {observ_only: false});
+
+      console.log("intervention stage started.");
+
+      require("./feature-report").log();
+
+      require('./stats').log();
+    });
   },
   obs2: function(){
-    prefs["delivery.mode.observ_only"] = true;
-    require('./presenter').stop();
+    return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
+    .then((deliveryData)=> {
 
-    require('./stats').log();
+      deliveryData.mode = merge(deliveryData.mode, {observ_only: true});
 
-    console.log("obs2 stage started.");
+      require('./presenter').stop();
+
+      require('./stats').log();
+
+      console.log("obs2 stage started.");
+    });
   },
-  end: function(){
+  end: end
+};
+
+function end(){
     // to make sure no notifications are delivered during the delay
-    prefs["delivery.mode.observ_only"] = true;
+  return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
+  .then((deliveryData)=> {
+
+    deliveryData.mode = merge(deliveryData.mode, {observ_only: true});
     require('./presenter').stop();
 
     require("./self").getPeriodicInfo(function(info){
-        require("./logger").logPeriodicSelfInfo(info);
+      require("./logger").logPeriodicSelfInfo(info);
 
-        require("./feature-report").log();
-        require('./stats').log();
+      require("./feature-report").log();
+      require('./stats').log();
 
-        // flush the remaining log messages
-        require('./sender').flush();
+      // flush the remaining log messages
+      require('./sender').flush();
     });
 
     // delay to give some time for the remaining message queue to be flushed
-    setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"])
-  }
-};
+    setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"]);
+  });
+}
 
 function timeUntilNextStage(){
   let obs1_l = prefs["experiment.obs1_length_tick"];

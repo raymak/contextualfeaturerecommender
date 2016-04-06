@@ -25,6 +25,9 @@ const rowTemp = {
             };
 
 function init(){
+
+  console.log("initializing feature report");
+  
   return PersistentObject("simplePref", {address: featDataAddress})
   .then((obj)=> {
     featData = obj;
@@ -32,7 +35,6 @@ function init(){
 }
 
 function _init(){
-  console.log("initializing feature report");
 
   if (!featData.report)
     featData.report = {};
