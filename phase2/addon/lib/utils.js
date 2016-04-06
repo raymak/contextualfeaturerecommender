@@ -344,7 +344,7 @@ exports.cleanUp =  function(options){
     const DIR_PATH = require('sdk/io/file').join(require('sdk/system').pathFor("ProfD"), require('sdk/self').id + "-storage");
     Cu.import("resource://gre/modules/osfile.jsm");
 
-    let osPromise = OS.File.removeDir(DIR_PATH, {ignoreAbsent: true})
+    let osPromise = OS.File.removeDir(DIR_PATH, {ignoreAbsent: true, ignorePermissions: true})
     .then(function(){
       
       console.log("cleaning up osfile storage");
@@ -366,7 +366,7 @@ exports.cleanUp =  function(options){
           require('sdk/preferences/service').reset(['extensions', require('sdk/self').id, pref].join('.'));
         }
       }
-    });
+    }).catch(Cu.reportError);
   }
   else
     console.log("cleaning up cancelled.");

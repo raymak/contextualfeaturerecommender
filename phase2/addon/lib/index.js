@@ -51,7 +51,7 @@ exports.main = function(options, callbacks){
   })
   .then(()=> console.timeEnd("full load"))
   .catch((e)=>{ 
-    console.log(e.name, e.message, e.stack);
+    require('chrome').Cu.reportError(e);
   });
 
   console.timeEnd("initial load");
@@ -93,13 +93,12 @@ function installRun(){
   })
   .then(isFirstRun)
   .then((first)=> {
-
     if (first){
       try{require('./utils').overridePrefs("../prefs.json");}
       catch(e){console.log("skipped overriding preferences");}
     }
   })
-  .then(()=> console.timeEnd("install run"));
+  .then(()=> console.timeEnd("install run")).catch(require('chrome').Cu.reportError);
 }
 
 function isFirstRun(){

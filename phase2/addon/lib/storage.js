@@ -55,9 +55,12 @@ exports.PersistentObject = function(type, options){
 
 function OsFileStorage(options){
 
+  console.log("creating " + options.address);
   // only 1 object instance for each file should exist
   if (osFileObjects[options.address])
     return require('sdk/core/promise').resolve(osFileObjects[options.address]);
+
+  let data = {};
 
   let encoder = new TextEncoder();  
   let decoder = new TextDecoder();
@@ -72,18 +75,19 @@ function OsFileStorage(options){
   const fileName = options.address + ".json"
   const filePath = file.join(DIR_PATH, fileName);
 
+  console.log(fileName)
   console.log(filePath);
-
+ 
   function write(str){
-    let array = encoder.encode(str);
-    return OS.File.writeAtomic(filePath, array,
-      {tmpPath: fileName + ".tmp"});                                  
+    let arr = encoder.encode(str);
+    return OS.File.open(filePath, {write: true, trunc: true})
+    .then(f => f.write(arr).then(()=> f.close())).catch((e)=>Cu.reportError(e));
   }
 
   function read(){
     return OS.File.read(filePath).then((arr)=>{
       return decoder.decode(arr);
-    });
+    }).catch(Cu.reportError);
   }
 
   let cachedObj = {};
@@ -97,20 +101,20 @@ function OsFileStorage(options){
   .then(read)
   .then(str => Object.assign(cachedObj, {data: JSON.parse(str), synced: true}))
   .then(()=>{
-
     let updateFile = function(prop){
        return write(JSON.stringify(cachedObj.data)).then(()=>{
         cachedObj.synced = true;
         console.log("pref update", options.address, prop);
-      }).catch(e => {throw e});
+      }).catch(Cu.reportError);
     };
 
     let rObj = StorageObject(updateFile, cachedObj, options);
+    console.log(options.address, rObj);
 
     osFileObjects[options.address] = rObj;
 
     return rObj;
-  }).catch((e)=>{throw e});
+  }).catch(Cu.reportError);
 }
 
 

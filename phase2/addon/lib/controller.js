@@ -731,8 +731,8 @@ const deliverer = {
       rejectDelivery = true;
     }
 
-    if (self.delMode.observOnly || (timer.isSilent())){
-      if (self.delMode.observOnly){
+    if (self.delMode.observ_only || (timer.isSilent())){
+      if (self.delMode.observ_only){
         console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
         require('./stats').event("observe-only-reject", {type: "delivery"});
       }
