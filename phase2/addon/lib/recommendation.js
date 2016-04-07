@@ -39,7 +39,7 @@ const recSet = {
   add: function(/* recommendations */){
     let routeIndexTables = this.routeIndexTables;
 
-    let that = this._copyCache(); // to reduce the number of prefs hits
+    let that = this._copyCache();
 
     let frIds = [];
     let frObjs = [];
@@ -105,6 +105,7 @@ const recSet = {
     this._pasteCache(that);
   },
   update: function(/* recommendations */){
+
     let that = this;
 
     Array.prototype.slice.call(arguments).forEach(function(aRecommendation){
@@ -190,7 +191,7 @@ const recSet = {
     this.update(aRecommendation);
   },
   forEach: function(callback) {
-    let that = this._copyCache();
+    let that = this;
     Object.keys(that).forEach(function(key){
         return typeof that[key] === "function" ||  ["routeIndexTables", "delivContext", "trigBehavior", "featUseBehavior", "length"].indexOf(key) != -1 || callback(that[key]);
       });

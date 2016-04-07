@@ -196,12 +196,19 @@ function StorageObject(updateFn, cachedObj, options){
           return target[name];
         else
           if (cachedObj.data.hasOwnProperty(name)){
-            return (typeof cachedObj.data[name] === "object"? Object.assign({}, cachedObj.data[name]): cachedObj.data[name]);
+            if (typeof cachedObj.data[name] === "object"){
+              if (cachedObj.data[name].constructor === Array)
+                return cachedObj.data[name].slice();
+              else
+                return Object.assign({}, cachedObj.data[name])
+            }
+            else
+              return cachedObj.data[name];
           }
           else {
             return wrapper[name];
           }
-
+          
       },
       set: function(target, name, value) {
         if (target.hasOwnProperty(name)){

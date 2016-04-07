@@ -687,6 +687,8 @@ const deliverer = {
   },
   deliver: function (/* recommendations */) {
 
+    require("./experiment").checkStage();
+
     let recomms = Array.prototype.slice.call(arguments);
 
     if (recomms.length === 0)
@@ -755,6 +757,7 @@ const deliverer = {
     }
 
     aRecommendation.status = "delivered";
+
     recommendations.update(aRecommendation);
 
     statsEvent("delivery");
@@ -1964,6 +1967,7 @@ const debug = {
 
       //deliverer
       case "deliver":
+
         if (!recommendations[params] && params != "next")
           return ("error: recommendation with id " + params + " does not exist.")
 
