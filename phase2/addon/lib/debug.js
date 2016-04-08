@@ -31,7 +31,9 @@ function init(){
 
   console.time("debug init");
 
-  console.log("initializing debug")
+  console.log("initializing debug");
+
+  const array = require('sdk/util/array');
   
   // TODO: proper way to register about: pages
   // https://dev.mozilla.jp/localmdc/localmdc_1781.html
@@ -52,10 +54,13 @@ function init(){
     contentStyleFile: data.url('./css/jquery.jsonview.css'),
     contentScriptWhen: 'ready',
     onAttach: function(worker){
-      workers.push(worker);
-      worker.on('detach', function(){
-        detachWorker(worker, workers);
-      });
+
+      worker.on('pageshow', function() { array.add(workers, this); });
+      worker.on('pagehide', function() { array.remove(workers, this); });
+      worker.on('detach', function() { array.remove(workers, this); });
+
+      console.log("debug worker count: ", workers.length);
+
       worker.port.on("log", function(m){console.log(m);});
       worker.port.on("cmd", function(cmd){processCommand(worker, cmd);});
       worker.port.emit("init");
@@ -246,14 +251,7 @@ let registerStorageListeners = (function(){ // can be executed only once
     });
     executed = true;
   }
-})();
-
-function detachWorker(worker, workerArray) {
-  let index = workerArray.indexOf(worker);
-  if(index != -1) {
-    workerArray.splice(index, 1);
-  }
-}
+})(); 
 
 function recordToEntry(rec){
 
