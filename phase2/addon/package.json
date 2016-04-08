@@ -268,7 +268,7 @@
       "name": "presentation.doorhanger.exitfade_time_ms_per_word",
       "type": "integer",
       "title": " ",
-      "value": 300
+      "value": 400
     },
     {
       "name": "presentation.doorhanger.panel_show_delay_ms",
