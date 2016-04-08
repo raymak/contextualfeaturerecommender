@@ -174,8 +174,8 @@ function StorageObject(updateFn, cachedObj, options){
       },
       _syncCache: function(force){
         if (!cachedObj.synced || force){
-          emit(evtTarget, 'sync');
           updateFn();
+          emit(evtTarget, 'sync');
         }
       },
       on: function(type, listener){
@@ -208,7 +208,7 @@ function StorageObject(updateFn, cachedObj, options){
           else {
             return wrapper[name];
           }
-          
+
       },
       set: function(target, name, value) {
         if (target.hasOwnProperty(name)){

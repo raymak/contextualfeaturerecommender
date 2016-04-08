@@ -642,7 +642,7 @@
   {
     "id": "stylish",
     "priority": 2,
-    "trigBehavior": "addon count theme -n >5",
+    "trigBehavior": "addon count theme -n >4",
     "delivContext": "addon pageshow",
     "featUseBehavior": "addon has {46551EC9-40F0-4e47-8E18-8E5CF550CFB8}",
     "presentationData": {

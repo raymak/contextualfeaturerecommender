@@ -826,7 +826,7 @@ listener.behavior = function(route){
     let aggregates = {};
     let bi = behaviorInfo(aRecommendation);
 
-    if (bi.num) {
+    if (bi.num || bi.num == 0) {
       addedInfo.num = bi.num;
       aggregates.num = 'average';
     }
@@ -913,11 +913,19 @@ listener.featureUse = function(route){
 
   recomms.forEach(function(aRecommendation){
     let addedInfo = {};
+    let aggregates = {};
 
     let fui = featureUseInfo(aRecommendation);
 
-    if (fui.num) addedInfo.num = route.num;
-    statsEvent(aRecommendation.id, {type: "looseFeatureUse"}, addedInfo);
+    if (aRecommendation.id == "pinTab")
+      console.log("NUM", fui.num);
+
+    if (fui.num || fui.num == 0) {
+      addedInfo.num = fui.num;
+      aggregates.num = 'average';
+    }
+
+    statsEvent(aRecommendation.id, {type: "looseFeatureUse"}, addedInfo, aggregates);
 
     if (utils.isPowerOf2(fui.count) || (utils.isPowerOf2(fui.num) && fui.num > 10)){
       logger.logLooseFeatureUse(featureUseInfo(aRecommendation));
