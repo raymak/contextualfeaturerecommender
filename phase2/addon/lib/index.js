@@ -51,6 +51,7 @@ exports.main = function(options, callbacks){
   })
   .then(()=> console.timeEnd("full load"))
   .catch((e)=>{ 
+    require('./logger').logError(e);
     require('chrome').Cu.reportError(e);
   });
 

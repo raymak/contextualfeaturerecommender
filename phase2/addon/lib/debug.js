@@ -216,7 +216,7 @@ let loadStorages = (function(){ // can be executed only once
     let recs = {};
     Object.keys(osFileObjects).sort().forEach(function(address){
       recs[address] = {};
-      recs[address].data = osFileObjects[address];
+      recs[address].data = JSON.stringify(osFileObjects[address]);
       recs[address].type = 'json';
       recs[address].list = 'os file storage';
     });
@@ -238,7 +238,7 @@ let registerStorageListeners = (function(){ // can be executed only once
       recs[address] = {};
       //does not update the type
       recs[address].type = null;
-      recs[address].data = osFileObjects[address];
+      recs[address].data = JSON.stringify(osFileObjects[address]);
       recs[address].list = 'os file storage';
 
       updateAll(recs);
@@ -257,8 +257,9 @@ function recordToEntry(rec){
 
   let result;
 
-  if (rec.type == 'json')
+  if (rec.type == 'json'){
     result = JSON.parse(rec.data);
+  }
   else
     result = rec.data;
 
