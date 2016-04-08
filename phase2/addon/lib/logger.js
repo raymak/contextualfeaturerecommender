@@ -73,6 +73,8 @@ function _log(type, attrs){
     et: elapsedTime(),
     ett: elapsedTotalTime(),
     localeTime: (new Date(Date.now())).toLocaleString(),
+    curr_et: elapsedTime(require('./experiment').stage),
+    curr_ett: elapsedTotalTime(require('./experiment').stage),
     addon_id: addonSelf.id,
     addon_version: addonSelf.version,
     locale: self.locale,

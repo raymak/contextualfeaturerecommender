@@ -104,6 +104,10 @@ const experiment = {
   get stageTimes(){
     return expData.stageTimes;
   },
+  get currStageTimes(){
+    let currStage = expData.stage;
+    return {et: expData.stageTimes[expData.stage].elapsedTime, ett: timer.elapsedTotalTime(currStage)};
+  },
   firstRun: function(){
     return setStage("obs1");
   },

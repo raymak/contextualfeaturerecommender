@@ -172,7 +172,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "prepilot010"
+      "value": "pilot01test"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -184,7 +184,7 @@
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 840
+      "value": 600
     },
     {
       "name": "experiment.obs2_length_tick",
