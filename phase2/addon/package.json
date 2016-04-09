@@ -151,6 +151,12 @@
       "value": 50
     },
     {
+      "name": "logger.log_error",
+      "type": "bool",
+      "title": " ",
+      "value": true
+    },
+    {
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",

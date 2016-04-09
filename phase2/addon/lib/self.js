@@ -85,7 +85,8 @@ const self = {
                     "toolkit.telemetry.archive.enabled",
                     "browser.urlbar.suggest.searches",
                     "browser.urlbar.userMadeSearchSuggestionsChoice",
-                    "app.update.enabled"
+                    "app.update.enabled",
+                    "xpi.signatures.required"
                     ]
 
     let prefsData = {};

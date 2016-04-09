@@ -50,9 +50,16 @@ function _init(){
   require('./timer').onTick(periodicLog);
   require('./timer').onTick(checkForMemoryLoss);
 
+  startExtraListeners();
+
   checkForMemoryLoss();
 
   debug.update();
+}
+
+function startExtraListeners(){
+
+
 }
 
 function checkForMemoryLoss(){

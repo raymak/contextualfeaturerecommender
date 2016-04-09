@@ -49,9 +49,17 @@ exports.main = function(options, callbacks){
     require('./stats').event("load", {collectInstance: true}, {reason: require('sdk/self').loadReason});
     return require('./controller').init();
   })
+  .then(()=> require('./extra-listeners').init())
   .then(()=> console.timeEnd("full load"))
   .catch((e)=>{ 
-    require('./logger').logError(e);
+    require('./logger').logError({
+                                 type: "init",
+                                 name: e.name,
+                                 message: e.message,
+                                 fileName: e.fileName,
+                                 lineNumber: e.lineNumber,
+                                 stack: e.stack
+                               });
     require('chrome').Cu.reportError(e);
   });
 

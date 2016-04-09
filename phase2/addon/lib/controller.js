@@ -1452,11 +1452,13 @@ listener.listenForTabs = function(callback, options){
         window.document.getElementById("tabbrowser-tabs")
         , "anonid", "tabs-newtab-button"));
 
-      button.get().addEventListener("click", f);
-      unload(function() {
-        if (button.get())
-          button.get().removeEventListener("click", f);
-      });
+      if (button.get()){
+        button.get().addEventListener("click", f);
+        unload(function() {
+          if (button.get())
+            button.get().removeEventListener("click", f);
+        });
+      }
 
       button = Cu.getWeakReference(window.document.getElementById("new-tab-button"));
       button.get().addEventListener("click", f);

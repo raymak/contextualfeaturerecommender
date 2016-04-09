@@ -121,6 +121,7 @@ exports.isVideoPlaying = function(){
 
 // returns whether the active tab is playing sound
 // does not check if it's muted
+// alternative: check the sound icon
 exports.isSoundPlaying = function(){
   let tabs = require('sdk/tabs');
   const {viewFor} = require("sdk/view/core");

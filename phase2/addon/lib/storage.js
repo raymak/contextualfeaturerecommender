@@ -81,13 +81,13 @@ function OsFileStorage(options){
   function write(str){
     let arr = encoder.encode(str);
     return OS.File.open(filePath, {write: true, trunc: true})
-    .then(f => f.write(arr).then(()=> f.close())).catch((e)=>Cu.reportError(e));
+    .then(f => f.write(arr).then(()=> f.close()));
   }
 
   function read(){
     return OS.File.read(filePath).then((arr)=>{
       return decoder.decode(arr);
-    }).catch(Cu.reportError);
+    });
   }
 
   let cachedObj = {};
@@ -105,7 +105,7 @@ function OsFileStorage(options){
        return write(JSON.stringify(cachedObj.data)).then(()=>{
         cachedObj.synced = true;
         console.log("pref update", options.address, prop);
-      }).catch(Cu.reportError);
+      });
     };
 
     let rObj = StorageObject(updateFile, cachedObj, options);
@@ -114,7 +114,17 @@ function OsFileStorage(options){
     osFileObjects[options.address] = rObj;
 
     return rObj;
-  }).catch(Cu.reportError);
+  }).catch((e)=> {
+    require('./logger').logError({
+                                 type: "osfilestorage",
+                                 name: e.name,
+                                 message: e.message,
+                                 fileName: e.fileName,
+                                 lineNumber: e.lineNumber,
+                                 stack: e.stack
+                                });
+    Cu.reportError(e);
+  });
 }
 
 

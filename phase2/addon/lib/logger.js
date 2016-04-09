@@ -182,7 +182,8 @@ function logSelfDestruct(info){
 }
 
 function logError(info){
-  log("ERROR", info, {immediate: true});
+  if (prefs["logger.log_error"])
+    log("ERROR", info, {immediate: true});
 }
 
 function logWarning(info){
