@@ -17,8 +17,8 @@ $(BUILD_NAMES):
 
 xpi:
 	jpm xpi
-	VAR="$(name)"; \
-	if [ -n "$$VAR"]; then mv *.xpi $(name).xpi && echo "non-empty"; fi
+	@VAR="$(name)"; \
+	if [ -n "$$VAR" ]; then mv *.xpi $(name).xpi && echo "File name changed to $(name).xpi"; fi
 
 clean: 
 	rm *.xpi
