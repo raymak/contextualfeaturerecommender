@@ -15,10 +15,9 @@ $(BUILD_NAMES):
 	@echo "setting up $@..."
 	@cp -R -v $(BUILD_ROOT_DIR)/$@/* ./
 
+# makes the xpi file
 xpi:
 	jpm xpi
-	@VAR="$(name)"; \
-	if [ -n "$$VAR" ]; then mv *.xpi $(name).xpi && echo "File name changed to $(name).xpi"; fi
 
 clean: 
 	rm *.xpi
