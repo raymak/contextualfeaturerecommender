@@ -3,3 +3,4 @@ deprecated/*
 *.xpi
 .DS_Store
 Makefile
+build/*
