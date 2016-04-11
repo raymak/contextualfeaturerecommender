@@ -1201,7 +1201,9 @@ listener.listenForPageVisit = function(callback, options){
                         ],
     specializedSearch:  [ new MatchPattern(/^(http|https):\/\/www\.google\.com\/maps\/search\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.imdb\.com\/find\?.*/),
-                          new MatchPattern(/^(http|https):\/\/en\.wikipedia\.org\/wiki\/.*/)
+                          new MatchPattern(/^(http|https):\/\/en\.wikipedia\.org\/wiki\/.*/),
+                          new MatchPattern(/^(http|https):\/\/stackoverflow\.com\/search\?.*/),
+                          new MatchPattern(/^(http|https):\/\/yelp\.com\/search\?.*/)
                         ],
     weather:            [ new MatchPattern(/^(http|https):\/\/weather\.com\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.accuweather\.com\/.*/),
@@ -1318,7 +1320,7 @@ listener.listenForPageVisit = function(callback, options){
           data.appIdCount = 1;
         } else {
           data.appIdCount += 1;
-          if (data.appId == 5)
+          if (data.appIdCount == 5)
             data.appIdCount = 1;
         }
 
