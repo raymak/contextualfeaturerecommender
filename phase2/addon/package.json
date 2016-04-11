@@ -46,7 +46,7 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "prepilot010recommendations.json"
+      "value": "prepilot011recommendations.json"
     },
     {
       "name": "timer.tick_length_s",
@@ -178,13 +178,13 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "pilot01test"
+      "value": "prepilot011test"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 120
+      "value": 90
     },
     {
       "name": "experiment.intervention_length_tick",
@@ -196,7 +196,7 @@
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 120
+      "value": 90
     },
     {
       "name": "experiment.modes.end.delay",
