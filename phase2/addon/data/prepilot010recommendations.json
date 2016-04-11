@@ -171,8 +171,8 @@
   {
     "id": "urlBarShortcut",
     "priority": 3,
-    "trigBehavior": "chrome click urlbar anonid textbox-container -c >50 -if <10",
-    "delivContext": "chrome click urlbar anonid textbox-container",
+    "trigBehavior": "chrome click urlbar -c >50 -if <10",
+    "delivContext": "chrome click urlbar",
     "featUseBehavior": "hotkey l -cmd -c >1",
     "presentationData": {
       "*": {
@@ -592,8 +592,8 @@
   {
     "id": "privateTab",
     "priority": 3,
-    "trigBehavior": "private browse -c >10 -if <30",
-    "delivContext": "private browse",
+    "trigBehavior": "private browse open -c >10 -if <30",
+    "delivContext": "private browse open",
     "featUseBehavior": "addon has privateTab@infocatcher",
     "presentationData": {
       "*": {
