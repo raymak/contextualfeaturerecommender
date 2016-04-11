@@ -139,7 +139,12 @@ const watchActivity = function(){
 
           if (activity.minor_active_s == 0){ // to call the handlers only once
             userActiveHandlers.forEach((fn) => fn());
-            require('./stats').event("activation");
+            require('./stats').event("activation", {}, {inactivity: activity.last_minor_inactive_s}, {inactivity: 'average'});
+
+            if (isRecentlyActive(10, 10 * 60)){
+              require('./logger').logLongInactivityBack({length: activity.last_minor_inactive_s});
+
+            }
           }
 
         break;
@@ -158,6 +163,11 @@ const watchActivity = function(){
             if (activity.minor_inactive_s > prefs["timer.inactive_threshold_s"] && activity.active){
               deactivate();
             }
+
+            if (activity.minor_inactive_s == 10 * 60){
+              require('./logger').logLongInactivity();
+            }
+            
             debug.update();
           }, 1000);
         break;
