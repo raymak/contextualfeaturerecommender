@@ -6,6 +6,7 @@
 const {event} = require('./stats');
 const {isPrivate} = require("sdk/private-browsing");
 const windows = require("sdk/windows").browserWindows;
+const tabs = require("sdk/tabs");
 const {Cu} = require("chrome");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
 const {isBrowser} = require("sdk/window/utils");
@@ -17,9 +18,17 @@ function init(){
 
 function start(){
 
+  // tab opening
+  tabs.on('open', (t)=>{
+    if (isPrivate(t)) return;
+
+    let num = tabs.length;
+    event('tab-open', {type: 'extra'}, {num: num}, {num: 'average'});
+  });
+
   // window opening
   windows.on('open', (w)=>{
-  if (!isBrowser(window) || isPrivate(window)) return;
+    if (isPrivate(w)) return;
 
     console.log("window open");
     let num = windows.length;

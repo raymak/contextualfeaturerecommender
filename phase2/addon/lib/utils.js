@@ -337,7 +337,8 @@ exports.cleanUp =  function(options){
         if (l == 0)
          console.log("indexeddb clear confirmed") 
         else
-          console.log("indexeddb clear error")});
+          console.log("indexeddb clear error")
+      });
 
     }).catch(Cu.reportError);
 
@@ -402,6 +403,7 @@ exports.overridePrefs = function(fileName){
   try {var newPrefs = JSON.parse(pj)}
   catch(e){console.log("failed to parse " + fileName + " as json")}
 
+  prefsSvc = Components.classes["@mozilla.org/preferences-service;1"]
   for (let p in newPrefs){
     if (p === null)
       continue;

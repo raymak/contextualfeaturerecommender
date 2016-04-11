@@ -254,7 +254,6 @@ const stages = {
       console.log("intervention stage started.");
 
       require("./feature-report").log();
-
       require('./stats').log();
     });
   },
@@ -266,6 +265,7 @@ const stages = {
 
       require('./presenter').stop();
 
+      require("./feature-report").log();
       require('./stats').log();
 
       console.log("obs2 stage started.");
@@ -282,11 +282,11 @@ function end(){
     deliveryData.mode = merge(deliveryData.mode, {observ_only: true});
     require('./presenter').stop();
 
+    require("./feature-report").log();
+    require('./stats').log();
+
     require("./self").getPeriodicInfo(function(info){
       require("./logger").logPeriodicSelfInfo(info);
-
-      require("./feature-report").log();
-      require('./stats').log();
 
       // flush the remaining log messages
       require('./sender').flush();
