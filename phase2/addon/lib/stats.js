@@ -15,9 +15,12 @@ const {dumpUpdateObject, handleCmd, isEnabled, removeList} = require("./debug");
 const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {PersistentObject} = require("./storage");
 const {merge} = require("sdk/util/object");
+const {defer, resolve} = require("sdk/core/promise")
 
 const statsDataAddress = "stats.data";
 let statsData;
+
+let medPromise = resolve();
 
 const config = {
   name: 'stats-db',
@@ -50,17 +53,12 @@ function _init(){
   require('./timer').onTick(periodicLog);
   require('./timer').onTick(checkForMemoryLoss);
 
-  startExtraListeners();
-
   checkForMemoryLoss();
 
   debug.update();
 }
 
-function startExtraListeners(){
 
-
-}
 
 function checkForMemoryLoss(){
   AS.getItem("tick").then(function(evt){
@@ -168,14 +166,13 @@ function event(evtId, options, addData, aggregates){
     return ev;
   };
 
-  AS.getItem(evtKey).then(function(evt){
+  medPromise = medPromise.then(()=> AS.getItem(evtKey).then(function(evt){
       return updateEvt(evt, type, evtId, instance, aggregates);
-    }).then(function(evt){
-        AS.setItem(evtKey, evt);
+    })).then(function(evt){
         eventCount += 1;
         if (eventCount % 20 == 0)
           statsData.eventCount = eventCount;
-        debug.update(evtKey);
+        return AS.setItem(evtKey, evt).then(()=> debug.update(evtKey));
       }).catch((e) => {throw e});
 } 
 
