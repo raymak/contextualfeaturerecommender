@@ -99,7 +99,14 @@ function OsFileStorage(options){
       return write(JSON.stringify({}));
   })
   .then(read)
-  .then(str => Object.assign(cachedObj, {data: JSON.parse(str), synced: true}))
+  .then(str => {
+    console.log(str);
+    if (str == ""){
+      console.log("WARNING: empty os file");
+      require('./logger').logError({type: "empty-file", info: {address: options.address}});
+    }
+    Object.assign(cachedObj, {data: JSON.parse(str), synced: true})
+  })
   .then(()=>{
     let updateFile = function(prop){
        return write(JSON.stringify(cachedObj.data)).then(()=>{
@@ -109,7 +116,6 @@ function OsFileStorage(options){
     };
 
     let rObj = StorageObject(updateFile, cachedObj, options);
-    console.log(options.address, rObj);
 
     osFileObjects[options.address] = rObj;
 
@@ -121,7 +127,8 @@ function OsFileStorage(options){
                                  message: e.message,
                                  fileName: e.fileName,
                                  lineNumber: e.lineNumber,
-                                 stack: e.stack
+                                 stack: e.stack,
+                                 info: {address: options.address}
                                 });
     Cu.reportError(e);
   });
