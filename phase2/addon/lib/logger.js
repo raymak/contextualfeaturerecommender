@@ -202,6 +202,14 @@ function logStatsReport(info){
   log("STATS_REPORT", info);
 }
 
+function logLongInactivity(info){
+  log("LONG_INACTIVITY", info);
+}
+
+function logLongInactivityBack(info){
+  log("LONG_INACTIVITY_BACK", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -267,3 +275,5 @@ exports.logSilenceStart = logSilenceStart;
 exports.logWarning = logWarning;
 exports.logError = logError;
 exports.logStatsReport = logStatsReport;
+exports.logLongInactivity = logLongInactivity;
+exports.logLongInactivityBack = logLongInactivityBack;
