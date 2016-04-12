@@ -191,10 +191,10 @@ function StorageObject(updateFn, cachedObj, options){
         emit(evtTarget, 'update', {type: 'openCache', address: options.address});
         emit(exports, options.address, {type: 'openCache', address: options.address});
       },
-      _syncCache: function(options){
-        let force = options && options.force;
+      _syncCache: function(opts){
+        let force = opts && opts.force;
         if (!cachedObj.synced || force){
-          updateFn(undefined, options);
+          updateFn(undefined, opts);
           emit(evtTarget, 'sync');
         }
       },
