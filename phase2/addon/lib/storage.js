@@ -16,6 +16,7 @@ const file = require('sdk/io/file');
 const {Cu} = require("chrome");
 const {TextEncoder, TextDecoder} = require('sdk/io/buffer');
 Cu.import("resource://gre/modules/osfile.jsm");
+// Cu.import("re")
 
 const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').id + "-storage");
 
@@ -78,10 +79,11 @@ function OsFileStorage(options){
   console.log(fileName)
   console.log(filePath);
  
-  function write(str){
+  function write(str, opts){
+    let safe = opts && opts.safe;
     let arr = encoder.encode(str);
-    return OS.File.open(filePath, {write: true, trunc: true})
-    .then(f => f.write(arr).then(()=> f.close()));
+
+    return OS.File.writeAtomic(filePath, arr, {tmpPath: filePath + ".tmp", flush: safe});
   }
 
   function read(){
@@ -100,7 +102,6 @@ function OsFileStorage(options){
   })
   .then(read)
   .then(str => {
-    console.log(str);
     if (str == ""){
       console.log("WARNING: empty os file");
       require('./logger').logError({type: "empty-file", info: {address: options.address}});
@@ -108,8 +109,9 @@ function OsFileStorage(options){
     Object.assign(cachedObj, {data: JSON.parse(str), synced: true})
   })
   .then(()=>{
-    let updateFile = function(prop){
-       return write(JSON.stringify(cachedObj.data)).then(()=>{
+    let updateFile = function(prop, opts){
+      let safe = opts && options.shutdown; 
+      return write(JSON.stringify(cachedObj.data), {safe: safe}).then(()=>{
         cachedObj.synced = true;
         console.log("pref update", options.address, prop);
       });
@@ -153,7 +155,7 @@ function SimplePrefStorage(options){
 
   // to handle external pref changes
   let f = function(p){
-    rObj._syncCache(true);
+    rObj._syncCache({force:true});
   }
   sp.on(options.address, f);
  
@@ -189,9 +191,10 @@ function StorageObject(updateFn, cachedObj, options){
         emit(evtTarget, 'update', {type: 'openCache', address: options.address});
         emit(exports, options.address, {type: 'openCache', address: options.address});
       },
-      _syncCache: function(force){
+      _syncCache: function(options){
+        let force = options && options.force;
         if (!cachedObj.synced || force){
-          updateFn();
+          updateFn(undefined, options);
           emit(evtTarget, 'sync');
         }
       },
