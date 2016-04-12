@@ -210,6 +210,11 @@ function logLongInactivityBack(info){
   log("LONG_INACTIVITY_BACK", info);
 }
 
+function logPrefs(){
+  let info = prefs;
+  log("PREFS_DUMP", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -277,3 +282,4 @@ exports.logError = logError;
 exports.logStatsReport = logStatsReport;
 exports.logLongInactivity = logLongInactivity;
 exports.logLongInactivityBack = logLongInactivityBack;
+exports.logPrefs = logPrefs;

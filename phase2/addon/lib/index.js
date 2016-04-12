@@ -51,6 +51,7 @@ exports.main = function(options, callbacks){
   })
   .then(()=> require('./extra-listeners').init())
   .then(()=> console.timeEnd("full load"))
+  .then(()=> require('./logger').logPrefs())
   .catch((e)=>{ 
     require('./logger').logError({
                                  type: "init",
