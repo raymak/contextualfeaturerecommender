@@ -1617,11 +1617,15 @@ listener.listenForChromeEvents = function(callback, options){
           callback(route, evt);
         }
 
-        elem.get().addEventListener(route.eventName, f);
-        unload(function(){
-          if (elem.get())
-            elem.get().removeEventListener(route.eventName, f)
-        });
+        if (elem.get()){
+          elem.get().addEventListener(route.eventName, f);
+          unload(function(){
+            if (elem.get())
+              elem.get().removeEventListener(route.eventName, f)
+          });
+        }
+        else
+          logger.logWarning({type: "chrome-listener", message: "Chrome element could not be selected.", info: {route: route, id: route.id}});
       } 
     }
   });

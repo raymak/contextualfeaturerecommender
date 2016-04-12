@@ -215,6 +215,10 @@ function logPrefs(){
   log("PREFS_DUMP", info);
 }
 
+function logMissingElement(info){
+  log("MISSING_ELEMENT", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -283,3 +287,4 @@ exports.logStatsReport = logStatsReport;
 exports.logLongInactivity = logLongInactivity;
 exports.logLongInactivityBack = logLongInactivityBack;
 exports.logPrefs = logPrefs;
+exports.logMissingElement = logMissingElement;

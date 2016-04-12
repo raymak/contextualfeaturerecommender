@@ -40,6 +40,15 @@ function start(){
 
       if (!isBrowser(window) || isPrivate(window)) return;
 
+
+      let warn = function(element){
+        require('./logger').logMissingElement({
+          type: "extra-missing",
+          message: "Extra listener could not select an element.",
+          info: {element: element}
+        });
+      }
+
       // burger button
       let f = function(){
         event('burger-button', {type: 'extra'});
@@ -53,23 +62,32 @@ function start(){
             button.get().removeEventListener("click", f);
         })
       }
+      else
+        warn('burger-button');
 
       f = function(){
         event('searchbar', {type: 'extra'});
       }
 
       // search bar
-      let bar = Cu.getWeakReference(window.document
-      .getAnonymousElementByAttribute(
-        window.document.getElementById("searchbar")
-        , "anonid", "searchbar-textbox"));
+      
+      if (!window.document.getElementById("searchbar"))
+        warn('searchbar')
+      else {
+        let bar = Cu.getWeakReference(window.document
+        .getAnonymousElementByAttribute(
+          window.document.getElementById("searchbar")
+          , "anonid", "searchbar-textbox"));
 
-      if (bar.get()){
-        bar.get().addEventListener("focus", f)
-        unload(function(){
-          if (bar.get())
-            bar.get().removeEventListener("focus", f);
-        });
+        if (bar.get()){
+          bar.get().addEventListener("focus", f)
+          unload(function(){
+            if (bar.get())
+              bar.get().removeEventListener("focus", f);
+          });
+        }
+        else
+          warn('searchbar-textbox');
       }
 
       // home button
@@ -86,7 +104,10 @@ function start(){
             button.get().removeEventListener("click", f);
         });
       }
-      
+      else
+        warn('home-button');
+  
+
       // loop button
 
       f = function(){
@@ -101,6 +122,8 @@ function start(){
             button.get().removeEventListener("click", f);
         });
       }
+      else
+        warn('loop-button');
 
       // pocket button
       
@@ -116,6 +139,8 @@ function start(){
             button.get().removeEventListener("click", f);
         })
       }
+      else
+        warn('pocket-button');
 
       // downloads button
       
@@ -131,6 +156,8 @@ function start(){
             button.get().removeEventListener("click", f);
         })
       }
+      else
+        warn('downloads-button');
 
       // show history
       
@@ -146,6 +173,8 @@ function start(){
             historyCmd.get().removeEventListener("command", f);
         });
       }
+      else
+        warn('show-history');
     }
   });
 
