@@ -22,7 +22,7 @@
       "name": "isTest",
       "type": "bool",
       "title": "Is it a test or field deployment.",
-      "value": true
+      "value": false
     },
     {
       "name": "cleanup_on_death",
