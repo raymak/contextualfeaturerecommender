@@ -1199,13 +1199,16 @@ listener.listenForPageVisit = function(callback, options){
                           new MatchPattern(/^(http|https):\/\/www\.bing\.com\/search\?.*/),
                           new MatchPattern(/^(http|https):\/\/.*\.search\.yahoo\.com\/.*/)
                         ],
-    specializedSearch:  [ new MatchPattern(/^(http|https):\/\/www\.google\.com\/maps\/search\/.*/),
+    specializedSearch:  [ new MatchPattern(/^(http|https):\/\/www\.google\.com\/maps\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.google\.ca\/maps\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.imdb\.com\/find\?.*/),
                           new MatchPattern(/^(http|https):\/\/en\.wikipedia\.org\/wiki\/.*/),
                           new MatchPattern(/^(http|https):\/\/stackoverflow\.com\/search\?.*/),
                           new MatchPattern(/^(http|https):\/\/yelp\.com\/search\?.*/)
                         ],
     weather:            [ new MatchPattern(/^(http|https):\/\/weather\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/theweathernetwork\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/weather\.gc\.ca\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.accuweather\.com\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.wunderground\.com\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.weather\.gov\/.*/),
@@ -1234,6 +1237,10 @@ listener.listenForPageVisit = function(callback, options){
       let data = tabData.get(tab);
       
       let hostname = URL(tab.url).hostname;
+
+      // for canadian amazon : TEMPORARY
+      if (hostname == "www.amazon.ca")
+        hostname = "www.amazon.com"
 
       if (!hostname){
         tabData.delete(tab);
