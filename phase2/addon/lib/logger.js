@@ -62,7 +62,7 @@ function log(type, attrs, options){
     _log(type, attrs, options); 
 }
 
-function _log(type, attrs){
+function _log(type, attrs, option){
 
   let OUT = {
     userid: require('./experiment').userId,
