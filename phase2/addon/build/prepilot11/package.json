@@ -82,7 +82,7 @@
       "name": "utils.persistent_object.update_interval",
       "type": "integer",
       "title": " ",
-      "value": 10000
+      "value": 15000
     },
     {
       "name": "delivery.mode.moment",
