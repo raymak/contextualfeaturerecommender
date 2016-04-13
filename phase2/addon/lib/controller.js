@@ -1982,8 +1982,9 @@ listener.listenForInternalEvents= function(callback){
 };
 
 function warn(element){
-  logger.logWarning({type: "missing-element", message: "A chrome element is missing.", element: element})
+  logger.logWarning({type: "missing-element", message: "A chrome element is missing.", element: element});
 }
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
