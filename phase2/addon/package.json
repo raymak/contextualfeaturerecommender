@@ -28,7 +28,7 @@
       "name": "cleanup_on_death",
       "type": "bool",
       "title": "Whether the preferences should be cleaned up when the addon is killed",
-      "value": false
+      "value": true
     },
     {
       "name": "clean_install",
@@ -130,7 +130,7 @@
       "name" : "delivery.mode.silence_length.strict",
       "type": "integer",
       "title": "Length of the strict rate limit mode in ticks.",
-      "value": 1440
+      "value": 360
     },
     {
       "name": "delivery.mode.observ_only",
@@ -142,13 +142,13 @@
       "name": "logger.periodic_log_period",
       "type": "integer",
       "title": "How often periodic log info is reported.",
-      "value": 90
+      "value": 120
     },
     {
       "name": "logger.recent_hist_count",
       "type": "integer",
       "title": "Maximum number of log records to store when connection fails.",
-      "value": 25
+      "value": 50
     },
     {
       "name": "logger.log_error",
@@ -178,25 +178,25 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "p20"
+      "value": "pilot01-ua"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 7200
+      "value": 2160
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 25920
+      "value": 5040
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 7200
+      "value": 2880
     },
     {
       "name": "experiment.modes.end.delay",
@@ -256,7 +256,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
     },
     {
       "name": "presentation.doorhanger.autofade_time_ms_flat",
@@ -281,12 +281,6 @@
       "type": "integer",
       "title": " ",
       "value": 750
-    },
-    {
-      "name": "assignedId",
-      "type": "integer",
-      "title": " ",
-      "value": 99
     }
   ]
 }
