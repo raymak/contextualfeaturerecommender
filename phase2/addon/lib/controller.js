@@ -1122,12 +1122,16 @@ listener.listenForTools = function(callback){
       let doc = Cu.getWeakReference(window.document);
 
       let buttonListener = function(){
-        doc.get().getElementById("find-button").addEventListener("click", findopened);
-        unload(function(){
-          if (doc.get() && doc.get().getElementById("find-button"))
-            doc.get().getElementById("find-button").removeEventListener("click", findopened);
-        });
-        console.log("button listener");
+        if (doc.get().getElementById("find-button")){
+          doc.get().getElementById("find-button").addEventListener("click", findopened);
+          unload(function(){
+            if (doc.get() && doc.get().getElementById("find-button"))
+              doc.get().getElementById("find-button").removeEventListener("click", findopened);
+          });
+          console.log("button listener");
+        }
+        else
+          warn("find-button");
       }
 
       if (doc.get().getElementById("find-button"))
