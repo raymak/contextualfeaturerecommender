@@ -1428,22 +1428,36 @@ listener.listenForTabs = function(callback, options){
         callback(reason);
         callback("pin", {number: countPinnedTabs()}); 
       };
-      tb.get().tabContainer.addEventListener("TabPinned", f);
-      unload(function(){
-        if (tb.get() && tb.get().tabContainer)
-            tb.get().tabContainer.removeEventListener("TabPinned", f)
-      });
 
-      f = function(e){
-        reason = "unpinned";
-        callback(reason);
-        callback("pin", {number: countPinnedTabs()}); 
-      };
-      tb.get().tabContainer.addEventListener("TabUnpinned", f);
-      unload(function(){
-        if (tb.get() && tb.get().tabContainer)
-          tb.get().tabContainer.removeEventListener("TabUnpinned", f)
-      });
+      if (tb.get()){
+        if (tb.get().tabContainer){
+          tb.get().tabContainer.addEventListener("TabPinned", f);
+          unload(function(){
+            if (tb.get() && tb.get().tabContainer)
+                tb.get().tabContainer.removeEventListener("TabPinned", f)
+          });
+        }
+        else
+          warn("tabContainer");
+
+        f = function(e){
+          reason = "unpinned";
+          callback(reason);
+          callback("pin", {number: countPinnedTabs()}); 
+        };
+
+        if (tb.get().tabContainer){
+          tb.get().tabContainer.addEventListener("TabUnpinned", f);
+          unload(function(){
+            if (tb.get() && tb.get().tabContainer)
+              tb.get().tabContainer.removeEventListener("TabUnpinned", f)
+          });
+        }
+        else
+          warn("tabContainer");
+      }
+      else
+        warn("gBrowser");
 
       // new-tab-button
       // this would ideally be a union of 2 chrome events 
@@ -1456,25 +1470,35 @@ listener.listenForTabs = function(callback, options){
         callback(reason);
       }
 
-      let button =  Cu.getWeakReference(window.document
-      .getAnonymousElementByAttribute(
-        window.document.getElementById("tabbrowser-tabs")
-        , "anonid", "tabs-newtab-button"));
+      if (window.document.getElementById("tabbrowser-tabs")){
+        let button =  Cu.getWeakReference(window.document
+        .getAnonymousElementByAttribute(
+          window.document.getElementById("tabbrowser-tabs")
+          , "anonid", "tabs-newtab-button"));
 
-      if (button.get()){
-        button.get().addEventListener("click", f);
-        unload(function() {
-          if (button.get())
-            button.get().removeEventListener("click", f);
-        });
+        if (button.get()){
+          button.get().addEventListener("click", f);
+          unload(function() {
+            if (button.get())
+              button.get().removeEventListener("click", f);
+          });
+        }
+        else
+          warn("tabs-newtab-button");
+
+        button = Cu.getWeakReference(window.document.getElementById("new-tab-button"));
+        if (button.get()){
+          button.get().addEventListener("click", f);
+          unload(function() {
+            if (button.get())
+              button.get().removeEventListener("click", f);
+          });
+        }
+        else
+          warn("new-tab-button");
       }
-
-      button = Cu.getWeakReference(window.document.getElementById("new-tab-button"));
-      button.get().addEventListener("click", f);
-      unload(function() {
-        if (button.get())
-          button.get().removeEventListener("click", f);
-      });
+      else
+        warn("tabbrowser-tabs");
 
     }
   });
@@ -1878,25 +1902,29 @@ listener.listenForDevTools = function(callback){
         callback(reason);
       };
 
-      gDevTools.get().on("toolbox-ready", f);
+      if (gDevTools.get()){
+        gDevTools.get().on("toolbox-ready", f);
 
-      unload(function(){
-        if (gDevTools.get())
-          gDevTools.get().off("toolbox-ready", f);
-      })
+        unload(function(){
+          if (gDevTools.get())
+            gDevTools.get().off("toolbox-ready", f);
+        })
 
-      f = function(e, toolId){
-        let reason = "select";
-        callback(reason, {toolId: toolId});
-      };
 
-      gDevTools.get().on("select-tool-command", f);
+        f = function(e, toolId){
+          let reason = "select";
+          callback(reason, {toolId: toolId});
+        };
 
-      unload(function(){
-        if (gDevTools.get())
-          gDevTools.get().off("select-tool-command", f);
-      })
+        gDevTools.get().on("select-tool-command", f);
 
+        unload(function(){
+          if (gDevTools.get())
+            gDevTools.get().off("select-tool-command", f);
+        })
+      }
+      else
+        warn("gDevTools");
     }
   });
 };
@@ -1953,6 +1981,9 @@ listener.listenForInternalEvents= function(callback){
   });
 };
 
+function warn(element){
+  logger.logWarning({type: "missing-element", message: "A chrome element is missing.", element: element})
+}
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
