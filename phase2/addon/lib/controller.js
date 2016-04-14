@@ -753,7 +753,7 @@ const deliverer = {
 
     if (aRecommendation.status == "delivered"){
       console.log("warning: delivering a recommendation that has already been delivered");
-      logger.logWarning({code: "delivery", message: "delivering a recommendation that has already been delivered: " + aRecommendation.id});
+      logger.logWarning({type: "delivery", message: "delivering a recommendation that has already been delivered: " + aRecommendation.id});
     }
 
     aRecommendation.status = "delivered";
