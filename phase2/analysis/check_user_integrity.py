@@ -7,6 +7,7 @@ Checks for:
 
     - Missing messages
     - Missing end flag
+    - Disabled by user
     - Missing start flag
     - Warning messages
     - Error messages
@@ -24,8 +25,22 @@ import sys
 import json
 import os
 from userlogset import *
+import imp
+try:
+    imp.find_module('termcolor')
+    cFound = True
+except ImportError:
+    cFound = False
+
+if (cFound):
+    from termcolor import colored, cprint
+
+errFound = False
+warnFound = False
 
 def main():
+
+    print(warnFound, errFound)
 
     if (len(sys.argv) > 1):
         rootDir = sys.argv[1]
@@ -43,7 +58,13 @@ def main():
 
 def check(file_name):
 
+    global warnFound, errFound
+
+    warnFound = False
+    errFound = False
+
     with open(file_name, 'r') as f:
+
         jsonl_list = [s for s in f.readlines()]
 
         log_set = UserLogSet(jsonl_list)
@@ -56,13 +77,13 @@ def check(file_name):
         print("start: %d, end: %d, count: %d" % (first, last, count))
 
         if last != count:
-            report("%d messages missing" %(last - count), file_name)
+            err("%d messages missing" %(last - count), file_name)
 
         # flag messages
 
         #FIRST_RUN
         if (not 1 in log_set) or (log_set[1]['type'] != 'FIRST_RUN'):
-            report("FIRST_RUN missing", file_name)
+            err("FIRST_RUN missing", file_name)
 
         # ANY TYPE OF ENDING
         lm = log_set[last]
@@ -70,25 +91,64 @@ def check(file_name):
         if  not ( 
             lm['type'] == 'SELF_DESTRUCT' or
             lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'disable' or
-            lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'uninstall'
+            lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'uninstall' or
+            lm['type'] == 'DISABLE' and lm['attrs']['reason'] == 'uninstall'
             ):
-            report("end flag missing", file_name)
+            err("end flag missing", file_name)
 
+        # DISABLED BY USER
+
+        if not (
+            log_set[last]['type'] == 'SELF_DESTRUCT' or
+            log_set[last-1]['type'] == 'SELF_DESTRUCT' or
+            log_set[last-2]['type'] == 'SELF_DESTRUCT'
+            ) and (
+            lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'disable' or
+            lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'uninstall' or
+            lm['type'] == 'DISABLE' and lm['attrs']['reason'] == 'uninstall' or
+            lm['type'] == 'DISABLE' and lm['attrs']['reason'] == 'disable'
+            ):
+            warn("disabled by user", file_name)
 
         # WARNINGS
         c = len(log_set.type("WARNING"))
         if c > 0:
-            report( "%d warning(s)" % c, file_name)
+            warn( "%d warning(s)" % c, file_name)
 
         # ERRORS
         c = len(log_set.type("ERROR"))
         if c > 0:
-            report("%d error(s)" % c, file_name)
+            err("%d error(s)" % c, file_name)
+
+        if not (warnFound or errFound):
+            ok(file_name)
 
 
+def warn(m, file_name):
+    global warnFound
 
-def report(m, file_name):
-    print("  %s" %(m))
+    if cFound:
+        cprint("  %s" %(m), 'yellow')
+    else:
+        print("  %s" %(m))
+
+    warnFound = True
+
+def err(m, file_name):
+    global errFound
+
+    if cFound:
+        cprint("  %s" %(m), 'red')
+    else:
+        print("  %s" %(m))
+
+    errFound = True
+
+def ok(file_name):
+    if cFound:
+        cprint(u'\u2713 GOOD', 'green')
+    else:
+        print(u'\u2713 GOOD')
 
 if __name__ == "__main__":
     main()
