@@ -141,7 +141,7 @@ function getFhrData(callback){
   }
   catch(e){
     console.log("warning: could not get fhr data", e.message);
-    require('./logger').logWarning({code: "no_fhr", message: "could not receive fhr info."});
+    require('./logger').logWarning({type: "no_fhr", message: "could not receive fhr info."});
     callback(0,0,0, null);
   }
 
