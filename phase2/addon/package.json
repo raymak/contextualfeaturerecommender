@@ -178,25 +178,25 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "pilot01-ua"
+      "value": "pilot02-ua"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 2160
+      "value": 2880
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 5040
+      "value": 5760
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 2880
+      "value": 1440
     },
     {
       "name": "experiment.modes.end.delay",
@@ -250,7 +250,7 @@
       "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "sender.send_to_file",

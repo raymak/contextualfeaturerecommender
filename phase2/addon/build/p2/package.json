@@ -142,7 +142,7 @@
       "name": "logger.periodic_log_period",
       "type": "integer",
       "title": "How often periodic log info is reported.",
-      "value": 90
+      "value": 150
     },
     {
       "name": "logger.recent_hist_count",
@@ -160,7 +160,7 @@
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
-      "value": 90
+      "value": 150
     },
     {
       "name": "feature_report.immediate_try_period_s",
@@ -178,7 +178,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "p20"
+      "value": "p2"
     },
     {
       "name": "experiment.obs1_length_tick",
