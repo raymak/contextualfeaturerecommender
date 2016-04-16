@@ -687,8 +687,6 @@ const deliverer = {
   },
   deliver: function (/* recommendations */) {
 
-    require("./experiment").checkStage();
-
     let recomms = Array.prototype.slice.call(arguments);
 
     if (recomms.length === 0)

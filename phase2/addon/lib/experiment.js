@@ -77,9 +77,6 @@ const experiment = {
       expData.stage = "obs1";
     }
 
-    if (expData.stage === "end")
-      end();  // in case the end stage has not been properly executed (e.g. due to crash)
-
     timer.onTick(checkStage);
     timer.onTick(debug.update);
     timer.onTick(updateStageEt);
@@ -186,6 +183,8 @@ function setStage(nStage){
 
 function checkStage(et, ett){
 
+    if (expData.stage === "end")
+      end();  // in case the end stage has not been properly executed (e.g. due to crash)
 
   if (expData.stageForced)
     return ;
@@ -217,7 +216,7 @@ function checkStage(et, ett){
   if (nStage === stage)
     return;
 
-  setStage(nStage);
+  return setStage(nStage);
 
 }
 
@@ -226,8 +225,6 @@ const stages = {
 
     return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
     .then((deliveryData)=> {
-
-      deliveryData.observ_only= true;
 
       let mode = expData.mode;
 
@@ -292,6 +289,7 @@ function end(){
       require('./sender').flush();
     });
 
+    console.log("YOYO");
     // delay to give some time for the remaining message queue to be flushed
     setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"]);
   });
