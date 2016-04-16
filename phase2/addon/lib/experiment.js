@@ -178,10 +178,10 @@ function setStage(nStage){
 
   require("./logger").logExpStageAdvance({newstage: nStage, oldStage: stage, duration: duration, elapsedTime: et});
 
+  console.log("starting new experiment stage: " + nStage);
+
    //prepare the new stage
   return stages[nStage]();
-
-  console.log("starting new experiment stage: " + nStage);
 }
 
 function checkStage(et, ett){
