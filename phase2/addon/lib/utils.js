@@ -504,8 +504,5 @@ const debug = {
 
 debug.init();
 
-
 exports.getFhrData = getFhrData
 exports.override  = function() merge.apply(null, arguments);
-
-
