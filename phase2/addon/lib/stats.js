@@ -4,7 +4,6 @@
  */
 
 "use strict";
-const REPORT_TYPES = ["looseBehavior", "looseFeatureUse", "behavior", "delivery", "extra", "behavior"];
 
 const {prefs} = require("sdk/simple-prefs");
 const {eventData} = require("./event");
@@ -16,7 +15,9 @@ const {dumpUpdateObject, handleCmd, isEnabled, removeList} = require("./debug");
 const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {PersistentObject} = require("./storage");
 const {merge} = require("sdk/util/object");
-const {defer, resolve} = require("sdk/core/promise")
+const {defer, resolve} = require("sdk/core/promise");
+
+const REPORT_TYPES = ["looseBehavior", "looseFeatureUse", "behavior", "delivery", "extra", "behavior"];
 
 const statsDataAddress = "stats.data";
 let statsData;

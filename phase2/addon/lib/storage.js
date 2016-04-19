@@ -16,7 +16,6 @@ const file = require('sdk/io/file');
 const {Cu} = require("chrome");
 const {TextEncoder, TextDecoder} = require('sdk/io/buffer');
 Cu.import("resource://gre/modules/osfile.jsm");
-// Cu.import("re")
 
 const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').id + "-storage");
 
@@ -43,7 +42,6 @@ exports.PersistentObject = function(type, options){
 
   switch(type){
     case "simplePref":
-      return OsFileStorage(options);
       return require('sdk/core/promise').resolve(SimplePrefStorage(options));
       break;
     case "osFile":
