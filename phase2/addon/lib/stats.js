@@ -37,7 +37,7 @@ function init(){
 
   console.log("initializing stats");
   
-  return PersistentObject("simplePref", {address: statsDataAddress})
+  return PersistentObject("osFile", {address: statsDataAddress})
   .then((obj)=> {
     statsData = obj;
   }).then(_init);

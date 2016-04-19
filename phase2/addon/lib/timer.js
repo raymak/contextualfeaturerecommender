@@ -29,7 +29,7 @@ let tickInterval;
 let startTimeMs;
 
 const init = function(){
-  return PersistentObject("simplePref", {address: timerDataAddress})
+  return PersistentObject("osFile", {address: timerDataAddress})
   .then((obj)=> {
     timerData = obj;
   }).then(_init);

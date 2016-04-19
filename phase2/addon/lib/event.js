@@ -18,7 +18,7 @@ function init(){
 
   console.log("initializing event");
 
-  return PersistentObject("simplePref", {address: eventDataAddress})
+  return PersistentObject("osFile", {address: eventDataAddress})
   .then((obj)=> {
       eventData = obj;
   }).then(_init);

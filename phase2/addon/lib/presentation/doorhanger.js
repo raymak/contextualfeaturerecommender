@@ -43,7 +43,7 @@ function init(){
 
   console.log("initializing doorhanger");
 
-  return PersistentObject("simplePref", {address: dhDataAddress})
+  return PersistentObject("osFile", {address: dhDataAddress})
   .then((obj)=> {
     dhData = obj;
     obj.on('update', debug.update);

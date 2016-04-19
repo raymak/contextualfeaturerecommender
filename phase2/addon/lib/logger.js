@@ -25,7 +25,7 @@ const recentHistCount = prefs["logger.recent_hist_count"];
 let recentMsgs;
 
 function init(){
-  return PersistentObject("simplePref", {address: loggerDataAddress})
+  return PersistentObject("osFile", {address: loggerDataAddress})
   .then((obj)=> {
     loggerData = obj;
   }).then(_init);

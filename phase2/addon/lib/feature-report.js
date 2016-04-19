@@ -28,7 +28,7 @@ function init(){
 
   console.log("initializing feature report");
   
-  return PersistentObject("simplePref", {address: featDataAddress})
+  return PersistentObject("osFile", {address: featDataAddress})
   .then((obj)=> {
     featData = obj;
   }).then(_init);
@@ -110,7 +110,7 @@ function getRow(id){
 }
 
 function postRecFeatureUse(id){
-  PersistentObject("simplePref", {address: dhDataAddress})
+  PersistentObject("osFile", {address: dhDataAddress})
   .then((dhData)=> {
     _postRecFeatureUse(id, dhData);
   });

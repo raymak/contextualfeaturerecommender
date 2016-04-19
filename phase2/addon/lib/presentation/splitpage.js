@@ -22,7 +22,7 @@ function init(){
 
 	console.log("initializing splitpage");
 
-	return PersistentObject("simplePref", {address: spDataAddress})
+	return PersistentObject("osFile", {address: spDataAddress})
 	.then((obj)=> {
 		spData = obj;
 	}).then(_init);

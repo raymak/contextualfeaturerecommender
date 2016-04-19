@@ -71,7 +71,7 @@ const init = function(){
   return all(
     [ 
       initRecs(),
-      PersistentObject("simplePref", {address: deliveryDataAddress})
+      PersistentObject("osFile", {address: deliveryDataAddress})
     ])
     .then((result)=> {
       deliveryData = result[1];
@@ -97,7 +97,7 @@ function initRecs(){
   let {promise, resolve} = defer();
 
   if (!recommendations){
-    PersistentRecSet("simplePref", {address: recSetAddress}).then((recSet)=> {
+    PersistentRecSet("osFile", {address: recSetAddress}).then((recSet)=> {
       recommendations = recSet;
     }).then(resolve);
   }
