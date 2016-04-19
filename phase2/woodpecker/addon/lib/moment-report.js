@@ -15,8 +15,16 @@ const momentDataAddress = "moment.data";
 const momentData = PersistentObject("simplePref", {address: momentDataAddress});
 
 function init(){
+
   console.log("initializing moment report");
 
+  return PersistentObject("osFile", {address: momentDataAddress})
+  .then((obj)=> {
+    momentData = obj;
+  }).then(_init);
+}
+
+function _init(){
   //set up periodic logging
   timer.onTick(log);
 }
@@ -32,7 +40,7 @@ function log(){
 }   
 
 function periodicLog(et, ett){
-  if (Math.floor(et) % 120 != 10) return;
+  if (Math.floor(et) % 180 != 10) return;
 
   log();
 }

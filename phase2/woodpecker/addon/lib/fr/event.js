@@ -9,9 +9,23 @@ const {prefs} = require("sdk/simple-prefs");
 const {PersistentObject} = require("./../storage");
 
 const eventDataAddress = "event.data";
+let eventData;
 
 //TOTHINK: could potentially have multiple effect handlers (like in DOM), but is it necessary/good idea?
 //TOTHINK: to use the event API from the SDK to emit and listen
+
+function init(){
+
+  console.log("initializing event");
+
+  return PersistentObject("osFile", {address: eventDataAddress})
+  .then((obj)=> {
+      eventData = obj;
+  }).then(_init);
+}
+function _init(){
+
+}
 
 const Event = function(name, options) {
   return {
@@ -20,22 +34,22 @@ const Event = function(name, options) {
     preEvent: null,
     checkPreconditions: function(){return true;}, //preconditions are met by default
     wake: function(preEvent){
-    	this.preEvent = preEvent || this.preEvent;
+        this.preEvent = preEvent || this.preEvent;
 
-    	if (this.checkPreconditions()){    		
-    		this.trigger();
-    	}
+        if (this.checkPreconditions()){         
+            this.trigger();
+        }
 
     },
     trigger: function(){
-    	console.log(this + " triggered");
-    	this.effect(); 
-    	this.wakePostEvents();
+        console.log(this + " triggered");
+        this.effect(); 
+        this.wakePostEvents();
     },
     effect: function(){}, //no effect by default
     wakePostEvents: function(){
-    	let that = this;
-    	this.postEvents.forEach(function(aEvent){aEvent.wake(that);});
+        let that = this;
+        this.postEvents.forEach(function(aEvent){aEvent.wake(that);});
     },
     postEvents: [],
     toString: function() {
@@ -44,13 +58,11 @@ const Event = function(name, options) {
   };
 };
 
-//TOTHINK: replace with a database?
-const eventData = PersistentObject("simplePref", {address: eventDataAddress});
+function getEventData(){
+  return eventData;
+}
 
-
-
-
-
+exports.init = init;
 exports.Event = Event;
-exports.eventData = eventData;
+exports.getEventData = getEventData;
 exports.eventDataAddress = eventDataAddress;

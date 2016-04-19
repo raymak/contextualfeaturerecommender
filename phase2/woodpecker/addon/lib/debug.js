@@ -11,11 +11,14 @@ const {data} = require("sdk/self");
 const sp = require("sdk/simple-prefs");
 const unload = require("sdk/system/unload").when;
 const {Cu, Cc, Ci} = require("chrome");
-const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
+const {TextEncoder} = require('sdk/io/buffer');
+const storage = require('./storage');
+const osFileObjects = storage.osFileObjects;
 Cu.import("resource://gre/modules/osfile.jsm");
 
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
+const DEBUG_URL = sp.prefs["debug.url"];
 
 let workers = [];
 let records = {};
@@ -28,7 +31,9 @@ function init(){
 
   console.time("debug init");
 
-  console.log("initializing debug")
+  console.log("initializing debug");
+
+  const array = require('sdk/util/array');
   
   // TODO: proper way to register about: pages
   // https://dev.mozilla.jp/localmdc/localmdc_1781.html
@@ -39,7 +44,7 @@ function init(){
   // http://stackoverflow.com/questions/23748077/firefox-extension-differences-of-the-chrome-and-resource-protocols
   // https://developer.mozilla.org/en-US/Add-ons/SDK/Guides/XUL_Migration_Guide
   tabs.on('ready', function(tab){
-  	if (tab.url === sp.prefs["debug.url"]) tab.url = HTML_URL;
+    if (tab.url === DEBUG_URL) tab.url = HTML_URL;
   });
   
 
@@ -49,15 +54,20 @@ function init(){
     contentStyleFile: data.url('./css/jquery.jsonview.css'),
     contentScriptWhen: 'ready',
     onAttach: function(worker){
-      workers.push(worker);
-      worker.on('detach', function(){
-        detachWorker(worker, workers);
-      });
+
+      worker.on('pageshow', function() { array.add(workers, this); });
+      worker.on('pagehide', function() { array.remove(workers, this); });
+      worker.on('detach', function() { array.remove(workers, this); });
+
+      console.log("debug worker count: ", workers.length);
+
       worker.port.on("log", function(m){console.log(m);});
       worker.port.on("cmd", function(cmd){processCommand(worker, cmd);});
       worker.port.emit("init");
       loadPrefs();
       registerPrefListeners();
+      loadStorages();
+      registerStorageListeners();
       initWorker(worker);
     }
   });
@@ -127,7 +137,7 @@ function dumpUpdateObject(obj, options){
 }
 
 function update(worker, recs, options){
-	worker.port.emit("update", recs, options);
+  worker.port.emit("update", recs, options);
 }
 
 function updateAll(recs){
@@ -198,19 +208,58 @@ let registerPrefListeners = (function(){ // can be executed only once
   }
 })();
 
-function detachWorker(worker, workerArray) {
-  let index = workerArray.indexOf(worker);
-  if(index != -1) {
-    workerArray.splice(index, 1);
+let loadStorages = (function(){ // can be executed only once
+  let executed = false;
+  return function(){
+    if (executed) return;
+
+    let recs = {};
+    Object.keys(osFileObjects).sort().forEach(function(address){
+      recs[address] = {};
+      recs[address].data = JSON.stringify(osFileObjects[address]);
+      recs[address].type = 'json';
+      recs[address].list = 'os file storage';
+    });
+
+    updateRecords(recs);
+    executed = true;
   }
-}
+})();
+
+let registerStorageListeners = (function(){ // can be executed only once
+  let executed = false;
+  return function(){
+    if (executed) return;
+
+    let f = function(e){
+      let address = e.address;
+      // console.log(address);
+      let recs = {};
+      recs[address] = {};
+      //does not update the type
+      recs[address].type = null;
+      recs[address].data = JSON.stringify(osFileObjects[address]);
+      recs[address].list = 'os file storage';
+
+      updateAll(recs);
+    };
+
+    Object.keys(osFileObjects).sort().forEach(function(address){
+      storage.on(address, f)
+      // osFileObjects[address].on('update', f);
+      unload(function(){storage.removeListener(address, f)});
+    });
+    executed = true;
+  }
+})(); 
 
 function recordToEntry(rec){
 
   let result;
 
-  if (rec.type == 'json')
+  if (rec.type == 'json'){
     result = JSON.parse(rec.data);
+  }
   else
     result = rec.data;
 

@@ -37,14 +37,19 @@ let mouseenter;
 let certainlyactive;
 
 function init(){
+
   console.log("initializing doorhanger");
 
-  dhData = PersistentObject("simplePref", {address: dhDataAddress});
+  return PersistentObject("osFile", {address: dhDataAddress})
+  .then((obj)=> {
+    dhData = obj;
+  }).then(_init);
+}
 
-  unload(()=>{
+function _init(){
+ unload(()=>{
     clearTimeout(hideTimeout);
   });
-
 }
 
 function initPanel(button){
@@ -239,10 +244,6 @@ function openInfoPage(){
 
 function resize(size){
   panel.resize(size.width+4, size.height+4);
-}
-
-function response(element, options){
-
 }
 
 

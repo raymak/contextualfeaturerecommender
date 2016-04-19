@@ -39,7 +39,7 @@ const recSet = {
   add: function(/* recommendations */){
     let routeIndexTables = this.routeIndexTables;
 
-    let that = this._copyCache(); // to reduce the number of prefs hits
+    let that = this._copyCache();
 
     let frIds = [];
     let frObjs = [];
@@ -105,6 +105,7 @@ const recSet = {
     this._pasteCache(that);
   },
   update: function(/* recommendations */){
+
     let that = this;
 
     Array.prototype.slice.call(arguments).forEach(function(aRecommendation){
@@ -183,13 +184,14 @@ const recSet = {
 
   },
   scaleRoute: function(aRecommendation, coeff, indexTable){
+
     scale.call(aRecommendation[indexTable + "Route"], coeff);
     aRecommendation[indexTable] = str.call(aRecommendation[indexTable + "Route"]);
 
     this.update(aRecommendation);
   },
   forEach: function(callback) {
-    let that = this._copyCache();
+    let that = this;
     Object.keys(that).forEach(function(key){
         return typeof that[key] === "function" ||  ["routeIndexTables", "delivContext", "trigBehavior", "featUseBehavior", "length"].indexOf(key) != -1 || callback(that[key]);
       });
@@ -207,16 +209,18 @@ const RecSet = function(options){
 }
 
 const PersistentRecSet = function(type, options){
-  let nObj = PersistentObject(type, merge({}, options, {target: Object.create(recSet)}));
-  nObj.routeIndexTables.forEach(function(indexTable){
+  return PersistentObject(type, merge({}, options, {target: Object.create(recSet)}))
+  .then((nObj)=>{
+    nObj.routeIndexTables.forEach(function(indexTable){
     if (!nObj[indexTable])
       nObj[indexTable] = {};
-  });
+    });
 
-  if (!nObj.length)
+    if (!nObj.length)
       nObj.length = 0;
 
-  return nObj;
+    return nObj;
+  });
 }
 const extractPresentationData = function(channel){
   return merge({}, this.presentationData["*"] || {}, this.presentationData[channel] || {});
@@ -227,17 +231,15 @@ const extractResponseCommandMap = function(channel){
 }
 
 const recommendationToString = function(){
-    let that = this;
-    return Object.keys(this).reduce(function(previousValue, currentValue, index, array) {
-      
-      if (typeof that[currentValue] === "function")
-        return previousValue;
-      
-      return previousValue + "\n" + currentValue + "-> " + that[currentValue];
-    }, "");
-  }
-
-
+  let that = this;
+  return Object.keys(this).reduce(function(previousValue, currentValue, index, array) {
+    
+    if (typeof that[currentValue] === "function")
+      return previousValue;
+    
+    return previousValue + "\n" + currentValue + "-> " + that[currentValue];
+  }, "");
+}
 
 
 exports.extractPresentationData = extractPresentationData;

@@ -10,10 +10,16 @@ const {PersistentObject} = require("./storage");
 const {prefs} = require("sdk/simple-prefs");
 const {tToS, sToT} = require("./timer");
 
-
 const momentDataAddress = "moment.data";
 
-const momentData = PersistentObject("simplePref", {address: momentDataAddress});
+let momentData;
+
+function init(){
+  return PersistentObject("osFile", {address: momentDataAddress})
+  .then((obj)=>{
+    momentData = obj;
+  });
+}
 
 const countRecent = function(momentData, win_length_tick){
   let count = 0;

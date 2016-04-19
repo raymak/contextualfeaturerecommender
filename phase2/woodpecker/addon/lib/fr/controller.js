@@ -34,8 +34,9 @@ const events = require("sdk/system/events");
 const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
 const statsEvent = require("./../stats").event;
-const {defer, once} = require("sdk/lang/functional");
-const {PersistentObject} = require("./../storage");
+const functional = require("sdk/lang/functional");
+const {defer, all} = require("sdk/core/promise")
+const {PersistentObject, osFileObjects} = require("./../storage");
 Cu.import("resource://gre/modules/Downloads.jsm");
 Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
@@ -53,8 +54,8 @@ const BLANK_URL = 'about:blank';
 const recSetAddress = "controller.recommData";
 const deliveryDataAddress = "delivery.data";
 
-let recommendations = PersistentRecSet("simplePref", {address: recSetAddress});
-let deliveryData = PersistentObject("simplePref", {address: deliveryDataAddress});
+let recommendations; //inited in init()
+let deliveryData; //inited in init()
 
 let hs;
 let sessObserver;
@@ -67,6 +68,17 @@ let dlView;
 const init = function(){
   console.log("initializing controller");
 
+  return all(
+    [ 
+      initRecs(),
+      PersistentObject("osFile", {address: deliveryDataAddress})
+    ])
+    .then((result)=> {
+      deliveryData = result[1];
+    }).then(_init);
+}
+
+const _init = function(){
   console.time("controller init");
 
   unload(unloadController);
@@ -78,6 +90,21 @@ const init = function(){
   welcome();
 
   console.timeEnd("controller init");
+}
+
+function initRecs(){
+
+  let {promise, resolve} = defer();
+
+  if (!recommendations){
+    PersistentRecSet("osFile", {address: recSetAddress}).then((recSet)=> {
+      recommendations = recSet;
+    }).then(resolve);
+  }
+  else
+    resolve();
+
+  return promise;
 }
 
 /**
@@ -210,7 +237,7 @@ const listener = {
       });
 
       interruptibleMomentEvent.checkPreconditions = function(){
-        return timer.isRecentlyActive(10, 2*60);
+        return timer.isRecentlyActive(10, 10*60);
       };
 
       let multipleInterruptibleMomentEvent = that.multipleRoute(interruptibleMomentEvent, {
@@ -652,14 +679,8 @@ const listener = {
 const deliverer = {
   init: function(){
 
-    let f = function(p){
-      prefs["timer.silence_length_s"] = 
-        timer.tToS(prefs["delivery.mode.silence_length." + prefs[p]]);
-    };
-    sp.on("delivery.mode.rate_limit", f)
-    unload(function() sp.removeListener("delivery.mode.rate_limit", f));
-
-    f("delivery.mode.rate_limit");
+    osFileObjects["timer.data"].silence_length_s = 
+      timer.tToS(prefs["delivery.mode.silence_length." + osFileObjects["delivery.data"].mode.rate_limit]);
 
     timer.onTick(this.checkSchedule);
 
@@ -710,8 +731,8 @@ const deliverer = {
       rejectDelivery = true;
     }
 
-    if (self.delMode.observOnly || (timer.isSilent())){
-      if (self.delMode.observOnly){
+    if (self.delMode.observ_only || (timer.isSilent())){
+      if (self.delMode.observ_only){
         console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
         require('./../stats').event("observe-only-reject", {type: "delivery"});
       }
@@ -723,8 +744,6 @@ const deliverer = {
       rejectDelivery = true;
     }
 
-    rejectDelivery = true;
-    
     if (rejectDelivery)
       return;
 
@@ -732,13 +751,16 @@ const deliverer = {
 
     if (aRecommendation.status == "delivered"){
       console.log("warning: delivering a recommendation that has already been delivered");
-      logger.logWarning({code: "delivery", message: "delivering a recommendation that has already been delivered: " + aRecommendation.id});
+      logger.logWarning({type: "delivery", message: "delivering a recommendation that has already been delivered: " + aRecommendation.id});
     }
 
     aRecommendation.status = "delivered";
+
     recommendations.update(aRecommendation);
 
     statsEvent("delivery");
+
+    return;
 
     presenter.present(aRecommendation, listener.command.bind(listener));
 
@@ -804,7 +826,7 @@ listener.behavior = function(route){
     let aggregates = {};
     let bi = behaviorInfo(aRecommendation);
 
-    if (bi.num) {
+    if (bi.num || bi.num == 0) {
       addedInfo.num = bi.num;
       aggregates.num = 'average';
     }
@@ -891,11 +913,19 @@ listener.featureUse = function(route){
 
   recomms.forEach(function(aRecommendation){
     let addedInfo = {};
+    let aggregates = {};
 
     let fui = featureUseInfo(aRecommendation);
 
-    if (fui.num) addedInfo.num = route.num;
-    statsEvent(aRecommendation.id, {type: "looseFeatureUse"}, addedInfo);
+    if (aRecommendation.id == "pinTab")
+      console.log("NUM", fui.num);
+
+    if (fui.num || fui.num == 0) {
+      addedInfo.num = fui.num;
+      aggregates.num = 'average';
+    }
+
+    statsEvent(aRecommendation.id, {type: "looseFeatureUse"}, addedInfo, aggregates);
 
     if (utils.isPowerOf2(fui.count) || (utils.isPowerOf2(fui.num) && fui.num > 10)){
       logger.logLooseFeatureUse(featureUseInfo(aRecommendation));
@@ -973,6 +1003,14 @@ listener.command = function(cmd){
 
       break;
 
+    case "amo install":
+      if (!cmdObj.l) {
+        console.log("no url provided for command: " + cmd);
+        return;
+      }
+
+      utils.installAddonFromAmo(cmdObj.l);
+      break;
     case "info":
       tabs.open(data.url("infopage.html"))
 
@@ -1039,7 +1077,7 @@ listener.listenForAddonEvents = function(callback){
     });
   }
 
-  let reportCount = defer(_reportCount);
+  let reportCount = functional.defer(_reportCount);
 
   addonListener = {
     onInstallEnded: function(install, addon){
@@ -1084,18 +1122,22 @@ listener.listenForTools = function(callback){
       let doc = Cu.getWeakReference(window.document);
 
       let buttonListener = function(){
-        doc.get().getElementById("find-button").addEventListener("click", findopened);
-        unload(function(){
-          if (doc.get() && doc.get().getElementById("find-button"))
-            doc.get().getElementById("find-button").removeEventListener("click", findopened);
-        });
-        console.log("button listener");
+        if (doc.get().getElementById("find-button")){
+          doc.get().getElementById("find-button").addEventListener("click", findopened);
+          unload(function(){
+            if (doc.get() && doc.get().getElementById("find-button"))
+              doc.get().getElementById("find-button").removeEventListener("click", findopened);
+          });
+          console.log("button listener");
+        }
+        else
+          warn("find-button");
       }
 
       if (doc.get().getElementById("find-button"))
         buttonListener()
       else { 
-        doc.get().getElementById("PanelUI-menu-button").addEventListener("command", once(buttonListener));
+        doc.get().getElementById("PanelUI-menu-button").addEventListener("command", functional.once(buttonListener));
         unload(function(){
           if (doc.get() && doc.get().getElementById("PanelUI-menu-button"))
             doc.get().getElementById("PanelUI-menu-button").removeEventListener("command", buttonListener)
@@ -1161,11 +1203,16 @@ listener.listenForPageVisit = function(callback, options){
                           new MatchPattern(/^(http|https):\/\/www\.bing\.com\/search\?.*/),
                           new MatchPattern(/^(http|https):\/\/.*\.search\.yahoo\.com\/.*/)
                         ],
-    specializedSearch:  [ new MatchPattern(/^(http|https):\/\/www\.google\.com\/maps\/search\/.*/),
+    specializedSearch:  [ new MatchPattern(/^(http|https):\/\/www\.google\.com\/maps\/.*/),
+                          new MatchPattern(/^(http|https):\/\/www\.google\.ca\/maps\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.imdb\.com\/find\?.*/),
-                          new MatchPattern(/^(http|https):\/\/en\.wikipedia\.org\/wiki\/.*/)
+                          new MatchPattern(/^(http|https):\/\/en\.wikipedia\.org\/wiki\/.*/),
+                          new MatchPattern(/^(http|https):\/\/stackoverflow\.com\/search\?.*/),
+                          new MatchPattern(/^(http|https):\/\/yelp\.com\/search\?.*/)
                         ],
     weather:            [ new MatchPattern(/^(http|https):\/\/weather\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/theweathernetwork\.com\/.*/),
+                          new MatchPattern(/^(http|https):\/\/weather\.gc\.ca\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.accuweather\.com\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.wunderground\.com\/.*/),
                           new MatchPattern(/^(http|https):\/\/www\.weather\.gov\/.*/),
@@ -1194,6 +1241,10 @@ listener.listenForPageVisit = function(callback, options){
       let data = tabData.get(tab);
       
       let hostname = URL(tab.url).hostname;
+
+      // for canadian amazon : TEMPORARY
+      if (hostname == "www.amazon.ca")
+        hostname = "www.amazon.com"
 
       if (!hostname){
         tabData.delete(tab);
@@ -1280,7 +1331,7 @@ listener.listenForPageVisit = function(callback, options){
           data.appIdCount = 1;
         } else {
           data.appIdCount += 1;
-          if (data.appId == 5)
+          if (data.appIdCount == 5)
             data.appIdCount = 1;
         }
 
@@ -1381,22 +1432,36 @@ listener.listenForTabs = function(callback, options){
         callback(reason);
         callback("pin", {number: countPinnedTabs()}); 
       };
-      tb.get().tabContainer.addEventListener("TabPinned", f);
-      unload(function(){
-        if (tb.get() && tb.get().tabContainer)
-            tb.get().tabContainer.removeEventListener("TabPinned", f)
-      });
 
-      f = function(e){
-        reason = "unpinned";
-        callback(reason);
-        callback("pin", {number: countPinnedTabs()}); 
-      };
-      tb.get().tabContainer.addEventListener("TabUnpinned", f);
-      unload(function(){
-        if (tb.get() && tb.get().tabContainer)
-          tb.get().tabContainer.removeEventListener("TabUnpinned", f)
-      });
+      if (tb.get()){
+        if (tb.get().tabContainer){
+          tb.get().tabContainer.addEventListener("TabPinned", f);
+          unload(function(){
+            if (tb.get() && tb.get().tabContainer)
+                tb.get().tabContainer.removeEventListener("TabPinned", f)
+          });
+        }
+        else
+          warn("tabContainer");
+
+        f = function(e){
+          reason = "unpinned";
+          callback(reason);
+          callback("pin", {number: countPinnedTabs()}); 
+        };
+
+        if (tb.get().tabContainer){
+          tb.get().tabContainer.addEventListener("TabUnpinned", f);
+          unload(function(){
+            if (tb.get() && tb.get().tabContainer)
+              tb.get().tabContainer.removeEventListener("TabUnpinned", f)
+          });
+        }
+        else
+          warn("tabContainer");
+      }
+      else
+        warn("gBrowser");
 
       // new-tab-button
       // this would ideally be a union of 2 chrome events 
@@ -1409,23 +1474,35 @@ listener.listenForTabs = function(callback, options){
         callback(reason);
       }
 
-      let button =  Cu.getWeakReference(window.document
-      .getAnonymousElementByAttribute(
-        window.document.getElementById("tabbrowser-tabs")
-        , "anonid", "tabs-newtab-button"));
+      if (window.document.getElementById("tabbrowser-tabs")){
+        let button =  Cu.getWeakReference(window.document
+        .getAnonymousElementByAttribute(
+          window.document.getElementById("tabbrowser-tabs")
+          , "anonid", "tabs-newtab-button"));
 
-      button.get().addEventListener("click", f);
-      unload(function() {
-        if (button.get())
-          button.get().removeEventListener("click", f);
-      });
+        if (button.get()){
+          button.get().addEventListener("click", f);
+          unload(function() {
+            if (button.get())
+              button.get().removeEventListener("click", f);
+          });
+        }
+        else
+          warn("tabs-newtab-button");
 
-      button = Cu.getWeakReference(window.document.getElementById("new-tab-button"));
-      button.get().addEventListener("click", f);
-      unload(function() {
-        if (button.get())
-          button.get().removeEventListener("click", f);
-      });
+        button = Cu.getWeakReference(window.document.getElementById("new-tab-button"));
+        if (button.get()){
+          button.get().addEventListener("click", f);
+          unload(function() {
+            if (button.get())
+              button.get().removeEventListener("click", f);
+          });
+        }
+        else
+          warn("new-tab-button");
+      }
+      else
+        warn("tabbrowser-tabs");
 
     }
   });
@@ -1575,11 +1652,15 @@ listener.listenForChromeEvents = function(callback, options){
           callback(route, evt);
         }
 
-        elem.get().addEventListener(route.eventName, f);
-        unload(function(){
-          if (elem.get())
-            elem.get().removeEventListener(route.eventName, f)
-        });
+        if (elem.get()){
+          elem.get().addEventListener(route.eventName, f);
+          unload(function(){
+            if (elem.get())
+              elem.get().removeEventListener(route.eventName, f)
+          });
+        }
+        else
+          logger.logWarning({type: "chrome-listener", message: "Chrome element could not be selected.", info: {route: route, id: route.id}});
       } 
     }
   });
@@ -1825,30 +1906,36 @@ listener.listenForDevTools = function(callback){
         callback(reason);
       };
 
-      gDevTools.get().on("toolbox-ready", f);
+      if (gDevTools.get()){
+        gDevTools.get().on("toolbox-ready", f);
 
-      unload(function(){
-        if (gDevTools.get())
-          gDevTools.get().off("toolbox-ready", f);
-      })
+        unload(function(){
+          if (gDevTools.get())
+            gDevTools.get().off("toolbox-ready", f);
+        })
 
-      f = function(e, toolId){
-        let reason = "select";
-        callback(reason, {toolId: toolId});
-      };
 
-      gDevTools.get().on("select-tool-command", f);
+        f = function(e, toolId){
+          let reason = "select";
+          callback(reason, {toolId: toolId});
+        };
 
-      unload(function(){
-        if (gDevTools.get())
-          gDevTools.get().off("select-tool-command", f);
-      })
+        gDevTools.get().on("select-tool-command", f);
 
+        unload(function(){
+          if (gDevTools.get())
+            gDevTools.get().off("select-tool-command", f);
+        })
+      }
+      else
+        warn("gDevTools");
     }
   });
 };
 
 listener.multipleRoute = function(baseEvent, options){
+
+    let eventData = getEventData();
 
     if (!options)
       options = {};
@@ -1898,6 +1985,10 @@ listener.listenForInternalEvents= function(callback){
   });
 };
 
+function warn(element){
+  logger.logWarning({type: "missing-element", message: "A chrome element is missing.", element: element});
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -1935,6 +2026,7 @@ const debug = {
 
       //deliverer
       case "deliver":
+
         if (!recommendations[params] && params != "next")
           return ("error: recommendation with id " + params + " does not exist.")
 
@@ -2021,7 +2113,8 @@ const debug = {
             if (subArgs[2] != "true" && subArgs[2] != "false") 
               return "error: incorrect use of delmode observ_only command.";
 
-            prefs["delivery.mode.observ_only"] = JSON.parse(subArgs[2]);
+            osFileObjects["delivery.data"].mode = 
+              merge(osFileObjects["delivery.data"].mode, {observ_only: modeJSON.parse(subArgs[2])});
 
             return "observ_only mode is now " + (JSON.parse(subArgs[2]) ? "on": "off");
 
@@ -2102,15 +2195,22 @@ function welcome(){
 }
 
 function loadRecFile(file){
-  let recomms = JSON.parse(data.load(file)).map(function(recData){
-    if ("auto-load" in recData && !recData["auto-load"])
-      return null;
-    
-    return Recommendation(recData);
-  });
+  let {resolve, promise} = defer();
 
-  recommendations.add.apply(recommendations, recomms);
+  initRecs().then(()=>{
+    let recomms = JSON.parse(data.load(file)).map(function(recData){
+      if ("auto-load" in recData && !recData["auto-load"])
+        return null;
+      
+      return Recommendation(recData);
+    });
 
+    recommendations.add.apply(recommendations, recomms);
+
+    resolve();
+  })
+
+  return promise;
 }
 
 function loadRec(file, recId){
@@ -2130,10 +2230,10 @@ return isFound;
 function scaleRoutes(coeff, indexTable){
   if (coeff === 1)
     return;
+
   recommendations.forEach(function(aRecommendation){
     recommendations.scaleRoute(aRecommendation, coeff, indexTable);
   });
-
 
 }
 

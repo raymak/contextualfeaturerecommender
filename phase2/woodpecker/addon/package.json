@@ -9,7 +9,7 @@
   "id": "woodpecker@insights.mozilla.com",
   "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.1-beta",
+  "version": "0.0.2-beta",
   "permissions": {
     "private-browsing": true  
   },
@@ -149,6 +149,12 @@
       "type": "integer",
       "title": "Maximum number of log records to store when connection fails.",
       "value": 10
+    },    
+    {
+      "name": "logger.log_error",
+      "type": "bool",
+      "title": " ",
+      "value": true
     },
     {
       "name": "feature_report.log_period",

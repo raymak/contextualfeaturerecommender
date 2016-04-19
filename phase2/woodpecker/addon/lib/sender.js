@@ -13,14 +13,14 @@ const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
 const {onTick} = require('./timer');
 const {prefs} = require("sdk/simple-prefs");
-const { Buffer, TextEncoder, TextDecoder } = require('sdk/io/buffer');
+const {TextEncoder} = require('sdk/io/buffer');
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/osfile.jsm");
 
 const REMOTE_URL = "https://testpilot.mozillalabs.com/submit/" + "featurerecommender";
 const TEST_URL = "http://logs-01.loggly.com/inputs/ac4fee9c-9dc4-4dc9-8a1b-4094253067bb/tag/http/";
 
-const FILE_NAME = "fr-" + prefs["experiment.name"] + "-log-" + require("./self").userId + ".jsonl";
+let FILE_NAME; 
 const PATH_DIR = pathFor("Desk");
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
@@ -28,6 +28,8 @@ const observerService = Cc["@mozilla.org/observer-service;1"]
 
 
 function init(){
+
+  FILE_NAME = "fr-" + prefs["experiment.name"] + "-log-" + require("./experiment").userId + ".jsonl";
 
   console.log("initializing sender");
 

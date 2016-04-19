@@ -16,7 +16,7 @@ const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
 
 const timerDataAddress = "timer.data";
-const timerData = PersistentObject("simplePref", {address: timerDataAddress});
+let timerData;
 
 const tickHandlers = [];
 const userActiveHandlers = [];
@@ -29,6 +29,13 @@ let tickInterval;
 let startTimeMs;
 
 const init = function(){
+  return PersistentObject("osFile", {address: timerDataAddress})
+  .then((obj)=> {
+    timerData = obj;
+  }).then(_init);
+}
+
+const _init = function(){
   console.log("initializing timer");
 
   console.time("timer init");
@@ -60,7 +67,7 @@ const init = function(){
   f = function(pref){
     timerData.elapsedTotalTime = elapsedTotalTime();
   };
-  
+
   sp.on("experiment.startTimeMs", f);
   unload(function(){sp.removeListener("experiment.startTimeMs", f)});
 
@@ -68,7 +75,6 @@ const init = function(){
   debug.update({silenceStatus: true});
 
   console.timeEnd("timer init");
-
 }
 
 const elapsedTotalTime = function(stage){
@@ -133,7 +139,12 @@ const watchActivity = function(){
 
           if (activity.minor_active_s == 0){ // to call the handlers only once
             userActiveHandlers.forEach((fn) => fn());
-            require('./stats').event("activation");
+            require('./stats').event("activation", {}, {inactivity: activity.last_minor_inactive_s}, {inactivity: 'average'});
+
+            if (isRecentlyActive(10, 10 * 60)){
+              require('./logger').logLongInactivityBack({length: activity.last_minor_inactive_s});
+
+            }
           }
 
         break;
@@ -152,6 +163,11 @@ const watchActivity = function(){
             if (activity.minor_inactive_s > prefs["timer.inactive_threshold_s"] && activity.active){
               deactivate();
             }
+
+            if (activity.minor_inactive_s == 10 * 60){
+              require('./logger').logLongInactivity();
+            }
+            
             debug.update();
           }, 1000);
         break;
@@ -315,7 +331,7 @@ const randomTime = function(start, end){
 }
 
 const silence_length_tick = function(){
-  return sToT(prefs["timer.silence_length_s"]);
+  return sToT(timerData.silence_length_s);
 }
 
 const tToS = function(t){
@@ -415,21 +431,22 @@ const debug = {
                 if (!subArgs[2])
                   return "error: invalid use of time set st command.";
 
-                console.log(Number(prefs["experiment.startTimeMs"]));
+                let startTimeMs = Number(require('./storage').osFileObjects['experiment.data'].startTimeMs);
+                console.log(startTimeMs);
 
-                let dateNum = Number(prefs["experiment.startTimeMs"]) 
+                let dateNum = startTimeMs
                               + Number(subArgs[2])*prefs["timer.tick_length_s"]*1000;
 
                 console.log(dateNum);
-                prefs["experiment.startTimeMs"] = String(dateNum);
-                
+                require('./storage').osFileObjects['experiment.data'].startTimeMs = String(dateNum);
+
                 return "new start time set to: " + require('./timer').dateTimeToString(new Date(dateNum));
                 break;
               default:
                 return "error: invalid use of time set command.";
             }
             break;
-
+          
           case "get":
 
             if (!subArgs[1])

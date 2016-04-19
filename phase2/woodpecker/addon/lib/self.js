@@ -14,31 +14,27 @@ const {getFhrData, cleanUp, extractOpts} = require("./utils");
 const {merge} = require("sdk/util/object");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 
+let selfData;
+const selfDataAddress = "self.data";
+
 const self = {
   init: function(){
+    return require('./storage').PersistentObject('osFile', {address: selfDataAddress})
+    .then((obj)=> {
+      selfData = obj;
+    }).then(this._init);
+  },
+  _init: function(){
     debug.init();
   },
   get isInitialized(){
-    return !!prefs["isInitialized"];
-    },
+    return !!selfData.isInitialized;
+  },
   setInitialized: function(){
-    prefs["isInitialized"] = true;
+    selfData.isInitialized = true;
   },
   get delMode(){
-    return {
-      rateLimit: prefs["delivery.mode.rate_limit"],
-      moment: prefs["delivery.mode.moment"],
-      observOnly: prefs["delivery.mode.observ_only"]
-    }
-  },
-  // also sets user id for the first tiem
-  get userId(){
-    if (prefs["userId"]) 
-      return prefs["userId"];
-    else {
-      prefs["userId"] = require("sdk/util/uuid").uuid().toString().slice(1,-1); //set for the first time
-      return prefs["userId"];
-    }
+    return require('./storage').osFileObjects["delivery.data"].mode;
   },
   get isTest(){
 
@@ -89,7 +85,8 @@ const self = {
                     "toolkit.telemetry.archive.enabled",
                     "browser.urlbar.suggest.searches",
                     "browser.urlbar.userMadeSearchSuggestionsChoice",
-                    "app.update.enabled"
+                    "app.update.enabled",
+                    "xpi.signatures.required"
                     ]
 
     let prefsData = {};

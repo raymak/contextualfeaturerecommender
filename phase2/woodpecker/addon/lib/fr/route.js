@@ -1,11 +1,20 @@
-/*! This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
 "use strict";
 
 const {prefs} = require("sdk/simple-prefs");
+const {PersistentObject} = require('./../storage');
+
+let routeData;
+const routeDataAddress = "route.data";
+
+
+function init(){
+  return PersistentObject('osFile', {address: routeDataAddress})
+  .then((obj)=> {
+    routeData = obj;
+    if (!("coefficient" in routeData))
+      routeData.coefficient = 1;
+  });
+}
 
 function Route(route){
 
@@ -109,9 +118,9 @@ const matches = function(inRoute, looseMatch){
 
 function coefficient(coeff){
   if (coeff)
-    prefs["route.coefficient"] = String(coeff*Number(prefs["route.coefficient"]));
+    routeData.coefficient = Number(coeff)*prefs["route.default_coefficient"];
 
-  return Number(prefs["route.coefficient"]);
+  return routeData.coefficient;
 }
 
 // exports.init = init;
@@ -122,3 +131,4 @@ exports.matches = matches;
 exports.scale = scale;
 exports.coefficient = coefficient;
 exports.str = str;
+exports.init = init;

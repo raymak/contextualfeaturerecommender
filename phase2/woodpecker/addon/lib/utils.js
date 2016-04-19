@@ -121,6 +121,7 @@ exports.isVideoPlaying = function(){
 
 // returns whether the active tab is playing sound
 // does not check if it's muted
+// alternative: check the sound icon
 exports.isSoundPlaying = function(){
   let tabs = require('sdk/tabs');
   const {viewFor} = require("sdk/view/core");
@@ -140,7 +141,7 @@ function getFhrData(callback){
   }
   catch(e){
     console.log("warning: could not get fhr data", e.message);
-    require('./logger').logWarning({code: "no_fhr", message: "could not receive fhr info."});
+    require('./logger').logWarning({type: "no_fhr", message: "could not receive fhr info."});
     callback(0,0,0, null);
   }
 
@@ -313,11 +314,11 @@ function parseFhrPayloadV4(map, callback){
     });     
 }
 
+// TOTHINK: move cleanup code to its corresponding module
 exports.cleanUp =  function(options){
+
   //note: preferences defined in package.json cannot be deleted
   if (options && options.reset){
-
-    console.log("cleaning up the stats indexeddb database");
 
     const config = {
       name: 'stats-db',
@@ -328,20 +329,65 @@ exports.cleanUp =  function(options){
     
     AS.open(config);
 
-    AS.clear().then(function(){
-      AS.length().then((l) => {if (l == 0) console.log("indexeddb clear confirmed")});
-    }).catch((e)=>{throw e});
+    let asPromise = AS.clear().then(function(){
 
-    console.log("resetting preferences...");
-    for (let pref in prefs){
-      if (pref.slice(0,3) !== 'sdk'){
-        console.log('resetting ' + pref + '...');
-        require('sdk/preferences/service').reset(['extensions', require('sdk/self').id, pref].join('.'));
+      console.log("cleaning up the stats indexeddb database");
+
+      return AS.length().then((l)=> {
+        if (l == 0)
+         console.log("indexeddb clear confirmed") 
+        else
+          console.log("indexeddb clear error")
+      });
+
+    }).catch(Cu.reportError);
+
+    // deleting os file storage files
+    const DIR_PATH = require('sdk/io/file').join(require('sdk/system').pathFor("ProfD"), require('sdk/self').id + "-storage");
+    Cu.import("resource://gre/modules/osfile.jsm");
+
+    let osPromise = OS.File.removeDir(DIR_PATH, {ignoreAbsent: true, ignorePermissions: true})
+    .then(function(){
+      
+      console.log("cleaning up osfile storage");
+
+      return OS.File.exists(DIR_PATH);
+    })
+    .then(exists => {
+      if (!exists) 
+        console.log("osfile storage clear confirmed");
+      else 
+        console.log("osfile storage clear error");
+    }).catch(Cu.reportError);
+    
+    return asPromise.then(()=> osPromise).then(function cleanUpPrefs(){
+      console.log("resetting preferences...");
+      for (let pref in prefs){
+        if (pref.slice(0,3) !== 'sdk'){
+          console.log('resetting ' + pref + '...');
+          require('sdk/preferences/service').reset(['extensions', require('sdk/self').id, pref].join('.'));
+        }
       }
-    }
+    }).catch(Cu.reportError);
   }
   else
     console.log("cleaning up cancelled.");
+}
+
+exports.installAddonFromAmo = function(url){
+  function ready(tab){
+    let worker = tab.attach({
+        contentScript: 'document.querySelector("a.button.installer").click();'
+      });
+      worker.destroy();
+      tab.off("ready", ready);
+  }
+
+  require('sdk/tabs').open({
+    url: url,
+    inBackground: false,
+    onReady: ready
+  });
 }
 
 exports.dateTimeToString = function(date){
@@ -357,6 +403,7 @@ exports.overridePrefs = function(fileName){
   try {var newPrefs = JSON.parse(pj)}
   catch(e){console.log("failed to parse " + fileName + " as json")}
 
+  prefsSvc = Components.classes["@mozilla.org/preferences-service;1"]
   for (let p in newPrefs){
     if (p === null)
       continue;
@@ -378,9 +425,6 @@ exports.selfDestruct = function(reason){
     reason = "unknown";
 
   require("./logger").logSelfDestruct({reason: reason});
-
-  if (prefs["cleanup_on_death"])
-    exports.cleanUp({reset: true});
 
   return require("sdk/addon/installer")
     .uninstall(require("sdk/self").id);
@@ -460,8 +504,5 @@ const debug = {
 
 debug.init();
 
-
 exports.getFhrData = getFhrData
 exports.override  = function() merge.apply(null, arguments);
-
-

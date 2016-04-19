@@ -5,7 +5,6 @@
 
 "use strict";
 
-const dh = require('./presentation/doorhanger');
 const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
 const tabs = require('sdk/tabs');
@@ -26,8 +25,7 @@ const statsEvent = require('./stats').event;
 
 const momentDataAddress = "moment.data";
 
-const momentData = PersistentObject("simplePref", {address: momentDataAddress});
-
+let momentData;
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
@@ -35,7 +33,16 @@ const observerService = Cc["@mozilla.org/observer-service;1"]
 let idleObserver;
 
 function init(){
-  dh.init();
+
+  console.log("initializing woodpecker controller");
+
+  return PersistentObject("osFile", {address: momentDataAddress})
+  .then((obj)=> {
+    momentData = obj;
+  }).then(_init);
+}
+
+function _init(){
 
   handleCmd(debug.parseCmd);
 

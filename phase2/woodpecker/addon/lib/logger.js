@@ -18,13 +18,20 @@ const {defer} = require("sdk/lang/functional");
 const unload = require("sdk/system/unload").when;
 
 const loggerDataAddress = "logger.data";
-const loggerData = PersistentObject("simplePref", {address: loggerDataAddress});
+let loggerData;
 
 const recentHistCount = prefs["logger.recent_hist_count"];
 
 let recentMsgs;
 
 function init(){
+  return PersistentObject("osFile", {address: loggerDataAddress})
+  .then((obj)=> {
+    loggerData = obj;
+  }).then(_init);
+}
+
+function _init(){
   console.log("initializing logger");
 
   if (!("count" in loggerData))
@@ -55,10 +62,10 @@ function log(type, attrs, options){
     _log(type, attrs, options); 
 }
 
-function _log(type, attrs){
+function _log(type, attrs, option){
 
   let OUT = {
-    userid: self.userId,
+    userid: require('./experiment').userId,
     number: nextNumber(),
     is_test: self.isTest,
     deb_cmd_used: prefs["debug.command.used"],
@@ -66,6 +73,8 @@ function _log(type, attrs){
     et: elapsedTime(),
     ett: elapsedTotalTime(),
     localeTime: (new Date(Date.now())).toLocaleString(),
+    curr_et: elapsedTime(require('./experiment').stage),
+    curr_ett: elapsedTotalTime(require('./experiment').stage),
     addon_id: addonSelf.id,
     addon_version: addonSelf.version,
     locale: self.locale,
@@ -173,7 +182,8 @@ function logSelfDestruct(info){
 }
 
 function logError(info){
-  log("ERROR", info, {immediate: true});
+  if (prefs["logger.log_error"])
+    log("ERROR", info, {immediate: true});
 }
 
 function logWarning(info){
@@ -190,6 +200,23 @@ function logSilenceStart(info){
 
 function logStatsReport(info){
   log("STATS_REPORT", info);
+}
+
+function logLongInactivity(info){
+  log("LONG_INACTIVITY", info);
+}
+
+function logLongInactivityBack(info){
+  log("LONG_INACTIVITY_BACK", info);
+}
+
+function logPrefs(){
+  let info = prefs;
+  log("PREFS_DUMP", info);
+}
+
+function logMissingElement(info){
+  log("MISSING_ELEMENT", info);
 }
 
 const debug = {
@@ -257,3 +284,7 @@ exports.logSilenceStart = logSilenceStart;
 exports.logWarning = logWarning;
 exports.logError = logError;
 exports.logStatsReport = logStatsReport;
+exports.logLongInactivity = logLongInactivity;
+exports.logLongInactivityBack = logLongInactivityBack;
+exports.logPrefs = logPrefs;
+exports.logMissingElement = logMissingElement;

@@ -1,5 +1,6 @@
-scrips/*
+scripts/*
 deprecated/*
 *.xpi
 .DS_Store
 Makefile
+build/*
