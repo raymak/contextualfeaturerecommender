@@ -183,16 +183,15 @@ function setStage(nStage){
 
 function checkStage(et, ett){
 
-    if (expData.stage === "end")
-      end();  // in case the end stage has not been properly executed (e.g. due to crash)
+  if (expData.stage === "end")
+    end();  // in case the end stage has not been properly executed (e.g. due to crash)
 
   if (expData.stageForced)
     return ;
   
   // when called from index.js
   if (ett === undefined)
-    ett = timer.elapsedTotalTime(); 
-
+    ett = timer.elapsedTotalTime();
 
   let stage = expData.stage;
 
@@ -217,7 +216,6 @@ function checkStage(et, ett){
     return;
 
   return setStage(nStage);
-
 }
 
 const stages = {
@@ -289,7 +287,6 @@ function end(){
       require('./sender').flush();
     });
 
-    console.log("YOYO");
     // delay to give some time for the remaining message queue to be flushed
     setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"]);
   });

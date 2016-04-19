@@ -108,7 +108,7 @@ function installRun(){
       catch(e){console.log("skipped overriding preferences");}
     }
   })
-  .then(()=> console.timeEnd("install run")).catch(require('chrome').Cu.reportError);
+  .then(()=> console.timeEnd("install run"));
 }
 
 function isFirstRun(){
@@ -129,6 +129,3 @@ exports.onUnload = function(reason){
 
   console.log("end of unload");
 }
-
-
-
