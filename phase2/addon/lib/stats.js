@@ -4,6 +4,7 @@
  */
 
 "use strict";
+const REPORT_TYPES = ["looseBehavior", "looseFeatureUse", "behavior", "delivery", "extra", "behavior"];
 
 const {prefs} = require("sdk/simple-prefs");
 const {eventData} = require("./event");
@@ -221,7 +222,7 @@ function log(){
       let evt = items.vals[i];
       let key = items.keys[i];
 
-      if (evt.type && !~["looseBehavior", "looseFeatureUse", "delivery"].indexOf(evt.type)) continue;
+      if (evt.type && !~REPORT_TYPES.indexOf(evt.type)) continue;
 
       info[key] = evt;
     }
