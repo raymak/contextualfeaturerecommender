@@ -150,13 +150,13 @@ body {
 }
 
 #close-button:hover {
-  background-image: url(chrome://global/skin/icons/close@2x.png);
+  background-image: url(images/close@2x.png);
   background-position: 48px 0;
   
 }
 
 #close-button:hover:active {
-  background-image: url(chrome://global/skin/icons/close@2x.png);
+  background-image: url(images/close@2x.png);
   background-position: 32px 0;
 }
 
