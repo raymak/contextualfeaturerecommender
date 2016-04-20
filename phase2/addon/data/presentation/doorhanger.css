@@ -141,7 +141,7 @@ body {
   cursor: default;
   font-size: 17px;
   border-radius: 20%;
-  background-image: url(chrome://global/skin/icons/close@2x.png);
+  background-image: url(images/close@2x.png);
   background-position: 0 0;
   background-size: 64px 16px;
   height: 16px;
