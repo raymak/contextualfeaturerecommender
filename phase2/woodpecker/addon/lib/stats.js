@@ -6,7 +6,7 @@
 "use strict";
 
 const {prefs} = require("sdk/simple-prefs");
-const {eventData} = require("./event");
+const {eventData} = require("./fr/event");
 const {storage} = require("sdk/simple-storage");
 const self = require("./self");
 const exp = require("./experiment");
@@ -17,9 +17,7 @@ const {PersistentObject} = require("./storage");
 const {merge} = require("sdk/util/object");
 const {defer, resolve} = require("sdk/core/promise");
 
-const REPORT_TYPES = ["looseBehavior", "looseFeatureUse", "behavior", "delivery", "extra", "behavior"];
-
-const REPORT_TYPES = ["looseBehavior", "looseFeatureUse", "behavior", "delivery", "extra", "moment", "result"];
+const REPORT_TYPES = ["looseBehavior", "looseFeatureUse", "behavior", "delivery", "delivery-wp", "extra", "moment", "result"];
 
 const statsDataAddress = "stats.data";
 let statsData;

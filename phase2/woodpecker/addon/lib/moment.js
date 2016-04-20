@@ -61,3 +61,4 @@ const updateFrequencies = function(name){
 }
 
 exports.updateFrequencies = updateFrequencies;
+exports.init = init;

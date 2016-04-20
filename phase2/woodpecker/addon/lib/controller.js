@@ -5,7 +5,7 @@
 
 "use strict";
 
-const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
+  const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
 const tabs = require('sdk/tabs');
 const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
@@ -22,10 +22,13 @@ const events = require("sdk/system/events");
 const {merge} = require("sdk/util/object");
 const logger = require('./logger');
 const statsEvent = require('./stats').event;
+const dh = require('./presentation/doorhanger');
 
 const momentDataAddress = "moment.data";
+const deliveryDataAddress = "delivery.data";
 
 let momentData;
+let deliveryData;
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
@@ -39,7 +42,12 @@ function init(){
   return PersistentObject("osFile", {address: momentDataAddress})
   .then((obj)=> {
     momentData = obj;
-  }).then(_init);
+  })
+  .then(()=> PersistentObject("osFile", {address: deliveryDataAddress}))
+  .then((obj)=> {
+    deliveryData = obj;
+  })
+  .then(_init);
 }
 
 function _init(){
@@ -240,38 +248,38 @@ listener.moment = function(name, options){
   if (options && options.reject){
     canDeliver = false;
     console.log("delivery rejection forced");
-    statsEvent("forced-reject", {type: "delivery"})
+    statsEvent("forced-reject", {type: "delivery-wp"})
   }
 
-  if (prefs["delivery.mode.observ_only"]){
+  if (deliveryData.mode.observ_only){
     canDeliver = false;
     console.log("delivery rejected due to: observation-only period");
-    statsEvent("observe-only--reject", {type: "delivery"})
+    statsEvent("observe-only-reject", {type: "delivery-wp"})
 
   }
 
   if (timer.isSilent()){
     canDeliver = false;
     console.log("delivery rejected due to: silence");
-    statsEvent("silence-reject", {type: "delivery"});
+    statsEvent("silence-reject", {type: "delivery-wp"});
   }
 
   if (!timer.isCertainlyActive()){
     canDeliver = false;
     console.log("delivery rejected due to: uncertain activity");
-    statsEvent("inactive-reject", {type: "delivery"});
+    statsEvent("inactive-reject", {type: "delivery-wp"});
   }
 
   if (data.effFrequency && 1/data.effFrequency < prefs["moment.min_effFrequency_i"]){
     canDeliver = false;
     console.log("delivery rejected due to: effective frequency = " + data.effFrequency);
-    statsEvent("effective-frequency-reject", {type: "delivery"})
+    statsEvent("effective-frequency-reject", {type: "delivery-wp"})
   }
 
   if (data.rEffCount && data.rEffCount > prefs["moment.max_rEffCount"]){
     canDeliver = false;
     console.log("delivery rejected due to: recent effective count = " + data.effCount);
-    statsEvent("recent-effective-count-reject", {type: "delivery"})
+    statsEvent("recent-effective-count-reject", {type: "delivery-wp"})
   }
 
   let prob = 1; 
@@ -283,7 +291,7 @@ listener.moment = function(name, options){
   if (Math.random() > prob){
     canDeliver = false; 
     console.log("delivery rejected due to: sampling, prob = " + prob);
-    statsEvent("sampling-prob-reject", {type: "delivery"})
+    statsEvent("sampling-prob-reject", {type: "delivery-wp"})
   }
 
   if (options && options.force){
@@ -416,7 +424,8 @@ const debug = {
             if (subArgs[2] != "true" && subArgs[2] != "false") 
               return "error: incorrect use of delmode observ_only command.";
 
-            prefs["delivery.mode.observ_only"] = JSON.parse(subArgs[2]);
+            osFileObjects["delivery.data"].mode = 
+              merge(osFileObjects["delivery.data"].mode, {observ_only: modeJSON.parse(subArgs[2])});
 
             return "observ_only mode is now " + (JSON.parse(subArgs[2]) ? "on": "off");
 

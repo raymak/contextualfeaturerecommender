@@ -12,7 +12,7 @@ const {PersistentObject} = require("./storage");
 
 const momentDataAddress = "moment.data";
 
-const momentData = PersistentObject("simplePref", {address: momentDataAddress});
+let momentData;
 
 function init(){
 

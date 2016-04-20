@@ -51,7 +51,7 @@ const experiment = {
 
     console.log("initializing experiment");
 
-    PersistentObject("osFile", {address: expDataAddress})
+    return PersistentObject("osFile", {address: expDataAddress})
     .then((obj)=> {
       expData = obj;
       expData.on('update', debug.update);
@@ -82,7 +82,6 @@ const experiment = {
     timer.onTick(updateStageEt);
 
     debug.update();
-
   },
   get info(){
     const name = prefs["experiment.name"];
@@ -103,7 +102,7 @@ const experiment = {
     let currStage = expData.stage;
     return {et: expData.stageTimes[expData.stage].elapsedTime, ett: timer.elapsedTotalTime(currStage)};
   },
-  firstRun: function(){
+  firstRun: function(){    
     return setStage("obs1");
   },
   // also sets user id for the first time
@@ -221,7 +220,6 @@ const stages = {
 
     return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
     .then((deliveryData)=> {
-
       let mode = expData.mode;
 
       deliveryData.mode = {observ_only: true, rate_limit: mode.rateLimit, moment: mode.moment};
@@ -231,7 +229,7 @@ const stages = {
       // timerData.silence_length_s = 
       //     timer.tToS(prefs["delivery.mode.silence_length." + expData.mode.rate_limit]);
 
-      require('./route').coefficient(String(expData.mode.coeff));
+      require('./fr/route').coefficient(String(expData.mode.coeff));
 
       console.log("obs1 stage started.");
     });

@@ -26,14 +26,21 @@ exports.main = function(options, callbacks){
   installRunPromise
   .then(()=> require("./self").init())
   .then(()=> require("./experiment").init())
-  .then(()=> require("./route").init())
+  .then(()=> {
+    if (frLog)
+      return require("./fr/route").init();
+  })
+  .then(() => require("./moment").init())
   .then(()=> require("./timer").init())
   .then(()=> require("./logger").init())
   .then(()=> require("./sender").init())
   .then(()=> require("./debug").init())
   .then(()=> require("./stats").init())
   .then(()=> require("./moment-report").init())
-  .then(()=> require("./event").init())
+  .then(()=> {
+    if (frLog)
+      return require("./fr/event").init();
+  })
   .then(()=> {
     if (frLog)
       return require("./fr/feature-report").init();
@@ -47,7 +54,6 @@ exports.main = function(options, callbacks){
   .then(()=> {
     require('./logger').logLoad(options.loadReason);
     require('./stats').event("load", {collectInstance: true}, {reason: require('sdk/self').loadReason});
-    return require('./controller').init();
   })
   .then(()=> require('./presentation/doorhanger').init())
   .then(()=> require('./extra-listeners').init())
@@ -57,6 +63,14 @@ exports.main = function(options, callbacks){
       return require("./fr/controller").init();
   })
   .catch((e)=>{ 
+    console.log({
+                                 type: "init",
+                                 name: e.name,
+                                 message: e.message,
+                                 fileName: e.fileName,
+                                 lineNumber: e.lineNumber,
+                                 stack: e.stack
+                               });
     require('./logger').logError({
                                  type: "init",
                                  name: e.name,
@@ -77,6 +91,7 @@ function firstRun(){
   .then(()=> require('./self').setInitialized())
   .then(()=> require('./experiment').firstRun())
   .then(()=> {
+
     if (prefs["experiment.fr_usage_logging.enabled"]){
       return resolve()
       .then(()=> require("./fr/controller").loadRecFile(recommFileAddress))

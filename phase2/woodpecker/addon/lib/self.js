@@ -19,6 +19,9 @@ const selfDataAddress = "self.data";
 
 const self = {
   init: function(){
+
+    console.log("initializing self");
+    
     return require('./storage').PersistentObject('osFile', {address: selfDataAddress})
     .then((obj)=> {
       selfData = obj;
