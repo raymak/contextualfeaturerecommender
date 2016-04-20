@@ -51,7 +51,7 @@ const experiment = {
 
     console.log("initializing experiment");
 
-    PersistentObject("osFile", {address: expDataAddress})
+    return PersistentObject("osFile", {address: expDataAddress})
     .then((obj)=> {
       expData = obj;
       expData.on('update', debug.update);

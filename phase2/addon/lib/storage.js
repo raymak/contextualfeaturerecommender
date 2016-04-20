@@ -54,11 +54,12 @@ exports.PersistentObject = function(type, options){
 
 function OsFileStorage(options){
 
-  console.log("creating " + options.address);
   // only 1 object instance for each file should exist
   if (osFileObjects[options.address])
     return require('sdk/core/promise').resolve(osFileObjects[options.address]);
 
+  console.log("creating " + options.address);
+  
   let data = {};
 
   let encoder = new TextEncoder();  
@@ -215,7 +216,7 @@ function StorageObject(updateFn, cachedObj, options){
         else
           if (cachedObj.data.hasOwnProperty(name)){
             if (typeof cachedObj.data[name] === "object"){
-              if (cachedObj.data[name].constructor === Array)
+              if (cachedObj.data[name] && cachedObj.data[name].constructor === Array)
                 return cachedObj.data[name].slice();
               else
                 return Object.assign({}, cachedObj.data[name])

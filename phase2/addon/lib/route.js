@@ -13,6 +13,9 @@ const routeDataAddress = "route.data";
 
 
 function init(){
+
+  console.log("initializing route");
+  
   return PersistentObject('osFile', {address: routeDataAddress})
   .then((obj)=> {
     routeData = obj;
