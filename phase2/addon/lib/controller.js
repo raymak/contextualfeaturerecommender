@@ -760,7 +760,7 @@ const deliverer = {
 
     statsEvent("delivery");
 
-    presenter.present(aRecommendation, listener.command.bind(listener));
+    presenter.present(aRecommendation);
 
     timer.silence();
 
@@ -2256,3 +2256,4 @@ exports.recommendations = recommendations;
 exports.loadRecFile = loadRecFile;
 exports.scaleRoutes = scaleRoutes;
 exports.welcome = welcome;
+exports.command = listener.command.bind(listener)

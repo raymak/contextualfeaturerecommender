@@ -5,9 +5,10 @@
 
 "use strict";
 
+let rsTimeout;
+
 
 self.port.on("updateEntry", function(entry, state, options){
-
   let message = entry.message;
   let title = entry.title;
   let primButtonLabel = entry.primaryButtonLabel;
@@ -16,6 +17,7 @@ self.port.on("updateEntry", function(entry, state, options){
   let iconSrc = entry.icon;
   self.port.emit("log", iconSrc);
   
+  clearTimeout(rsTimeout);
 
   document.getElementById("icon").src = iconSrc;
   document.getElementById("icon").onerror = function(){
@@ -52,78 +54,78 @@ self.port.on("updateEntry", function(entry, state, options){
   document.getElementById("close-button").addEventListener("click", closeButtonClick);
   document.getElementById("like").addEventListener("click", likeClick);
 
-
-  document.body.addEventListener("mouseenter", function(e){
-    self.port.emit("mouseenter");
-  });
-  document.body.addEventListener("mouseleave", function(e){
-    self.port.emit("mouseleave");
-  });
-
+  document.body.addEventListener("mouseenter", mouseEnter);
+  document.body.addEventListener("mouseleave", mouseLeave);
   
-  document.getElementById("neg-feedback").addEventListener("click", function(e){
-    let nf = document.getElementById("neg-feedback");
-    if (nf.classList.contains("active")) return;
+  document.getElementById("neg-feedback").addEventListener("click", negFbClick);
 
-    if (nf.classList.contains("checked"))
-      nf.classList.toggle("checked");
-    else
-      openNegFeedback();
+  document.getElementById("clickarea").addEventListener("mouseenter", caMouseEnter);
 
-    self.port.emit("dontliketoggle");
-  });
+  document.getElementById("clickarea").addEventListener("click", caClick);
 
-  let rsTimeout;
+  document.getElementById("feedback-form").addEventListener("change", submitFeedback);
 
-  document.getElementById("clickarea").addEventListener("mouseenter", function(e){
-    if (document.getElementById("recommcontainer").classList.contains("invisible"))
-      return;
-
-    let rs = document.getElementById("rationalesection");
-    if (rs.classList.contains('visible'))
-      clearTimeout(rsTimeout);
-    else
-      expandRationale();
-  });
-
-  document.getElementById("clickarea").addEventListener("click", function(e){
-    if (document.getElementById("recommcontainer").classList.contains("invisible"))
-      return;
-
-    let rs = document.getElementById("rationalesection");
-    if (rs.classList.contains('visible'))
-      collapseRationale();
-    else
-      expandRationale();
-  });
-
-  document.getElementById("feedback-form").addEventListener("change", function(e){
-    submitFeedback();
-  });
-
-  document.body.addEventListener("mouseleave", function(e){
-    if (document.getElementById("recommcontainer").classList.contains("invisible"))
-      return;
-
-    let rs = document.getElementById("rationalesection");
-    if (rs.classList.contains('visible')){
-      rsTimeout = setTimeout(collapseRationale, 500);
-    }
-  });
-
-
-
-  document.getElementById("info-page").addEventListener("click", function(e){
-    self.port.emit("infoPage");
-  });
+  document.getElementById("info-page").addEventListener("click", infoClick);
 
   self.port.emit("loaded");
   
   updatePanelSize();
 
-
 });
 
+function infoClick(e){
+  self.port.emit("infoPage");
+}
+
+function caClick(e){
+  if (document.getElementById("recommcontainer").classList.contains("invisible"))
+    return;
+
+  let rs = document.getElementById("rationalesection");
+  if (rs.classList.contains('visible'))
+    collapseRationale();
+  else
+    expandRationale();
+}
+
+function caMouseEnter(e){
+  if (document.getElementById("recommcontainer").classList.contains("invisible"))
+    return;
+
+  let rs = document.getElementById("rationalesection");
+  if (rs.classList.contains('visible'))
+    clearTimeout(rsTimeout);
+  else
+    expandRationale();
+}
+
+function negFbClick(e){
+  let nf = document.getElementById("neg-feedback");
+  if (nf.classList.contains("active")) return;
+
+  if (nf.classList.contains("checked"))
+    nf.classList.toggle("checked");
+  else
+    openNegFeedback();
+
+  self.port.emit("dontliketoggle");
+}
+
+function mouseEnter(e){
+  self.port.emit("mouseenter");
+}
+
+function mouseLeave(e){
+  self.port.emit("mouseleave");
+  
+  if (document.getElementById("recommcontainer").classList.contains("invisible"))
+    return;
+
+  let rs = document.getElementById("rationalesection");
+  if (rs.classList.contains('visible')){
+    rsTimeout = setTimeout(collapseRationale, 500);
+  }
+}
 
 function capitalize(string){
   return string.charAt(0).toUpperCase() + string.slice(1);

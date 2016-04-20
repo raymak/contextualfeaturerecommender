@@ -35,7 +35,6 @@ let hideTimeout;
 let letReopen = true;
 let wrdCnt; //for auto-adjuting fading time
 let buttonChecked = false;
-let command;
 let hideWatch;
 let closedwithreason;
 
@@ -157,7 +156,6 @@ function present(aRecommendation, cmdCallback){
                         totalopen: 0, firstopen: 0, rationaleopen: 0, infopage: 0, negfbopen: false,
                         certainlyactive: false}
                       };
-  command = cmdCallback;
   console.log("showing " + aRecommendation.id);
 
    if (!dhData.count)
@@ -392,7 +390,7 @@ function pMouseleave(){
 }
 
 function openInfoPage(){
-  command("info");
+  require('./../controller').command("info");
 
   let currRec = dhData.currentRec;
   let report = currRec.report;
@@ -422,7 +420,7 @@ function response(element, options){
   dhData.currentRec = merge(currRec, {report: report});
 
   let respCmdMap = extractResponseCommandMap.call(dhData.currentRec.recomm, "doorhanger");
-  command(respCmdMap[element]);
+  require('./../controller').command(respCmdMap[element]);
 }
 
 function likeToggle(){
