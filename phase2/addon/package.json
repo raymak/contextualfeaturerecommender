@@ -22,13 +22,13 @@
       "name": "isTest",
       "type": "bool",
       "title": "Is it a test or field deployment.",
-      "value": true
+      "value": false
     },
     {
       "name": "cleanup_on_death",
       "type": "bool",
       "title": "Whether the preferences should be cleaned up when the addon is killed",
-      "value": true
+      "value": false
     },
     {
       "name": "clean_install",
@@ -46,7 +46,7 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "p2-recs.json"
+      "value": "p2-recs2.json"
     },
     {
       "name": "timer.tick_length_s",
@@ -130,7 +130,7 @@
       "name" : "delivery.mode.silence_length.strict",
       "type": "integer",
       "title": "Length of the strict rate limit mode in ticks.",
-      "value": 360
+      "value": 1440
     },
     {
       "name": "delivery.mode.observ_only",
@@ -142,13 +142,13 @@
       "name": "logger.periodic_log_period",
       "type": "integer",
       "title": "How often periodic log info is reported.",
-      "value": 120
+      "value": 150
     },
     {
       "name": "logger.recent_hist_count",
       "type": "integer",
       "title": "Maximum number of log records to store when connection fails.",
-      "value": 50
+      "value": 25
     },
     {
       "name": "logger.log_error",
@@ -160,7 +160,7 @@
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
-      "value": 90
+      "value": 150
     },
     {
       "name": "feature_report.immediate_try_period_s",
@@ -172,31 +172,31 @@
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weights based on which the user is randomly put into an experimental mode",
-      "value": "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]"
+      "value": "[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]"
     },
     {
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "pilot03-ua"
+      "value": "p23"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 2880
+      "value": 7200
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 5760
+      "value": 25920
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 1440
+      "value": 7200
     },
     {
       "name": "experiment.modes.end.delay",
@@ -281,6 +281,12 @@
       "type": "integer",
       "title": " ",
       "value": 750
+    },
+    {
+      "name": "assignedId",
+      "type": "integer",
+      "title": " ",
+      "value": 3
     }
   ]
 }

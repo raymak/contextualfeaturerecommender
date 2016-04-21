@@ -2194,11 +2194,18 @@ function welcome(){
 
 function loadRecFile(file){
   let {resolve, promise} = defer();
+  let os = require('sdk/system').platform;
 
   initRecs().then(()=>{
     let recomms = JSON.parse(data.load(file)).map(function(recData){
       if ("auto-load" in recData && !recData["auto-load"])
         return null;
+
+      if (recData.platform){
+        let platforms = recData.platform.match(/\w+/g);
+        if (!~platforms.indexOf(os))
+          return null;
+      }
       
       return Recommendation(recData);
     });

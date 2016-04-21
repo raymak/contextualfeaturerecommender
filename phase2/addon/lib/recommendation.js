@@ -231,17 +231,15 @@ const extractResponseCommandMap = function(channel){
 }
 
 const recommendationToString = function(){
-    let that = this;
-    return Object.keys(this).reduce(function(previousValue, currentValue, index, array) {
-      
-      if (typeof that[currentValue] === "function")
-        return previousValue;
-      
-      return previousValue + "\n" + currentValue + "-> " + that[currentValue];
-    }, "");
-  }
-
-
+  let that = this;
+  return Object.keys(this).reduce(function(previousValue, currentValue, index, array) {
+    
+    if (typeof that[currentValue] === "function")
+      return previousValue;
+    
+    return previousValue + "\n" + currentValue + "-> " + that[currentValue];
+  }, "");
+}
 
 
 exports.extractPresentationData = extractPresentationData;
