@@ -9,7 +9,7 @@
   "id": "featurerecommender@insights.mozilla.com",
   "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.2-beta",
+  "version": "0.0.3-beta",
   "permissions": {
     "private-browsing": true  
   },
