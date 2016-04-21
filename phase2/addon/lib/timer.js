@@ -125,7 +125,7 @@ const watchActivity = function(){
 
           if (!isFocused(getMostRecentBrowserWindow()))
             break;
-          
+
           clearInterval(inactiveCounter);
           if (activity.minor_inactive_s) activity.last_minor_inactive_s = activity.minor_inactive_s;
           activity.minor_inactive_s = 0;
@@ -140,7 +140,7 @@ const watchActivity = function(){
           activity.active = true;
 
           if (activity.minor_active_s == 0){ // to call the handlers only once
-            console.log("user has become active");
+            console.log("user active (minor)");
             userActiveHandlers.forEach((fn) => fn());
             require('./stats').event("activation", {}, {inactivity: activity.last_minor_inactive_s}, {inactivity: 'average'});
 
