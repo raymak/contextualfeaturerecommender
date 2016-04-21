@@ -46,7 +46,7 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "p2-recs2.json"
+      "value": "p2-recs.json"
     },
     {
       "name": "timer.tick_length_s",
@@ -178,7 +178,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "p23"
+      "value": "p24"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -256,7 +256,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "presentation.doorhanger.autofade_time_ms_flat",
@@ -286,7 +286,7 @@
       "name": "assignedId",
       "type": "integer",
       "title": " ",
-      "value": 3
+      "value": 4
     }
   ]
 }
