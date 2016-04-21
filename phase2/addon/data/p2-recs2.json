@@ -97,6 +97,31 @@
     "tags": ""
   },
   {
+    "id": "fullScreenShortcut",
+    "priority": 2,
+    "trigBehavior": "chrome fullscreen window -c >10 -if <60",
+    "delivContext": "chrome fullscreen window",
+    "featUseBehavior": "hotkey f11 -c >1",
+    "presentationData": {
+      "*": {
+        "message": "You can use the <span class='key'>F11</span> keyboard shortcut to toggle the full screen view quickly!",
+        "rationale": "You toggle the full screen view a lot.",
+        "title": "Full Screen shortcut"
+      },
+      "doorhanger": {
+        "secondaryButtonLabel": null,
+        "primaryButtonLabel": "Learn more"
+      }
+    },
+    "respCommandMap": {
+      "doorhanger": {
+        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_miscellaneous"
+      }
+    },
+    "tags": "",
+    "platform": "winnt; linux"
+  },
+  {
     "id": "fullScreenShortcut-darwin",
     "priority": 2,
     "trigBehavior": "chrome fullscreen window -c >10 -if <60",
@@ -122,31 +147,6 @@
     "platform": "darwin"
   },
   {
-    "id": "fullScreenShortcut",
-    "priority": 2,
-    "trigBehavior": "chrome fullscreen window -c >10 -if <60",
-    "delivContext": "chrome fullscreen window",
-    "featUseBehavior": "hotkey F11",
-    "presentationData": {
-      "*": {
-        "message": "You can use the <span class='key'>Ctrl</span>+<span class='key'>shift</span>+<span class='key'>F</span> keyboard shortcut to toggle the full screen view quickly!",
-        "rationale": "You toggle the full screen view a lot.",
-        "title": "Full Screen shortcut"
-      },
-      "doorhanger": {
-        "secondaryButtonLabel": null,
-        "primaryButtonLabel": "Learn more"
-      }
-    },
-    "respCommandMap": {
-      "doorhanger": {
-        "primaryButton": "open url -l https://support.mozilla.org/en-US/kb/keyboard-shortcuts-perform-firefox-tasks-quickly#w_miscellaneous"
-      }
-    },
-    "tags": "",
-    "platform": "winnt; linux"
-  },
-  {
     "id": "findShortcut",
     "priority": 2,
     "trigBehavior": "finder opened -c >10 -if <120",
@@ -170,7 +170,6 @@
     },
     "tags": ""
   },
-
   {
     "id": "findNextShortcut",
     "priority": 3,
