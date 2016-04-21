@@ -333,7 +333,7 @@ const listener = {
         let e = this.options.event;
 
         // os-dependent representation, not dispatched currently
-        let route = ["hotkey", e.key,
+        let route = ["hotkey", e.key.toLowerCase(),
                    e.metaKey ? "-meta" : "",
                    e.ctrlKey ? "-ctrl" : "",
                    e.shiftKey ? "-shift" : "",
@@ -344,7 +344,7 @@ const listener = {
         let osDarwin = system.platform === 'darwin'; //TODO
 
         // os-independent representation
-        route = ["hotkey", e.key,
+        route = ["hotkey", e.key.toLowerCase(),
                 ((e.metaKey && osDarwin) || (e.ctrlKey && !osDarwin)) ? "-cmd" : "",
                 e.shiftKey ? "-shift" : "",
                 e.altKey ? "-alt" : ""].filter(function(elm){
@@ -356,7 +356,7 @@ const listener = {
 
       hotkeyEvent.checkPreconditions = function(){
         let e = this.options.event;
-        return (e.shiftKey || e.metaKey || e.ctrlKey || e.altKey);
+        return (e.shiftKey || e.metaKey || e.ctrlKey || e.altKey || /^[Ff]\d+$/.test(e.key));
       }
 
       let multipleHotkeyEvent = that.multipleRoute(hotkeyEvent);
