@@ -10,6 +10,7 @@ const {PersistentObject} = require("./storage");
 const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
 const {Cu, Cc, Ci} = require("chrome");
+const {isFocused, getMostRecentBrowserWindow} = require("sdk/window/utils");
 const unload = require("sdk/system/unload").when;
 const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
 const observerService = Cc["@mozilla.org/observer-service;1"]
@@ -122,8 +123,9 @@ const watchActivity = function(){
       switch(topic){
         case "user-interaction-active":
 
-          // require('./stats').event("activeTick");
-          // console.log("active " + elapsedTime());
+          if (!isFocused(getMostRecentBrowserWindow()))
+            break;
+          
           clearInterval(inactiveCounter);
           if (activity.minor_inactive_s) activity.last_minor_inactive_s = activity.minor_inactive_s;
           activity.minor_inactive_s = 0;
@@ -138,6 +140,7 @@ const watchActivity = function(){
           activity.active = true;
 
           if (activity.minor_active_s == 0){ // to call the handlers only once
+            console.log("user has become active");
             userActiveHandlers.forEach((fn) => fn());
             require('./stats').event("activation", {}, {inactivity: activity.last_minor_inactive_s}, {inactivity: 'average'});
 
@@ -323,7 +326,7 @@ const isRecentlyActive = function(activity_threshold_s, inactivity_threshold_s /
 }
 
 const isCertainlyActive = function(){
-  return (activity.minor_inactive_s < 10);
+  return (activity.minor_inactive_s < 10 && isFocused(getMostRecentBrowserWindow()));
 }
 
 const randomTime = function(start, end){
