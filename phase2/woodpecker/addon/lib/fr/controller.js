@@ -92,13 +92,13 @@ const _init = function(){
   console.timeEnd("controller init");
 }
 
-function initRecs(){  
+function initRecs(){
 
   let {promise, resolve} = defer();
 
   if (!recommendations){
     PersistentRecSet("osFile", {address: recSetAddress}).then((recSet)=> {
-      recommendations = recSet;      
+      recommendations = recSet;
     }).then(resolve);
   }
   else
@@ -333,7 +333,7 @@ const listener = {
         let e = this.options.event;
 
         // os-dependent representation, not dispatched currently
-        let route = ["hotkey", e.key,
+        let route = ["hotkey", e.key.toLowerCase(),
                    e.metaKey ? "-meta" : "",
                    e.ctrlKey ? "-ctrl" : "",
                    e.shiftKey ? "-shift" : "",
@@ -344,7 +344,7 @@ const listener = {
         let osDarwin = system.platform === 'darwin'; //TODO
 
         // os-independent representation
-        route = ["hotkey", e.key,
+        route = ["hotkey", e.key.toLowerCase(),
                 ((e.metaKey && osDarwin) || (e.ctrlKey && !osDarwin)) ? "-cmd" : "",
                 e.shiftKey ? "-shift" : "",
                 e.altKey ? "-alt" : ""].filter(function(elm){
@@ -356,7 +356,7 @@ const listener = {
 
       hotkeyEvent.checkPreconditions = function(){
         let e = this.options.event;
-        return (e.shiftKey || e.metaKey || e.ctrlKey || e.altKey);
+        return (e.shiftKey || e.metaKey || e.ctrlKey || e.altKey || /^[Ff]\d+$/.test(e.key));
       }
 
       let multipleHotkeyEvent = that.multipleRoute(hotkeyEvent);
@@ -678,9 +678,6 @@ const listener = {
 
 const deliverer = {
   init: function(){
-
-    osFileObjects["timer.data"].silence_length_s = 
-      timer.tToS(prefs["delivery.mode.silence_length." + osFileObjects["delivery.data"].mode.rate_limit]);
 
     timer.onTick(this.checkSchedule);
 
@@ -2196,11 +2193,18 @@ function welcome(){
 
 function loadRecFile(file){
   let {resolve, promise} = defer();
+  let os = require('sdk/system').platform;
 
   initRecs().then(()=>{
     let recomms = JSON.parse(data.load(file)).map(function(recData){
       if ("auto-load" in recData && !recData["auto-load"])
         return null;
+
+      if (recData.platform){
+        let platforms = recData.platform.match(/\w+/g);
+        if (!~platforms.indexOf(os))
+          return null;
+      }
       
       return Recommendation(recData);
     });
@@ -2258,3 +2262,4 @@ exports.recommendations = recommendations;
 exports.loadRecFile = loadRecFile;
 exports.scaleRoutes = scaleRoutes;
 exports.welcome = welcome;
+exports.command = listener.command.bind(listener)

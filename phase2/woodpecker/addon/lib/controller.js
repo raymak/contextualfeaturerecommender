@@ -5,7 +5,7 @@
 
 "use strict";
 
-  const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
+const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
 const tabs = require('sdk/tabs');
 const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
@@ -16,13 +16,14 @@ const {URL} = require("sdk/url");
 const windows = require("sdk/windows").browserWindows
 const timer = require("./timer");
 const {handleCmd} = require("./debug");
-const {PersistentObject} = require("./storage");
+const {osFileObjects, PersistentObject} = require("./storage");
 const {countRecent, updateFrequencies} = require("./moment");
 const events = require("sdk/system/events");
 const {merge} = require("sdk/util/object");
 const logger = require('./logger');
 const statsEvent = require('./stats').event;
 const dh = require('./presentation/doorhanger');
+const {isPrivate} = require("sdk/private-browsing");
 
 const momentDataAddress = "moment.data";
 const deliveryDataAddress = "delivery.data";
@@ -51,6 +52,8 @@ function init(){
 }
 
 function _init(){
+
+  osFileObjects["timer.data"].silence_length_s = prefs["timer.silence_length_s"];
 
   handleCmd(debug.parseCmd);
 
@@ -244,6 +247,12 @@ listener.moment = function(name, options){
   momentData["*"] = allData;
 
   updateFrequencies(name);
+
+  if (isPrivate(getMostRecentBrowserWindow())){
+    console.log("delivery rejected due to private browsing");
+    require('./stats').event("private-reject", {type: "delivery-wp"});
+    canDeliver = false;
+  }
 
   if (options && options.reject){
     canDeliver = false;

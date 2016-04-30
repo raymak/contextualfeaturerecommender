@@ -9,7 +9,7 @@
   "id": "woodpecker@insights.mozilla.com",
   "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.2-beta",
+  "version": "0.0.3-beta",
   "permissions": {
     "private-browsing": true  
   },
@@ -22,7 +22,7 @@
       "name": "isTest",
       "type": "bool",
       "title": "Is it a test or field deployment.",
-      "value": true
+      "value": false
     },
     {
       "name": "cleanup_on_death",
@@ -46,7 +46,7 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "p2-recs.json"
+      "value": "p2-recs2.json"
     },
     {
       "name": "timer.tick_length_s",
@@ -82,7 +82,7 @@
       "name": "utils.persistent_object.update_interval",
       "type": "integer",
       "title": " ",
-      "value": 1500
+      "value": 20000
     },
     {
       "name": "delivery.mode.moment",
@@ -124,13 +124,13 @@
       "name" : "delivery.mode.silence_length.easy",
       "type": "integer",
       "title": "Length of the easy rate limit mode in ticks.",
-      "value": 10
+      "value": 60
     },
     {
       "name" : "delivery.mode.silence_length.strict",
       "type": "integer",
       "title": "Length of the strict rate limit mode in ticks.",
-      "value": 60
+      "value": 1440
     },
     {
       "name": "delivery.mode.observ_only",
@@ -178,25 +178,25 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "wp-pilot001"
+      "value": "p0-1"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 60
+      "value": 2880
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 600
+      "value": 17280
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 60
+      "value": 20160
     },
     {
       "name": "experiment.modes.end.delay",
@@ -211,7 +211,7 @@
       "value": false
     },
     {
-      "name": "route.coefficient",
+      "name": "route.default_coefficient",
       "type": "string",
       "title": "Coefficient that scales the triggering behavior thresholds",
       "value": "1"
@@ -292,13 +292,7 @@
       "name": "moment.dEffFrequency_i",
       "type": "integer",
       "title": " ",
-      "value": 120
-    },
-    {
-      "name": "moment.max_rCount",
-      "type": "integer",
-      "title": " ",
-      "value": 3
+      "value": 60
     },
     {
       "name": "delivery.mode.no_silence",
@@ -330,6 +324,12 @@
       "type": "string", 
       "value": "basic", 
       "title": "Doorhanger color mode"
+    },
+    {
+      "name": "assignedId",
+      "type": "integer",
+      "value": 1,
+      "title": " "
     }
   ] 
 }

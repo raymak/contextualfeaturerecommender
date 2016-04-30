@@ -26,7 +26,7 @@ function init(){
 
 function _init(){
   //set up periodic logging
-  timer.onTick(log);
+  timer.onTick(periodicLog);
 }
 
 function log(){

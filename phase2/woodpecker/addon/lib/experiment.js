@@ -102,7 +102,7 @@ const experiment = {
     let currStage = expData.stage;
     return {et: expData.stageTimes[expData.stage].elapsedTime, ett: timer.elapsedTotalTime(currStage)};
   },
-  firstRun: function(){    
+  firstRun: function(){
     return setStage("obs1");
   },
   // also sets user id for the first time
