@@ -117,7 +117,6 @@ const watchActivity = function(){
 
   let activeCounter, inactiveCounter;
 
-
   activityObs = {
     observe: function(subject, topic, data){
       switch(topic){
@@ -125,8 +124,10 @@ const watchActivity = function(){
 
           if (!isFocused(getMostRecentBrowserWindow()))
             break;
-
-          clearInterval(inactiveCounter);
+          
+          if (inactiveCounter)
+            clearInterval(inactiveCounter);
+          inactiveCounter = null;
           if (activity.minor_inactive_s) activity.last_minor_inactive_s = activity.minor_inactive_s;
           activity.minor_inactive_s = 0;
           if (!activeCounter){
@@ -154,25 +155,28 @@ const watchActivity = function(){
         case "user-interaction-inactive":
           require('./stats').event("inactiveTick");
           console.log("user inactive (minor)");
-          clearInterval(activeCounter);
+          if (activeCounter)
+            clearInterval(activeCounter);
           activeCounter = null;
           activity.minor_active_s = 0;
-          inactiveCounter = setInterval(function(){
-            activity.minor_inactive_s += 1;
+          if (!inactiveCounter){
+            inactiveCounter = setInterval(function(){
+              activity.minor_inactive_s += 1;
 
-            if (activity.active)
-              activity.active_s += 1;
+              if (activity.active)
+                activity.active_s += 1;
 
-            if (activity.minor_inactive_s > prefs["timer.inactive_threshold_s"] && activity.active){
-              deactivate();
-            }
+              if (activity.minor_inactive_s > prefs["timer.inactive_threshold_s"] && activity.active){
+                deactivate();
+              }
 
-            if (activity.minor_inactive_s == 10 * 60){
-              require('./logger').logLongInactivity();
-            }
-            
-            debug.update();
-          }, 1000);
+              if (activity.minor_inactive_s == 10 * 60){
+                require('./logger').logLongInactivity();
+              }
+              
+              debug.update();
+            }, 1000);
+          }
         break;
       }
     },

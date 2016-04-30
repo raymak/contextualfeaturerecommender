@@ -44,7 +44,7 @@ function init(){
   // http://stackoverflow.com/questions/23748077/firefox-extension-differences-of-the-chrome-and-resource-protocols
   // https://developer.mozilla.org/en-US/Add-ons/SDK/Guides/XUL_Migration_Guide
   tabs.on('ready', function(tab){
-  	if (tab.url === DEBUG_URL) tab.url = HTML_URL;
+    if (tab.url === DEBUG_URL) tab.url = HTML_URL;
   });
   
 
@@ -137,7 +137,7 @@ function dumpUpdateObject(obj, options){
 }
 
 function update(worker, recs, options){
-	worker.port.emit("update", recs, options);
+  worker.port.emit("update", recs, options);
 }
 
 function updateAll(recs){

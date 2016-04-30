@@ -89,7 +89,7 @@ const self = {
                     "browser.urlbar.suggest.searches",
                     "browser.urlbar.userMadeSearchSuggestionsChoice",
                     "app.update.enabled",
-                    "xpi.signatures.required"
+                    "xpinstall.signatures.required"
                     ]
 
     let prefsData = {};
