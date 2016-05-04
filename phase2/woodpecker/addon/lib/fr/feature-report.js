@@ -153,7 +153,7 @@ function periodicLog(et, ett){
 
 function log(){
   let info = featData.report;
-  require("./..logger").logFeatReport(info);
+  require("./../logger").logFeatReport(info);
 }
 
 exports.updateRow = updateRow;
