@@ -231,6 +231,12 @@ listener.addEventListener = function(querySelector, eventName, handler){
 
 listener.moment = function(name, options){
 
+  if (!timer.isCertainlyActive()){
+    console.log("delivery rejected due to: uncertain activity");
+    statsEvent("inactive-reject", {type: "delivery-wp"});
+    return;
+  }
+
   statsEvent(name, {type: "moment"});
 
   let dEffFrequency = 1/prefs["moment.dEffFrequency_i"];
@@ -273,11 +279,6 @@ listener.moment = function(name, options){
     statsEvent("silence-reject", {type: "delivery-wp"});
   }
 
-  if (!timer.isCertainlyActive()){
-    canDeliver = false;
-    console.log("delivery rejected due to: uncertain activity");
-    statsEvent("inactive-reject", {type: "delivery-wp"});
-  }
 
   if (data.effFrequency && 1/data.effFrequency < prefs["moment.min_effFrequency_i"]){
     canDeliver = false;
