@@ -286,11 +286,11 @@ listener.moment = function(name, options){
     statsEvent("effective-frequency-reject", {type: "delivery-wp"})
   }
 
-  if (data.rEffCount && data.rEffCount > prefs["moment.max_rEffCount"]){
+  if (data.rEffCount && data.rEffCount > prefs["moment.max_rEffCount"] - 1){
     canDeliver = false;
     console.log("delivery rejected due to: recent effective count = " + data.effCount);
     statsEvent("recent-effective-count-reject", {type: "delivery-wp"})
-  }
+  } 
 
   let prob = 1; 
   if (data.frequency < dEffFrequency)

@@ -9,7 +9,7 @@
   "id": "woodpecker@insights.mozilla.com",
   "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.3-beta",
+  "version": "0.0.42-beta",
   "permissions": {
     "private-browsing": true  
   },
@@ -250,13 +250,13 @@
       "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
    },
       {
       "name": "moment.recent_window_length",
@@ -274,7 +274,7 @@
       "name": "moment.min_effFrequency_i",
       "type": "integer",
       "title": " ",
-      "value": 180
+      "value": 30
     },
     {
       "name": "moment.max_rEffCount",
@@ -286,13 +286,13 @@
       "name": "moment.min_rEffFrequency_i",
       "type": "integer",
       "title": " ",
-      "value": 180
+      "value": 30
     },
     {
       "name": "moment.dEffFrequency_i",
       "type": "integer",
       "title": " ",
-      "value": 60
+      "value": 30
     },
     {
       "name": "delivery.mode.no_silence",
