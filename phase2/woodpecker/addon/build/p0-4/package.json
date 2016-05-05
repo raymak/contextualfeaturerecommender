@@ -9,7 +9,7 @@
   "id": "woodpecker@insights.mozilla.com",
   "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.42-beta",
+  "version": "0.0.41-beta",
   "permissions": {
     "private-browsing": true  
   },
@@ -178,7 +178,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "p0-1"
+      "value": "p0-4"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -328,7 +328,7 @@
     {
       "name": "assignedId",
       "type": "integer",
-      "value": 1,
+      "value": 4,
       "title": " "
     }
   ] 

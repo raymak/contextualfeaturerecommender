@@ -9,7 +9,7 @@
   "id": "woodpecker@insights.mozilla.com",
   "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.2-beta",
+  "version": "0.0.42-beta",
   "permissions": {
     "private-browsing": true  
   },
@@ -274,7 +274,7 @@
       "name": "moment.min_effFrequency_i",
       "type": "integer",
       "title": " ",
-      "value": 180
+      "value": 30
     },
     {
       "name": "moment.max_rEffCount",
@@ -286,13 +286,13 @@
       "name": "moment.min_rEffFrequency_i",
       "type": "integer",
       "title": " ",
-      "value": 180
+      "value": 30
     },
     {
       "name": "moment.dEffFrequency_i",
       "type": "integer",
       "title": " ",
-      "value": 60
+      "value": 30
     },
     {
       "name": "delivery.mode.no_silence",
