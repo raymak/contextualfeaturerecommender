@@ -1,6 +1,6 @@
 
 from logset import LogSet
-import json_utils
+import json
 
 class UserLogSet(LogSet):
     def __init__(self, input=None):
@@ -33,7 +33,7 @@ class UserLogSet(LogSet):
 
     def add(self, v):
         if type(v) is str:
-            self.add_object(json_utils.json_loads_byteified(v))
+            self.add_object(json.loads(v))
         else:
             self.add_object(v)
 

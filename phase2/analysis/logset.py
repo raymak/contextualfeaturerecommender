@@ -1,4 +1,4 @@
-import json_utils
+import json
 
 class LogSet(object):
     def __init__(self, input=None):
@@ -31,7 +31,7 @@ class LogSet(object):
 
     def add(self, v):
         if type(v) is str:
-            self.add_object(json_utils.json_loads_byteified(v))
+            self.add_object(json.loads(v))
         else:
             self.add_object(v)
 
