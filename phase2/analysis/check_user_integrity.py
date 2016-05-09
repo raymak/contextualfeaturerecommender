@@ -13,7 +13,7 @@ Checks for:
     - Error messages
 
 input:
-    [implicit] current working directory
+    [implicit] current working directory or [explicit] optional input directory
 
 output: 
     name of the flawed files with the reason
@@ -23,8 +23,9 @@ output:
 import fileinput
 import sys
 import json
-import os
 from userlogset import *
+from analysis_tools import *
+import userintegrity as ui
 import imp
 try:
     imp.find_module('termcolor')
@@ -34,26 +35,30 @@ except ImportError:
 
 if (cFound):
     from termcolor import colored, cprint
+else:
+    print("You can install termcolor ('pip install termcolor') to see some messages in color.")
 
 errFound = False
 warnFound = False
 
+SEVERITY = {
+    'message_missing': 'critical',
+    'first_run_missing': 'critical',
+    'proper_ending': 'critical',
+    'user_disable': 'warning',
+    'warning': 'warning',
+    'error': 'critical'
+}
 def main():
-
-    print(warnFound, errFound)
 
     if (len(sys.argv) > 1):
         rootDir = sys.argv[1]
     else:
         rootDir = "."
 
-    for root, dirs, files in os.walk(rootDir):
-        for name in files:
-            ext = os.path.splitext(name)[1]
-            if ext == '.jsonl':
-                file_name = os.path.join(root, name)
-                print("\nchecking " + file_name)
-                check(file_name)
+    for file_name in traverse_dirs(rootDir, 'jsonl'):
+        print("\nchecking " + file_name)
+        check(file_name)
 
 
 def check(file_name):
@@ -69,86 +74,55 @@ def check(file_name):
 
         log_set = UserLogSet(jsonl_list)
 
-        # missing messages
-        first, last = log_set.get_bounds()
+        reports = ui.check(log_set)
+        print_reports(reports)
 
-        count = len(log_set)
+def print_reports(reports):
 
-        print("start: %d, end: %d, count: %d" % (first, last, count))
+    for r in reports:
+        if r.passed and r.messages[0]:
+            passed(r.messages[0], r.name)
 
-        if last != count:
-            err("%d messages missing" %(last - count), file_name)
-
-        # flag messages
-
-        #FIRST_RUN
-        if (not 1 in log_set) or (log_set[1]['type'] != 'FIRST_RUN'):
-            err("FIRST_RUN missing", file_name)
-
-        # ANY TYPE OF ENDING
-        lm = log_set[last]
-
-        if  not ( 
-            lm['type'] == 'SELF_DESTRUCT' or
-            lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'disable' or
-            lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'uninstall' or
-            lm['type'] == 'DISABLE' and lm['attrs']['reason'] == 'uninstall'
-            ):
-            err("end flag missing", file_name)
-
-        # DISABLED BY USER
-
-        if not (
-            log_set[last]['type'] == 'SELF_DESTRUCT' or
-            log_set[last-1]['type'] == 'SELF_DESTRUCT' or
-            log_set[last-2]['type'] == 'SELF_DESTRUCT'
-            ) and (
-            lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'disable' or
-            lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'uninstall' or
-            lm['type'] == 'DISABLE' and lm['attrs']['reason'] == 'uninstall' or
-            lm['type'] == 'DISABLE' and lm['attrs']['reason'] == 'disable'
-            ):
-            warn("disabled by user", file_name)
-
-        # WARNINGS
-        c = len(log_set.type("WARNING"))
-        if c > 0:
-            warn( "%d warning(s)" % c, file_name)
-
-        # ERRORS
-        c = len(log_set.type("ERROR"))
-        if c > 0:
-            err("%d error(s)" % c, file_name)
-
-        if not (warnFound or errFound):
-            ok(file_name)
+        if not r.passed:
+            failed(r.messages[1], r.name)
 
 
-def warn(m, file_name):
+def warn(m):
     global warnFound
 
     if cFound:
-        cprint("  %s" %(m), 'yellow')
+        cprint('  %s' % m, 'yellow')
     else:
-        print("  %s" %(m))
+        print('  %s' % m)
 
     warnFound = True
 
-def err(m, file_name):
+def err(m):
     global errFound
 
     if cFound:
-        cprint("  %s" %(m), 'red')
+        cprint('\u2718 %s' % m, 'red')
     else:
-        print("  %s" %(m))
+        print('\u2718 %s' % m)
 
     errFound = True
 
-def ok(file_name):
+def ok(m):
     if cFound:
-        cprint(u'\u2713 GOOD', 'green')
+        cprint('\u2713 %s' % m, 'green')
     else:
-        print(u'\u2713 GOOD')
+        print('\u2713 %s' % m)
+
+def passed(m, name):
+    ok(m)
+
+def failed(m, name):
+    if SEVERITY[name] == 'critical':
+        err(m)
+    else:
+        warn(m)
+
+
 
 if __name__ == "__main__":
     main()

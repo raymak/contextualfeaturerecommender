@@ -43,5 +43,11 @@ class LogSet(object):
         self.users.add(obj["userid"])
 
 
+    def any(self, fn):
+        return any(fn(x) for x in self.records.values())
+
+    def all(self, fn):
+        return all(fn(x) for x in self.records.values())
+        
     def filter(self, fn):
         return LogSet(x for x in self.records.values() if fn(x))

@@ -48,10 +48,13 @@ class UserLogSet(LogSet):
 
 
     def set_info(self, obj):
-        fields = ['name', 'userid', 'startTimeMs', 'is_test', 'startLocaleTime', 'mode', 'locale']  #TODO: add addon_id
+        fields = ['name', 'userid', 'startTimeMs', 'is_test', 'startLocaleTime', 'mode', 'locale', 'os', 'system_version', 'addon_id', 'addon_version']  #TODO: add addon_id
+
+        self.meta_info = {}
 
         for f in fields:
             setattr(self, f, obj[f])
+            self.meta_info[f] = obj[f]
 
         self.info_set = True
 
@@ -63,12 +66,12 @@ class UserLogSet(LogSet):
     def last(self):
         sorted_records = sorted(self.records)
 
-        return sorted_records[-1]
+        return self.__getitem__(sorted_records[-1][1])
 
     def first(self):
         sorted_records = sorted(self.records)
 
-        return sorted_records[0]
+        return self.__getitem__(sorted_records[0][1])
 
     def type(self, t):
         return self.filter(lambda x: x["type"] == t)

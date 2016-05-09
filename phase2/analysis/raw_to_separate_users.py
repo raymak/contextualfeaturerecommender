@@ -14,7 +14,9 @@ import json
 import os
 
 def main():
+    raw_to_separate_users()
 
+def raw_to_separate_users():
     fileDict = {}
 
     f = fileinput.input()
