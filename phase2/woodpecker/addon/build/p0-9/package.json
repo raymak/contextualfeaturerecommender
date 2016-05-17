@@ -9,7 +9,7 @@
   "id": "woodpecker@insights.mozilla.com",
   "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.44-beta",
+  "version": "0.0.49-beta",
   "permissions": {
     "private-browsing": true  
   },
@@ -28,7 +28,7 @@
       "name": "cleanup_on_death",
       "type": "bool",
       "title": "Whether the preferences should be cleaned up when the addon is killed",
-      "value": true
+      "value": false
     },
     {
       "name": "clean_install",
@@ -178,7 +178,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "p0-4"
+      "value": "p0-9"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -250,7 +250,7 @@
       "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
     },
     {
       "name": "sender.send_to_file",
@@ -328,7 +328,7 @@
     {
       "name": "assignedId",
       "type": "integer",
-      "value": 4,
+      "value": 9,
       "title": " "
     }
   ] 

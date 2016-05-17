@@ -274,7 +274,7 @@
       "name": "moment.min_effFrequency_i",
       "type": "integer",
       "title": " ",
-      "value": 30
+      "value": 45
     },
     {
       "name": "moment.max_rEffCount",
