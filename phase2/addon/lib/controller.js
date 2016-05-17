@@ -237,7 +237,7 @@ const listener = {
       });
 
       interruptibleMomentEvent.checkPreconditions = function(){
-        return timer.isRecentlyActive(10, 10*60);
+        return timer.isRecentlyActive(10, 20*60);
       };
 
       let multipleInterruptibleMomentEvent = that.multipleRoute(interruptibleMomentEvent, {
