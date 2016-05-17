@@ -2202,9 +2202,18 @@ function loadRecFile(file){
         return null;
 
       if (recData.platform){
-        let platforms = recData.platform.match(/\w+/g);
+        let platforms = recData.platform.split(";").map(s => s.trim())
         if (!~platforms.indexOf(os))
           return null;
+      }
+
+      if (recData.tags && prefs["exclude_tags"]){
+        let tags = recData.tags.split(";").map(s => s.trim())
+        let tags_exclude = prefs["exclude_tags"]
+
+        for (let tag of tags)
+          if (~tags_exclude.indexOf(tag))
+            return null
       }
       
       return Recommendation(recData);
