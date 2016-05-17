@@ -49,6 +49,12 @@
       "value": "p2-recs2.json"
     },
     {
+      "name": "exclude_tags",
+      "type": "string",
+      "title": " ",
+      "value": ""
+    },
+    {
       "name": "timer.tick_length_s",
       "type": "integer",
       "title": "Length of a tick in seconds",
@@ -256,7 +262,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
     },
     {
       "name": "presentation.doorhanger.autofade_time_ms_flat",
