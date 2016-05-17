@@ -10,8 +10,8 @@ from userlogset import UserLogSet
 
 def traverse_dirs(rootDir, exts=['jsonl']):
     """
-        generates the names of the files with a certain extension in a given rootDir and its subdirectories
-        if exts == '*' all file extensions are included
+        Generates the names of the files with a certain extension in a given rootDir and its subdirectories.
+        If exts == '*' all file extensions are included.
     """
 
     for root, dirs, files in os.walk(rootDir):
@@ -27,7 +27,7 @@ def traverse_dirs(rootDir, exts=['jsonl']):
 
 def user_profile_from_file(file_name):
     """
-        creates and returns a UserProfile object from a jsonl file that contains data for only 1 user
+        Creates and returns a UserProfile object from a jsonl file that contains data for only 1 user.
     """
 
     with open(file_name, 'r') as f:

@@ -48,7 +48,7 @@ class UserLogSet(LogSet):
 
 
     def set_info(self, obj):
-        fields = ['name', 'userid', 'startTimeMs', 'is_test', 'startLocaleTime', 'mode', 'locale', 'os', 'system_version', 'addon_id', 'addon_version']  #TODO: add addon_id
+        fields = ['name', 'userid', 'startTimeMs', 'is_test', 'startLocaleTime', 'mode', 'locale', 'os', 'system_version', 'addon_id', 'addon_version'] # TODO: assigned_id
 
         self.meta_info = {}
 

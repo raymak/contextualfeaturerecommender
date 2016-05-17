@@ -9,8 +9,8 @@ BASIC_TESTS = ['message_missing', 'first_run', 'proper_ending', 'user_disable', 
 
 def check(inp):
     """
-        given a UserProfile or a UserLogSet object, runs its log data through various integrity tests and returns a list containing
-            the results as UserIntegrityReport objects
+        Given a UserProfile or a UserLogSet object, runs its log data through various integrity tests and returns a list containing
+            the results as UserIntegrityReport objects.
     """
 
     if isinstance(inp, UserLogSet):

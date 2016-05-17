@@ -16,7 +16,7 @@ class UserProfile:
 
     def set_info(self):
         """
-            uses the log set meta info_set
+            Uses the log set meta info_set for the user profile.
         """
 
         self.meta_info = self.log_set.meta_info
@@ -40,6 +40,7 @@ class UserProfile:
 
     def add_integrity_report(self, name, report):
         self.integrity_reports[name] = report
+
 
 
 def mode_to_condition(mode):
