@@ -78,7 +78,8 @@ function _log(type, attrs, option){
     addon_id: addonSelf.id,
     addon_version: addonSelf.version,
     locale: self.locale,
-    update_channel: self.updateChannel
+    update_channel: self.updateChannel,
+    assigned_id: prefs["assignedId"] || ""
   }
 
   OUT = override(OUT, self.sysInfo);
