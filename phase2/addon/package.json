@@ -9,7 +9,7 @@
   "id": "featurerecommender@insights.mozilla.com",
   "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.37-beta",
+  "version": "0.0.39-beta",
   "permissions": {
     "private-browsing": true  
   },
@@ -46,13 +46,7 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "p2-recs2.json"
-    },
-    {
-      "name": "exclude_tags",
-      "type": "string",
-      "title": " ",
-      "value": ""
+      "value": "p2-recs3.json"
     },
     {
       "name": "timer.tick_length_s",
@@ -184,7 +178,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "p27"
+      "value": "p29"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -292,7 +286,7 @@
       "name": "assignedId",
       "type": "integer",
       "title": " ",
-      "value": 7
+      "value": 9
     }
   ]
 }
