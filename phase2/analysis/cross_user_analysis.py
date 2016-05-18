@@ -23,7 +23,6 @@ import userintegrity
 import os
 import argparse
 import importlib.util as imp
-from wp_moment_dpvs import *
 
 
 DPVS = ['n_deliv_recs', 'n_inactive_recs']  # n_deliv_recs, n_inactive_recs
@@ -74,7 +73,7 @@ def load_config():
         spec = imp.spec_from_file_location("config", os.path.abspath(opts.config))
         config = imp.module_from_spec(spec)
         spec.loader.exec_module(config)
-        log('loading config file: %s' % os.path.abspath(opts.config), ['config'], opts.verbosity > 0)
+        log('loading config file: %s' % resolve_abspath(opts.config), ['config'], opts.verbosity > 0)
     else:
         log('no config file found', ['config'], opts.verbosity > 0)
 
@@ -90,6 +89,28 @@ def load_config():
         log('replacing INFO from the config file', ['config'], opts.verbosity > 0)
         INFO[:] = getattr(config, 'INFO')
 
+    if config and getattr(config, 'modules', None):
+        for module in config.modules:
+            try:
+                path = resolve_abspath(module)
+                spec = imp.spec_from_file_location(module, resolve_abspath(module))
+                mod = imp.module_from_spec(spec)
+                spec.loader.exec_module(mod)
+                globals().update(mod.__dict__)
+                log('loading extension module file: %s' % path, ['config', 'extension'], opts.verbosity > 0)
+            except FileNotFoundError:
+                log('could not resolve extension file path: %s' % module, ['config', 'extension'], True)
+
+
+def resolve_abspath(f_name):
+    if os.path.exists(os.path.abspath(f_name)):
+        return os.path.abspath(f_name)
+
+    for p in os.environ["PATH"].split(os.pathsep):
+        if os.path.exists(os.path.join(p, f_name)):
+            return os.path.abspath(os.path.join(p, f_name))
+
+    raise FileNotFoundError
 
 def check_user_integrity(ups):
 
