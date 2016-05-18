@@ -96,7 +96,7 @@ def load_config():
                 spec = imp.spec_from_file_location(module, resolve_abspath(module))
                 mod = imp.module_from_spec(spec)
                 spec.loader.exec_module(mod)
-                globals().update(mod.__dict__)
+                globals().update(mod.exports)
                 log('loading extension module file: %s' % path, ['config', 'extension'], opts.verbosity > 0)
             except FileNotFoundError:
                 log('could not resolve extension file path: %s' % module, ['config', 'extension'], True)
@@ -113,6 +113,9 @@ def resolve_abspath(f_name):
     raise FileNotFoundError
 
 def check_user_integrity(ups):
+    """
+        calls the 'check_integrity' method on all the given user profiles (as a dict)
+    """
 
     for up_id, up in ups.items():
         up.check_integrity(userintegrity.check)
@@ -129,8 +132,8 @@ def calculate_variables(ups, ipvs = IPVS, dpvs = DPVS):
 
 def filter_by_exclude(ups):
     """
-        Excludes certain users from the analysis based on the function 'exclude'
-        if it exists in the config file.
+        excludes certain users from the analysis based on the function 'exclude'
+        if it exists in the config file
     """
 
     if not (config and getattr(config, 'exclude', None)): return ups
@@ -148,7 +151,7 @@ def filter_by_exclude(ups):
 
 def filter_by_test(ups):
     """
-        Filters users who don't pass the tests specified by FATAL_TEST in the config file.
+        filters users who don't pass the tests specified by FATAL_TEST in the config file
     """
 
     new_ups = {}
@@ -169,7 +172,7 @@ def filter_by_test(ups):
 
 def generate_user_info_table(ups, title = 'user_info_table'):
     """
-        Generates a table of the basic information about the users
+        generates a table of the basic information about the users
     """
 
     def get_info(name):
@@ -187,9 +190,8 @@ def generate_user_info_table(ups, title = 'user_info_table'):
     return table
 
 def generate_variables_table(ups, title = 'variables_table', ipvs = IPVS, dpvs = DPVS, info = INFO):
-
     """
-        Generates a table of the main variables of interest and saves them
+        generates a table of the main variables of interest and saves them
     """
 
     def get_dpvs(name):
@@ -248,6 +250,10 @@ def generate_integrity_report(ups, title='user_integrity_report'):
 
 
 def log(m, tags=[], to_console= False):
+    """
+        logs analysis messages to a log file + console if to_console is True
+    """
+
     with open(make_file_path('log', 'log.txt', True), 'a') as f:
         if len(tags) > 0:
             f.write(str(tags) + ' ' + m +  '\n')
@@ -262,7 +268,7 @@ def log(m, tags=[], to_console= False):
 
 def is_test_fatal(report):
     """
-        Based on the FATAL_TESTS variable in the config file, determines if a user should be excluded from the analysis
+        based on the FATAL_TESTS variable in the config file, determines if a user should be excluded from the analysis
         if a certain test fails.
     """
 
@@ -289,6 +295,10 @@ def save_table(table, title = 'untitled_table'):
         table.to_csv(f)
 
 def make_file_path(dirName, title, rewrite=False):
+    """
+        finds a file name using the base directory, creates numbered file names to avoid rewriting if rewrite is False
+    """
+
     global opts
     baseDir = (opts and opts.output) or (config and config.getattr(config, 'output', None)) or os.getcwd()
     f_dir = os.path.join(os.path.abspath(baseDir), dirName)
@@ -317,6 +327,9 @@ def extract_user_profiles(rootDir):
 ### dpv evaluation functions
 
 def n_deliv_recs(up):
+    """
+        extracts the number of delivered feature recommendations
+    """
 
     try:
         log = up.log_set
@@ -335,6 +348,9 @@ def n_deliv_recs(up):
         return None
 
 def n_inactive_recs(up):
+    """
+        extracts the number of inactive feature recommendations
+    """
 
     try:
         log = up.log_set

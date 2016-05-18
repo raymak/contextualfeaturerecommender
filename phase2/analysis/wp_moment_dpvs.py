@@ -10,9 +10,6 @@ moment_types = {
                 }
 
 def m_rates(m_short, up):
-
-    # print(m_short, moment_types[m_short], up.userid)
-
     rates = list(filter(lambda x: not isinstance(x, str), up.log_set.type('MOMENT_REPORT') \
         .filter(lambda x: x['attrs']['moment'] == moment_types[m_short]) \
         .last()['attrs']['rates']))
@@ -30,20 +27,26 @@ def m_mean(m_short, up):
 
     return numpy.median(numpy.array(rates))
 
-n_tnra20m_nt = partial(m_count, 'tnra20m_nt')
-med_tnra20m_nt = partial(m_mean, 'tnra20m_nt')
+exports = {k:v  for m_short in moment_types for k,v in { 
+                            'n_%s' % m_short: partial(m_count, m_short),
+                            'med_%s' % m_short: partial(m_mean, m_short)
+                            }.items()
+            }
 
-n_tnra10s = partial(m_count, 'tnra10s')
-med_tnra10s = partial(m_mean, 'tnra10s')
+# equivalent to 
 
-n_window_open = partial(m_count, 'window_open')
-med_window_open = partial(m_mean, 'window_open')
+# n_tnra20m_nt = partial(m_count, 'tnra20m_nt')
+# med_tnra20m_nt = partial(m_mean, 'tnra20m_nt')
 
-n_athp = partial(m_count, 'athp')
-med_athp = partial(m_mean, 'athp')
+# n_tnra10s = partial(m_count, 'tnra10s')
+# med_tnra10s = partial(m_mean, 'tnra10s')
 
-n_startup = partial(m_count, 'startup')
-med_startup = partial(m_mean, 'startup')
+# n_window_open = partial(m_count, 'window_open')
+# med_window_open = partial(m_mean, 'window_open')
 
+# n_athp = partial(m_count, 'athp')
+# med_athp = partial(m_mean, 'athp')
 
+# n_startup = partial(m_count, 'startup')
+# med_startup = partial(m_mean, 'startup')
 
