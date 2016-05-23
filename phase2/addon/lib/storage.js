@@ -21,13 +21,11 @@ const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').id + "-storage"
 
 const osFileObjects = {}
 
-//TODO: add OS.File
 //TODO: add function definition capabilities using closures, to make it a real persistent object,
 // and not only a JsonStore
 // TODO: work on this and make it an npm package
 // read sdk/simple-storage.js again for this + the way it's done in rails
 // TODO: make direct manipulation with an arbitrary depth possible (e.g. sample-storage.sample-p1.sample-p2 = sample-v)
-//  this requires checking and refactoring some code to avoid breaking anything
 
 module.exports = EventTarget();
 exports = module.exports;
