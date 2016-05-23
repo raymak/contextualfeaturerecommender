@@ -23,7 +23,7 @@ const modes = [
   {rateLimit: 'easy', moment: 'in-context', coeff: 2}, //3
   {rateLimit: 'easy', moment: 'interruptible', coeff: 1}, //4
   {rateLimit: 'easy', moment: 'interruptible', coeff: 2}, //5
-  {rateLimit: 'strict', moment: 'random', coeff: 1}, //6
+  {rateLimit: 'strict', moment  : 'random', coeff: 1}, //6
   {rateLimit: 'strict', moment: 'random', coeff: 2}, //7
   {rateLimit: 'strict', moment: 'in-context', coeff: 1}, //8
   {rateLimit: 'strict', moment: 'in-context', coeff: 2}, //9

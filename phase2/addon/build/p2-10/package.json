@@ -9,7 +9,7 @@
   "id": "featurerecommender@insights.mozilla.com",
   "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.57-beta",
+  "version": "0.0.40-beta",
   "permissions": {
     "private-browsing": true  
   },
@@ -178,7 +178,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "p217"
+      "value": "p210"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -256,7 +256,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "presentation.doorhanger.autofade_time_ms_flat",
@@ -286,7 +286,7 @@
       "name": "assignedId",
       "type": "integer",
       "title": " ",
-      "value": 17
+      "value": 10
     }
   ]
 }
