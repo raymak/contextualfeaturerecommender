@@ -256,7 +256,7 @@
       "name": "sender.send_to_file",
       "type": "bool",
       "title": " ",
-      "value": true
+      "value": false
     },
     {
       "name": "presentation.doorhanger.autofade_time_ms_flat",
