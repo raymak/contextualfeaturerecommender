@@ -25,7 +25,7 @@ import argparse
 import importlib.util as imp
 
 
-DPVS = ['n_deliv_recs', 'n_inactive_recs']  # n_deliv_recs, n_inactive_recs
+DPVS = ['n_deliv_recs', 'n_inactive_recs', 'et', 'ett']  # n_deliv_recs, n_inactive_recs
 IPVS = ['moment', 'coeff', 'rate'] # moment, coeff, rate, condition
 INFO = ['name'] # userid, os
 
@@ -367,6 +367,12 @@ def n_inactive_recs(up):
 
     except IndexError:
         return None
+
+def et(up):
+    return up.log_set.last()['et']
+
+def ett(up):
+    return up.log_set.last()['ett']
 
 ### ipv evaluation functions
 

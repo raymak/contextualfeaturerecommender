@@ -39,6 +39,11 @@ class LogSet(object):
         if not("number" in obj or "userid" in obj):
             raise TypeError("'number' or 'userid' field was not found.")
             
+        k = (obj["userid"], obj["number"])
+
+        if k in self.records and self.records[k] != obj:
+            print("unequal duplicates: \n %s \n %s" % (self.records[k], obj))
+
         self.records[(obj["userid"], obj["number"])] = obj
         self.users.add(obj["userid"])
 

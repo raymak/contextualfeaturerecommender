@@ -49,6 +49,13 @@ def message_missing(log_set):
 
     p = d['missing'] == 0
 
+    if not p:
+        missing_numbers = []
+        for i in range(1, (last+1)):
+            if i not in log_set:
+                missing_numbers.append(i)
+        d['missing_numbers'] = missing_numbers
+
     return UserIntegrityReport(n, m, d, p)
 
 def first_run(log_set):
