@@ -31,6 +31,12 @@
       "value": false
     },
     {
+      "name": "clean_startup",
+      "type": "bool",
+      "title": "Whether the preferences should be reset upon startup.",
+      "value": false
+    },
+    {
       "name": "clean_install",
       "type": "bool",
       "title": "Whether or not all the preferences should be reset upon installation.",
