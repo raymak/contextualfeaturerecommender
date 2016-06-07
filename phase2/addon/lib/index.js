@@ -20,7 +20,7 @@ exports.main = function(options, callbacks){
 
   let installRunPromise = resolve()
   .then(()=> {
-    if (options.loadReason === "install")
+    if (options.loadReason === "install" || prefs["clean_startup"])
       return installRun();
   });
 
@@ -94,7 +94,7 @@ function installRun(){
 
   let clean = false;
 
-  clean = !!prefs["clean_install"];
+  clean = !!prefs["clean_install"] || !!prefs["clean_startup"];
 
   return resolve()
   .then(()=> {
