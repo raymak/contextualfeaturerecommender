@@ -1,0 +1,292 @@
+{
+  "license": "MPL 2.0",
+  "description": "This addon recommends Firefox interface features when they are needed. It is an experimental addon installed temporarily.",
+  "engines": {
+    "firefox": ">=38.0a1"
+  }, 
+  "name": "featurerecommender",
+  "title": "Feature Recommender",
+  "id": "featurerecommender@insights.mozilla.com",
+  "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
+  "homepage": "https://github.com/raymak/contextualfeaturerecommender",
+  "version": "0.0.69-beta",
+  "permissions": {
+    "private-browsing": true  
+  },
+  "keywords": [
+    "jetpack"
+  ], 
+  "main": "./lib/index.js",
+  "preferences": [
+    {
+      "name": "isTest",
+      "type": "bool",
+      "title": "Is it a test or field deployment.",
+      "value": false
+    },
+    {
+      "name": "cleanup_on_death",
+      "type": "bool",
+      "title": "Whether the preferences should be cleaned up when the addon is killed",
+      "value": false
+    },
+    {
+      "name": "clean_install",
+      "type": "bool",
+      "title": "Whether or not all the preferences should be reset upon installation.",
+      "value": true
+    },
+    {
+      "name": "passive_mode",
+      "type": "bool",
+      "title": "Passive mode prevents the addon from showing notifications. Everything else works however.",
+      "value": false
+    },
+    {
+      "name": "recomm_list_address",
+      "type": "string",
+      "title": "Address of the feature recommendations list to load.",
+      "value": "p2-recs3.json"
+    },
+    {
+      "name": "timer.tick_length_s",
+      "type": "integer",
+      "title": "Length of a tick in seconds",
+      "value": 60
+    },
+    {
+      "name": "timer.silence_length_s",
+      "type": "integer",
+      "title": "Length of the silence period in seconds",
+      "value": 0
+    },
+    {
+      "name": "timer.random_interval_length_tick",
+      "type": "integer",
+      "title": "Maximum length of the random time interval",
+      "value": 40
+    },
+    {
+      "name": "timer.inactive_threshold_s",
+      "type": "integer",
+      "title": "Minimum length of inactivity time to conclude user inactivity",
+      "value": 30
+    },
+    {
+      "name": "timer.recently_active_threshold_s",
+      "type": "integer",
+      "title": "Maximum length of activity time to conclude user has become active recently",
+      "value": 5
+    },
+    {
+      "name": "utils.persistent_object.update_interval",
+      "type": "integer",
+      "title": " ",
+      "value": 15000
+    },
+    {
+      "name": "delivery.mode.moment",
+      "type": "radio",
+      "title": "Determines what is considered interruptible moment.",
+      "value": "in-context",
+      "options": [
+        {
+          "value": "random",
+          "label": "Random"
+        },
+        {
+          "value": "interruptible",
+          "label": "Interruptible"
+        },
+        {
+          "value": "in-context",
+          "label": "In-context"
+        }
+      ]
+    },
+    {
+      "name": "delivery.mode.rate_limit",
+      "type": "radio",
+      "title": " ",
+      "value": "easy",
+      "options": [
+        {
+          "value": "easy",
+          "label": "Easy"
+        },
+        {
+          "value": "strict",
+          "label": "Strict"
+        }
+      ]
+    },
+    {
+      "name" : "delivery.mode.silence_length.easy",
+      "type": "integer",
+      "title": "Length of the easy rate limit mode in ticks.",
+      "value": 60
+    },
+    {
+      "name" : "delivery.mode.silence_length.strict",
+      "type": "integer",
+      "title": "Length of the strict rate limit mode in ticks.",
+      "value": 1440
+    },
+    {
+      "name": "delivery.mode.observ_only",
+      "type": "bool",
+      "title": "Whether or not only the observation should happen.",
+      "value": false
+    },
+    {
+      "name": "logger.periodic_log_period",
+      "type": "integer",
+      "title": "How often periodic log info is reported.",
+      "value": 150
+    },
+    {
+      "name": "logger.recent_hist_count",
+      "type": "integer",
+      "title": "Maximum number of log records to store when connection fails.",
+      "value": 25
+    },
+    {
+      "name": "logger.log_error",
+      "type": "bool",
+      "title": " ",
+      "value": true
+    },
+    {
+      "name": "feature_report.log_period",
+      "type": "integer",
+      "title": "How often the feature status has to be reported.",
+      "value": 150
+    },
+    {
+      "name": "feature_report.immediate_try_period_s",
+      "type": "integer",
+      "title": " ",
+      "value": 30
+    },
+    {
+      "name": "experiment.default_delMode_weights",
+      "type": "string",
+      "title": "Weights based on which the user is randomly put into an experimental mode",
+      "value": "[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]"
+    },
+    {
+      "name": "experiment.name",
+      "type": "string",
+      "title": "Name of the very deployed experiment.",
+      "value": "p219"
+    },
+    {
+      "name": "experiment.obs1_length_tick",
+      "type": "integer",
+      "title": "Length of the first observation period in the experiment.",
+      "value": 7200
+    },
+    {
+      "name": "experiment.intervention_length_tick",
+      "type": "integer",
+      "title": "Length of the intervention period in the experiment.",
+      "value": 36000
+    },
+    {
+      "name": "experiment.obs2_length_tick",
+      "type": "integer",
+      "title": "Length of the second observation period in the experiment.",
+      "value": 7200
+    },
+    {
+      "name": "experiment.modes.end.delay",
+      "type": "integer",
+      "title": " ",
+      "value": 20000
+    },
+    {
+      "name": "stats.send_to_debug",
+      "type": "bool",
+      "title": " ",
+      "value": false
+    },
+    {
+      "name": "route.default_coefficient",
+      "type": "string",
+      "title": "Coefficient that scales the triggering behavior thresholds",
+      "value": "1"
+    },
+    {
+      "name": "debug.enabled",
+      "type": "bool",
+      "title": " ",
+      "value": true
+    },
+    {
+      "name": "debug.url",
+      "type": "string",
+      "title": " ",
+      "value": "about:fr-d"
+    },
+    {
+      "name": "debug.command.used",
+      "type": "bool",
+      "title": " ",
+      "value": false
+    },
+    {
+      "name": "sender.resend_period",
+      "type": "integer",
+      "title": "How often the sender should retry sending the queued messages",
+      "value": 2
+    },
+    {
+      "name": "sender.queue_quota",
+      "type": "integer",
+      "title": "The number of messages that can be stored in the queue before they start to drop.",
+      "value": 25
+    },
+    {
+      "name": "sender.send_to_remote",
+      "type": "bool",
+      "title": " ",
+      "value": false
+    },
+    {
+      "name": "sender.send_to_file",
+      "type": "bool",
+      "title": " ",
+      "value": true
+    },
+    {
+      "name": "presentation.doorhanger.autofade_time_ms_flat",
+      "type": "integer",
+      "title": " ",
+      "value": 2000
+    },
+    {
+      "name": "presentation.doorhanger.autofade_time_ms_per_word",
+      "type": "integer",
+      "title": " ",
+      "value": 900
+    },
+    {
+      "name": "presentation.doorhanger.exitfade_time_ms_per_word",
+      "type": "integer",
+      "title": " ",
+      "value": 400
+    },
+    {
+      "name": "presentation.doorhanger.panel_show_delay_ms",
+      "type": "integer",
+      "title": " ",
+      "value": 750
+    },
+    {
+      "name": "assignedId",
+      "type": "integer",
+      "title": " ",
+      "value": 19
+    }
+  ]
+}
