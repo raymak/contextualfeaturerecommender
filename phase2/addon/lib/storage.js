@@ -111,6 +111,9 @@ function OsFileStorage(options){
       return write(JSON.stringify(cachedObj.data), {safe: safe}).then(()=>{
         cachedObj.synced = true;
         console.log("pref update", options.address, prop);
+      })
+      .catch((e)=>{
+        logError("osfilewrite", e, {address: options.address});
       });
     };
 
@@ -120,15 +123,7 @@ function OsFileStorage(options){
 
     return rObj;
   }).catch((e)=> {
-    require('./logger').logError({
-                                 type: "osfilestorage",
-                                 name: e.name,
-                                 message: e.message,
-                                 fileName: e.fileName,
-                                 lineNumber: e.lineNumber,
-                                 stack: e.stack,
-                                 info: {address: options.address}
-                                });
+    logError("osfilestorage", e, {address: options.address});
     Cu.reportError(e);
   });
 }
@@ -279,4 +274,17 @@ function StorageObject(updateFn, cachedObj, options){
     unload(()=>{wrapper._syncCache();});
 
     return rObj;
+}
+
+const logError = function(type, e, info){
+  require('./logger').logError({
+                                 type: type,
+                                 name: e.name,
+                                 message: e.message,
+                                 fileName: e.fileName,
+                                 lineNumber: e.lineNumber,
+                                 stack: e.stack,
+                                 info: info
+                                });
+
 }

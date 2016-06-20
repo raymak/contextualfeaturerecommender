@@ -430,6 +430,17 @@ exports.selfDestruct = function(reason){
     .uninstall(require("sdk/self").id);
 }
 
+exports.logErr = function(type, e){
+  require('./logger').logError({
+                                 type: type,
+                                 name: e.name,
+                                 message: e.message,
+                                 fileName: e.fileName,
+                                 lineNumber: e.lineNumber,
+                                 stack: e.stack
+                               });
+}
+
 const debug = {
   init: function(){
     require("./debug").handleCmd(this.parseCmd);

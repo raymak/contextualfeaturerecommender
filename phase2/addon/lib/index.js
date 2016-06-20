@@ -53,14 +53,7 @@ exports.main = function(options, callbacks){
   .then(()=> console.timeEnd("full load"))
   .then(()=> require('./logger').logPrefs())
   .catch((e)=>{ 
-    require('./logger').logError({
-                                 type: "init",
-                                 name: e.name,
-                                 message: e.message,
-                                 fileName: e.fileName,
-                                 lineNumber: e.lineNumber,
-                                 stack: e.stack
-                               });
+    require('./utils').logErr("init", e);
     require('chrome').Cu.reportError(e);
   });
 
