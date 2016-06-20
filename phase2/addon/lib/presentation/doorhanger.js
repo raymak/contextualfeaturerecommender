@@ -485,7 +485,7 @@ function updateReport(){
                    || report.rationaleopen || (report.infopage > 0)),
                    id: currRec.recomm.id
                     };
-  let info = merge({}, currRec.state, currRec.report, addedInfo);
+  let info = merge({}, currRec.state, report, addedInfo);
 
   //reporting to feature report
   let featReportRow = {
@@ -493,7 +493,8 @@ function updateReport(){
                         interaction: info.interaction, primbtn: (info.primbtn > 0),
                         secbtn: (info.secbtn > 0), manualopen: (info.count > 1),
                         response: (info.primbtn > 0 || info.secbtn > 0), rationaleopen: (info.rationaleopen > 0),
-                        firstclosereason: info.firstclosereason, firstopen: info.firstopen, interaction: info.interaction
+                        firstclosereason: info.firstclosereason, firstopen: info.firstopen, interaction: info.interaction,
+                        certainlyactive: report.certainlyactive
                      }
   featReport.updateRow(currRec.recomm.id, featReportRow);
 

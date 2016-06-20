@@ -22,7 +22,7 @@
       "name": "isTest",
       "type": "bool",
       "title": "Is it a test or field deployment.",
-      "value": false
+      "value": true
     },
     {
       "name": "cleanup_on_death",
@@ -178,13 +178,13 @@
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weights based on which the user is randomly put into an experimental mode",
-      "value": "[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0]"
+      "value": "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]"
     },
     {
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "p220"
+      "value": "safe"
     },
     {
       "name": "experiment.obs1_length_tick",
@@ -292,7 +292,7 @@
       "name": "assignedId",
       "type": "integer",
       "title": " ",
-      "value": 20
+      "value": -1
     }
   ]
 }
