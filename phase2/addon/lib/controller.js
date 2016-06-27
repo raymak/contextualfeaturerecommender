@@ -42,7 +42,7 @@ Cu.import("resource://gre/modules/Task.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/AddonManager.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-const devtools = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools;
+const devtools = Cu.import("resource://devtools/shared/Loader.jsm").devtools;
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);
