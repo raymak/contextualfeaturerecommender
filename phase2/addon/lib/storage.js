@@ -80,7 +80,7 @@ function OsFileStorage(options){
     let safe = opts && opts.safe;
     let arr = encoder.encode(str);
 
-    return OS.File.writeAtomic(filePath, arr, {tmpPath: filePath + ".tmp", flush: safe});
+    return OS.File.writeAtomic(filePath, arr, {tmpPath: filePath + ".tmp", backupTo: filePath + ".backup", flush: safe});
   }
 
   function read(){
@@ -124,7 +124,6 @@ function OsFileStorage(options){
     return rObj;
   }).catch((e)=> {
     logError("osfilestorage", e, {address: options.address});
-    Cu.reportError(e);
   });
 }
 
@@ -186,7 +185,7 @@ function StorageObject(updateFn, cachedObj, options){
       _syncCache: function(opts){
         let force = opts && opts.force;
         if (!cachedObj.synced || force){
-          updateFn(undefined, opts);
+          updateFn(undefined, opts).catch((e)=>{logError("osfile sync", e, {address: options.address})});
           emit(evtTarget, 'sync');
         }
       },
@@ -269,7 +268,9 @@ function StorageObject(updateFn, cachedObj, options){
     });
 
     let interval = (options && options.update_interval) || prefs["utils.persistent_object.update_interval"];
-    let syncTimer = setInterval(()=>{wrapper._syncCache()}, interval);
+    let syncTimer = setInterval(()=>{
+      wrapper._syncCache();
+    }, interval);
 
     unload(()=>{wrapper._syncCache();});
 
@@ -277,6 +278,7 @@ function StorageObject(updateFn, cachedObj, options){
 }
 
 const logError = function(type, e, info){
+  Cu.reportError(e);
   require('./logger').logError({
                                  type: type,
                                  name: e.name,
@@ -286,5 +288,5 @@ const logError = function(type, e, info){
                                  stack: e.stack,
                                  info: info
                                 });
-
+  throw e;
 }

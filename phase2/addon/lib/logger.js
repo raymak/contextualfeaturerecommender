@@ -62,7 +62,12 @@ function log(type, attrs, options){
     _log(type, attrs, options); 
 }
 
-function _log(type, attrs, option){
+function _log(type, attrs, options){
+
+  if (options && options.headless){
+    _log_headless(type, attrs, options)
+    return;
+  }
 
   let OUT = {
     userid: require('./experiment').userId,
@@ -88,7 +93,7 @@ function _log(type, attrs, option){
   OUT = override(OUT, {type: type, attrs: attrs});
 
   console.log(OUT);
-  send(OUT);
+  send(OUT);  
 
   require('./stats').event("log");
 
@@ -97,6 +102,26 @@ function _log(type, attrs, option){
     delete recentMsgs[OUT.number - recentHistCount];
 
   debug.update();
+}
+
+function _log_headless(type, attrs, options){
+
+  let userid = prefs["userId"];
+
+  let OUT = {
+    userid: userid,
+    ts: Date.now(),
+    localeTime: (new Date(Date.now())).toLocaleString(),   
+    addon_id: addonSelf.id,
+    addon_version: addonSelf.version,
+    assigned_id: prefs["assignedId"] || "",
+    name: prefs["experiment.name"]
+  }
+
+  OUT = override(OUT, {type: type, attrs: attrs});
+
+  console.log(OUT);
+  send(OUT);  
 }
 
 function periodicLog(et, ett){
@@ -183,8 +208,14 @@ function logSelfDestruct(info){
 }
 
 function logError(info){
-  if (prefs["logger.log_error"])
+  if (!prefs["logger.log_error"]) return;
+
+  try {
     log("ERROR", info, {immediate: true});
+  }
+  catch(e){
+    log("HEADLESS_ERROR", info, {immediate:true, headless: true});
+  }
 }
 
 function logWarning(info){

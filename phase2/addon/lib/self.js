@@ -88,8 +88,7 @@ const self = {
                     "toolkit.telemetry.archive.enabled",
                     "browser.urlbar.suggest.searches",
                     "browser.urlbar.userMadeSearchSuggestionsChoice",
-                    "app.update.enabled",
-                    "xpinstall.signatures.required"
+                    "app.update.enabled"
                     ]
 
     let prefsData = {};

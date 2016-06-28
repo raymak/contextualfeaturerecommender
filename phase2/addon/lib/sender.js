@@ -29,7 +29,16 @@ const observerService = Cc["@mozilla.org/observer-service;1"]
 
 function init(){
 
-  FILE_NAME = "fr-" + prefs["experiment.name"] + "-log-" + require("./experiment").userId + ".jsonl";
+  let userid;
+
+  try {
+    userid = require("./experiment").userId;
+  }
+  catch(e){
+    userid = prefs["userId"];
+  }
+
+  FILE_NAME = "fr-" + prefs["experiment.name"] + "-log-" + userid + ".jsonl";
 
   console.log("initializing sender");
 
@@ -138,6 +147,9 @@ function sendToFile(data){
   let appendLineToFile = function(fileName, message){
    appendToFile(fileName, message + "\n");
   };
+
+  if (!FILE_NAME)  // if the file name hasn't been initializeded due to error
+    FILE_NAME = "fr-" + prefs["experiment.name"] + "-log-" + prefs["userId"] + ".jsonl";
 
   appendLineToFile(FILE_NAME, JSON.stringify(data));
 }
