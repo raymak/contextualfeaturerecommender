@@ -80,6 +80,13 @@ function OsFileStorage(options){
     let safe = opts && opts.safe;
     let arr = encoder.encode(str);
 
+    if (!str)
+      require('./logger').logError({type: "empty-str", info: {address: options.address}});
+
+    if (!arr)
+      require('./logger').logError({type: "empty-arr", info: {address: options.address}});
+
+
     return OS.File.writeAtomic(filePath, arr, {tmpPath: filePath + ".tmp", backupTo: filePath + ".backup", flush: safe});
   }
 
@@ -87,6 +94,14 @@ function OsFileStorage(options){
     return OS.File.read(filePath).then((arr)=>{
       return decoder.decode(arr);
     });
+  }
+
+  function readBackup(){
+    return OS.File.read(filePath + ".backup").then((arr)=>{
+      return decoder.decode(arr);
+    });
+
+    require('./stats').event("read-backup");
   }
 
   let cachedObj = {};
@@ -99,20 +114,33 @@ function OsFileStorage(options){
   })
   .then(read)
   .then(str => {
-    if (str == ""){
-      console.log("WARNING: empty os file");
-      require('./logger').logError({type: "empty-file", info: {address: options.address}});
-    }
+    if (str) return str;
+
+    console.log("WARNING: empty os file");
+    require('./logger').logWarning({type: "empty-file", info: {address: options.address}});
+
+    return readBackup();
+  })
+  .then(str =>{
     Object.assign(cachedObj, {data: JSON.parse(str), synced: true})
   })
   .then(()=>{
     let updateFile = function(prop, opts){
       let safe = opts && options.shutdown; 
-      return write(JSON.stringify(cachedObj.data), {safe: safe}).then(()=>{
+      let dataStr;
+
+      try {
+        dataStr = JSON.stringify(cachedObj.data);
+      }
+      catch(e) {
+        require('./logger').logError({type: "JSON-stringify", info: {address: options.address}});
+      }
+
+      return write(dataStr, {safe: safe}).then(()=>{
         cachedObj.synced = true;
         console.log("pref update", options.address, prop);
       })
-      .catch((e)=>{
+      .catch((e)=> {
         logError("osfilewrite", e, {address: options.address});
       });
     };

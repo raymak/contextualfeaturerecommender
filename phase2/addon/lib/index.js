@@ -46,7 +46,7 @@ exports.main = function(options, callbacks){
   .then(()=> require("./experiment").checkStage())
   .then(()=> {
     require('./logger').logLoad(options.loadReason);
-    require('./stats').event("load", {collectInstance: true}, {reason: require('sdk/self').loadReason});
+    require('./stats').event("load", {collectInstance: false}, {reason: require('sdk/self').loadReason});
     return require('./controller').init();
   })
   .then(()=> require('./extra-listeners').init())
@@ -113,7 +113,7 @@ exports.onUnload = function(reason){
 
   console.log("unloading due to " + reason);
 
-  require('./stats').event("unload", {collectInstance: true}, {reason: reason});
+  require('./stats').event("unload", {collectInstance: false}, {reason: reason});
 
   require('./sender').flush();
 

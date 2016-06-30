@@ -84,7 +84,8 @@ function _log(type, attrs, options){
     addon_version: addonSelf.version,
     locale: self.locale,
     update_channel: self.updateChannel,
-    assigned_id: prefs["assignedId"] || ""
+    assigned_id: prefs["assignedId"] || "",
+    headless: false
   }
 
   OUT = override(OUT, self.sysInfo);
@@ -115,7 +116,8 @@ function _log_headless(type, attrs, options){
     addon_id: addonSelf.id,
     addon_version: addonSelf.version,
     assigned_id: prefs["assignedId"] || "",
-    name: prefs["experiment.name"]
+    name: prefs["experiment.name"],
+    headless: true
   }
 
   OUT = override(OUT, {type: type, attrs: attrs});
@@ -219,7 +221,13 @@ function logError(info){
 }
 
 function logWarning(info){
-  log("WARNING", info, {immediate: true});
+
+  try {
+    log("WARNING", info, {immediate: true});
+  }
+  catch(e){
+    log("HEADLESS_WARNING", info, {immediate:true, headless: true});
+  }
 }
 
 function logSilenceEnd(info){
