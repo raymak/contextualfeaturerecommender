@@ -193,7 +193,8 @@ const listener = {
 
       tabsSwitchedPosition.checkPreconditions = function(){
         return (this.preEvent.options.reason == "switched"
-             && this.preEvent.options.params.position);
+             && this.preEvent.options.params.position
+             && this.preEvent.options.params.number > 5); //temporary workaround
       };
 
       let multipleTabsSwitchedPosition = that.multipleRoute(tabsSwitchedPosition);
@@ -1518,6 +1519,8 @@ listener.listenForTabs = function(callback, options){
       params.position = "last";
     else if (t === ts[0])
         params.position = "first";
+
+    params.number = t.window.tabs.length;
 
     // callback(reason, {position: "1-8"});
 
