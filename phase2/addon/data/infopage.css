@@ -1,0 +1,136 @@
+body {
+        #background: url("https://mozorg.cdn.mozilla.net/media/img/sandstone/bg-gradient-sky.7ea325995978.png") repeat-x scroll 0% 0%, url("https://mozorg.cdn.mozilla.net/media/img/sandstone/grain.855f29e0c686.png") repeat scroll 0% 0%, none repeat scroll 0% 0% #EEE;
+        background: white;
+        padding: 0px 50px 50px 50px;
+
+        margin: 0px;
+    }
+
+#container {
+    width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    
+
+    font-family: 'Open Sans', sans-serif, 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+}
+
+#header {
+    height: 80px;
+    position: sticky;
+    background: white;
+    top: 0;
+    font-family: 'Open Sans', sans-serif, 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+
+
+}
+
+
+#header .center {
+    margin-left: auto;
+    margin-right: auto;
+    display:block;
+    width: 600px;
+    height: 80px;
+    border-bottom: 3px groove black;
+    padding-bottom: 10px;
+
+}
+
+#header div.image-div {
+    margin: 0px;
+    float: left;
+}
+
+#header img {
+    height: 80px;
+    display:block;
+}
+
+#header h1 {
+    margin: 0px;
+    line-height: 80px;
+    font-size: 24px;
+}
+
+#title {
+    float: left;
+    margin-left: 10px;
+}
+
+#notification-ss {
+}
+
+#header div.image-div {
+    margin-top: 0px;
+}
+
+div.image-div {
+    margin: 15px auto;
+
+}
+
+#notification-ss {
+    width: 500px;
+}
+
+#addon-ss {
+    width: 300px;
+}
+
+#remove-ss {
+    width: 700px;
+}
+#container img {
+    width: 80%;
+}
+
+#remove-info {
+    max-height: 0px;
+    transition: max-height 0.5s;
+    overflow: hidden;
+}
+
+#remove-info.visible {
+    max-height: initial;
+}
+
+#remove-click {
+    font-size: 15px;
+}
+
+p {
+    font-size: 15px;
+    margin-bottom: 20px;
+}
+
+h2 {
+    font-size:20px;
+}
+
+a {
+    font-size: 12px;
+}
+
+ul {
+    font-size: 15px;
+    list-style-type: none;
+    padding: 0px;
+}
+
+.numCirc {
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    padding: 6px;
+    background: #fff;
+    border: 1px solid #030303;
+    color: #C01E1E;
+    text-align: center;
+    font: 14px Arial, sans-serif;
+    display: inline-block;
+    margin: 5px 5px;
+    font-style: italic;
+}

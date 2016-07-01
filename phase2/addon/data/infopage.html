@@ -1,90 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<style>
-
-	body {
-		background: url("https://mozorg.cdn.mozilla.net/media/img/sandstone/bg-gradient-sky.7ea325995978.png") repeat-x scroll 0% 0%, url("https://mozorg.cdn.mozilla.net/media/img/sandstone/grain.855f29e0c686.png") repeat scroll 0% 0%, none repeat scroll 0% 0% #EEE;
-			padding: 50px 50px;
-	}
-		#container {
-			width: 500px;
-			margin-left: auto;
-			margin-right: auto;
-			
-
-			font-family: 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
-		}
-
-		img {
-			width: 80%;
-		}
-		p {
-			font-size: 15px;
-		}
-
-		h2 {
-			font-size:20px;
-		}
-
-		a {
-			font-size: 12px;
-		}
-
-		ul {
-			font-size: 15px;
-			list-style-type: none;
-			padding: 0px;
-		}
-
-		.numCirc {
-		    border-radius: 50%;
-		    width: 14px;
-		    height: 14px;
-		    padding: 6px;
-		    background: #fff;
-		    border: 1px solid #030303;
-		    color: #C01E1E;
-		    text-align: center;
-		    font: 14px Arial, sans-serif;
-		    display: inline-block;
-		    margin: 5px 5px;
-		    font-style: italic;
-		}
-
-	</style>
-	<title></title>
+    <title> Feature Recomemnder</title>
+    <link rel="stylesheet" type="text/css" href="./infopage.css" />
+    <script src="./infopage.js"> </script>
 </head>
 <body>
-	<div id="container">
-		<h2>What is Feature Recommender?</h2>
-		<p>
-			Feature Recommender recommends features or extensions that are likely to be useful for you based on how you use Firefox. This tool is experimental and will be automatically removed from your Firefox after a period of time.
+    <div id="header">
+        <div>
+            <div class="center">
+                <div class="image-div">
+                    <img src="./ui/icons/silly-bulb.png" />
+                </div>
+                <div id="title">
+                    <h1> Feature Recommender </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="container">
+        <p>
+            Firefox Feature Recommender is a tool that proactively recommends features or extensions that are likely to be useful to you based on how you use Firefox. This tool is experimental and will be automatically removed from your Firefox after a period of time.
 
-		</p>
+        </p>
 
-		<p>
-		The picture below shows different parts of a recommendation notification. 
-		</p>
+        <p>
+        The picture below shows different parts of a recommendation notification. 
+        </p>
 
-		<img id="screenshot" src="screenshot.png" />
+        <div id="notification-ss" class="image-div">
+            <img id="screenshot" src="notification-ss.png" />
+        </div>
 
-		<ul>
-			<li><p class=numCirc>1</p>Hides the notification.</li>
-			<li><p class=numCirc>2</p>Let's you tell us why you don't like this notification.</li>
-			<li><p class=numCirc>3</p>Gives a brief description of this feature</li>
-			<li><p class=numCirc>4</p>Briefly tells you why it thinks you might like this feature. </li>
-			<li><p class=numCirc>5</p>Click to learn more about the feature. </li>
-			<li><p class=numCirc>6</p>Let's you install or try it right from the notification! </li>
-		</ul>
+        <ul>
+            <li><p class=numCirc>1</p>Hides the notification.</li>
+            <li><p class=numCirc>2</p>Let's you tell us why you don't like this notification.</li>
+            <li><p class=numCirc>3</p>Gives a brief description of this feature</li>
+            <li><p class=numCirc>4</p>Briefly tells you why it thinks you might like this feature. </li>
+            <li><p class=numCirc>5</p>Click to learn more about the feature. </li>
+            <li><p class=numCirc>6</p>Let's you install or try it right from the notification panel! </li>
+        </ul>
+    
+        <br>
 
-		<a href="#"> Can I remove this tool?</a>
-		<p>
-		Note that Feature Recommender is a temporary tool and will be automatically removed after a period of time. But if you still want to disable it, <a href="#" >click here</a> to see the instructions.
-		<p>
+        <h4> Can I remove this tool? </h4>
+        <a name="remove"></a><p>
+        Note that Feature Recommender is a temporary tool and will be automatically removed after a period of time. If you still want to disable it, <a href="#remove" id="remove-click">click here</a> to see the instructions.
+        <p>
+
+        <div id="remove-info">
+            <h5> Removing Feature Recommender </h5>
+
+            <ol>
+                <li> Open the Add-ons page 
+                    <div id="addon-ss" class="image-div">
+                        <img src="addon-ss.png" />
+                    </div>
+                </li>
+                <li> Find "Feature Recommender" and click the "Remove" button
+                    <div id="remove-ss" class="image-div">
+                        <img src="remove-ss.png" />
+                    </div>
+                </li>
+            </ol>
+        </div>
 
 
 
-	</div>
+    </div>
 </body>
 </html>
