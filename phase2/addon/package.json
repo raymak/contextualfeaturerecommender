@@ -6,12 +6,12 @@
   }, 
   "name": "featurerecommender",
   "title": "Feature Recommender",
-  "id": "featurerecommender@insights.mozilla.com",
-  "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
+  "id": "cfr@moz",
+  "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.60-beta",
+  "version": "0.1.0-beta",
   "permissions": {
-    "private-browsing": true  
+    "private-browsing": false  
   },
   "keywords": [
     "jetpack"
@@ -28,12 +28,12 @@
       "name": "cleanup_on_death",
       "type": "bool",
       "title": "Whether the preferences should be cleaned up when the addon is killed",
-      "value": false
+      "value": true
     },
     {
       "name": "clean_startup",
       "type": "bool",
-      "title": "Whether the preferences should be reset upon startup.",
+      "title": "Whether the preferences should be reset upon each startup.",
       "value": false
     },
     {
@@ -52,7 +52,13 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "p2-recs3.json"
+      "value": "cfr-moz-recs.json"
+    },
+    {
+      "name": "exclude_tags",
+      "type": "string",
+      "title": "Which features should be excluded from the recommendations list.",
+      "value": "privacy-invasive"
     },
     {
       "name": "timer.tick_length_s",
@@ -88,7 +94,7 @@
       "name": "utils.persistent_object.update_interval",
       "type": "integer",
       "title": " ",
-      "value": 15000
+      "value": 20000
     },
     {
       "name": "delivery.mode.moment",
@@ -136,7 +142,7 @@
       "name" : "delivery.mode.silence_length.strict",
       "type": "integer",
       "title": "Length of the strict rate limit mode in ticks.",
-      "value": 1440
+      "value": 360
     },
     {
       "name": "delivery.mode.observ_only",
@@ -154,7 +160,7 @@
       "name": "logger.recent_hist_count",
       "type": "integer",
       "title": "Maximum number of log records to store when connection fails.",
-      "value": 25
+      "value": 20
     },
     {
       "name": "logger.log_error",
@@ -166,7 +172,7 @@
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
-      "value": 150
+      "value": 120
     },
     {
       "name": "feature_report.immediate_try_period_s",
@@ -184,25 +190,25 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "safe"
+      "value": "cfr-moz-test"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 7200
+      "value": 1440
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 25920
+      "value": 7200
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 7200
+      "value": 1440
     },
     {
       "name": "experiment.modes.end.delay",
@@ -250,7 +256,7 @@
       "name": "sender.queue_quota",
       "type": "integer",
       "title": "The number of messages that can be stored in the queue before they start to drop.",
-      "value": 25
+      "value": 40
     },
     {
       "name": "sender.send_to_remote",
