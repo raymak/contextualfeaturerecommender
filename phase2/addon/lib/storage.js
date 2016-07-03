@@ -81,10 +81,10 @@ function OsFileStorage(options){
     let arr = encoder.encode(str);
 
     if (!str)
-      require('./logger').logError({type: "empty-str", info: {address: options.address}});
+      logError("empty-str", e, {address: options.address});
 
     if (!arr)
-      require('./logger').logError({type: "empty-arr", info: {address: options.address}});
+      logError("empty-arr", e, {address: options.address});
 
 
     return OS.File.writeAtomic(filePath, arr, {tmpPath: filePath + ".tmp", backupTo: filePath + ".backup", flush: safe});
@@ -133,7 +133,7 @@ function OsFileStorage(options){
         dataStr = JSON.stringify(cachedObj.data);
       }
       catch(e) {
-        require('./logger').logError({type: "JSON-stringify", info: {address: options.address}});
+        logError("JSON-stringify", e, {address: options.address});
       }
 
       return write(dataStr, {safe: safe}).then(()=>{
