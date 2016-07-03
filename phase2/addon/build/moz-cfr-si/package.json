@@ -9,7 +9,7 @@
   "id": "cfr-moz@insights.mozilla.org",
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.992",
+  "version": "0.0.993",
   "updateURL": "https://people.mozilla.org/~kardekani/cfr/test/cfr-moz.update.rdf",
   "updateLink": "https://people.mozilla.org/~kardekani/cfr/test/cfr-moz.xpi",
   "permissions": {
@@ -264,7 +264,7 @@
       "name": "sender.send_to_remote",
       "type": "bool",
       "title": " ",
-      "value": false
+      "value": true
     },
     {
       "name": "sender.send_to_file",
