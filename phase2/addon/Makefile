@@ -44,10 +44,10 @@ people-deploy:
 	cd $(TOP)
 	scp -rp $(NAME)*.update.rdf $(WHO)$(PEOPLEREMOTEMACHINE):$(PEOPLEREMOTEDIR)/$(NAME).update.rdf
 	scp -rp $(NAME)*.xpi $(WHO)$(PEOPLEREMOTEMACHINE):$(PEOPLEREMOTEDIR)/$(NAME).xpi
-	# would be nice if then curled.
-	# 
+# would be nice if then curled.
+
 clean: 
-	-rm *.xpi
-	-rm *.update.rdf
+	-rm -f *.xpi
+	-rm -f *.update.rdf
 
 
