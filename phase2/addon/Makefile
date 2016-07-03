@@ -16,7 +16,7 @@ WHO=kardekani@
 
 all: clean xpi rename
 
-all-sign: clean xpi rename sign
+all-sign: clean xpi rename sign replace-with-signed
 
 # sets up a certain experiment configuration by copying all the contents of a certain 
 # build/[config-name] to the main directory, most notably the prefs.json file
@@ -49,5 +49,9 @@ people-deploy:
 clean: 
 	-rm -f *.xpi
 	-rm -f *.update.rdf
+
+replace-with-signed:
+	rm -f $(NAME)*.xpi
+	mv *-fx.xpi $(NAME)*.xpi
 
 
