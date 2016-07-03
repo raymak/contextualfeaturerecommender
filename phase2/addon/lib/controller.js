@@ -695,7 +695,7 @@ const deliverer = {
 
     if (recomms.length > 1){
       console.log("warning: attempted to deliver multiple recommendations at the same time: " + recomms.length);
-      require('./stats').event("multiple-delivery", {type: "delivery"});
+      statsEvent("multiple-delivery", {type: "delivery"});
     }
 
     //finding the recommendation with the highest priority
@@ -716,30 +716,30 @@ const deliverer = {
 
     if (prefs["passive_mode"]){
       console.log("delivery rejected due to passive mode");
-      require('./stats').event("passive-mode-reject", {type: "delivery"});
+      statsEvent("passive-mode-reject", {type: "delivery"});
       rejectDelivery = true;
     }
 
     if (isPrivate(getMostRecentBrowserWindow())){
       console.log("delivery rejected due to private browsing");
-      require('./stats').event("private-reject", {type: "delivery"});
+      statsEvent("private-reject", {type: "delivery"});
       rejectDelivery = true;
     }
 
     if (!timer.isCertainlyActive()){
       console.log("delivery rejected due to uncertain user activity status");
-      require('./stats').event("inactive-reject", {type: "delivery"});
+      statsEvent("inactive-reject", {type: "delivery"});
       rejectDelivery = true;
     }
 
     if (self.delMode.observ_only || (timer.isSilent())){
       if (self.delMode.observ_only){
         console.log("delivery rejected due to observe only period: id -> " + aRecommendation.id);
-        require('./stats').event("observe-only-reject", {type: "delivery"});
+        statsEvent("observe-only-reject", {type: "delivery"});
       }
       else{
         console.log("delivery rejected due to silence: id -> " + aRecommendation.id);
-        require('./stats').event("silence-reject", {type: "delivery"});
+        statsEvent("silence-reject", {type: "delivery"});
       }
 
       rejectDelivery = true;
@@ -1034,22 +1034,28 @@ listener.command = function(cmd){
 }
 
 listener.dispatchRoute = function(route, options){
-  route = Route(route);
 
-  if (!options){
-    this.behavior(route);
-    this.context(route);
-    this.featureUse(route);
-  }
-  else {
-    if (options.behavior)
+  try {
+    route = Route(route);
+
+    if (!options){
       this.behavior(route);
-
-    if (options.context)
       this.context(route);
-
-    if (options.featureUse)
       this.featureUse(route);
+    }
+    else {
+      if (options.behavior)
+        this.behavior(route);
+
+      if (options.context)
+        this.context(route);
+
+      if (options.featureUse)
+        this.featureUse(route);
+    }
+  }
+  catch(e) {
+    utils.logErr("dispatch", e, {options: options});
   }
 
 }
