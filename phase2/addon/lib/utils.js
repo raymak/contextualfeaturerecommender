@@ -430,14 +430,15 @@ exports.selfDestruct = function(reason){
     .uninstall(require("sdk/self").id);
 }
 
-exports.logErr = function(type, e){
+exports.logErr = function(type, e, info){
   require('./logger').logError({
                                  type: type,
                                  name: e.name,
                                  message: e.message,
                                  fileName: e.fileName,
                                  lineNumber: e.lineNumber,
-                                 stack: e.stack
+                                 stack: e.stack,
+                                 info: info
                                });
 }
 
