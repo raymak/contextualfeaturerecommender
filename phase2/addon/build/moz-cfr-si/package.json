@@ -6,11 +6,12 @@
   }, 
   "name": "featurerecommender",
   "title": "Feature Recommender",
-  "id": "cfr@moz",
+  "id": "cfr-moz@insights.mozilla.org",
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "icon": "./data/ui/icons/silly-bulb.png",
-  "version": "0.1.0-beta",
+  "version": "0.0.992",
+  "updateURL": "https://people.mozilla.org/~kardekani/cfr/test/cfr-moz.update.rdf",
+  "updateLink": "https://people.mozilla.org/~kardekani/cfr/test/cfr-moz.xpi",
   "permissions": {
     "private-browsing": false  
   },
