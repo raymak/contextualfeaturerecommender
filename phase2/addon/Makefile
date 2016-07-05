@@ -10,7 +10,7 @@ TOP ?= $(shell pwd)
 NAME=cfr-moz
 
 PEOPLEREMOTEMACHINE=people.mozilla.org
-PEOPLEREMOTEDIR=~kardekani/public_html/cfr/test
+PEOPLEREMOTEDIR=~kardekani/public_html/cfr
 
 WHO=kardekani@
 
@@ -52,6 +52,6 @@ clean:
 
 replace-with-signed:
 	rm -f $(NAME)*.xpi
-	mv *-fx.xpi $(NAME)*.xpi
+	mv *-fx.xpi $(NAME).xpi
 
 

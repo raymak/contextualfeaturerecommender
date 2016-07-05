@@ -266,7 +266,12 @@ const stages = {
       console.log("obs2 stage started.");
 
       if (prefs["experiment.enable_post_study_survey"]){
-        require("sdk/tabs").open("https://qsurvey.mozilla.com/s3/cfr-end-of-study?userid=" + experiment.userId);
+        require("sdk/tabs").open("https://qsurvey.mozilla.com/s3/cfr-end-of-study?"
+         + ["userid=" + experiment.userId,
+            "coeff=" + expData.mode.coeff,
+            "moment=" + expData.mode.moment,
+            "rate_limit" + expData.mode.rateLimit].join("&")
+          );
       }
 
     });
