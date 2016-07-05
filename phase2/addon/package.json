@@ -6,14 +6,12 @@
   }, 
   "name": "featurerecommender",
   "title": "Feature Recommender",
-  "id": "cfr-moz@insights.mozilla.org",
-  "author": "Kamyar Ardekani <kamyar@mozilla.com>",
+  "id": "featurerecommender@insights.mozilla.com",
+  "author": "Kamyar Ardekani <kamyar.ardekani@gmail.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.0.992",
-  "updateURL": "https://people.mozilla.org/~kardekani/cfr/test/cfr-moz.update.rdf",
-  "updateLink": "https://people.mozilla.org/~kardekani/cfr/test/cfr-moz.xpi",
+  "version": "0.0.60-beta",
   "permissions": {
-    "private-browsing": false  
+    "private-browsing": true  
   },
   "keywords": [
     "jetpack"
@@ -30,12 +28,12 @@
       "name": "cleanup_on_death",
       "type": "bool",
       "title": "Whether the preferences should be cleaned up when the addon is killed",
-      "value": true
+      "value": false
     },
     {
       "name": "clean_startup",
       "type": "bool",
-      "title": "Whether the preferences should be reset upon each startup.",
+      "title": "Whether the preferences should be reset upon startup.",
       "value": false
     },
     {
@@ -54,13 +52,7 @@
       "name": "recomm_list_address",
       "type": "string",
       "title": "Address of the feature recommendations list to load.",
-      "value": "cfr-moz-recs.json"
-    },
-    {
-      "name": "exclude_tags",
-      "type": "string",
-      "title": "Which features should be excluded from the recommendations list.",
-      "value": "privacy-invasive"
+      "value": "p2-recs3.json"
     },
     {
       "name": "timer.tick_length_s",
@@ -96,7 +88,7 @@
       "name": "utils.persistent_object.update_interval",
       "type": "integer",
       "title": " ",
-      "value": 20000
+      "value": 15000
     },
     {
       "name": "delivery.mode.moment",
@@ -144,7 +136,7 @@
       "name" : "delivery.mode.silence_length.strict",
       "type": "integer",
       "title": "Length of the strict rate limit mode in ticks.",
-      "value": 360
+      "value": 1440
     },
     {
       "name": "delivery.mode.observ_only",
@@ -162,7 +154,7 @@
       "name": "logger.recent_hist_count",
       "type": "integer",
       "title": "Maximum number of log records to store when connection fails.",
-      "value": 20
+      "value": 25
     },
     {
       "name": "logger.log_error",
@@ -174,13 +166,19 @@
       "name": "feature_report.log_period",
       "type": "integer",
       "title": "How often the feature status has to be reported.",
-      "value": 120
+      "value": 150
     },
     {
       "name": "feature_report.immediate_try_period_s",
       "type": "integer",
       "title": " ",
       "value": 30
+    },
+    {
+      "name": "experiment.enable_post_study_survey",
+      "type": "bool",
+      "title": " ",
+      "value": false
     },
     {
       "name": "experiment.default_delMode_weights",
@@ -192,25 +190,25 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment.",
-      "value": "cfr-moz-test"
+      "value": "safe"
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
       "title": "Length of the first observation period in the experiment.",
-      "value": 1440
+      "value": 7200
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period in the experiment.",
-      "value": 7200
+      "value": 25920
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
       "title": "Length of the second observation period in the experiment.",
-      "value": 1440
+      "value": 7200
     },
     {
       "name": "experiment.modes.end.delay",
@@ -258,7 +256,7 @@
       "name": "sender.queue_quota",
       "type": "integer",
       "title": "The number of messages that can be stored in the queue before they start to drop.",
-      "value": 40
+      "value": 25
     },
     {
       "name": "sender.send_to_remote",

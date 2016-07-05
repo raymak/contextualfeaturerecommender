@@ -264,6 +264,11 @@ const stages = {
       require('./stats').log();
 
       console.log("obs2 stage started.");
+
+      if (prefs["experiment.enable_post_study_survey"]){
+        require("sdk/tabs").open("https://qsurvey.mozilla.com/s3/cfr-end-of-study?userid=" + experiment.userId);
+      }
+
     });
   },
   end: end

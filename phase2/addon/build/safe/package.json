@@ -175,6 +175,12 @@
       "value": 30
     },
     {
+      "name": "experiment.enable_post_study_survey",
+      "type": "bool",
+      "title": " ",
+      "value": false
+    },
+    {
       "name": "experiment.default_delMode_weights",
       "type": "string",
       "title": "Weights based on which the user is randomly put into an experimental mode",
