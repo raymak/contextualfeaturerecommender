@@ -299,7 +299,7 @@
     "presentationData": {
       "*": {
         "message": "Use the <span class='key'>Ctrl</span>+<span class='key'>9</span> keyboard shortcut to switch to the last open tab faster.",
-        "rationale": "You fequently switch to the last tab back and forth.",
+        "rationale": "You frequently switch to the last tab back and forth.",
         "title": "Select Last Tab shortcut"
       },
       "doorhanger": {
