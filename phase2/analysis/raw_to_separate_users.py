@@ -21,26 +21,37 @@ def raw_to_separate_users():
 
     f = fileinput.input()
 
-    for line in f:
+    total_lines=0;
 
-        obj = json.loads(line)
-        user_id = obj["userid"]
+    for index, line in enumerate(f):
 
-        if not user_id in fileDict:
+        try:
+            obj = json.loads(line)
 
-            print("processing user: %s" %(user_id))
+            user_id = obj["userid"]
 
-            exp_name = obj["name"]
+            if not user_id in fileDict:
 
-            file_name = os.path.join(os.path.curdir, exp_name, user_id + ".jsonl")
-            
-            if not os.path.exists(os.path.dirname(file_name)):
-                os.makedirs(os.path.dirname(file_name))
+                print("processing user: %s" %(user_id))
 
-            fileDict[user_id] = open(file_name, 'w')
+                exp_name = obj["name"]
 
-        fileDict[user_id].write(line)
+                file_name = os.path.join(os.path.curdir, exp_name, user_id + ".jsonl")
+                
+                if not os.path.exists(os.path.dirname(file_name)):
+                    os.makedirs(os.path.dirname(file_name))
 
+                fileDict[user_id] = open(file_name, 'w')
+
+            fileDict[user_id].write(line)
+
+            total_lines = total_lines + 1
+
+        except ValueError:
+            print("cannot parse line %d: %s" % (index, line));
+
+
+    print("processed %d users and %d lines" % (len(fileDict), total_lines))
 
     # close all files
     for k in fileDict:
