@@ -32,16 +32,16 @@ class UserLogSet(LogSet):
         return super(UserLogSet, self).__contains__((self.userid, k))
 
     def add(self, v):
-        if type(v) is str:
-            self.add_object(json.loads(v))
-        else:
-            self.add_object(v)
+
+        self.add_object(json.loads(v) if type(v) is str else v)
 
     def add_object(self, obj):
         super(UserLogSet, self).add_object(obj)
 
-        if (not self.info_set):
-            self.set_info(obj)
+        if self.info_set or ('headless' in obj and obj['headless']):
+            return
+            
+        self.set_info(obj)
 
         if obj["userid"] != self.userid:
             raise TypeError("userid needs to be unique.")

@@ -2,7 +2,7 @@
 
 """
 
-Recursively searches through the jsonl files in the given directory (or the current directory by default) 
+Recursively searches through the jsonl files in the given root directory (or the current directory by default) 
     and extracts variables of interest for each user. It then generates, prints, and saves cross-user data reports and data frames.
 
 input:
@@ -27,7 +27,7 @@ import importlib.util as imp
 
 DPVS = ['n_deliv_recs', 'n_inactive_recs', 'et', 'ett']  # n_deliv_recs, n_inactive_recs
 IPVS = ['moment', 'coeff', 'rate'] # moment, coeff, rate, condition
-INFO = ['name'] # userid, os
+INFO = ['name', 'userid', 'os'] # userid, os
 
 opts = None
 config = None
@@ -318,8 +318,12 @@ def extract_user_profiles(rootDir):
     ups = {}
 
     for file_name in traverse_dirs(rootDir, 'jsonl'):
-        up = user_profile_from_file(file_name)
-        ups[up.userid] = up
+        try:
+            up = user_profile_from_file(file_name)
+            ups[up.userid] = up
+        except Exception as e:
+            log("Could not load user log file: %s" %file_name,['warning'],True)
+            raise e
 
     return ups
 

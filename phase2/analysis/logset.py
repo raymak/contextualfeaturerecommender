@@ -4,6 +4,7 @@ class LogSet(object):
     def __init__(self, input=None):
         self.records = {}
         self.users = set()
+        self.headless_records = []
 
         if input:
             for l in input:
@@ -36,17 +37,26 @@ class LogSet(object):
             self.add_object(v)
 
     def add_object(self, obj):
-        if not("number" in obj or "userid" in obj):
-            raise TypeError("'number' or 'userid' field was not found.")
+        if "userid" not in obj:
+            raise KeyError("userid")
+
+        if "number" not in obj:  # check for obj['headless'] in next versions of logs
+            # headless messages
+            self.headless_records.append(obj)
+            return
             
         k = (obj["userid"], obj["number"])
 
         if k in self.records and self.records[k] != obj:
-            print("unequal duplicates: \n %s \n %s" % (self.records[k], obj))
+            # currently chooses the one that comes second in the log file
+            print("unequal duplicates: \n %s \n %s" % (self.records[k], obj)) 
 
         self.records[(obj["userid"], obj["number"])] = obj
         self.users.add(obj["userid"])
 
+
+    def get_headless_records(self):
+        return self.headless_records
 
     def any(self, fn):
         return any(fn(x) for x in self.records.values())

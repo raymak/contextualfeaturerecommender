@@ -5,7 +5,7 @@
 from userlogset import UserLogSet
 from userprofile import UserProfile
 
-BASIC_TESTS = ['message_missing', 'first_run', 'proper_ending', 'user_disable', 'warning', 'error']
+BASIC_TESTS = ['message_missing', 'first_run', 'proper_ending', 'user_disable', 'warning', 'error', 'headless_error', 'headless_warning']
 
 def check(inp):
     """
@@ -145,8 +145,35 @@ def error(log_set):
 
     return UserIntegrityReport(n, m ,d, p)
 
+def headless_error(log_set):
 
+    n = "headless_error"
+    l = list(filter(lambda x: x['type'] == "HEADLESS_ERROR", log_set.get_headless_records()))
+    c = len(l)
+    fail_m = "%d headless error(s)" % c
+    pass_m = None
+    m = [pass_m, fail_m]
 
+    p = c == 0
+
+    d = {'count': c, 'list': l}
+
+    return UserIntegrityReport(n, m ,d, p)
+
+def headless_warning(log_set):
+
+    n = "headless_warning"
+    l = list(filter(lambda x: x['type'] == "HEADLESS_WARNING", log_set.get_headless_records()))
+    c = len(l)
+    fail_m = "%d headless warning(s)" % c
+    pass_m = None
+    m = [pass_m, fail_m]
+
+    p = c == 0
+
+    d = {'count': c, 'list': l}
+
+    return UserIntegrityReport(n, m ,d, p)
 
 
 
