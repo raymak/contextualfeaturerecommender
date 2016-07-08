@@ -126,7 +126,7 @@ function OsFileStorage(options){
   })
   .then(()=>{
     let updateFile = function(prop, opts){
-      let safe = opts && opt.shutdown; 
+      let safe = opts && opts.shutdown; 
       let dataStr;
 
       try {
@@ -300,7 +300,7 @@ function StorageObject(updateFn, cachedObj, options){
       wrapper._syncCache();
     }, interval);
 
-    unload(()=>{wrapper._syncCache();});
+    unload(()=>{wrapper._syncCache({shutdown: true});});
 
     return rObj;
 }
