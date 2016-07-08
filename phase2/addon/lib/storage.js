@@ -126,7 +126,7 @@ function OsFileStorage(options){
   })
   .then(()=>{
     let updateFile = function(prop, opts){
-      let safe = opts && options.shutdown; 
+      let safe = opts && opt.shutdown; 
       let dataStr;
 
       try {
