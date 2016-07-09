@@ -3,7 +3,7 @@
     "id": "welcome",
     "priority": 0,
     "trigBehavior": "",
-    "delivContext": "fr tick",
+    "delivContext": "*",
     "featUseBehavior": "",
     "presentationData": {
       "*": {

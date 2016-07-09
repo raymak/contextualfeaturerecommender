@@ -151,8 +151,9 @@ const recSet = {
       route = Route(route);
 
     if (this[indexTable][route.header]){
-      // console.log(this[indexTable][route.header]);
-      let recomms = this[indexTable][route.header].map(function(id){
+      // recommendations with the * route are always added as well
+      let recomms = this[indexTable][route.header].concat(this[indexTable]['*'] || []) 
+      .map(function(id){
         return that[id];
       }).filter(function(aRecommendation){
         return matches.call(aRecommendation[indexTable + "Route"], route, looseMatch);

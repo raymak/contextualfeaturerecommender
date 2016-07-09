@@ -82,6 +82,9 @@ const matches = function(inRoute, looseMatch){
   inRoute = Route(inRoute);
   let defRoute = Route(this);
 
+  if (defRoute.header == "*")
+    return true;
+
   let twoWay = false;
 
   // two-way match
@@ -118,7 +121,7 @@ const matches = function(inRoute, looseMatch){
     if (defRoute[key].charAt(0) === "<")
       if (looseMatch || Number(defRoute[key].slice(1)) > Number(inRoute[key]) || looseMatch) continue;
 
-    return false;
+    return false
   }
 
   return true;
