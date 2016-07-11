@@ -15,11 +15,21 @@ const prefs = sp.prefs;
 const file = require('sdk/io/file');
 const {Cu} = require("chrome");
 const {TextEncoder, TextDecoder} = require('sdk/io/buffer');
+const AS = require("./async-storage").AsyncStorage;
 Cu.import("resource://gre/modules/osfile.jsm");
 
 const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').id + "-storage");
 
-const osFileObjects = {}
+const osFileObjects = {};
+const localStorageObjects = osFileObjects; //temporary
+
+const config = {
+    name: 'storage-db',
+    version: 1
+  };
+
+AS.open(config);
+
 
 //TODO: add function definition capabilities using closures, to make it a real persistent object,
 // and not only a JsonStore
@@ -40,7 +50,7 @@ exports.PersistentObject = function(type, options){
 
   switch(type){
     case "simplePref":
-      return require('sdk/core/promise').resolve(SimplePrefStorage(options));
+      return SimplePrefStorage(options);
       break;
     case "osFile":
       return OsFileStorage(options);
@@ -49,6 +59,82 @@ exports.PersistentObject = function(type, options){
   }
 
 };
+
+function LocalStorage(options){
+  // only 1 object instance for each file should exist
+  if (localStorageObjects[options.address])
+    return require('sdk/core/promise').resolve(localStorageObjects[options.address]);
+
+  console.log("creating " + options.address);
+
+  let data = {};
+
+  let targetObj;
+
+  if (!options.target)
+    targetObj = {};
+  else
+    targetObj = options.target;
+
+  function write(str, opts){
+    return AS.setItem(options.address, str);
+  }
+
+  function read(){
+    return AS.getItem(options.address);
+  }
+
+  let cachedObj = {};
+
+  return AS.keys()
+  .then((ks)=>{
+    return ~ks.indexOf(options.address)
+  })
+  .then(exists=>{
+    if (!exists)
+      return write(JSON.stringify({}));
+  })
+  .then(read)
+  .then(str => {
+    if (str) return str;
+
+    console.log("WARNING: empty local storage");
+    require('./logger').logWarning({type: "empty-local-storage", info: {address: options.address}});
+  })
+  .then(str =>{
+    Object.assign(cachedObj, {data: JSON.parse(str), synced: true})
+  })
+  .then(()=>{
+    let updateFile = function(prop, opts){
+      let safe = opts && opts.shutdown; 
+      let dataStr;
+
+      try {
+        dataStr = JSON.stringify(cachedObj.data);
+      }
+      catch(e) {
+        logError("JSON-stringify", e, {address: options.address});
+      }
+
+      return write(dataStr, {safe: safe}).then(()=>{
+        cachedObj.synced = true;
+        console.log("pref update", options.address, prop);
+      })
+      .catch((e)=> {
+        logError("localstoragewrite", e, {address: options.address});
+      });
+    };
+
+    let rObj = StorageObject(updateFile, cachedObj, options);
+
+    localStorageObjects[options.address] = rObj;
+
+    return rObj;
+  }).catch((e)=> {
+    logError("localstorage", e, {address: options.address});
+  });
+
+}
 
 function OsFileStorage(options){
 
@@ -97,11 +183,11 @@ function OsFileStorage(options){
   }
 
   function readBackup(){
+    require('./stats').event("read-backup");
+
     return OS.File.read(filePath + ".backup").then((arr)=>{
       return decoder.decode(arr);
     });
-
-    require('./stats').event("read-backup");
   }
 
   let cachedObj = {};
@@ -180,7 +266,7 @@ function SimplePrefStorage(options){
  
   unload(function(){sp.removeListener(options.address, f)});
 
-  return rObj;
+  return require('sdk/core/promise').resolve(rObj);
 }
 
 
