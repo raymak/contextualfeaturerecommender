@@ -1919,7 +1919,7 @@ listener.listenForDevTools = function(callback){
         unload(function(){
           if (gDevTools.get())
             gDevTools.get().off("toolbox-ready", f);
-        })
+        });
 
 
         f = function(e, toolId){
@@ -1932,7 +1932,7 @@ listener.listenForDevTools = function(callback){
         unload(function(){
           if (gDevTools.get())
             gDevTools.get().off("select-tool-command", f);
-        })
+        });
       }
       else
         warn("gDevTools");
