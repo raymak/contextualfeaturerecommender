@@ -6,7 +6,7 @@
 "use strict";
 
 const unload = require("sdk/system/unload").when;
-const {setInterval} = require("sdk/timers");
+const {setInterval, clearInterval} = require("sdk/timers");
 const {EventTarget} = require("sdk/event/target");
 const {emit} = require('sdk/event/core');
 const sp = require("sdk/simple-prefs");
@@ -386,7 +386,11 @@ function StorageObject(updateFn, cachedObj, options){
       wrapper._syncCache();
     }, interval);
 
-    unload(()=>{wrapper._syncCache({shutdown: true});});
+    unload(()=>{
+      wrapper._syncCache({shutdown: true});
+      clearInterval(syncTimer);
+      syncTimer = null;
+    });
 
     return rObj;
 }
