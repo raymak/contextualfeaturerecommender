@@ -58,7 +58,7 @@ function updateObject(key){
       let lsts = document.getElementById("lists");
       let lstLabel = document.createElement("p");
       lstLabel.classList.add("list-label");
-      lstLabel.innerHTML = records[key].list;
+      lstLabel.textContent = records[key].list;
       let hr = document.createElement("hr");
       lsts.appendChild(hr);
       lsts.appendChild(lstLabel);
@@ -69,14 +69,19 @@ function updateObject(key){
   }
   
   if (records[key].type === 'json'){ //viewing json
-    item.innerHTML = "<span class='key'>"+ key + "</span>" + ": " +
-       "<div id='" + keyToId(key) + "' class='value json'>" +  "</div>";
+    let kElem = $("<span class='key'></span>").text(key);
+    let vElem = $("<div class='value json' </div>");
+    $(vElem).attr("id", keyToId(key));
+    $(item).text(": ").prepend(kElem).append(vElem);
 
     $(document.getElementById(keyToId(key))).JSONView(records[key].data, { collapsed: true, nl2br: true, recursive_collapser: true });
   }
   else //anything other than json
-    item.innerHTML = "<span class='key'>"+ key + "</span>" + ": " + 
-      "<span class='value " + mapJsType2JsonViewClass(records[key].type) + "'>"+ records[key].data + "</span>"; 
+  {
+    let kElem = $("<span class='key'></span>").text(key);
+    let vElem = $("<span class='value "+ mapJsType2JsonViewClass(records[key].type)  + "'></span>").text(records[key].data);
+    $(item).text(": ").prepend(kElem).append(vElem);
+  }
 
 }
 
@@ -105,8 +110,13 @@ function submitCmd(){
 }
 
 function cmdOut(out, cmd){
-  $("#cmdOut").html(">> &nbsp" + "<span class='outcmd'>"+ cmd + "</span>" + "<br>"  
-                    + " &nbsp"+ "<span class='outout'>"+ out + "</span>"+ "<br><br>" + $("#cmdOut").html());
+  $("#cmdOut").prepend(">> &nbsp" + "<span class='outcmd'></span>" 
+                    + "<br>"  
+                    + " &nbsp"+ "<span class='outout'></span>"+ "<br><br>");
+
+  $("#cmdOut .outcmd").filter(":first").text(cmd);
+  $("#cmdOut .outout").filter(":first").text(out ? out : "unrecognized");
+  if (!out) $("#cmdOut .outout").filter(":first").addClass("outunrecognized");
 
   window.location.href = "#cmdOut";
   $("#cmdText").focus();

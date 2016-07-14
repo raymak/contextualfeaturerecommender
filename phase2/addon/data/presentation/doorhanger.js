@@ -34,14 +34,14 @@ self.port.on("updateEntry", function(entry, state, options){
   document.getElementById("textbox").innerHTML = message;
   if (options && options.os && options.os === "darwin")
     replaceCtrlCommand();
-  document.getElementById("header").innerHTML = title;
-  document.getElementById("prim-button").innerHTML = primButtonLabel;
-  document.getElementById("sec-button").innerHTML = secButtonLabel;
+  document.getElementById("header").textContent = title;
+  document.getElementById("prim-button").textContent = primButtonLabel;
+  document.getElementById("sec-button").textContent = secButtonLabel;
   if (!primButtonLabel)
     document.getElementById("prim-button").classList.add('disabled');
   if (!secButtonLabel)
     document.getElementById("sec-button").classList.add('disabled');
-  document.querySelector("#rationalesection p").innerHTML = rationale;
+  document.querySelector("#rationalesection p").textContent = rationale;
 
   if (options && options.negFbOrder){ //ordering negative feedback radio buttons
     orderNegFb(options.negFbOrder);
@@ -166,13 +166,13 @@ function openNegFeedback(){
   document.getElementById("button-container").classList.add("feedback");
   document.getElementById("prim-button").classList.add("invisible");
   document.getElementById("sec-button").classList.add("feedback");
-  document.getElementById("sec-button").innerHTML = "Learn more about Feature Recommender";
+  document.getElementById("sec-button").textContent= "Learn more about Feature Recommender";
   document.getElementById("sec-button").classList.remove("disabled");
   document.getElementById("sec-button").removeEventListener("click", secButtonClick);
   document.getElementById("sec-button").addEventListener("click", function(e){
     self.port.emit("infoPage"); 
   });
-  document.getElementById("neg-feedback").innerHTML = "I don't like this (" + document.getElementById("header").innerHTML + ")";
+  document.getElementById("neg-feedback").textContent = "I don't like this (" + document.getElementById("header").textContent + ")";
   self.port.emit("negfbopen");
 
   updatePanelSize();
