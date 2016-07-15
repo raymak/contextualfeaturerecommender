@@ -14,7 +14,7 @@ function fetchEntries(){
 self.port.on("postEntry", function(entry, options){
   let entryDiv = document.createElement("div");
   entryDiv.className = "entry-div";
-  entryDiv.textContent = entry.message;
+  entryDiv.textContent = entry.message; // TODO: sanitize and allow html
   entryList.insertBefore(entryDiv, entryList.firstChild);
 });
 

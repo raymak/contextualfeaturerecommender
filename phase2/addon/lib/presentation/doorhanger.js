@@ -24,7 +24,6 @@ const featReport = require("../feature-report");
 const unload = require("sdk/system/unload").when;
 const {Cu} = require("chrome");
 
-
 const dhDataAddress = "presentation.doorhanger.data";
 
 let dhData; //initialized in init()
@@ -93,7 +92,7 @@ function initPanel(button){
     autohide: false,
     focus: false,
     contentURL: data.url("./presentation/doorhanger.html"),
-    contentScriptFile: data.url("./presentation/doorhanger.js"),
+    contentScriptFile: [data.url("./presentation/doorhanger.js"), data.url("./js/sanitize-html.min.js")],
     onShow: onPanelShow,
     onHide: onPanelHide
   });
@@ -168,7 +167,7 @@ function present(aRecommendation, cmdCallback){
   updateShow();  
 }
 
-function updateEntry(options){
+function updateEntry(options){  
 
   let currentRec = dhData.currentRec;
 
@@ -181,6 +180,7 @@ function updateEntry(options){
     panel = initPanel(button);
 
   let entry = extractPresentationData.call(currentRec.recomm, "doorhanger");
+
   panel.port.emit("updateEntry", entry, currentRec.state, {negFbOrder: negFbOrder(), os: self.sysInfo.os});
 
   wrdCnt = wordCount(entry.message);

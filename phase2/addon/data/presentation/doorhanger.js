@@ -9,7 +9,17 @@ let rsTimeout;
 
 
 self.port.on("updateEntry", function(entry, state, options){
-  let message = entry.message;
+  console.log(entry.message);
+
+  // https://www.npmjs.com/package/sanitize-html
+  let message = sanitizeHtml(entry.message, {
+    allowedTags: ['h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol',
+  'nl', 'li', 'b', 'i', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'span'],
+    allowedAttributes: {
+      'span': ['class']
+    }
+  });
+  console.log(message);
   let title = entry.title;
   let primButtonLabel = entry.primaryButtonLabel;
   let secButtonLabel = entry.secondaryButtonLabel;
@@ -31,7 +41,7 @@ self.port.on("updateEntry", function(entry, state, options){
     document.getElementById("neg-feedback").classList.add("checked");
   }
 
-  document.getElementById("textbox").innerHTML = message;
+  document.getElementById("textbox").innerHTML = message; // sanitized
   if (options && options.os && options.os === "darwin")
     replaceCtrlCommand();
   document.getElementById("header").textContent = title;
@@ -244,6 +254,6 @@ function replaceCtrlCommand(options){
     let keys = document.querySelectorAll("span.key");
     if (keys)
       Array.prototype.slice.call(keys).forEach(function(elem){
-        elem.innerHTML = elem.innerHTML.replace(/ctrl/i, "command");
+        elem.textContent = elem.textContent.replace(/ctrl/i, "command");
       });
 }
