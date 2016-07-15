@@ -350,7 +350,7 @@ function processCommand(worker, cmd){
   if (!handled){
     //TODO: flash message
     console.log("warning: unrecognized debug command");
-    worker.port.emit("cmdOut", "<span class='outunrecognized'>unrecognized</span>", cmd);
+    worker.port.emit("cmdOut", out, cmd);
   }
 }
 
