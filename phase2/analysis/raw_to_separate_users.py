@@ -47,8 +47,13 @@ def raw_to_separate_users():
 
             total_lines = total_lines + 1
 
-        except ValueError:
-            print("cannot parse line %d: %s" % (index, line));
+        except KeyError as e:
+            if e.args[0] == 'userid':
+                log("user id not found in line %d: %s" % (index, line))
+            else:
+                raise e
+        except Error:
+            log("cannot parse line %d: %s" % (index, line))
 
 
     print("processed %d users and %d lines" % (len(fileDict), total_lines))
@@ -57,6 +62,12 @@ def raw_to_separate_users():
     for k in fileDict:
         fileDict[k].close()
 
+
+    f.close()
+
+def log(message):
+    f = open('raw_to_separate_users_log.txt', 'w');
+    f.write(message)
 
     f.close()
 

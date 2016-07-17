@@ -85,7 +85,8 @@ def proper_ending(log_set):
             lm['type'] == 'SELF_DESTRUCT' or
             lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'disable' or
             lm['type'] == 'UNLOAD' and lm['attrs']['reason'] == 'uninstall' or
-            lm['type'] == 'DISABLE' and lm['attrs']['reason'] == 'uninstall'
+            lm['type'] == 'DISABLE' and lm['attrs']['reason'] == 'uninstall' or
+            not log_set.type("EXP_STAGE_ADVANCE").is_empty() and log_set.type("EXP_STAGE_ADVANCE").last()['attrs']['newstage'] == 'end'
             )
 
     return UserIntegrityReport(n, m , d, p)

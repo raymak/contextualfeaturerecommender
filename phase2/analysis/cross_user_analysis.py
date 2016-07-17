@@ -25,7 +25,7 @@ import argparse
 import importlib.util as imp
 
 
-DPVS = ['n_deliv_recs', 'n_inactive_recs', 'et', 'ett']  # n_deliv_recs, n_inactive_recs
+DPVS = ['n_deliv_recs', 'n_inactive_recs', 'adoption_rate', 'et', 'ett']  # n_deliv_recs, n_inactive_recs
 IPVS = ['moment', 'coeff', 'rate'] # moment, coeff, rate, condition
 INFO = ['name', 'userid', 'os'] # userid, os
 
@@ -58,6 +58,8 @@ def main():
 
     user_profiles = filter_by_exclude(user_profiles)
     user_profiles = filter_by_test(user_profiles)
+
+    log("%d profiles will be analyzed" %len(user_profiles))
 
     calculate_variables(user_profiles)
 
@@ -254,7 +256,7 @@ def log(m, tags=[], to_console= False):
         logs analysis messages to a log file + console if to_console is True
     """
 
-    with open(make_file_path('log', 'log.txt', True), 'a') as f:
+    with open(make_file_path('log', 'log', '.txt', True), 'a') as f:
         if len(tags) > 0:
             f.write(str(tags) + ' ' + m +  '\n')
             if to_console:
@@ -291,10 +293,10 @@ def is_test_fatal(report):
 
 def save_table(table, title = 'untitled_table'):
 
-    with open(make_file_path('tables', title + '.csv'), 'w') as f:
+    with open(make_file_path('tables', title, '.csv'), 'w') as f:
         table.to_csv(f)
 
-def make_file_path(dirName, title, rewrite=False):
+def make_file_path(dirName, title, extension='', rewrite=False):
     """
         finds a file name using the base directory, creates numbered file names to avoid rewriting if rewrite is False
     """
@@ -303,14 +305,14 @@ def make_file_path(dirName, title, rewrite=False):
     baseDir = (opts and opts.output) or (config and config.getattr(config, 'output', None)) or os.getcwd()
     f_dir = os.path.join(os.path.abspath(baseDir), dirName)
     os.makedirs(f_dir, exist_ok = True)
-    f_path = os.path.join(f_dir, title)
+    f_path = os.path.join(f_dir, title + extension)
 
     if rewrite: return f_path
 
     i = 0
     while os.path.exists(f_path):
         i += 1
-        f_path = os.path.join(f_dir, title + ' %s' % i)
+        f_path = os.path.join(f_dir, title + ' %s' % i + extension)
 
     return f_path
 
@@ -371,6 +373,36 @@ def n_inactive_recs(up):
 
     except IndexError:
         return None
+
+def adoption_rate(up):
+    """
+        calculates the adoption rate for the user
+    """
+
+    try:
+        log = up.log_set
+        feat_report_l = log.type('FEAT_REPORT').last()
+        attrs = feat_report_l['attrs']
+
+        n_delivered = 0
+
+        n_adopted = 0
+
+        for rec_id in attrs:
+            if attrs[rec_id]['status'] == 'delivered' and rec_id != 'welcome':
+                n_delivered += 1
+                if (attrs[rec_id]['adopted']):
+                    n_adopted += 1
+
+        if n_delivered < 1:
+            return None
+
+        return n_adopted/n_delivered
+
+    except IndexError:
+        return None
+
+
 
 def et(up):
     return up.log_set.last()['et']

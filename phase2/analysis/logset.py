@@ -49,12 +49,15 @@ class LogSet(object):
 
         if k in self.records and self.records[k] != obj:
             # currently chooses the one that comes second in the log file
-            print("unequal duplicates: \n %s \n %s" % (self.records[k], obj)) 
+            print("\n unequal duplicates: \n %s \n %s" % (self.records[k], obj)) 
 
         self.records[(obj["userid"], obj["number"])] = obj
         self.users.add(obj["userid"])
 
 
+    def is_empty(self):
+        return not self.records
+        
     def get_headless_records(self):
         return self.headless_records
 

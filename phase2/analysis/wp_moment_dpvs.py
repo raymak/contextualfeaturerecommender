@@ -14,7 +14,6 @@ def m_rates(m_short, up):
         .filter(lambda x: x['attrs']['moment'] == moment_types[m_short]) \
         .last()['attrs']['rates']))
 
-
     return rates
 
 def m_count(m_short, up):
