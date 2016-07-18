@@ -52,7 +52,7 @@ def raw_to_separate_users():
                 log("user id not found in line %d: %s" % (index, line))
             else:
                 raise e
-        except Error:
+        except Exception:
             log("cannot parse line %d: %s" % (index, line))
 
 
