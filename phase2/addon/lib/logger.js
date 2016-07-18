@@ -99,10 +99,9 @@ function _log(type, attrs, options){
   require('./stats').event("log");
 
   recentMsgs[OUT.number] = OUT;
-  if (recentMsgs[OUT.number - recentHistCount]){
+  if (recentMsgs[OUT.number - recentHistCount])
     delete recentMsgs[OUT.number - recentHistCount];
-    require('./stats').event("log-drop");
-  }
+  
 
   debug.update();
 }
