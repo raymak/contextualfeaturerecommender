@@ -252,7 +252,8 @@ function logLongInactivityBack(info){
 }
 
 function logPrefs(){
-  let info = prefs;
+  let info = Object.assign({}, prefs);
+  delete info["sdk.rootURI"];  // for privacy reasons
   log("PREFS_DUMP", info);
 }
 
