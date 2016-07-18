@@ -117,7 +117,7 @@ function initPanel(button){
 function initButton(clickHandler){
   return require("sdk/ui/button/toggle").ToggleButton({
       id: "dh-button",
-      label: "Feature Recommender",
+      label: "Open to see your last recommendation",
       icon: {
           "16": "./ui/icons/lightbulb_bw.png"
       },
