@@ -290,6 +290,8 @@ function end(){
     require("./feature-report").log();
     require('./stats').log();
 
+    require('./logger').logEnd();
+
     require("./self").getPeriodicInfo(function(info){
       require("./logger").logPeriodicSelfInfo(info);
 

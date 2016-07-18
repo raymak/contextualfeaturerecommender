@@ -51,7 +51,7 @@ function nextNumber(){
   return loggerData.count;
 }
 
-function log(type, attrs, options){
+function log(type, attrs={}, options){
 
   // asynchronous logging fails when unloading, that's why critical logs are reported immediately
   let immediate = options && options.immediate;
@@ -231,6 +231,10 @@ function logWarning(info, options={}){
   }
 }
 
+function logEnd(){
+  log("END");
+}
+
 function logSilenceEnd(info){
   log("SILENCE_END", info);
 }
@@ -332,3 +336,4 @@ exports.logLongInactivity = logLongInactivity;
 exports.logLongInactivityBack = logLongInactivityBack;
 exports.logPrefs = logPrefs;
 exports.logMissingElement = logMissingElement;
+exports.logEnd = logEnd;
