@@ -65,6 +65,9 @@ function remove(data){
 }
 
 function queue(data){
+
+  if (data.headless) return; //headless messages are not resent
+
   if (storage.sender.messages.length <= prefs["sender.queue_quota"]){
     storage.sender.messages.push(data); 
     console.log("http message queued");
