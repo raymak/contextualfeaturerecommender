@@ -17,10 +17,12 @@ const {TextEncoder} = require('sdk/io/buffer');
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/osfile.jsm");
 
+const { TelemetryController } = Cu.import("resource://gre/modules/TelemetryController.jsm");
+
 const REMOTE_URL = "https://testpilot.mozillalabs.com/submit/" + "featurerecommender";
 const TEST_URL = "http://logs-01.loggly.com/inputs/ac4fee9c-9dc4-4dc9-8a1b-4094253067bb/tag/http/";
 
-let FILE_NAME; 
+let FILE_NAME;
 const PATH_DIR = pathFor("Desk");
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
@@ -69,7 +71,7 @@ function queue(data){
   if (data.headless) return; //headless messages are not resent
 
   if (storage.sender.messages.length <= prefs["sender.queue_quota"]){
-    storage.sender.messages.push(data); 
+    storage.sender.messages.push(data);
     console.log("http message queued");
   }
   else
@@ -94,6 +96,23 @@ function flush(){
   prefs["sender.data.queue_size"] = storage.sender.messages.length;
 }
 
+function generateTelemetryIdIfNeeded() {
+  let id = TelemetryController.clientID;
+  /* istanbul ignore next */
+  if (id == undefined) {
+    return CID.ClientIDImpl._doLoadClientID()
+  } else {
+    return Promise.resolve(id)
+  }
+}
+
+function sendToTelemetry (data) {
+  let telOptions = {addClientId: true, addEnvironment: true};
+  generateTelemetryIdIfNeeded().then(()=>
+  TelemetryController.submitExternalPing("x-contextual-feature-recommendation", data, telOptions);
+  )
+}
+
 function sendToRemote(data){
 
   function requestCompleted(which, response) {
@@ -106,7 +125,7 @@ function sendToRemote(data){
   let fields = data;
 
   queue(data);
-  
+
   let XmlReq = new request.Request({
       url: TEST_URL,
       headers: {},
@@ -126,7 +145,7 @@ function sendToFile(data){
 
     let onFulFill = function(aFile){
       let encoder = new TextEncoder();  // This encoder can be reused for several writes
-      let array = encoder.encode(message); 
+      let array = encoder.encode(message);
       aFile.write(array).then(function(){aFile.close();});
     }
 
@@ -159,8 +178,7 @@ function sendToFile(data){
 
 function send(data){
   if (prefs["sender.send_to_remote"])
-    sendToRemote(data);
-
+    sendToTelemetry(data);
   if (prefs["sender.send_to_file"])
     sendToFile(data);
 
