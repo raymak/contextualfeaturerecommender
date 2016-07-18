@@ -21,7 +21,7 @@ Cu.import("resource://gre/modules/osfile.jsm");
 const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').id + "-storage");
 
 const osFileObjects = {};
-const localStorageObjects = osFileObjects; //temporary
+const localStorageObjects = {}; //temporary
 
 const config = {
     name: 'storage-db',
@@ -36,6 +36,8 @@ AS.open(config);
 // TODO: work on this and make it an npm package
 // read sdk/simple-storage.js again for this + the way it's done in rails
 // TODO: make direct manipulation with an arbitrary depth possible (e.g. sample-storage.sample-p1.sample-p2 = sample-v)
+// the above capability is currently disabled by design because it breaks some other parts of the code
+// the returned data is a copy of the main object
 
 module.exports = EventTarget();
 exports = module.exports;
@@ -63,7 +65,7 @@ exports.PersistentObject = function(type, options){
 function LocalStorage(options){
   // only 1 object instance for each file should exist
   if (localStorageObjects[options.address])
-    return require('sdk/core/promise').resolve(localStorageObjects[options.address]);
+    return Promise.resolve(localStorageObjects[options.address]);
 
   console.log("creating " + options.address);
 
@@ -99,7 +101,7 @@ function LocalStorage(options){
     if (str) return str;
 
     console.log("WARNING: empty local storage");
-    require('./logger').logWarning({type: "empty-local-storage", info: {address: options.address}});
+    require('./logger').logWarning({type: "empty-local-storage", info: {address: options.address}}, {headless: true});
   })
   .then(str =>{
     Object.assign(cachedObj, {data: JSON.parse(str), synced: true})
@@ -136,6 +138,7 @@ function LocalStorage(options){
 
 }
 
+// currently backed by an indexedDB storage
 function OsFileStorage(options){
 
   // only 1 object instance for each file should exist
@@ -159,11 +162,12 @@ function OsFileStorage(options){
   const fileName = options.address + ".json"
   const filePath = file.join(DIR_PATH, fileName);
 
-  console.log(fileName)
+  console.log(fileName);
   console.log(filePath);
  
   function write(str, opts){
     let safe = opts && opts.safe;
+    let noBackup = opts && opts.noBackup;
     let arr = encoder.encode(str);
 
     if (!str)
@@ -173,7 +177,10 @@ function OsFileStorage(options){
       logError("empty-arr", e, {address: options.address});
 
 
-    return OS.File.writeAtomic(filePath, arr, {tmpPath: filePath + ".tmp", backupTo: filePath + ".backup", flush: safe});
+    return OS.File.writeAtomic(filePath, arr, {
+      tmpPath: filePath + ".tmp", backupTo: !noBackup && (filePath + ".backup"), flush: safe
+    })
+    .then(()=> AS.setItem(options.address, str));
   }
 
   function read(){
@@ -182,12 +189,14 @@ function OsFileStorage(options){
     });
   }
 
-  function readBackup(){
-    require('./stats').event("read-backup");
-
+  function readOsFileBackup(){
     return OS.File.read(filePath + ".backup").then((arr)=>{
       return decoder.decode(arr);
     });
+  }
+
+  function readLocalStorageBackup(){
+    return AS.getItem(options.address);
   }
 
   let cachedObj = {};
@@ -198,17 +207,27 @@ function OsFileStorage(options){
     if (!exists)
       return write(JSON.stringify({}));
   })
-  .then(read)
-  .then(str => {
-    if (str) return str;
-
-    console.log("WARNING: empty os file");
-    require('./logger').logWarning({type: "empty-file", info: {address: options.address}});
-
-    return readBackup();
-  })
-  .then(str =>{
-    Object.assign(cachedObj, {data: JSON.parse(str), synced: true})
+  .then(read)   // try read, if it failed, try readLocalStorageBackup, if it failed try readOsFileBackup
+  .then(()=> {
+    return read()
+    .then(str => Object.assign(cachedObj, {data: JSON.parse(str), synced: true}))
+    .catch(e => {
+      return readLocalStorageBackup()
+      .then(str => Object.assign(cachedObj, {data: JSON.parse(str), synced: true}))
+      .then(()=>{
+          console.log("WARNING: backup read from local storage");
+          require('./logger').logWarning({type: "backup-read", info: {address: options.address, storage: 'local'}}, {headless: true});
+      })
+      .catch(e => {
+        return readOsFileBackup()
+        .then(str => Object.assign(cachedObj, {data: JSON.parse(str), synced: true}))
+        .then(()=>{
+          console.log("WARNING: backup read from os file storage");
+          require('./logger').logWarning({type: "backup-read", info: {address: options.address, storage: 'osfile'}}, {headless: true});
+        });
+      });
+    })
+    .then(()=> write(JSON.stringify(cachedObj.data), {noBackup: true})); // rewrite to the broken file if read from backup
   })
   .then(()=>{
     let updateFile = function(prop, opts){
@@ -237,7 +256,7 @@ function OsFileStorage(options){
 
     return rObj;
   }).catch((e)=> {
-    logError("osfilestorage", e, {address: options.address});
+    logError("osfilestorage", e, {address: options.address}, {headless: true});
   });
 }
 
@@ -390,6 +409,7 @@ function StorageObject(updateFn, cachedObj, options){
       wrapper._syncCache({shutdown: true});
       clearInterval(syncTimer);
       syncTimer = null;
+      console.log("unloading storage: " + options.address + "...");
     });
 
     return rObj;

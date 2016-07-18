@@ -99,8 +99,10 @@ function _log(type, attrs, options){
   require('./stats').event("log");
 
   recentMsgs[OUT.number] = OUT;
-  if (recentMsgs[OUT.number - recentHistCount])
+  if (recentMsgs[OUT.number - recentHistCount]){
     delete recentMsgs[OUT.number - recentHistCount];
+    require('./stats').event("log-drop");
+  }
 
   debug.update();
 }
@@ -120,7 +122,7 @@ function _log_headless(type, attrs, options){
     headless: true
   }
 
-  OUT = override(OUT, {type: type, attrs: attrs});
+  OUT = override(OUT, {type: "HEADLESS_" + type, attrs: attrs});
 
   console.log(OUT);
   send(OUT);  
@@ -209,24 +211,24 @@ function logSelfDestruct(info){
   log("SELF_DESTRUCT", info, {immediate: true});
 }
 
-function logError(info){
+function logError(info, options={}){
   if (!prefs["logger.log_error"]) return;
 
   try {
-    log("ERROR", info, {immediate: true});
+    log("ERROR", info, {immediate: true, headless: options.headless});
   }
   catch(e){
-    log("HEADLESS_ERROR", info, {immediate:true, headless: true});
+    log("ERROR", info, {immediate:true, headless: true});
   }
 }
 
-function logWarning(info){
+function logWarning(info, options={}){
 
   try {
-    log("WARNING", info, {immediate: true});
+    log("WARNING", info, {immediate: true, headless: options.headless});
   }
   catch(e){
-    log("HEADLESS_WARNING", info, {immediate:true, headless: true});
+    log("WARNING", info, {immediate:true, headless: true});
   }
 }
 
@@ -298,6 +300,8 @@ function onUnload(reason){
     logDisable(reason);
 
   logUnload(reason);
+
+  console.log("unloading logger...");
 }
 
 exports.init = init;
