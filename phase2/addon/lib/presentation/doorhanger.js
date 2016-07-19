@@ -164,7 +164,9 @@ function present(aRecommendation, cmdCallback){
   let dhPresentInfo = {id: aRecommendation.id, number: dhData.count};
   logDhPresent(dhPresentInfo);
   
-  updateShow();  
+  let noschedule = (aRecommendation.id == 'welcome'); // no auto fade for the welcome message
+
+  updateShow({noschedule: noschedule});  
 }
 
 function updateEntry(options){  
