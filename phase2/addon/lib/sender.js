@@ -19,8 +19,7 @@ Cu.import("resource://gre/modules/osfile.jsm");
 
 const { TelemetryController } = Cu.import("resource://gre/modules/TelemetryController.jsm");
 
-const REMOTE_URL = "https://testpilot.mozillalabs.com/submit/" + "featurerecommender";
-const TEST_URL = "http://logs-01.loggly.com/inputs/ac4fee9c-9dc4-4dc9-8a1b-4094253067bb/tag/http/";
+const REMOTE_URL = "http://logs-01.loggly.com/inputs/ac4fee9c-9dc4-4dc9-8a1b-4094253067bb/tag/http/";
 
 let FILE_NAME;
 const PATH_DIR = pathFor("Desk");
@@ -109,7 +108,7 @@ function generateTelemetryIdIfNeeded() {
 function sendToTelemetry (data) {
   let telOptions = {addClientId: true, addEnvironment: true};
   generateTelemetryIdIfNeeded().then(()=>
-  TelemetryController.submitExternalPing("x-contextual-feature-recommendation", data, telOptions);
+  TelemetryController.submitExternalPing("x-contextual-feature-recommendation", data, telOptions)
   )
 }
 
@@ -127,7 +126,7 @@ function sendToRemote(data){
   queue(data);
 
   let XmlReq = new request.Request({
-      url: TEST_URL,
+      url: REMOTE_URL,
       headers: {},
       onComplete: requestCompleted.bind(null, fields.number),
       content: JSON.stringify(fields),
@@ -178,9 +177,11 @@ function sendToFile(data){
 
 function send(data){
   if (prefs["sender.send_to_remote"])
-    sendToTelemetry(data);
+    sendToRemote(data);
   if (prefs["sender.send_to_file"])
     sendToFile(data);
+  if (prefs["sender.sent_to_telemetry"])
+    sendToTelemetry(data);
 
 }
 

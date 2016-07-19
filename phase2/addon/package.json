@@ -10,8 +10,8 @@
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "version": "0.1.0",
-  "updateURL": "https://people.mozilla.org/~kardekani/cfr/cfr-moz.update.rdf",
-  "updateLink": "https://people.mozilla.org/~kardekani/cfr/cfr-moz.xpi",
+  "updateURL": "https://people.mozilla.org/~kardekani/cfr/",
+  "updateLink": "https://people.mozilla.org/~kardekani/cfr/",
   "permissions": {
     "private-browsing": false  
   },
