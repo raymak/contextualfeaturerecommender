@@ -901,6 +901,18 @@ listener.featureUse = function(route){
 
   route = Route(route);
 
+  // temporary workaround to address the compatibility issues with tab center
+  if (route.header == "addon has tabcentertest1@mozilla.com"){
+    let treeStyleTab = recommendations['treeStyleTab'];
+    let tabGroups = recommendations['tabGroups'];
+
+    treeStyleTab.status = 'inactive';
+    tabGroups.status = 'inactive';
+
+    recommendations.update(treeStyleTab);
+    recommendations.update(tabGroups)
+  }
+
   let featureUseInfo =  function(aRecommendation){ 
     return {id: aRecommendation.id, count: Number(route.c), num: Number(route.n), "if": Number(route.if)};
   }
