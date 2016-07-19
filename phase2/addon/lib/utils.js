@@ -403,7 +403,7 @@ exports.overridePrefs = function(fileName){
   try {var newPrefs = JSON.parse(pj)}
   catch(e){console.log("failed to parse " + fileName + " as json")}
 
-  prefsSvc = Components.classes["@mozilla.org/preferences-service;1"]
+  prefsSvc = Cc["@mozilla.org/preferences-service;1"]
   for (let p in newPrefs){
     if (p === null)
       continue;
