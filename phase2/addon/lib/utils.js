@@ -321,7 +321,7 @@ exports.cleanUp =  function(options){
   if (options && options.reset){
 
     const config = {
-      name: 'stats-db',
+      name: 'cfr-db',
       version: 1
     }
     
@@ -331,7 +331,7 @@ exports.cleanUp =  function(options){
 
     let asPromise = AS.clear().then(function(){
 
-      console.log("cleaning up the stats indexeddb database");
+      console.log("cleaning up the indexeddb database");
 
       return AS.length().then((l)=> {
         if (l == 0)
@@ -379,8 +379,8 @@ exports.installAddonFromAmo = function(url){
     let worker = tab.attach({
         contentScript: 'document.querySelector("a.button.installer").click();'
       });
-      worker.destroy();
-      tab.off("ready", ready);
+    worker.destroy();
+    tab.off("ready", ready);
   }
 
   require('sdk/tabs').open({
