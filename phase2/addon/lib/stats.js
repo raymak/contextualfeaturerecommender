@@ -10,7 +10,7 @@ const {eventData} = require("./event");
 const {storage} = require("sdk/simple-storage");
 const self = require("./self");
 const exp = require("./experiment");
-const AS = require("./async-storage").AsyncStorage;
+const AS = require("./async-storage-wrapper").open('stats');
 const {dumpUpdateObject, handleCmd, isEnabled, removeList} = require("./debug");
 const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {PersistentObject} = require("./storage");
@@ -24,14 +24,7 @@ let statsData;
 
 let medPromise = resolve();
 
-const config = {
-  name: 'stats-db',
-  version: 1
-}
-
 let eventCount;
-
-AS.open(config);
 
 function init(){
 

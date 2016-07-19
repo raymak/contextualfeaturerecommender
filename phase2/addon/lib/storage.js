@@ -15,21 +15,15 @@ const prefs = sp.prefs;
 const file = require('sdk/io/file');
 const {Cu} = require("chrome");
 const {TextEncoder, TextDecoder} = require('sdk/io/buffer');
-const AS = require("./async-storage").AsyncStorage;
+const AS_LS = require("./async-storage-wrapper").open('ls');
+const AS_OSF = require("./async-storage-wrapper").open('osf');
+
 Cu.import("resource://gre/modules/osfile.jsm");
 
 const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').id + "-storage");
 
 const osFileObjects = {};
 const localStorageObjects = {}; //temporary
-
-const config = {
-    name: 'storage-db',
-    version: 1
-  };
-
-AS.open(config);
-
 
 //TODO: add function definition capabilities using closures, to make it a real persistent object,
 // and not only a JsonStore
@@ -38,6 +32,8 @@ AS.open(config);
 // TODO: make direct manipulation with an arbitrary depth possible (e.g. sample-storage.sample-p1.sample-p2 = sample-v)
 // the above capability is currently disabled by design because it breaks some other parts of the code
 // the returned data is a copy of the main object
+// IndexedDB is unreliable on shutdown: https://bugzilla.mozilla.org/show_bug.cgi?id=870645
+// https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API/Using_IndexedDB#Warning_About_Browser_Shutdown
 
 module.exports = EventTarget();
 exports = module.exports;
@@ -79,16 +75,16 @@ function LocalStorage(options){
     targetObj = options.target;
 
   function write(str, opts){
-    return AS.setItem(options.address, str);
+    return AS_LS.setItem("ls" + options.address, str);
   }
 
   function read(){
-    return AS.getItem(options.address);
+    return AS_LS.getItem("ls" + options.address);
   }
 
   let cachedObj = {};
 
-  return AS.keys()
+  return AS_LS.keys()
   .then((ks)=>{
     return ~ks.indexOf(options.address)
   })
@@ -145,6 +141,8 @@ function OsFileStorage(options){
   if (osFileObjects[options.address])
     return require('sdk/core/promise').resolve(osFileObjects[options.address]);
 
+
+
   console.log("creating " + options.address);
   
   let data = {};
@@ -180,7 +178,7 @@ function OsFileStorage(options){
     return OS.File.writeAtomic(filePath, arr, {
       tmpPath: filePath + ".tmp", backupTo: !noBackup && (filePath + ".backup"), flush: safe
     })
-    .then(()=> AS.setItem(options.address, str));
+    .then(()=> AS_OSF.setItem(options.address, str));
   }
 
   function read(){
@@ -196,7 +194,7 @@ function OsFileStorage(options){
   }
 
   function readLocalStorageBackup(){
-    return AS.getItem(options.address);
+    return AS_OSF.getItem(options.address);
   }
 
   let cachedObj = {};
