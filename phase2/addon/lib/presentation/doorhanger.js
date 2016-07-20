@@ -130,9 +130,22 @@ function negFbOrder(){
   if (dhData["neg_fb_order"])
     return dhData["neg_fb_order"];
 
-  let order = weightedRandomInt([1, 1, 1, 1, 1, 1]);
+  let n = 4;
 
-  return order;
+  let baseArr =  Array(n).fill().map((x,i)=>i+1);
+  let perms = Array(n);
+
+  console.log("constructor", perms.constructor);
+
+  for (let i=0; i < n; i++){
+    let c = Math.floor(Math.random()*baseArr.length);
+    perms[i] = baseArr[c];
+    baseArr.splice(c, 1);
+  }
+      
+  dhData["neg_fb_order"] = perms;
+
+  return perms;
 }
 
 

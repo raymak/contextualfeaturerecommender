@@ -221,21 +221,15 @@ function submitFeedback(){
 }
 
 function orderNegFb(order){
-      let perms = [[1, 2, 3],
-                   [1, 3, 2],
-                   [2, 1, 3],
-                   [2, 3, 1],
-                   [3, 1, 2],
-                   [3, 2, 1]];
 
-      let permIds = perms[order].map(function(p){return "r" + p;});
-      permIds.reverse(); //because of using insert before the first child
+  let permIds = order.map(function(p){return "r" + p;});
+  permIds.reverse(); //because of using insert before the first child
 
-      let form = document.getElementById("feedback-form");
+  let form = document.getElementById("feedback-form");
 
-      permIds.forEach(function(id){
-        form.insertBefore(document.getElementById(id), form.childNodes[0]);
-      });
+  permIds.forEach(function(id){
+    form.insertBefore(document.getElementById(id), form.childNodes[0]);
+  });
 }
 
 function likeClick(){

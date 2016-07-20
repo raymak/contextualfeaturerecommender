@@ -339,7 +339,7 @@ function StorageObject(updateFn, cachedObj, options){
         else
           if (cachedObj.data.hasOwnProperty(name)){
             if (typeof cachedObj.data[name] === "object"){
-              if (cachedObj.data[name] && cachedObj.data[name].constructor === Array)
+              if (cachedObj.data[name] && Object.prototype.toString.call(cachedObj.data[name]) === '[object Array]')
                 return cachedObj.data[name].slice();
               else
                 return Object.assign({}, cachedObj.data[name])
