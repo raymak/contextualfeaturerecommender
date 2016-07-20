@@ -5,7 +5,7 @@
     "firefox": ">=38.0a1"
   }, 
   "name": "firefoxguide",
-  "title": "Firefox Guide",
+  "title": "Firefox Guide Study 1",
   "id": "guide-cfr-1@shield.mozilla.org",
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
@@ -21,85 +21,102 @@
     {
       "name": "isTest",
       "type": "bool",
-      "title": "Is it a test or field deployment.",
-      "value": false
+      "title": "Set as test deployment.",
+      "value": false,
+      "hidden": true
     },
     {
       "name": "cleanup_on_death",
       "type": "bool",
-      "title": "Whether the preferences should be cleaned up when the addon is killed",
-      "value": true
+      "title": "Clean up remained data when the addon is killed",
+      "value": true,
+      "hidden": true
     },
     {
       "name": "clean_startup",
       "type": "bool",
-      "title": "Whether the preferences should be reset upon each startup.",
-      "value": false
+      "title": "Reset preferences and data upon each startup",
+      "value": false,
+      "hidden": true
     },
     {
       "name": "clean_install",
       "type": "bool",
-      "title": "Whether or not all the preferences should be reset upon installation.",
-      "value": true
+      "title": "Reset preferences and data upon installation",
+      "value": true,
+      "hidden": true
     },
     {
       "name": "passive_mode",
       "type": "bool",
-      "title": "Passive mode prevents the addon from showing notifications. Everything else works however.",
-      "value": false
+      "title": "Prevent the addon from showing notifications.",
+      "value": false,
+      "hidden": true
     },
     {
       "name": "recomm_list_address",
       "type": "string",
-      "title": "Address of the feature recommendations list to load.",
-      "value": "cfr-moz-recs.json"
+      "title": "Feature recommendation list",
+      "description": "Address of the feature recommendations list to load.",
+      "value": "cfr-moz-recs.json",
+      "hidden": true
     },
     {
       "name": "exclude_tags",
       "type": "string",
-      "title": "Which features should be excluded from the recommendations list.",
-      "value": "privacy-invasive"
+      "title": "Exclude features with these tags",
+      "description": "Exclude features with these tags from the recommendations list. Tags are separated with semi-colons.",
+      "value": "privacy-invasive",
+      "hidden": true
     },
     {
       "name": "timer.tick_length_s",
       "type": "integer",
-      "title": "Length of a tick in seconds",
-      "value": 60
+      "title": "Length of a tick (seconds)",
+      "value": 60,
+      "hidden": true
     },
     {
       "name": "timer.silence_length_s",
       "type": "integer",
-      "title": "Length of the silence period in seconds",
-      "value": 0
+      "title": "Length of the silence period (seconds)",
+      "value": 0,
+      "hidden": true
     },
     {
       "name": "timer.random_interval_length_tick",
       "type": "integer",
       "title": "Maximum length of the random time interval",
-      "value": 40
+      "value": 40,
+      "hidden": true
     },
     {
       "name": "timer.inactive_threshold_s",
       "type": "integer",
-      "title": "Minimum length of inactivity time to conclude user inactivity",
-      "value": 30
+      "title": "User inactivity threshold",
+      "description": "Minimum length of inactivity time to conclude user inactivity",
+      "value": 30,
+      "hidden": true
     },
     {
       "name": "timer.recently_active_threshold_s",
       "type": "integer",
-      "title": "Maximum length of activity time to conclude user has become active recently",
-      "value": 5
+      "title": "User activity threshold",
+      "description": "Maximum length of activity time to conclude user has become active recently",
+      "value": 5,
+      "hidden": true
     },
     {
       "name": "utils.persistent_object.update_interval",
       "type": "integer",
-      "title": " ",
-      "value": 30000
+      "title": "Persistent data object storage interval",
+      "value": 30000,
+      "hidden": true
     },
     {
       "name": "delivery.mode.moment",
       "type": "radio",
-      "title": "Determines what is considered interruptible moment.",
+      "title": "Delivery moment",
       "value": "in-context",
       "options": [
         {
@@ -114,12 +131,13 @@
           "value": "in-context",
           "label": "In-context"
         }
-      ]
+      ],
+      "hidden": true
     },
     {
       "name": "delivery.mode.rate_limit",
       "type": "radio",
-      "title": " ",
+      "title": "Notification rate limit",
       "value": "easy",
       "options": [
         {
@@ -130,187 +148,222 @@
           "value": "strict",
           "label": "Strict"
         }
-      ]
+      ],
+      "hidden": true
     },
     {
       "name" : "delivery.mode.silence_length.easy",
       "type": "integer",
-      "title": "Length of the easy rate limit mode in ticks.",
-      "value": 60
+      "title": "Length of the easy rate limit mode (ticks)",
+      "value": 60,
+      "hidden": true
     },
     {
       "name" : "delivery.mode.silence_length.strict",
       "type": "integer",
-      "title": "Length of the strict rate limit mode in ticks.",
-      "value": 1440
+      "title": "Length of the strict rate limit mode (ticks)",
+      "value": 1440,
+      "hidden": true
     },
     {
       "name": "delivery.mode.observ_only",
       "type": "bool",
-      "title": "Whether or not only the observation should happen.",
-      "value": false
+      "title": "No notification delivery",
+      "value": false,
+      "hidden": true
     },
     {
       "name": "logger.periodic_log_period",
       "type": "integer",
-      "title": "How often periodic log info is reported.",
-      "value": 150
+      "title": "Periodic info report interval (ticks)",
+      "value": 150,
+      "hidden": true
     },
     {
       "name": "logger.recent_hist_count",
       "type": "integer",
-      "title": "Maximum number of log records to store when connection fails.",
-      "value": 20
+      "title": "Number of recent log messages to keep",
+      "description": "Maximum number of log records to store when connection fails.",
+      "value": 20,
+      "hidden": true
     },
     {
       "name": "logger.log_error",
       "type": "bool",
-      "title": " ",
-      "value": true
+      "title": "Log errors?",
+      "value": true,
+      "hidden": true
     },
     {
       "name": "feature_report.log_period",
       "type": "integer",
-      "title": "How often the feature status has to be reported.",
-      "value": 120
+      "title": "Feature status report interval (ticks)",
+      "value": 120,
+      "hidden": true
     },
     {
       "name": "feature_report.immediate_try_period_s",
       "type": "integer",
-      "title": " ",
-      "value": 30
+      "title": "Immediate try time range",
+      "value": 30,
+      "hidden": true
     },
-     {
+    {
       "name": "experiment.enable_post_study_survey",
       "type": "bool",
-      "title": " ",
-      "value": true
+      "title": "Redirect to post study survey?",
+      "value": true,
+      "hidden": true
     },
     {
       "name": "experiment.default_delMode_weights",
       "type": "string",
-      "title": "Weights based on which the user is randomly put into an experimental mode",
-      "value": "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]"
+      "title": "Random mode assignment weights",
+      "description": "These are weights based on which the user is randomly put into an experimental mode",
+      "value": "[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]",
+      "hidden": true
     },
     {
       "name": "experiment.name",
       "type": "string",
-      "title": "Name of the very deployed experiment.",
-      "value": "cfr-shield"
+      "title": "Name of the very deployed experiment",
+      "value": "cfr-shield",
+      "hidden": true
     },
     {
       "name": "experiment.obs1_length_tick",
       "type": "integer",
-      "title": "Length of the first observation period in the experiment.",
-      "value": 7200
+      "title": "Length of the first observation period (ticks)",
+      "value": 7200,
+      "hidden": true
     },
     {
       "name": "experiment.intervention_length_tick",
       "type": "integer",
-      "title": "Length of the intervention period in the experiment.",
-      "value": 25920
+      "title": "Length of the intervention period (ticks)",
+      "value": 25920,
+      "hidden": true
     },
     {
       "name": "experiment.obs2_length_tick",
       "type": "integer",
-      "title": "Length of the second observation period in the experiment.",
-      "value": 7200
+      "title": "Length of the second observation period",
+      "value": 7200,
+      "hidden": true
     },
     {
       "name": "experiment.modes.end.delay",
       "type": "integer",
-      "title": " ",
-      "value": 20000
+      "title": "Delay before killing the addon",
+      "value": 20000,
+      "hidden": true
     },
     {
       "name": "stats.send_to_debug",
       "type": "bool",
-      "title": " ",
-      "value": false
+      "title": "Send stats data to debug",
+      "value": false,
+      "hidden": true
     },
     {
       "name": "route.default_coefficient",
       "type": "string",
-      "title": "Coefficient that scales the triggering behavior thresholds",
-      "value": "1"
+      "title": "Base coefficient scaling the triggering behavior thresholds",
+      "value": "1",
+      "hidden": true
     },
     {
       "name": "debug.enabled",
       "type": "bool",
-      "title": " ",
-      "value": true
+      "title": "Enable debug page",
+      "value": true,
+      "hidden": true
     },
     {
       "name": "debug.url",
       "type": "string",
-      "title": " ",
-      "value": "about:fr-d"
+      "title": "Debug page address",
+      "value": "about:fr-d",
+      "hidden": true
     },
     {
       "name": "debug.command.used",
       "type": "bool",
-      "title": " ",
-      "value": false
+      "title": "Was debug command used?",
+      "value": false,
+      "hidden": true
     },
     {
       "name": "sender.resend_period",
       "type": "integer",
-      "title": "How often the sender should retry sending the queued messages",
-      "value": 2
+      "title": "Log resend interval (ticks)",
+      "description": "How often the sender should retry sending the queued messages",
+      "value": 2,
+      "hidden": true
     },
     {
       "name": "sender.queue_quota",
       "type": "integer",
-      "title": "The number of messages that can be stored in the queue before they start to drop.",
-      "value": 40
+      "title": "Number of recent log messages to resend",
+      "description": "The number of messages that can be stored in the queue before they start to drop.",
+      "value": 40,
+      "hidden": true
     },
     {
       "name": "sender.send_to_remote",
       "type": "bool",
-      "title": " ",
-      "value": false
+      "title": "Send data to remote server",
+      "value": false,
+      "hidden": true
     },
     {
       "name": "sender.send_to_file",
       "type": "bool",
-      "title": " ",
-      "value": false
+      "title": "Send data to file",
+      "value": false,
+      "hidden": true
     },
     {
       "name": "sender.send_to_telemetry",
       "type": "bool",
-      "title": " ",
-      "value": false
+      "title": "Send data to Telemetry",
+      "value": false,
+      "hidden": true
     },
     {
       "name": "presentation.doorhanger.autofade_time_ms_flat",
       "type": "integer",
-      "title": " ",
-      "value": 2000
+      "title": "Doorhanger flat auto fade time (milliseconds)",
+      "value": 2000,
+      "hidden": true
     },
     {
       "name": "presentation.doorhanger.autofade_time_ms_per_word",
       "type": "integer",
-      "title": " ",
-      "value": 900
+      "title": "Doorhanger per word auto fade time (milliseconds/word)",
+      "value": 900,
+      "hidden": true
     },
     {
       "name": "presentation.doorhanger.exitfade_time_ms_per_word",
       "type": "integer",
-      "title": " ",
-      "value": 700
+      "title": "Doorhanger per word auto fade time on mouse exit (milliseconds/word)",
+      "value": 700,
+      "hidden": true
     },
     {
       "name": "presentation.doorhanger.panel_show_delay_ms",
       "type": "integer",
-      "title": " ",
-      "value": 750
+      "title": "Delay before doorhanger panel show",
+      "value": 750,
+      "hidden": true
     },
     {
       "name": "assignedId",
       "type": "integer",
-      "title": " ",
-      "value": -1
+      "title": "Assigned participant ID",
+      "value": -1,
+      "hidden": true
     }
   ]
 }
