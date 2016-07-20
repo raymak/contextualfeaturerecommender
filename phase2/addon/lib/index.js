@@ -11,7 +11,10 @@ const {defer, resolve} = require("sdk/core/promise");
 
 const recommFileAddress = prefs["recomm_list_address"];
 
+const shield = require("./shield-studies-facade");
+
 exports.main = function(options, callbacks){
+  shield.main(options, callbacks);
 
   console.log("Hello World! I am alive :)");
 
@@ -52,7 +55,7 @@ exports.main = function(options, callbacks){
   .then(()=> require('./extra-listeners').init())
   .then(()=> console.timeEnd("full load"))
   .then(()=> require('./logger').logPrefs())
-  .catch((e)=>{ 
+  .catch((e)=>{
     require('./utils').logErr("init", e);
     require('chrome').Cu.reportError(e);
   });
@@ -106,10 +109,11 @@ function installRun(){
 
 function isFirstRun(){
   return require('./storage').PersistentObject('osFile', 'self.data')
-  .then(data => !data.isInitialized) 
+  .then(data => !data.isInitialized)
 }
 
 exports.onUnload = function(reason){
+  shield.onUnload(reason);
 
   console.log("unloading due to " + reason);
 
