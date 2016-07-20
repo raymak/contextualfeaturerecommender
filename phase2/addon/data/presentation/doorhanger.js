@@ -185,6 +185,8 @@ function openNegFeedback(){
   document.getElementById("neg-feedback").textContent = "I don't like this (" + document.getElementById("header").textContent + ")";
   self.port.emit("negfbopen");
 
+  document.getElementById("topsection").style.height = '140px'; // temporary, TODO: needs a more scalable solution
+
   updatePanelSize();
 }
 
