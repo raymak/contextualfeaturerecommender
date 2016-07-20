@@ -3,7 +3,7 @@
   "description": "Firefox Guide recommends Firefox features that are likely to benefit you. It is an experimental addon and will be removed automatically.",
   "engines": {
     "firefox": ">=38.0a1"
-  }, 
+  },
   "name": "firefoxguide",
   "title": "Firefox Guide Study 1",
   "id": "guide-cfr-1@shield.mozilla.org",
@@ -11,11 +11,11 @@
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
   "version": "0.1.0",
   "permissions": {
-    "private-browsing": false  
+    "private-browsing": false
   },
   "keywords": [
     "jetpack"
-  ], 
+  ],
   "main": "./lib/index.js",
   "preferences": [
     {
@@ -152,14 +152,14 @@
       "hidden": true
     },
     {
-      "name" : "delivery.mode.silence_length.easy",
+      "name": "delivery.mode.silence_length.easy",
       "type": "integer",
       "title": "Length of the easy rate limit mode (ticks)",
       "value": 60,
       "hidden": true
     },
     {
-      "name" : "delivery.mode.silence_length.strict",
+      "name": "delivery.mode.silence_length.strict",
       "type": "integer",
       "title": "Length of the strict rate limit mode (ticks)",
       "value": 1440,
@@ -365,5 +365,11 @@
       "value": -1,
       "hidden": true
     }
-  ]
+  ],
+  "devDependencies": {
+    "eslint": "^3.1.1"
+  },
+  "scripts": {
+    "eslint": "eslint {lib,data}/**/*.js{,on}"
+  }
 }
