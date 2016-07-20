@@ -25,7 +25,7 @@ import argparse
 import importlib.util as imp
 
 
-DPVS = ['n_deliv_recs', 'n_inactive_recs', 'adoption_rate', 'et', 'ett']  # n_deliv_recs, n_inactive_recs
+DPVS = ['n_deliv_recs', 'n_inactive_recs', 'adoption_rate', 'et', 'ett', 'interruptible_ifreq', 'random_ifreq', 'n_outstanding_recs', 'n_out_or_deliv_recs']  # n_deliv_recs, n_inactive_recs
 IPVS = ['moment', 'coeff', 'rate'] # moment, coeff, rate, condition
 INFO = ['name', 'userid', 'os'] # userid, os
 
@@ -128,6 +128,7 @@ def calculate_variables(ups, ipvs = IPVS, dpvs = DPVS):
 
         for ipv in ipvs:
             up.add_ipv(ipv, globals()[ipv])
+
 
         for dpv in dpvs:
             up.add_dpv(dpv, globals()[dpv])
@@ -374,6 +375,50 @@ def n_inactive_recs(up):
     except IndexError:
         return None
 
+def n_outstanding_recs(up):
+    """
+        extracts the number of outstanding feature recommendations
+    """
+
+    try:
+        log = up.log_set
+        feat_report_l = log.type('FEAT_REPORT').last()
+        attrs = feat_report_l['attrs']
+
+        count = 0
+
+        for rec_id in attrs:
+            if (attrs[rec_id]['status'] == 'outstanding'):
+                count += 1
+
+        return count
+
+    except IndexError:
+        return None
+
+def n_out_or_deliv_recs(up):
+    """
+        extracts the number of outstanding or delivered feature recommendations
+    """
+
+    try:
+        log = up.log_set
+        feat_report_l = log.type('FEAT_REPORT').last()
+        attrs = feat_report_l['attrs']
+
+        count = 0
+
+        for rec_id in attrs:
+            if (attrs[rec_id]['status'] == 'outstanding' or attrs[rec_id]['status'] == 'delivered'):
+                count += 1
+
+        return count
+
+    except IndexError:
+        return None
+
+
+
 def adoption_rate(up):
     """
         calculates the adoption rate for the user
@@ -400,6 +445,28 @@ def adoption_rate(up):
         return n_adopted/n_delivered
 
     except IndexError:
+        return None
+
+def random_ifreq(up):
+
+    try:
+        log = up.log_set
+        stats_report = log.type('STATS_REPORT').last()
+
+        return stats_report['attrs']['moment random']['ifreq']
+
+    except Exception:
+        return None
+
+def interruptible_ifreq(up):
+
+    try:
+        log = up.log_set
+        stats_report = log.type('STATS_REPORT').last()
+
+        return stats_report['attrs']['moment interruptible']['ifreq']
+
+    except Exception:
         return None
 
 

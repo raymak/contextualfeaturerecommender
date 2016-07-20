@@ -27,10 +27,30 @@ class UserProfile:
         self.info_set = True
 
     def add_dpv(self, dpv_name, eval_func):
-        self.dpvs[dpv_name] = eval_func(self)
+        """
+            the eval_func could return a single value or a dictionary of key,value pairs
+        """
+
+        val = eval_func(self)
+
+        if type(val) == dict:
+            for k in val:
+                self.dpvs[k] = val[k]
+        else:
+            self.dpvs[dpv_name] = val
 
     def add_ipv(self, ipv_name, eval_func):
-        self.ipvs[ipv_name] = eval_func(self)
+        """
+            similar to add_dpv
+        """
+
+        val = eval_func(self)
+
+        if type(val) == dict:
+            for k in val:
+                self.ipvs[k] = val[k]
+        else:
+            self.ipvs[ipv_name] = val
 
     def  check_integrity(self, fn):
         reports = fn(self)
