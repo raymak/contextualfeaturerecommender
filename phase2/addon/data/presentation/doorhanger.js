@@ -5,6 +5,9 @@
 
 "use strict";
 
+/*global sanitizeHtml */
+/*exported capitalize, changeBodySize */
+
 let rsTimeout;
 
 
@@ -26,7 +29,7 @@ self.port.on("updateEntry", function(entry, state, options){
   let rationale = entry.rationale || "";
   let iconSrc = entry.icon;
   self.port.emit("log", iconSrc);
-  
+
   clearTimeout(rsTimeout);
 
   document.getElementById("icon").src = iconSrc;
@@ -66,7 +69,7 @@ self.port.on("updateEntry", function(entry, state, options){
 
   document.body.addEventListener("mouseenter", mouseEnter);
   document.body.addEventListener("mouseleave", mouseLeave);
-  
+
   document.getElementById("neg-feedback").addEventListener("click", negFbClick);
 
   document.getElementById("clickarea").addEventListener("mouseenter", caMouseEnter);
@@ -78,7 +81,7 @@ self.port.on("updateEntry", function(entry, state, options){
   document.getElementById("info-page").addEventListener("click", infoClick);
 
   self.port.emit("loaded");
-  
+
   updatePanelSize();
 
 });
@@ -127,7 +130,7 @@ function mouseEnter(e){
 
 function mouseLeave(e){
   self.port.emit("mouseleave");
-  
+
   if (document.getElementById("recommcontainer").classList.contains("invisible"))
     return;
 
@@ -165,7 +168,7 @@ function updatePanelSize(width, height){
     width: width || Number(getComputedStyle(document.body).width.slice(0,-2))});
 }
 
-function openNegFeedback(){  
+function openNegFeedback(){
   collapseRationale();
   document.getElementById("feedbackcontainer").classList.add("visible");
   document.getElementById("recommcontainer").classList.add("invisible");
@@ -180,7 +183,7 @@ function openNegFeedback(){
   document.getElementById("sec-button").classList.remove("disabled");
   document.getElementById("sec-button").removeEventListener("click", secButtonClick);
   document.getElementById("sec-button").addEventListener("click", function(e){
-    self.port.emit("infoPage"); 
+    self.port.emit("infoPage");
   });
   document.getElementById("neg-feedback").textContent = "I don't like this (" + document.getElementById("header").textContent + ")";
   self.port.emit("negfbopen");
@@ -236,12 +239,12 @@ function orderNegFb(order){
 
 function likeClick(){
   let likesection = document.getElementById("likesection");
-  let like = document.getElementById("like");
+  //let like = document.getElementById("like");
 
   likesection.classList.toggle("checked");
 
   self.port.emit("liketoggle");
-  
+
 }
 
 //TOTHINK: this is just a workaround
