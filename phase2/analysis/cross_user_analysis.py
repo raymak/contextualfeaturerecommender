@@ -25,7 +25,7 @@ import argparse
 import importlib.util as imp
 
 
-DPVS = ['n_deliv_recs', 'n_inactive_recs', 'adoption_rate', 'et', 'ett', 'interruptible_ifreq', 'random_ifreq', 'n_outstanding_recs', 'n_out_or_deliv_recs']  # n_deliv_recs, n_inactive_recs
+DPVS = ['n_deliv_recs', 'n_inactive_recs', 'adoption_rate', 'et', 'ett', 'interruptible_ifreq', 'random_ifreq', 'n_recs_status', 'n_out_or_deliv_recs']  # n_deliv_recs, n_inactive_recs
 IPVS = ['moment', 'coeff', 'rate'] # moment, coeff, rate, condition
 INFO = ['name', 'userid', 'os'] # userid, os
 
@@ -198,10 +198,12 @@ def generate_variables_table(ups, title = 'variables_table', ipvs = IPVS, dpvs =
     """
 
     def get_dpvs(name):
-        return Series([up.dpvs[name] for up_id,up in sorted(ups.items())])
+        return DataFrame([up.dpvs[name] for up_id,up in sorted(ups.items())])
+        # return [Series([up.dpvs[name] for up_id,up in sorted(ups.items())])]
+        
 
     def get_ipvs(name):
-        return Series([up.ipvs[name] for up_id,up in sorted(ups.items())])
+        return DataFrame([up.ipvs[name] for up_id,up in sorted(ups.items())])
 
     def get_info(name):
         return Series([getattr(up, name) for up_id, up in sorted(ups.items())])
@@ -213,10 +215,12 @@ def generate_variables_table(ups, title = 'variables_table', ipvs = IPVS, dpvs =
         table[inf] = get_info(inf)
 
     for ipv in ipvs:
-        table[ipv] = get_ipvs(ipv)
+        # table[ipv] = get_ipvs(ipv)
+        table = pd.concat([table, get_ipvs(ipv)], axis=1)
 
     for dpv in dpvs:
-        table[dpv] = get_dpvs(dpv)
+        # table[dpv] = get_dpvs(dpv)
+        table = pd.concat([table, get_dpvs(dpv)], axis=1)
 
     if opts.verbosity > 0:
         print(table)
@@ -313,7 +317,7 @@ def make_file_path(dirName, title, extension='', rewrite=False):
     i = 0
     while os.path.exists(f_path):
         i += 1
-        f_path = os.path.join(f_dir, title + ' %s' % i + extension)
+        f_path = os.path.join(f_dir, title + '%s' % i + extension)
 
     return f_path
 
@@ -333,30 +337,9 @@ def extract_user_profiles(rootDir):
 
 ### dpv evaluation functions
 
-def n_deliv_recs(up):
+def n_recs_status(up):
     """
-        extracts the number of delivered feature recommendations
-    """
-
-    try:
-        log = up.log_set
-        feat_report_l = log.type('FEAT_REPORT').last()
-        attrs = feat_report_l['attrs']
-
-        count = 0
-
-        for rec_id in attrs:
-            if (attrs[rec_id]['status'] == 'delivered'):
-                count += 1
-
-        return count
-
-    except IndexError:
-        return None
-
-def n_inactive_recs(up):
-    """
-        extracts the number of inactive feature recommendations
+        extracts the number of feature recommendations for each status
     """
 
     try:
@@ -364,37 +347,15 @@ def n_inactive_recs(up):
         feat_report_l = log.type('FEAT_REPORT').last()
         attrs = feat_report_l['attrs']
 
-        count = 0
+        counts = {'n_recs_outstanding': 0, 'n_recs_inactive': 0, 'n_recs_delivered': 0, 'n_recs_active': 0}
 
         for rec_id in attrs:
-            if (attrs[rec_id]['status'] == 'inactive'):
-                count += 1
+            counts['n_recs_' + attrs[rec_id]['status']] += 1
 
-        return count
-
-    except IndexError:
-        return None
-
-def n_outstanding_recs(up):
-    """
-        extracts the number of outstanding feature recommendations
-    """
-
-    try:
-        log = up.log_set
-        feat_report_l = log.type('FEAT_REPORT').last()
-        attrs = feat_report_l['attrs']
-
-        count = 0
-
-        for rec_id in attrs:
-            if (attrs[rec_id]['status'] == 'outstanding'):
-                count += 1
-
-        return count
+        return counts
 
     except IndexError:
-        return None
+        return {'n_recs_outstanding': None, 'n_recs_inactive': None, 'n_recs_delivered': None, 'n_recs_active': None}
 
 def n_out_or_deliv_recs(up):
     """

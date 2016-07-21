@@ -33,11 +33,7 @@ class UserProfile:
 
         val = eval_func(self)
 
-        if type(val) == dict:
-            for k in val:
-                self.dpvs[k] = val[k]
-        else:
-            self.dpvs[dpv_name] = val
+        self.dpvs[dpv_name] = val if type(val) == dict else {dpv_name: val}
 
     def add_ipv(self, ipv_name, eval_func):
         """
@@ -46,11 +42,7 @@ class UserProfile:
 
         val = eval_func(self)
 
-        if type(val) == dict:
-            for k in val:
-                self.ipvs[k] = val[k]
-        else:
-            self.ipvs[ipv_name] = val
+        self.ipvs[ipv_name] = val if type(val) == dict else {ipv_name: val}
 
     def  check_integrity(self, fn):
         reports = fn(self)
