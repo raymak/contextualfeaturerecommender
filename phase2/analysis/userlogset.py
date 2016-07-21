@@ -26,7 +26,7 @@ class UserLogSet(LogSet):
         sorted_records = sorted(self.records)
 
         for k in sorted_records:
-            yield self.__getitem__(k)
+            yield self.__getitem__(k[1])
 
     def __contains__(self, k):
         return super(UserLogSet, self).__contains__((self.userid, k))

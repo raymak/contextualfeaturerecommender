@@ -25,7 +25,7 @@ import argparse
 import importlib.util as imp
 
 
-DPVS = ['n_deliv_recs', 'n_inactive_recs', 'adoption_rate', 'et', 'ett', 'interruptible_ifreq', 'random_ifreq', 'n_recs_status', 'n_out_or_deliv_recs']  # n_deliv_recs, n_inactive_recs
+DPVS = ['adoption_rate', 'et', 'ett', 'interruptible_ifreq', 'random_ifreq', 'n_recs_status', 'n_out_or_deliv_recs', 'long_inactivity_lengths_ifreq', 'startup_ifreq']
 IPVS = ['moment', 'coeff', 'rate'] # moment, coeff, rate, condition
 INFO = ['name', 'userid', 'os'] # userid, os
 
@@ -430,7 +430,31 @@ def interruptible_ifreq(up):
     except Exception:
         return None
 
+def long_inactivity_lengths_ifreq(up):
 
+    # try:
+    counts = {'10m': 0, '15m': 0, '20m': 0}
+    lib_log = up.log_set.type('LONG_INACTIVITY_BACK')
+
+    for l in lib_log:
+        if (l['attrs']['length'] > 600): counts['10m'] += 1
+        if (l['attrs']['length'] > 900): counts['15m'] += 1
+        if (l['attrs']['length'] > 1200): counts['20m'] += 1
+
+    et = lib_log.last()['et']
+
+    ifreqs = {(l+'_ifreq'):(et/c if c !=0 else et) for l,c in counts.items()}
+
+    return ifreqs
+
+    # except Exception:
+        # return {'10m_ifreq': None, '15m_ifreq': None, '10m_ifreq': None}
+
+def startup_ifreq(up):
+    try:
+        return up.log_set.type('STATS_REPORT').last()['attrs']['load']['ifreq']
+    except Exception:
+        return None
 
 def et(up):
     return up.log_set.last()['et']
