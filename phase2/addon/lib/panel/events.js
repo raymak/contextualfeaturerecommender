@@ -16,11 +16,12 @@ const { emit } = require("sdk/event/core");
 
 let channel = {};
 
-function forward({ subject, type, data })
-  emit(channel, "data", { target: subject, type: type, data: data });
+function forward({ subject, type, data }) {
+  return emit(channel, "data", { target: subject, type: type, data: data });
+}
 
 ["popupshowing", "popuphiding", "popupshown", "popuphidden",
 "document-element-inserted", "DOMContentLoaded", "load"
-].forEach(function(type) events.on(type, forward));
+].forEach(function (type) {return events.on(type, forward)});
 
 exports.events = channel;

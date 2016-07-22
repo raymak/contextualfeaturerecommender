@@ -28,7 +28,7 @@ function getWindow(anchor) {
     let anchorDocument = anchorWindow.document;
 
     // loop thru supported windows
-    for each(let enumWindow in windows) {
+    for (let enumWindow of windows) {
       // Check if the anchor is in this browser window.
       if (enumWindow == anchorWindow) {
         window = anchorWindow;
@@ -53,7 +53,7 @@ function getWindow(anchor) {
 
   // if the window is not supported, then it should be ignored
   if (ignoreWindow(window)) {
-  	return null;
+    return null;
   }
 
   return window;

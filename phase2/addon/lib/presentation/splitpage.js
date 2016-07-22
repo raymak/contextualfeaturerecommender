@@ -20,51 +20,51 @@ let spData;
 
 function init(){
 
-	console.log("initializing splitpage");
+  console.log("initializing splitpage");
 
-	return PersistentObject("osFile", {address: spDataAddress})
-	.then((obj)=> {
-		spData = obj;
-	}).then(_init);
+  return PersistentObject("osFile", {address: spDataAddress})
+  .then((obj)=> {
+    spData = obj;
+  }).then(_init);
 }
 
 function _init(){
 
-	console.time("splitpage init");
+  console.time("splitpage init");
 
-	tabs.on('ready', function(tab){
-		// if (tab.url === HTML_URL) loadPage(tab);
-		if (tab.url === PAGE_URL) tab.url = HTML_URL;
-	});
+  tabs.on('ready', function(tab){
+    // if (tab.url === HTML_URL) loadPage(tab);
+    if (tab.url === PAGE_URL) tab.url = HTML_URL;
+  });
 
 
-	PageMod({
-	  include: HTML_URL,
-	  contentScriptFile: JS_URL,
-	  contentScriptWhen: 'ready',
-	  onAttach: function(worker){
-	  	worker.port.on("fetchEntries", function(){
-	  		postEntries(worker);
-	  	});
-	  	postEntries(worker);
-	  }
-	});
+  PageMod({
+    include: HTML_URL,
+    contentScriptFile: JS_URL,
+    contentScriptWhen: 'ready',
+    onAttach: function(worker){
+      worker.port.on("fetchEntries", function(){
+        postEntries(worker);
+      });
+      postEntries(worker);
+    }
+  });
 
-	if (!spData.recList)
-		spData.recList = [];
-	
-	console.timeEnd("splitpage init");
+  if (!spData.recList)
+    spData.recList = [];
+
+  console.timeEnd("splitpage init");
 }
 
 function postEntries(worker){
-	spData.recList.forEach(function(aRecommendation){
-		worker.port.emit("postEntry", require("../recommendation").extractPresentationData.call(aRecommendation, "splitpage"));
-	});
+  spData.recList.forEach(function(aRecommendation){
+    worker.port.emit("postEntry", require("../recommendation").extractPresentationData.call(aRecommendation, "splitpage"));
+  });
 }
 
 function present(aRecommendation){
-	//TODO: just store a pointer to recommendation
-	spData.recList = spData.recList.concat([aRecommendation]);
+  //TODO: just store a pointer to recommendation
+  spData.recList = spData.recList.concat([aRecommendation]);
 }
 
 

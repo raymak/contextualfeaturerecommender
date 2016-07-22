@@ -3,11 +3,14 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+/*eslint-env browser */
+/*exported fetchEntries */
+
 "use strict";
 
 var entryList = document.getElementById("entry-list");
 
-function fetchEntries(){
+var fetchEntries = function () {
   self.port.emit("fetchEntries");
 }
 

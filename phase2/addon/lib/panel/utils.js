@@ -8,11 +8,10 @@ module.metadata = {
   "stability": "unstable"
 };
 
-const { Cc, Ci } = require("chrome");
 const { setTimeout } = require("sdk/timers");
 const { platform } = require("sdk/system");
 const { getMostRecentBrowserWindow, getOwnerBrowserWindow,
-        getHiddenWindow, getScreenPixelsPerCSSPixel } = require("sdk/window/utils");
+        getScreenPixelsPerCSSPixel } = require("sdk/window/utils");
 
 const { create: createFrame, swapFrameLoaders } = require("sdk/frame/utils");
 const { window: addonWindow } = require("sdk/addon/window");
@@ -161,7 +160,7 @@ function display(panel, options, anchor) {
     let rect = anchor.getBoundingClientRect();
 
     let zoom = getScreenPixelsPerCSSPixel(window);
-    let screenX = rect.left + window.mozInnerScreenX * zoom;
+    //let screenX = rect.left + window.mozInnerScreenX * zoom;
     let screenY = rect.top + window.mozInnerScreenY * zoom;
 
     // Set up the vertical position of the popup relative to the anchor
@@ -188,7 +187,7 @@ function display(panel, options, anchor) {
 
   // Resize the iframe instead of using panel.sizeTo
   // because sizeTo doesn't work with arrow panels
-  
+
   panel.firstChild.style.width = width + "px";
   panel.firstChild.style.height = height + "px";
 
@@ -431,7 +430,7 @@ let getContentFrame = panel =>
     panel.backgroundFrame
 exports.getContentFrame = getContentFrame;
 
-function getContentDocument(panel) getContentFrame(panel).contentDocument
+function getContentDocument(panel) { return getContentFrame(panel).contentDocument }
 exports.getContentDocument = getContentDocument;
 
 function setURL(panel, url) {

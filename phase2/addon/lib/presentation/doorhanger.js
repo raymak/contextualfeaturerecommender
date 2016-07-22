@@ -6,14 +6,13 @@
 "use strict";
 
 
-const {getMostRecentBrowserWindow, isBrowser} = require("sdk/window/utils");
+const {isBrowser} = require("sdk/window/utils");
 const {WindowTracker} = require("sdk/deprecated/window-utils");
 const {setTimeout, clearTimeout} = require("sdk/timers");
-const {wordCount, weightedRandomInt} = require("../utils");
+const {wordCount} = require("../utils");
 const {PersistentObject} = require("../storage");
 const {extractPresentationData, extractResponseCommandMap} = require("../recommendation");
 const {prefs} = require("sdk/simple-prefs");
-const tabs = require("sdk/tabs");
 const {data} = require("sdk/self");
 const {merge} = require("sdk/util/object");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("../debug");
@@ -49,12 +48,12 @@ function init(){
 }
 function _init(){
   // panel = initPanel(button);
-  
+
   console.time("doorhanger init");
 
   debug.init();
   // debug.update();
-  
+
   let wt = new WindowTracker({
     onTrack: function(window){
       if (!isBrowser(window)) return;
@@ -84,6 +83,7 @@ function _init(){
   });
 
   console.timeEnd("doorhanger init");
+  return wt;  // to use it.
 }
 
 function initPanel(button){
@@ -142,7 +142,7 @@ function negFbOrder(){
     perms[i] = baseArr[c];
     baseArr.splice(c, 1);
   }
-      
+
   dhData["neg_fb_order"] = perms;
 
   return perms;
@@ -150,7 +150,7 @@ function negFbOrder(){
 
 
 function present(aRecommendation, cmdCallback){
- 
+
   if (dhData.count)
      dhData.count = dhData.count + 1;
 
@@ -160,7 +160,7 @@ function present(aRecommendation, cmdCallback){
   }
 
   dhData.currentRec = {
-                        recomm: aRecommendation, 
+                        recomm: aRecommendation,
                         state:{like: false, dontlike: false, count: 0, negFbChoice: null, negFbOpened: false},
                         report:{number: dhData.count || 1, startett: timer.elapsedTotalTime(), durationtt: 0, primbtn: 0, secbtn: 0,
                         closebtn: 0, autohide: 0, autofade: 0, esc: 0,
@@ -176,13 +176,13 @@ function present(aRecommendation, cmdCallback){
 
   let dhPresentInfo = {id: aRecommendation.id, number: dhData.count};
   logDhPresent(dhPresentInfo);
-  
+
   let noschedule = (aRecommendation.id == 'welcome'); // no auto fade for the welcome message
 
-  updateShow({noschedule: noschedule});  
+  updateShow({noschedule: noschedule});
 }
 
-function updateEntry(options){  
+function updateEntry(options){
 
   let currentRec = dhData.currentRec;
 
@@ -213,7 +213,7 @@ function updateShow(options, panelOptions){
   let noSchedule = options && options.noschedule;
 
   updateEntry({noinit: noInit})
-    .then(function() showPanel(delay, panelOptions))
+    .then(function() {return showPanel(delay, panelOptions)})
     .then(function(){
     if (!noSchedule)
       scheduleHide(prefs["presentation.doorhanger.autofade_time_ms_flat"]
@@ -221,7 +221,7 @@ function updateShow(options, panelOptions){
 
     buttonOn();
     });
-} 
+}
 
 function scheduleHide(time_ms){
   clearTimeout(hideTimeout);
@@ -267,28 +267,30 @@ function buttonClick(state){
       if (letReopen)
        updateShow({noschedule: true, nodelay:true, noinit: true}, {autohide: true, focus: true});
      else
-      button.state("window", {checked: false}); 
+      button.state("window", {checked: false});
   }
   else
     pHide("bulbbutton", true);
 }
 
+/*
 function buttonSwitch(state){
   if (state)
     buttonOn();
   else
     buttonOff();
 }
-
+*/
 function buttonChange(state){
- 
+
 }
+
 
 function buttonOn(){
   button.icon = "./ui/icons/lightbulb_gr.png";
   if (buttonChecked) return;
   //when sate is changed as below, button.state does not change, it only changes by button.click()
-  button.state("window", {checked: true}); 
+  button.state("window", {checked: true});
   buttonChecked = true;
 }
 
@@ -323,7 +325,7 @@ function onPanelHide(){
   if (currRec.state.count == 1)
     report.firstopen = showLength;
 
-  require("./../stats").event("dhHide", {collectInstance: true}, 
+  require("./../stats").event("dhHide", {collectInstance: true},
     { id: currRec.recomm.id,
       showlength: showLength,
       opencount: currRec.state.count,
@@ -373,9 +375,10 @@ function pHide(reason, fadeOut){
 
     case "bulbbutton":
       report.bulbbutton = report.bulbbutton + 1;
+      break;
 
     default:
-      report.closeother = report.closeother + 1;   
+      report.closeother = report.closeother + 1;
   }
 
   dhData.currentRec = merge(currRec, {report: report});
@@ -462,7 +465,7 @@ function negFbSubmit(val){
   console.log("negative feedback submitted: " + val);
   let currRec = dhData.currentRec;
   let state = currRec.state;
-  
+
   state.negFbChoice =  val;
 }
 
@@ -494,21 +497,27 @@ function updateReport(){
 
   let addedInfo = {
                     durationtt: timer.elapsedTotalTime() - currRec.report.startett,
-                    interaction: Boolean(state.like || state.dontlike || (state.count > 1) 
-                   || state.negFbChoice || (report.primbtn > 0) || (report.secbtn > 0)
-                   || (report.closebtn > 0) || (report.esc > 0) || report.mouseenter
-                   || report.rationaleopen || (report.infopage > 0)),
+                    interaction: Boolean(state.like || state.dontlike || (state.count > 1)
+                      || state.negFbChoice || (report.primbtn > 0) || (report.secbtn > 0)
+                      || (report.closebtn > 0) || (report.esc > 0) || report.mouseenter
+                      || report.rationaleopen || (report.infopage > 0)),
                    id: currRec.recomm.id
-                    };
+                  };
   let info = merge({}, currRec.state, report, addedInfo);
 
   //reporting to feature report
   let featReportRow = {
-                        negfbchoice: info.negFbChoice, dontlike: info.dontlike, presnumber: info.number,
-                        interaction: info.interaction, primbtn: (info.primbtn > 0),
-                        secbtn: (info.secbtn > 0), manualopen: (info.count > 1),
-                        response: (info.primbtn > 0 || info.secbtn > 0), rationaleopen: (info.rationaleopen > 0),
-                        firstclosereason: info.firstclosereason, firstopen: info.firstopen, interaction: info.interaction,
+                        negfbchoice: info.negFbChoice,
+                        dontlike: info.dontlike,
+                        presnumber: info.number,
+                        interaction: info.interaction,
+                        primbtn: (info.primbtn > 0),
+                        secbtn: (info.secbtn > 0),
+                        manualopen: (info.count > 1),
+                        response: (info.primbtn > 0 || info.secbtn > 0),
+                        rationaleopen: (info.rationaleopen > 0),
+                        firstclosereason: info.firstclosereason,
+                        firstopen: info.firstopen,
                         certainlyactive: report.certainlyactive
                      }
   featReport.updateRow(currRec.recomm.id, featReportRow);
@@ -556,15 +565,15 @@ const debug = {
       updateObj = {};
     else
       updateObj = {count: data.count, currentRecomm: data.currentRec.recomm, state: data.currentRec.state, report: data.currentRec.report};
-    
+
     dumpUpdateObject(updateObj, {list: "Presentation: Doorhanger"});
   },
   parseCmd: function(cmd){
-    const patt = /([^ ]*) *(.*)/; 
+    const patt = /([^ ]*) *(.*)/;
     let args = patt.exec(cmd);
 
     let subArgs;
-    
+
     if (!args)  //does not match the basic pattern
       return false;
 
