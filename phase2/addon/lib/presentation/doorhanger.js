@@ -25,6 +25,8 @@ const {Cu} = require("chrome");
 
 const dhDataAddress = "presentation.doorhanger.data";
 
+const {buttonTracker} = require("./track-button-moves");
+
 let dhData; //initialized in init()
 
 let panel;
@@ -75,6 +77,35 @@ function _init(){
 
   if (dhData.currentRec && dhData.currentRec.recomm && !dhData.stopped){
     button = initButton(buttonClick);
+
+    buttonTracker.on('msg', function handleMovesOrRemoval (data) {
+      // is it our button?
+      if (data.buttonId != "toggle-button--buttonmove-" + button.id) return
+
+      // handle all the things
+      switch (data.action) {
+        case 'moved': {
+          break;
+        }
+        case 'removed': {
+          if (data.area == "nav-bar") {
+            // moved it OFF the nav-bar
+            // DIE OR WARN OR WHATEVER
+          }
+          break;
+        }
+        case 'added': {
+          if (data.area != "nav-bar") {
+            // added it 'somewhere else'
+            // DIE OR WARN OR WHATEVER
+          }
+          break;
+        }
+        case 'destroyed': {
+          break;
+        }
+      }
+    })
     updateEntry();
   }
 
