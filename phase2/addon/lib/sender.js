@@ -106,6 +106,9 @@ function generateTelemetryIdIfNeeded() {
 }
 
 function sendToTelemetry (data) {
+
+  console.log("sending message to telemetry");
+  
   let telOptions = {addClientId: true, addEnvironment: true};
   generateTelemetryIdIfNeeded().then(()=>
   TelemetryController.submitExternalPing("x-contextual-feature-recommendation", data, telOptions)
@@ -180,7 +183,7 @@ function send(data){
     sendToRemote(data);
   if (prefs["sender.send_to_file"])
     sendToFile(data);
-  if (prefs["sender.sent_to_telemetry"])
+  if (prefs["sender.send_to_telemetry"])
     sendToTelemetry(data);
 
 }
