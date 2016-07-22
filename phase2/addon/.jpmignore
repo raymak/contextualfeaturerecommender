@@ -5,5 +5,4 @@ deprecated/*
 .DS_Store
 Makefile
 build/*
-.gitignore
-.jpmignore
+.*
