@@ -3,3 +3,4 @@ scripts/*
 *.xpi
 .DS_Store
 *.update.rdf
+node_modules/*
