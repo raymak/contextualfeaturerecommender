@@ -5,11 +5,11 @@
 
 "use strict";
 
-const {setTimeout, clearTimeout, setInterval, clearInterval} = require("sdk/timers");
+const {setInterval, clearInterval} = require("sdk/timers");
 const {PersistentObject} = require("./storage");
 const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
-const {Cu, Cc, Ci} = require("chrome");
+const {Cc, Ci} = require("chrome");
 const {isFocused, getMostRecentBrowserWindow} = require("sdk/window/utils");
 const unload = require("sdk/system/unload").when;
 const {dumpUpdateObject, handleCmd, isEnabled} = require("./debug");
@@ -21,7 +21,6 @@ let timerData;
 
 const tickHandlers = [];
 const userActiveHandlers = [];
-const userInactiveHandlers = [];
 
 let activityObs;
 let activity;
@@ -229,12 +228,6 @@ const onUserActive = function(fn){
   userActiveHandlers.push(fn);
 }
 
-//TOTHINK: major or minor inactive?
-const onInactive = function(fn){
-
-}
-
-
 const elapsedTime = function(stage){
   if (!stage)
     return timerData.elapsedTime;
@@ -392,21 +385,21 @@ const debug = {
         break;
       case "issilent":
         return isSilent();
-        break;
+        // break;
       case "endsilence":
         return "silence ended at " + endSilence() + " ticks";
-        break;
+        // break;
       case "iscertainlyactive":
         return isCertainlyActive();
-        break;
+        // break;
       case "inactive":
         deactivate();
         observerService.notifyObservers(null, "user-interaction-inactive", "");
         debug.update();
         return "user inactivity forced"
-        break;
+        // break;
 
-      case "time":
+      case "time": {
         subArgs = params.split(" ");
 
         let act = subArgs[0];
@@ -426,15 +419,15 @@ const debug = {
 
                 timerData.elapsedTime = Number(subArgs[2]);
                 return "elapsedTime set to " + Number(subArgs[2]);
-              break;
+              // break;
               case "tick_length_s":
                 if (!subArgs[2])
                   return "error: invalid use of time set tick_length_s command.";
 
                 prefs["timer.tick_length_s"] = Number(subArgs[2]);
                 return "new tick length in seconds: " + prefs["timer.tick_length_s"];
-                break;
-              case "st-diff":
+                // break;
+              case "st-diff": {
                 if (!subArgs[2])
                   return "error: invalid use of time set st command.";
 
@@ -448,11 +441,14 @@ const debug = {
                 require('./storage').osFileObjects['experiment.data'].startTimeMs = String(dateNum);
 
                 return "new start time set to: " + require('./timer').dateTimeToString(new Date(dateNum));
-                break;
+                // break;
+              }
+              
               default:
                 return "error: invalid use of time set command.";
             }
-            break;
+        
+          // break;
           
           case "get":
 
@@ -462,10 +458,10 @@ const debug = {
             switch(subArgs[1]){
               case "et":
                 return elapsedTime(subArgs[2]);
-                break;
+                // break;
               case "ett":
                 return elapsedTotalTime(subArgs[2]);
-                break;
+                // break;
               
               default:
 
@@ -475,6 +471,10 @@ const debug = {
           default:
             return "error: invalid use of time command.";
         }
+
+      break;
+    }
+
       default: 
         return undefined;
     }

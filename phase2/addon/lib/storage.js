@@ -18,7 +18,7 @@ const {TextEncoder, TextDecoder} = require('sdk/io/buffer');
 const AS_LS = require("./async-storage-wrapper").open('ls');
 const AS_OSF = require("./async-storage-wrapper").open('osf');
 
-Cu.import("resource://gre/modules/osfile.jsm");
+const {OS} = Cu.import("resource://gre/modules/osfile.jsm");
 
 const DIR_PATH = file.join(pathFor("ProfD"), require('sdk/self').id + "-storage");
 
@@ -49,10 +49,13 @@ exports.PersistentObject = function(type, options){
   switch(type){
     case "simplePref":
       return SimplePrefStorage(options);
-      break;
+      // break;
     case "osFile":
       return OsFileStorage(options);
-      break;
+      // break;
+    case "localStorage":
+      return LocalStorage(options);
+      // break;
     default:
   }
 
@@ -65,13 +68,9 @@ function LocalStorage(options){
 
   console.log("creating " + options.address);
 
-  let data = {};
+  let targetObj = {};
 
-  let targetObj;
-
-  if (!options.target)
-    targetObj = {};
-  else
+  if (options.target)
     targetObj = options.target;
 
   function write(str, opts){
@@ -123,7 +122,7 @@ function LocalStorage(options){
       });
     };
 
-    let rObj = StorageObject(updateFile, cachedObj, options);
+    let rObj = StorageObject(updateFile, cachedObj, targetObj, options);
 
     localStorageObjects[options.address] = rObj;
 
@@ -141,20 +140,14 @@ function OsFileStorage(options){
   if (osFileObjects[options.address])
     return require('sdk/core/promise').resolve(osFileObjects[options.address]);
 
-
-
   console.log("creating " + options.address);
-  
-  let data = {};
 
   let encoder = new TextEncoder();  
   let decoder = new TextDecoder();
 
-  let targetObj;
+  let targetObj = {};
 
-  if (!options.target)
-    targetObj = {};
-  else
+  if (options.target)
     targetObj = options.target;
 
   const fileName = options.address + ".json"
@@ -169,10 +162,10 @@ function OsFileStorage(options){
     let arr = encoder.encode(str);
 
     if (!str)
-      logError("empty-str", e, {address: options.address});
+      logError("empty-str", "", {address: options.address});
 
     if (!arr)
-      logError("empty-arr", e, {address: options.address});
+      logError("empty-arr", "", {address: options.address});
 
 
     return OS.File.writeAtomic(filePath, arr, {
@@ -248,7 +241,7 @@ function OsFileStorage(options){
       });
     };
 
-    let rObj = StorageObject(updateFile, cachedObj, options);
+    let rObj = StorageObject(updateFile, cachedObj, targetObj, options);
 
     osFileObjects[options.address] = rObj;
 
@@ -287,12 +280,7 @@ function SimplePrefStorage(options){
 }
 
 
-function StorageObject(updateFn, cachedObj, options){
-  let targetObj;
-  if (!options.target)
-    targetObj = {};
-  else
-    targetObj = options.target;
+function StorageObject(updateFn, cachedObj, targetObj, options){
 
   let evtTarget = EventTarget();
 

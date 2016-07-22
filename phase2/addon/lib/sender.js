@@ -6,27 +6,22 @@
 "use strict";
 
 const request = require("sdk/request");
-const unload = require("sdk/system/unload").when;
-const {Cu, Cc, Ci} = require("chrome");
+const {Cu} = require("chrome");
 const {storage} = require("sdk/simple-storage");
 const {pathFor} = require('sdk/system');
 const file = require('sdk/io/file');
 const {onTick} = require('./timer');
 const {prefs} = require("sdk/simple-prefs");
 const {TextEncoder} = require('sdk/io/buffer');
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/osfile.jsm");
+const {OS} = Cu.import("resource://gre/modules/osfile.jsm");
 
 const { TelemetryController } = Cu.import("resource://gre/modules/TelemetryController.jsm");
+const CID = Cu.import("resource://gre/modules/ClientID.jsm")
 
 const REMOTE_URL = "http://logs-01.loggly.com/inputs/ac4fee9c-9dc4-4dc9-8a1b-4094253067bb/tag/http/";
 
 let FILE_NAME;
 const PATH_DIR = pathFor("Desk");
-
-const observerService = Cc["@mozilla.org/observer-service;1"]
-                      .getService(Ci.nsIObserverService);
-
 
 function init(){
 
@@ -59,7 +54,7 @@ function init(){
 function remove(data){
   try{
     storage.sender.messages.splice(
-      storage.sender.messages.findIndex(function(elem) elem.number === data.number),
+      storage.sender.messages.findIndex(elem => elem.number === data.number),
       1);
   } catch(e){console.log(e)}
   prefs["sender.data.queue_size"] = storage.sender.messages.length;
@@ -107,8 +102,6 @@ function generateTelemetryIdIfNeeded() {
 
 function sendToTelemetry (data) {
 
-  console.log("sending message to telemetry");
-  
   let telOptions = {addClientId: true, addEnvironment: true};
   generateTelemetryIdIfNeeded().then(()=>
   TelemetryController.submitExternalPing("x-contextual-feature-recommendation", data, telOptions)

@@ -5,7 +5,6 @@
 
 "use strict";
 
-const {prefs} = require("sdk/simple-prefs");
 const {PersistentObject} = require("./storage");
 
 const eventDataAddress = "event.data";

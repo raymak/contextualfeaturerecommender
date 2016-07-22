@@ -14,7 +14,6 @@ module.metadata = {
 };
 
 const { Ci } = require("chrome");
-const { setTimeout } = require('sdk/timers');
 const { Class } = require("sdk/core/heritage");
 const { merge } = require("sdk/util/object");
 const { WorkerHost } = require("sdk/content/utils");
@@ -78,7 +77,9 @@ let panelContract = contract(merge({
 }, displayContract.rules, loaderContract.rules));
 
 
-function isDisposed(panel) !views.has(panel);
+function isDisposed(panel) { 
+  return !views.has(panel)
+}
 
 let panels = new WeakMap();
 let models = new WeakMap();
@@ -178,19 +179,34 @@ const Panel = Class({
     views.delete(this);
   },
   /* Public API: Panel.width */
-  get width() modelFor(this).width,
-  set width(value) this.resize(value, this.height),
+  get width() {
+    return modelFor(this).width;
+  },
+  set width(value) {
+    return this.resize(value, this.height);
+  },
   /* Public API: Panel.height */
-  get height() modelFor(this).height,
-  set height(value) this.resize(this.width, value),
+  get height() {
+    return modelFor(this).height;
+  },
+  set height(value) {
+    return this.resize(this.width, value);
+  },
 
   /* Public API: Panel.focus */
-  get focus() modelFor(this).focus,
+  get focus() {
+    return modelFor(this).focus;
+  }, 
 
   /* Public API: Panel.position */
-  get position() modelFor(this).position,
+  get position() {
+    return modelFor(this).position;
+  },
 
-  get contentURL() modelFor(this).contentURL,
+  get contentURL() {
+    modelFor(this).contentURL;
+  },
+
   set contentURL(value) {
     let model = modelFor(this);
     model.contentURL = panelContract({ contentURL: value }).contentURL;
@@ -201,7 +217,9 @@ const Panel = Class({
   },
 
   /* Public API: Panel.isShowing */
-  get isShowing() !isDisposed(this) && domPanel.isOpen(viewFor(this)),
+  get isShowing() {
+    return !isDisposed(this) && domPanel.isOpen(viewFor(this));
+  },
 
   /* Public API: Panel.show */
   show: function show(options={}, anchor) {

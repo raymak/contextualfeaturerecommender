@@ -11,9 +11,6 @@ const channels = {
                   doorhanger: require("./presentation/doorhanger")
                 };
 
-const prefs = require("sdk/simple-prefs").prefs;
-const {extractPresentationData} = require("./recommendation");
-
 const present = function(aRecommendation){
   let data = aRecommendation.presentationData;
   for (let channel in data){
@@ -31,13 +28,6 @@ function stop(){
   for (let ch in channels)
     if (channels[ch].stop) channels[ch].stop();
 }
-
-const log = {present: function(aRecommendation){
-  let data = extractPresentationData.call(aRecommendation, "log");
-  console.log("presenting recommendation: " + data.message);
-  }
-};
-
 
 exports.present = present;
 exports.stop = stop;

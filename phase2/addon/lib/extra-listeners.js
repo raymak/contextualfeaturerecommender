@@ -35,7 +35,7 @@ function start(){
     event('window-open', {type: 'extra'}, {num: num}, {num: 'average'});
   });
 
-  let wt = new WindowTracker({
+  new WindowTracker({
     onTrack: function(window){
 
       if (!isBrowser(window) || isPrivate(window)) return;

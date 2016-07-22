@@ -7,7 +7,7 @@
 
 const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {merge} = require("sdk/util/object");
-const override  = function() merge.apply(null, arguments);
+const override = function(){return merge.apply(null, arguments)};
 const {PersistentObject} = require("./storage");
 const self = require("./self");
 const addonSelf = require("sdk/self");
@@ -164,9 +164,6 @@ function logDhReport(info){
 }
 
 function logFeatureUse(info){
-  if (info.count && info.count == 1){
-
-  }
   log("FEATURE_USE", info)
 }
 
@@ -286,17 +283,8 @@ const debug = {
     if (!args)  //does not match the basic pattern
       return false;
 
-    let name = args[1];
-    let params = args[2];
-
-    switch(name){
-      default: 
-        return undefined;
-    }
-
-    return " ";
+    return undefined; 
   }
-
 }
 
 function onUnload(reason){

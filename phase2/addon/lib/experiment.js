@@ -120,20 +120,6 @@ const experiment = {
   checkStage: checkStage
 }
 
-function initExpData(){
-  let {promise, resolve} = defer();
-
-  if (!expData){
-    PersistentRecSet("osFile", {address: expDataAddress}).then((data)=> {
-      expData = data;
-    }).then(resolve);
-  }
-  else
-    resolve();
-
-  return promise;
-}
-
 // also sets start date when called for the first time
 function startTimeMs(){  
   if (!("startTimeMs" in expData)){
@@ -316,16 +302,16 @@ function timeUntilNextStage(){
   switch(stage){
     case "obs1":
       return obs1_l - ett;
-      break;
+      // break;
     case "intervention":
       return obs1_l + intervention_l - ett;
-      break;
+      // break;
     case "obs2":
       return obs1_l + intervention_l + obs2_l - ett;
-      break;
+      // break;
     case "end":
       return 0;
-      break;
+      // break;
   }
 }
 
@@ -358,31 +344,31 @@ const debug = {
     let params = args[2];
 
     switch(name){
-      case "stage": //forces the stage
+      case "stage": {//forces the stage
 
         let subArgs = params.split(" ");
 
         if (subArgs[0] !== "force") return;
 
-          if (subArgs[1] == "none"){
-            expData.stageForced = false;
-            return "back to normal stage determination";
-          }
+        if (subArgs[1] == "none"){
+          expData.stageForced = false;
+          return "back to normal stage determination";
+        }
 
-          if (!stages[subArgs[1]])
-            return "error: no such stage exists.";
+        if (!stages[subArgs[1]])
+          return "error: no such stage exists.";
 
-          setStage(subArgs[1]);
-          expData.stageForced = true;
+        setStage(subArgs[1]);
+        expData.stageForced = true;
 
-          return "warning: experiment stage forced to " + subArgs[1];
+        return "warning: experiment stage forced to " + subArgs[1];
 
-          break;
+        // break;
+      }
+
       default: 
         return undefined;
     }
-
-    return " ";
   }
 
 }

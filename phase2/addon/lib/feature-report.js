@@ -21,7 +21,7 @@ const rowTemp = {
                 manualopen: null, presnumber: null,
                 rationaleopen: null, firstclosereason: null, firstopen: null,
                 featureuse: null, firstusesincepres: null, tried: null, immediate_try: null,
-                interaction: null, certainlyactive: null
+                certainlyactive: null
             };
 
 function init(){

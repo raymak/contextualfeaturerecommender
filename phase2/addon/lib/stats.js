@@ -6,16 +6,13 @@
 "use strict";
 
 const {prefs} = require("sdk/simple-prefs");
-const {eventData} = require("./event");
-const {storage} = require("sdk/simple-storage");
-const self = require("./self");
 const exp = require("./experiment");
 const AS = require("./async-storage-wrapper").open('stats');
 const {dumpUpdateObject, handleCmd, isEnabled, removeList} = require("./debug");
-const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
+const {elapsedTime, elapsedTotalTime} = require("./timer");
 const {PersistentObject} = require("./storage");
 const {merge} = require("sdk/util/object");
-const {defer, resolve} = require("sdk/core/promise");
+const {resolve} = require("sdk/core/promise");
 
 const REPORT_TYPES = ["looseBehavior", "looseFeatureUse", "behavior", "delivery", "extra", "behavior"];
 
@@ -76,15 +73,6 @@ function checkForMemoryLoss(){
     }
   });
 }
-
-function getRouteStats(baseRoute){
-  let data = eventData[baseRoute];
-
-  if (!data)
-    console.log("warning: no event data for " + baseRoute);
-  return data;
-}
-
 
 function event(evtId, options, addData, aggregates){
 
@@ -270,8 +258,6 @@ const debug = {
   parseCmd: function(cmd){
     const patt = /([^ ]*) *(.*)/; 
     let args = patt.exec(cmd);
-
-    let subArgs;
     
     if (!args)  //does not match the basic pattern
       return false;
@@ -287,13 +273,13 @@ const debug = {
             prefs["stats.send_to_debug"] = true;
             debug.update();
             return "stats on";
-            break;
+            // break;
 
           case "off":
             prefs["stats.send_to_debug"] = false;
             debug.remove();
             return "stats off"
-            break;
+            // break;
 
           case "log":
             log();
