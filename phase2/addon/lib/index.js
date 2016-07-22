@@ -5,9 +5,8 @@
 
 "use strict";
 
-const system = require("sdk/system");
 const {prefs} = require("sdk/simple-prefs");
-const {defer, resolve} = require("sdk/core/promise");
+const {resolve} = require("sdk/core/promise");
 
 const recommFileAddress = prefs["recomm_list_address"];
 

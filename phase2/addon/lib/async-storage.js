@@ -1,4 +1,3 @@
-let self = require('sdk/self');
 let {indexedDB, IDBKeyRange} = require('sdk/indexed-db');
 
 var database = {};
@@ -23,7 +22,7 @@ function open(config) {
         if (db.objectStoreNames.contains("items")) {
           db.deleteObjectStore("items");
         }
-        var store = db.createObjectStore("items");
+        db.createObjectStore("items");
       };
 
       request.onsuccess = function(e) {
@@ -45,7 +44,6 @@ function _setItem(key, value) {
     let db = database.db;
     let trans = db.transaction(["items"], "readwrite");
     let store = trans.objectStore("items");
-    let time = new Date().getTime();
     let request = store.put(value, key);
 
     // trans.oncomplete = function(event) {

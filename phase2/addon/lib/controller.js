@@ -12,7 +12,7 @@ const {Route, coefficient} = require("./route");
 const {Recommendation} = require("./recommendation");
 const {URL} = require("sdk/url");
 const tabs = require("sdk/tabs");
-const {Event, getEventData, eventDataAddress} = require("./event");
+const {Event, getEventData} = require("./event");
 const {Cu, Cc, Ci} = require("chrome");
 const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
@@ -24,24 +24,21 @@ const utils = require("./utils");
 const self = require("./self");
 const system = require("sdk/system");
 const windows = require("sdk/windows");
-const {viewFor} = require("sdk/view/core");
 const {handleCmd} = require("./debug");
 const {data} = require("sdk/self");
 const unload = require("sdk/system/unload").when;
 const logger = require("./logger");
 const featReport = require("./feature-report");
-const events = require("sdk/system/events");
-const {pathFor} = require('sdk/system');  
-const file = require('sdk/io/file');
 const statsEvent = require("./stats").event;
 const functional = require("sdk/lang/functional");
 const {defer, all} = require("sdk/core/promise")
 const {PersistentObject, osFileObjects} = require("./storage");
-Cu.import("resource://gre/modules/Downloads.jsm");
-Cu.import("resource://gre/modules/Task.jsm");
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/AddonManager.jsm");
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+
+const {Downloads} = Cu.import("resource://gre/modules/Downloads.jsm");
+const {Task} = Cu.import("resource://gre/modules/Task.jsm");
+const {Services} = Cu.import("resource://gre/modules/Services.jsm");
+const {AddonManager} = Cu.import("resource://gre/modules/AddonManager.jsm");
+const {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 const devtools = Cu.import("resource://devtools/shared/Loader.jsm").devtools;
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
@@ -49,7 +46,6 @@ const observerService = Cc["@mozilla.org/observer-service;1"]
 
 const NEWTAB_URL = 'about:newtab';
 const HOME_URL = 'about:home';
-const BLANK_URL = 'about:blank';
 
 const recSetAddress = "controller.recommData";
 const deliveryDataAddress = "delivery.data";
@@ -126,7 +122,7 @@ const listener = {
       });
 
       tabsEvent.effect = function(){
-        let route = this.options.route;
+        // let route = this.options.route;
 
         //pin is not about tabs being pinned
         //it is about reporting the number of pinned tabs
@@ -280,7 +276,7 @@ const listener = {
         listener.dispatchRoute(route);
       }
 
-      updateChannelEvent.checkPreconditions = function() this.preEvent.options.reason == "channel";
+      updateChannelEvent.checkPreconditions = function(){return this.preEvent.options.reason == "channel"};
 
       firefoxEvent.postEvents.push(updateChannelEvent);
 
@@ -297,7 +293,7 @@ const listener = {
         listener.dispatchRoute(route);
       }
       
-      profilesEvent.checkPreconditions = function() this.preEvent.options.reason == "profiles";
+      profilesEvent.checkPreconditions = function(){return this.preEvent.options.reason == "profiles"};
 
       firefoxEvent.postEvents.push(profilesEvent);
 
@@ -312,7 +308,7 @@ const listener = {
         this.options.route = route;
       }
 
-      startupEvent.checkPreconditions = function() this.preEvent.options.reason == "startup";
+      startupEvent.checkPreconditions = function(){return this.preEvent.options.reason == "startup"};
       firefoxEvent.postEvents.push(startupEvent);
 
       let multipleStartupEvent = that.multipleRoute(startupEvent);
@@ -380,12 +376,6 @@ const listener = {
         id: route.id
       });
 
-      chromeEvent.effect = function(){
-        let route = this.options.route;
-
-        // listener.dispatchRoute(route);
-      }
-
       let multipleChromeEvent = that.multipleRoute(chromeEvent);
       chromeEvent.postEvents.push(multipleChromeEvent);
 
@@ -395,10 +385,6 @@ const listener = {
         let anonid = this.preEvent.options.event.originalTarget.getAttribute("anonid");
         let baseRoute = this.preEvent.options.route;
         this.options.route = [baseRoute, "anonid", anonid].join(" ");
-
-        let route = this.options.route;
-
-        // listener.dispatchRoute(route);
       }
 
       chromeEventAnon.checkPreconditions = function(){
@@ -471,15 +457,6 @@ const listener = {
         params: params
       });
 
-      searchEngModify.effect = function(){
-        let route = this.options.route;
-        let reason = this.options.reason;
-
-        // if (reason != "alias")
-        //   listener.dispatchRoute(route);
-      };
-
-
       let multipleSearchEngModify = that.multipleRoute(searchEngModify);
 
       multipleSearchEngModify.checkPreconditions = function(){
@@ -515,12 +492,6 @@ const listener = {
         reason: reason,
         params: params
       });
-
-      devToolsEvent.effect = function(){
-        let route = this.options.route;
-
-        // listener.dispatchRoute(route);
-      };
 
       let multipleDevToolsEvent = that.multipleRoute(devToolsEvent);
 
@@ -559,11 +530,6 @@ const listener = {
         route: ["session", reason].join(" ")
       });
 
-      sessRestored.effect = function(){
-        let route = this.options.route;
-        // listener.dispatchRoute(route);
-      }
-
       sessRestored.checkPreconditions = function(){
         return (this.options.reason == "restored");
       };
@@ -579,11 +545,6 @@ const listener = {
         reason: reason,
         route: ["private browse", reason].join(" ")
       });
-
-      privateBrowse.effect = function(){
-        let route = this.options.route;
-        // listener.dispatchRoute(route);
-      }
 
       let multiplePrivateBrowse = that.multipleRoute(privateBrowse);
 
@@ -614,12 +575,6 @@ const listener = {
         route: ["history", reason].join(" ")
       });
 
-      histInteraction.effect = function(){
-        let route = this.options.route;
-
-        // listener.dispatchRoute(route);
-      };
-
       let multipleHistInteraction = that.multipleRoute(histInteraction);
       histInteraction.postEvents.push(multipleHistInteraction);
 
@@ -627,15 +582,6 @@ const listener = {
       //TODO: implement as separate and merge using OR operation
       
       let histDelete = Event("historyDelete");
-
-      histDelete.effect = function(){
-
-        this.options.route = ['history', "delete"].join(" ");
-
-        let route = this.options.route;
-
-        // listener.dispatchRoute(route);
-      }
 
       histDelete.checkPreconditions = function(){
         return (["cleared", "deletedURI", "deletedvisits"].indexOf(this.preEvent.options.reason) != -1);
@@ -655,12 +601,6 @@ const listener = {
         reason: reason,
         route: ["download", reason].join(" ")
       });
-
-      downloadInteraction.effect = function(){
-        let route = this.options.route;
-
-        // listener.dispatchRoute(route);
-      };
 
       let multipleDownloadInteraction = that.multipleRoute(downloadInteraction);
       downloadInteraction.postEvents.push(multipleDownloadInteraction);
@@ -1131,7 +1071,7 @@ listener.listenForTools = function(callback){
     callback("finder", "opened");
   }
 
-  let windowTracker = new WindowTracker({
+  new WindowTracker({
     onTrack: function (window){
 
       if (!isBrowser(window) || isPrivate(window)) return;
@@ -1438,7 +1378,7 @@ listener.listenForTabs = function(callback, options){
     return c;
   }
 
-  let windowTracker = new WindowTracker({
+  new WindowTracker({
     onTrack: function (window){
 
       if (!isBrowser(window) || isPrivate(window)) return;
@@ -1606,7 +1546,7 @@ listener.listenForDownloads = function(callback, options){
     } 
   };
 
-  Task.spawn(function() {
+  Task.spawn(function* () {
     try {
       let downloadList = yield Downloads.getList(Downloads.PUBLIC);
       yield downloadList.addView(dlView);
@@ -1616,7 +1556,7 @@ listener.listenForDownloads = function(callback, options){
   });
 
   unload(function(){
-    Task.spawn(function(){
+    Task.spawn(function* (){
       let list = yield Downloads.getList(Downloads.PUBLIC);
       list.removeView(dlView);
     }).then(null, Cu.reportError);
@@ -1628,17 +1568,17 @@ listener.listenForChromeEvents = function(callback, options){
   let routesToListenFor = {};
 
   function evalRoute(route){
-      let routeTokens = route.split(" ");
-      if (routeTokens[0] === "chrome"){
-        let eventName = routeTokens[1];
-        let id = routeTokens[2];
+    let routeTokens = route.split(" ");
+    if (routeTokens[0] === "chrome"){
+      let eventName = routeTokens[1];
+      let id = routeTokens[2];
 
-        routesToListenFor[[eventName, id].join(" ")] = {
-          eventName: eventName,
-          id: id
-        };
-      }
-    };
+      routesToListenFor[[eventName, id].join(" ")] = {
+        eventName: eventName,
+        id: id
+      };
+    }
+  }
 
   recommendations.forEach(function(aRecommendation){    
     evalRoute(aRecommendation.trigBehavior);
@@ -1646,7 +1586,7 @@ listener.listenForChromeEvents = function(callback, options){
     evalRoute(aRecommendation.featUseBehavior);
   });
 
-  let windowTracker = new WindowTracker({
+  new WindowTracker({
     onTrack: function(window){
       if (!isBrowser(window) || isPrivate(window)) return;
 
@@ -1690,7 +1630,7 @@ listener.listenForChromeEvents = function(callback, options){
 listener.listenForKeyboardEvent = function(callback, options){
   
   //TODO: merge hotkeys with other chrome events
-  let keyTracker = new WindowTracker({
+  new WindowTracker({
     onTrack: function (window){
       if (!isBrowser(window) || isPrivate(window)) return;
 
@@ -1833,7 +1773,9 @@ listener.listenForContentType = function(callback, contentTypes){
       try{
         contentTypeExp = httpChannel.getResponseHeader("Content-Type").match(/.*[;\Z]/);
       }
-      catch(e){}
+      catch(e){
+        throw e;
+      }
 
       if (contentTypeExp)
         contentType = contentTypeExp[0].slice(0,-1);
@@ -1841,9 +1783,9 @@ listener.listenForContentType = function(callback, contentTypes){
         return;
       console.log(contentType);
 
-      let channel = subject.QueryInterface(Ci.nsIChannel);
-      let url = channel.URI.spec;
-      url = url.toString();
+      // let channel = subject.QueryInterface(Ci.nsIChannel);
+      // let url = channel.URI.spec;
+      // url = url.toString();
 
       if (contentTypes.indexOf(contentType) != -1)
         callback(contentType);
@@ -1879,12 +1821,11 @@ listener.listenForFirefoxEvents = function(callback){
 
   let enumerator = toolkitProfileService.profiles;
 
-  let prof;
   let num = 0;
   while (enumerator.hasMoreElements()){
-    prof = enumerator.getNext().QueryInterface(Ci.nsIToolkitProfile)
+    enumerator.getNext().QueryInterface(Ci.nsIToolkitProfile);
     num++;
-  };
+  }
 
   callback('profiles', {number: num});
 
@@ -1895,7 +1836,7 @@ listener.listenForFirefoxEvents = function(callback){
 // listening for command invocations is not useful because the menu items directly call gDevTools functions
 listener.listenForDevTools = function(callback){
 
-  let windowTracker = new WindowTracker({
+  new WindowTracker({
     onTrack: function (window){
 
       if (!isBrowser(window) || isPrivate(window)) return;
@@ -1961,7 +1902,6 @@ listener.multipleRoute = function(baseEvent, options){
 
     let eventName = options.name || ["multiple", baseEvent.name.slice(0,1).toUpperCase(), baseEvent.name.slice(1)].join("");
     let rEvent = Event(eventName, options.options);
-    let that = this;
     
     rEvent.effect = function(){
       let baseRoute = options.baseRoute || baseEvent.options.route;
@@ -1998,7 +1938,6 @@ listener.multipleRoute = function(baseEvent, options){
 listener.listenForInternalEvents= function(callback){
   // tick
   timer.onTick(function(et, ett){
-    let reason = "tick";
     let params = {et: et, ett: ett};
     callback("tick", params);
   });
@@ -2086,15 +2025,16 @@ const debug = {
               return "route coefficient set to " + newCoeff;
             }
             else
-              return getCoefficient();
-          break;
+              return coefficient();
+            // break;
+          
           default:
-          return "error: incorrect use of route command.";
+            return "error: incorrect use of route command.";
         }
-        break;
+        // break;
         
-      case "status":
-        subArgs = patt.exec(params);
+      case "status":{
+        let subArgs = patt.exec(params);
 
         if (!subArgs[0])
           return "error: incorrect use of status command.";
@@ -2117,9 +2057,10 @@ const debug = {
         recommendations.update(recomm);
 
         return "recommendation " + id + " updated: " + "old status -> " + oldStat + ", new status-> " + status;
-        break;
+        // break;
+      }
 
-      case "delmode":
+      case "delmode":{
         subArgs = patt.exec(params);
 
         if (!subArgs[0])
@@ -2133,18 +2074,21 @@ const debug = {
               return "error: incorrect use of delmode observ_only command.";
 
             osFileObjects["delivery.data"].mode = 
-              merge(osFileObjects["delivery.data"].mode, {observ_only: modeJSON.parse(subArgs[2])});
+              Object.assign({}, osFileObjects["delivery.data"].mode, {observ_only: JSON.parse(subArgs[2])});
 
             return "observ_only mode is now " + (JSON.parse(subArgs[2]) ? "on": "off");
 
-            break;
+            // break;
+
           default:
             return "error: incorrect use of delmode command.";
         }
-        break;
 
-      case "load":
-        subArgs = patt.exec(params);
+        // break;
+      }
+
+      case "load":{
+        let subArgs = patt.exec(params);
 
         if (!subArgs[0])
           return "error: incorrect use of load command.";
@@ -2166,9 +2110,10 @@ const debug = {
           return "recommendation with id " + id + " does not exist in file."
 
         return "recommendation with id " + id + " loaded successfully."
-        break;
+        // break;
+      }
 
-      case "recs":
+      case "recs":{
 
         let stat = '*';
         subArgs = patt.exec(params);
@@ -2182,7 +2127,8 @@ const debug = {
 
         return recomIds.join(', ');
 
-        break;
+        // break;
+      }
 
       case "suicide":
 
@@ -2193,7 +2139,8 @@ const debug = {
         else
           return "One does not simply kill itself. Enter 'suicide framed' if you really want it dead.";
 
-        break;
+        // break;
+
       default:
         return undefined;
     }
@@ -2252,14 +2199,14 @@ function loadRec(file, recId){
 
   let isFound = false;
 
-  let recomms = JSON.parse(data.load(file)).forEach(function(recData){
+  JSON.parse(data.load(file)).forEach(function(recData){
     if (recData.id === recId){
       recommendations.add(Recommendation(recData));
       isFound = true;
     }
   });
 
-return isFound;
+  return isFound;
 }
 
 function scaleRoutes(coeff, indexTable){

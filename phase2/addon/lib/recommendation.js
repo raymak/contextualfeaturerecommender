@@ -8,7 +8,7 @@
 
 const {merge} = require("sdk/util/object");
 const {PersistentObject} = require("./storage");
-const {Route, equals, matches, scale, str} = require("./route");
+const {Route, matches, scale, str} = require("./route");
 const featReport = require("./feature-report");
 
 const Recommendation = function(data) {
@@ -230,18 +230,6 @@ const extractPresentationData = function(channel){
 const extractResponseCommandMap = function(channel){
   return merge({}, this.respCommandMap["*"] || {}, this.respCommandMap[channel] || {});
 }
-
-const recommendationToString = function(){
-  let that = this;
-  return Object.keys(this).reduce(function(previousValue, currentValue, index, array) {
-    
-    if (typeof that[currentValue] === "function")
-      return previousValue;
-    
-    return previousValue + "\n" + currentValue + "-> " + that[currentValue];
-  }, "");
-}
-
 
 exports.extractPresentationData = extractPresentationData;
 exports.RecSet = RecSet;

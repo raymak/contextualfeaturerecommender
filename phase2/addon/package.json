@@ -370,7 +370,7 @@
     "eslint": "^3.1.1"
   },
   "scripts": {
-    "eslint": "eslint --quiet {lib,data}/**/*.js{,on}",
+    "eslint": "eslint '{lib,data}/**/*.js{,on}'",
     "test": "npm run eslint"
   }
 }

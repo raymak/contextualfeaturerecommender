@@ -23,7 +23,6 @@ exports.extractOpts = function(str){
 
   obj.header = headerExp;
 
-  let i = 0;
   let keysArr = keysExp.split(/ +-/);
   keysArr.shift(); // removing the first "" item
 
@@ -150,7 +149,7 @@ function getFhrData(callback){
 function getFhrDataV2(callback){
   console.log("getting fhr v2");
 
-  var fhrReporter;
+  let fhrReporter;
 
   
   fhrReporter = Cc["@mozilla.org/datareporting/service;1"]
@@ -169,7 +168,7 @@ function getFhrDataV2(callback){
 function getFhrDataV4(callback){
    console.log("getting fhr v4");
 
-  Cu.import("resource://gre/modules/TelemetryStorage.jsm");
+  const {TelemetryStorage} = Cu.import("resource://gre/modules/TelemetryStorage.jsm");
 
   TelemetryStorage.loadArchivedPingList().then(function(map){
     parseFhrPayloadV4(map, callback);
@@ -183,30 +182,29 @@ function parseFhrPayloadV2(data, callback){
   // console.log(data);
   console.log("parsing FHR payload");
 
-  var days = data.data.days;
+  let days = data.data.days;
 
-  var nowDate = new Date();
+  let nowDate = new Date();
   
-  var todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0 ,0, 0);
+  let todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0 ,0, 0);
   console.log("today: ", todayDate.toString());
 
-  var aMonthAgoDate = new Date(todayDate.getTime() - 30 * 24 * 3600 * 1000);
+  let aMonthAgoDate = new Date(todayDate.getTime() - 30 * 24 * 3600 * 1000);
   console.log("one mongth ago: ", aMonthAgoDate.toString());
 
-  var totalActiveTicks = 0;
+  let totalActiveTicks = 0;
 
-  var totalTime = 0;
+  let totalTime = 0;
   
-  var profileAgeDays = Date.now()/(86400*1000) - data.data.last["org.mozilla.profile.age"].profileCreation;
+  let profileAgeDays = Date.now()/(86400*1000) - data.data.last["org.mozilla.profile.age"].profileCreation;
 
-  for (var key in days){
+  for (let key in days){
     if (days.hasOwnProperty(key)){
 
-      var dateRegExp = new RegExp("(.*)-(.*)-(.*)");
-      var allQs = dateRegExp.exec(key);
+      let dateRegExp = new RegExp("(.*)-(.*)-(.*)");
+      let allQs = dateRegExp.exec(key);
       // console.log(allQs[1], allQs[2], allQs[3]);
 
-      let tmpDate = new Date(days[key]);
       let date = new Date(parseInt(allQs[1], 10), parseInt(allQs[2] - 1, 10), parseInt(allQs[3], 10), 0, 0, 0, 0);
       // console.log(date.toString());
 
@@ -249,34 +247,34 @@ function parseFhrPayloadV2(data, callback){
 
 function parseFhrPayloadV4(map, callback){
 
-  Cu.import("resource://gre/modules/TelemetrySession.jsm");
+  const {TelemetryStorage} = Cu.import("resource://gre/modules/TelemetryStorage.jsm");
 
-  let lastPayload = TelemetrySession.getPayload();
+  // let lastPayload = TelemetrySession.getPayload();
 
-  var nowDate = new Date();
+  let nowDate = new Date();
 
-  var todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0 ,0, 0);
+  let todayDate = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate(), 0, 0 ,0, 0);
   console.log("today: ", todayDate.toString());
 
-  var aMonthAgoDate = new Date(todayDate.getTime() - 30 * 24 * 3600 * 1000);
+  let aMonthAgoDate = new Date(todayDate.getTime() - 30 * 24 * 3600 * 1000);
   console.log("one mongth ago: ", aMonthAgoDate.toString());
 
   
-  Cu.import("resource://gre/modules/ProfileAge.jsm");
-  var profileAgeDays;
+  const {ProfileAge} = Cu.import("resource://gre/modules/ProfileAge.jsm");
+  let profileAgeDays;
 
-  Cu.import("resource://gre/modules/TelemetryEnvironment.jsm");
+  const {TelemetryEnvironment} = Cu.import("resource://gre/modules/TelemetryEnvironment.jsm");
 
   let isDefaultBrowser = TelemetryEnvironment.currentEnvironment.settings.isDefaultBrowser;
 
-  var promises = [];
+  let promises = [];
 
   let totalTime = 0;
   let totalActiveTicks = 0;
   let crashCount = 0;
   let sessionCount = 0;
 
-  for (var [k, v] of map){
+  for (let [k, v] of map){
       console.log(k, v);
 
       if (v["type"] !== "main" && v["type"] !== "crash")
@@ -344,7 +342,7 @@ exports.cleanUp =  function(options){
 
     // deleting os file storage files
     const DIR_PATH = require('sdk/io/file').join(require('sdk/system').pathFor("ProfD"), require('sdk/self').id + "-storage");
-    Cu.import("resource://gre/modules/osfile.jsm");
+    const {OS} =Cu.import("resource://gre/modules/osfile.jsm");
 
     let osPromise = OS.File.removeDir(DIR_PATH, {ignoreAbsent: true, ignorePermissions: true})
     .then(function(){
@@ -400,10 +398,11 @@ exports.dateTimeToString = function(date){
 exports.overridePrefs = function(fileName){
   let pj = require("sdk/self").data.load(fileName);
 
-  try {var newPrefs = JSON.parse(pj)}
+  let newPrefs;
+
+  try {newPrefs = JSON.parse(pj)}
   catch(e){console.log("failed to parse " + fileName + " as json")}
 
-  prefsSvc = Cc["@mozilla.org/preferences-service;1"]
   for (let p in newPrefs){
     if (p === null)
       continue;
@@ -456,7 +455,7 @@ const debug = {
       if (!args)  //does not match the basic pattern
         return false;
 
-      let subArgs, id;
+      let subArgs;
 
       let name = args[1];
       let params = args[2];
@@ -464,11 +463,11 @@ const debug = {
       switch(name){
         case "isVideoPlaying":
           return exports.isVideoPlaying();
-          break;
+          // break;
 
         case "isSoundPlaying":
           return exports.isSoundPlaying();
-          break;
+          // break;
 
         case "fhr":
           if (params === 'dump'){
@@ -479,7 +478,7 @@ const debug = {
 
           break;
 
-        case "pref":
+        case "pref":{
           
           subArgs = patt.exec(params);
           let pref = subArgs[1];
@@ -501,10 +500,11 @@ const debug = {
           //setting
           if (!prefs[pref]) 
             return pref + " created: " + value;
-          else
-            return pref + " updated: " + value;
 
-          break;
+          return pref + " updated: " + value;
+
+          // break;
+        }
 
         default: 
           return undefined;
@@ -517,4 +517,4 @@ const debug = {
 debug.init();
 
 exports.getFhrData = getFhrData
-exports.override  = function() merge.apply(null, arguments);
+exports.override  = ()=> merge.apply(null, arguments);

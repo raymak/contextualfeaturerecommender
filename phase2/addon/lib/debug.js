@@ -3,6 +3,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+
 "use strict";
 
 const {PageMod} = require("sdk/page-mod");
@@ -14,7 +15,6 @@ const {Cu, Cc, Ci} = require("chrome");
 const {TextEncoder} = require('sdk/io/buffer');
 const storage = require('./storage');
 const osFileObjects = storage.osFileObjects;
-Cu.import("resource://gre/modules/osfile.jsm");
 
 const HTML_URL = data.url("./debug.html");
 const JS_URL = data.url("./debug.js");
@@ -85,7 +85,7 @@ function isEnabled(){
 //http://stackoverflow.com/a/20392392/4015333
 const tryParseJSON  = function(jsonString){
   try {
-      var o = JSON.parse(jsonString);
+      let o = JSON.parse(jsonString);
 
       // Handle non-exception-throwing cases:
       // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
@@ -95,9 +95,9 @@ const tryParseJSON  = function(jsonString){
           return o;
       }
   }
-  catch (e) { }
-
-  return false;
+  catch (e) { 
+    return false;
+  }
 };
 
 function removeList(list){
@@ -268,6 +268,8 @@ function recordToEntry(rec){
 
 function exportData(options){
 
+  const {OS} = Cu.import("resource://gre/modules/osfile.jsm");
+
   let recordsObj = {};
 
   let lists = options && options.lists;
@@ -290,8 +292,6 @@ function exportData(options){
 
     recordsObj[rec.list][k] = recordToEntry(rec);
   }
-
-  const nsIFilePicker = Ci.nsIFilePicker;
 
   let writeToFile = function(path, message, options){
 
@@ -369,8 +369,6 @@ function handleCmd(handler, worker){
 function parseCmd(cmd, worker){
     const patt = /([^ ]*) *(.*)/; 
     let args = patt.exec(cmd);
-
-    let subArgs;
     
     if (!args)  //does not match the basic pattern
       return false;
@@ -380,7 +378,7 @@ function parseCmd(cmd, worker){
 
     switch(name){
 
-      case "debug":
+      case "debug":{
 
         let cmdObj = require("./utils").extractOpts(params);
 
@@ -418,7 +416,7 @@ function parseCmd(cmd, worker){
           }, cmdObj.d);
 
           return "command \"" + cmdObj.c + "\" will be executed in " + cmdObj.d + " ms.";
-          break;
+          // break;
 
         case "cancel all":
 
@@ -428,12 +426,14 @@ function parseCmd(cmd, worker){
           }
 
           return "all queued commands cancelled";
-          break;
+          // break;
 
           default:
             return "warning: incorrect use of the debug command";
-        }
+          }
+      
         break;
+      }
 
       default:
         return undefined;

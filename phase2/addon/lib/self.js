@@ -12,7 +12,7 @@ const system = require("sdk/system");
 const {handleCmd} = require("./debug");
 const {getFhrData, cleanUp, extractOpts} = require("./utils");
 const {merge} = require("sdk/util/object");
-Cu.import("resource://gre/modules/AddonManager.jsm");
+const {AddonManager} = Cu.import("resource://gre/modules/AddonManager.jsm");
 
 let selfData;
 const selfDataAddress = "self.data";
@@ -72,7 +72,6 @@ const self = {
     let addonTypes = [];
     let addonActivities = [];
     let addonForeignInstalls = [];
-    let arr = [];
     let extensionCount = 0;
     let themeCount = 0;
 
@@ -159,28 +158,26 @@ const debug = {
     const patt = /([^ ]*) *(.*)/; 
     let args = patt.exec(cmd);
 
-    let subArgs;
-    
     if (!args)  //does not match the basic pattern
       return false;
 
     let name = args[1];
-    let params = args[2];
 
     switch(name){
       case "uninstall":
         require("sdk/addon/installer").uninstall(require("sdk/self").id);
         return "addon uninstalled";
-        break;
+        // break;
       case "disable":
         require("sdk/addon/installer").disable(require("sdk/self").id);
         return "addon disabled"
-        break
-      case "cleanup":
+        // break
+      case "cleanup":{
         let opts = extractOpts(cmd);
         cleanUp(opts);
         return "cleaning up..."
-        break;
+        // break;
+      }
       default:
         return undefined
     }
