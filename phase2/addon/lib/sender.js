@@ -18,6 +18,7 @@ Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/osfile.jsm");
 
 const { TelemetryController } = Cu.import("resource://gre/modules/TelemetryController.jsm");
+const CID = Cu.import("resource://gre/modules/ClientID.jsm")
 
 const REMOTE_URL = "http://logs-01.loggly.com/inputs/ac4fee9c-9dc4-4dc9-8a1b-4094253067bb/tag/http/";
 
@@ -107,8 +108,6 @@ function generateTelemetryIdIfNeeded() {
 
 function sendToTelemetry (data) {
 
-  console.log("sending message to telemetry");
-  
   let telOptions = {addClientId: true, addEnvironment: true};
   generateTelemetryIdIfNeeded().then(()=>
   TelemetryController.submitExternalPing("x-contextual-feature-recommendation", data, telOptions)
