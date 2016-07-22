@@ -1,5 +1,5 @@
 {
-  "license": "MPL 2.0",
+  "license": "MPL-2.0",
   "description": "Firefox Guide recommends Firefox features that are likely to benefit you. It is an experimental addon and will be removed automatically.",
   "engines": {
     "firefox": ">=38.0a1"
