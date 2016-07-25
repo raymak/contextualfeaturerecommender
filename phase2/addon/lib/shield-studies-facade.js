@@ -1,4 +1,8 @@
 
+const addonPrefs = require("sdk/simple-prefs").prefs;
+const experiment = require("./experiment");
+
+/* variations */
 let variationsMod = {
   variations: {
     'all': function () {}
@@ -7,9 +11,14 @@ let variationsMod = {
   cleanup: function () {}
 };
 
+let surveyUrl = experiment.surveyUrl
+/* survey, was in experiment.js */
+
+
+
+
 /* 1. the modules needed to turn this into a STUDY */
 const xutils = require("shield-studies-addon-utils");
-const addonPrefs = require("sdk/simple-prefs").prefs;
 
 /* 2. configuration / setup constants for the study.
  *  These are only ones needed, or supported

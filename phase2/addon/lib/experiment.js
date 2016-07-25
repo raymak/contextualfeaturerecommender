@@ -91,7 +91,7 @@ const experiment = {
 
     let stTimeMs = startTimeMs();
     return {startTimeMs: stTimeMs,
-            startLocaleTime: (new Date(Number(stTimeMs))).toLocaleString(),  
+            startLocaleTime: (new Date(Number(stTimeMs))).toLocaleString(),
             name: name, stage: expData.stage,
             mode: expData.mode};
   },
@@ -114,7 +114,7 @@ const experiment = {
       expData.userId = require("sdk/util/uuid").uuid().toString().slice(1,-1); //set for the first time
       prefs["userId"] = expData.userId; // for easier reading of userId
     }
-    
+
     return expData.userId
   },
   checkStage: checkStage
@@ -135,9 +135,9 @@ function initExpData(){
 }
 
 // also sets start date when called for the first time
-function startTimeMs(){  
+function startTimeMs(){
   if (!("startTimeMs" in expData)){
-    expData.startTimeMs = Date.now().toString(); // set for the first time 
+    expData.startTimeMs = Date.now().toString(); // set for the first time
     prefs["startTimeMs"] = expData.startTimeMs; // for easier reading og start time
   }
 
@@ -188,7 +188,7 @@ function checkStage(et, ett){
 
   if (expData.stageForced)
     return ;
-  
+
   // when called from index.js
   if (ett === undefined)
     ett = timer.elapsedTotalTime();
@@ -230,7 +230,7 @@ const stages = {
     })
     .then(()=> PersistentObject("osFile", {address: "timer.data"}))
     .then((timerData)=> {
-      timerData.silence_length_s = 
+      timerData.silence_length_s =
           timer.tToS(prefs["delivery.mode.silence_length." + expData.mode.rate_limit]);
 
       require('./route').coefficient(String(expData.mode.coeff));
@@ -267,7 +267,15 @@ const stages = {
 
     });
   },
-  end: end
+  end: end,
+  get surveyUrl: function () {
+    return "https://qsurvey.mozilla.com/s3/cfr-end-of-study?" +
+       ["userid=" + experiment.userId,
+        "coeff=" + expData.mode.coeff,
+        "moment=" + expData.mode.moment,
+        "rate_limit=" + expData.mode.rateLimit].join("&")
+    ;
+  }
 };
 
 function end(){
@@ -348,9 +356,9 @@ const debug = {
   },
 
   parseCmd: function(cmd){
-    const patt = /([^ ]*) *(.*)/; 
+    const patt = /([^ ]*) *(.*)/;
     let args = patt.exec(cmd);
-    
+
     if (!args)  //does not match the basic pattern
       return false;
 
@@ -378,7 +386,7 @@ const debug = {
           return "warning: experiment stage forced to " + subArgs[1];
 
           break;
-      default: 
+      default:
         return undefined;
     }
 
@@ -392,7 +400,7 @@ function setMode(weights){
   console.log(weights);
 
   let modeCode = require("./utils").weightedRandomInt(JSON.parse(prefs["experiment.default_delMode_weights"]));
-  
+
   if (prefs["experiment.override_mode"]){
     console.log("experiment mode overrided");
     modeCode = quickCodes[prefs["experiment.override_mode"]];
