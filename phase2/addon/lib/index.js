@@ -120,7 +120,7 @@ exports.onUnload = function(reason){
 
   require('./sender').flush();
 
-  if (reason == "uninstall" && prefs["cleanup_on_death"])
+  if (!prefs["cleanup_handled_by_xutils"] && reason == "uninstall" && prefs["cleanup_on_death"])
     require('./utils').cleanUp({reset: true});
 
   console.log("end of unload");

@@ -257,6 +257,16 @@ const stages = {
 };
 
 function end(){
+
+  if (!prefs["survey_handled_by_xutils"]  && prefs["experiment.enable_post_study_survey"]){
+    require("sdk/tabs").open("https://qsurvey.mozilla.com/s3/cfr-end-of-study?"
+     + ["userid=" + experiment.userId,
+        "coeff=" + expData.mode.coeff,
+        "moment=" + expData.mode.moment,
+        "rate_limit=" + expData.mode.rateLimit].join("&")
+      );
+  }
+
     // to make sure no notifications are delivered during the delay
   return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
   .then((deliveryData)=> {
@@ -269,15 +279,6 @@ function end(){
 
     require('./logger').logEnd();
 
-    if (prefs["experiment.enable_post_study_survey"]){
-        require("sdk/tabs").open("https://qsurvey.mozilla.com/s3/cfr-end-of-study?"
-         + ["userid=" + experiment.userId,
-            "coeff=" + expData.mode.coeff,
-            "moment=" + expData.mode.moment,
-            "rate_limit=" + expData.mode.rateLimit].join("&")
-          );
-      }
-
     require("./self").getPeriodicInfo(function(info){
       require("./logger").logPeriodicSelfInfo(info);
 
@@ -286,7 +287,8 @@ function end(){
     });
 
     // delay to give some time for the remaining message queue to be flushed
-    setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"]);
+    if (!prefs["death_handled_by_xutils"] && !prefs["experiment.live_forever"])
+      setTimeout(function() {require("./utils").selfDestruct("end");}, prefs["experiment.modes.end.delay"]);
   });
 }
 

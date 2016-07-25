@@ -4,7 +4,7 @@ let variationsMod = {
     'all': function () {}
   },
   isEligible: function () {return true},
-  cleanup: function () {}
+  cleanup: function () {require('./utils').cleanUp({reset: true})}
 };
 
 /* 1. the modules needed to turn this into a STUDY */
