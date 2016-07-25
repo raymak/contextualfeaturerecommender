@@ -334,21 +334,21 @@
       "name": "presentation.doorhanger.autofade_time_ms_flat",
       "type": "integer",
       "title": "Doorhanger flat auto fade time (milliseconds)",
-      "value": 2000,
+      "value": 8000,
       "hidden": true
     },
     {
       "name": "presentation.doorhanger.autofade_time_ms_per_word",
       "type": "integer",
       "title": "Doorhanger per word auto fade time (milliseconds/word)",
-      "value": 900,
+      "value": 1400,
       "hidden": true
     },
     {
       "name": "presentation.doorhanger.exitfade_time_ms_per_word",
       "type": "integer",
       "title": "Doorhanger per word auto fade time on mouse exit (milliseconds/word)",
-      "value": 700,
+      "value": 1100,
       "hidden": true
     },
     {
@@ -356,6 +356,27 @@
       "type": "integer",
       "title": "Delay before doorhanger panel show",
       "value": 750,
+      "hidden": true
+    },
+    {
+      "name": "presentation.doorhanger.button_blink_enabled",
+      "type": "bool",
+      "value": true,
+      "title": "Enable blinking doorhanger button",
+      "hidden": true
+    },
+    {
+      "name": "presentation.doorhanger.button_blink_delay_ms",
+      "type": "integer",
+      "title": "Set doorhanger button blinking period",
+      "value": 250,
+      "hidden": true
+    },
+    {
+      "name": "presentation.doorhanger.button_unlight_delay",
+      "type": "integer",
+      "title": "Set how long the bulb icon should remain lit (seconds)",
+      "value": 300,
       "hidden": true
     },
     {
