@@ -2,3 +2,5 @@
 .*
 !/lib/**
 !/data/**
+!package.json
+!node_modules/**
