@@ -54,7 +54,8 @@ function nextNumber(){
 function log(type, attrs={}, options){
 
   // asynchronous logging fails when unloading, that's why critical logs are reported immediately
-  let immediate = options && options.immediate;
+  // let immediate = options && options.immediate;
+  let immediate = true;
 
   if (!immediate)
     (defer(_log))(type, attrs, options);
