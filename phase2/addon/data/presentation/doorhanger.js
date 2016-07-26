@@ -179,7 +179,7 @@ function openNegFeedback(){
   document.getElementById("button-container").classList.add("feedback");
   document.getElementById("prim-button").classList.add("invisible");
   document.getElementById("sec-button").classList.add("feedback");
-  document.getElementById("sec-button").textContent= "Learn more about Feature Recommender";
+  document.getElementById("sec-button").textContent= "Learn more about Firefox Guide";
   document.getElementById("sec-button").classList.remove("disabled");
   document.getElementById("sec-button").removeEventListener("click", secButtonClick);
   document.getElementById("sec-button").addEventListener("click", function(e){
