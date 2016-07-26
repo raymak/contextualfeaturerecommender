@@ -25,7 +25,7 @@ const self = require("./self");
 const system = require("sdk/system");
 const windows = require("sdk/windows");
 const {handleCmd} = require("./debug");
-const {data} = require("sdk/self");
+const {data, loadReason} = require("sdk/self");
 const unload = require("sdk/system/unload").when;
 const logger = require("./logger");
 const featReport = require("./feature-report");
@@ -226,15 +226,16 @@ const listener = {
       addonEvent.wake();
     });
 
-    this.listenForUserActivity(function(){
+    this.listenForInterruptibleMoment(function(reason){
 
       let interruptibleMomentEvent = Event("interruptibleMomentEvent",
       {
-        route: "moment interruptible"
+        route: "moment interruptible",
+        reason: "reason"
       });
 
       interruptibleMomentEvent.checkPreconditions = function(){
-        return timer.isRecentlyActive(10, 20*60);
+        return reason == "startup" || timer.isRecentlyActive(10, 20*60);
       };
 
       let multipleInterruptibleMomentEvent = that.multipleRoute(interruptibleMomentEvent, {
@@ -1732,7 +1733,7 @@ listener.listenForHistory = function(callback){
 
 listener.listenForPrivateBrowsing = function(callback){
   windows.browserWindows.on('open', function(window){
-    if (require("sdk/private-browsing").isPrivate(window)){
+    if (isPrivate(window)){
       callback('open');
       
     }
@@ -1800,8 +1801,13 @@ listener.listenForContentType = function(callback, contentTypes){
   contentTypeObserver.register();
 }
 
-listener.listenForUserActivity = function(callback){
-  timer.onUserActive(callback);
+listener.listenForInterruptibleMoment = function(callback){
+  if (loadReason == 'startup'){
+    console.log("YOYOYYO");
+    callback('startup'); 
+  }
+
+  timer.onUserActive(()=> {callback('user-active')});
 }
 
 
@@ -1829,7 +1835,7 @@ listener.listenForFirefoxEvents = function(callback){
 
   callback('profiles', {number: num});
 
-  if (require('sdk/self').loadReason == "startup")
+  if (loadReason == "startup")
     callback('startup'); 
 }
 
