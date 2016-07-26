@@ -236,9 +236,9 @@ function show(panel, options, anchor) {
 exports.show = show
 
 function fadeOut(panel){
-  panel.style.transition = "opacity 0.4s ease-in 0s";
+  panel.style.transition = "opacity 0.6s ease-in 0s";
   panel.firstChild.contentDocument.body.style.overflow = "hidden";
-  panel.firstChild.style.transition = "height 0.5s, width 0.5s";
+  panel.firstChild.style.transition = "height 0.7s, width 0.7s";
   panel.firstChild.style.height = "0px";
   panel.firstChild.style.width = "0px";
   // panel.firstChild.style.opacity = 0;
@@ -248,7 +248,7 @@ function fadeOut(panel){
     close(panel);
     panel.firstChild.style.removeProperty("transition");
     panel.style.removeProperty("transition");
-  }, 400, panel);
+  }, 600, panel);
 }
 exports.fadeOut = fadeOut
 

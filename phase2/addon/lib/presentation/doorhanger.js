@@ -30,6 +30,7 @@ let dhData; //initialized in init()
 let panel;
 let button;
 let hideTimeout;
+let unlightTimeout;
 let letReopen = true;
 let wrdCnt; //for auto-adjuting fading time
 let buttonChecked = false;
@@ -80,6 +81,7 @@ function _init(){
 
   unload(()=>{
     clearTimeout(hideTimeout);
+    clearTimeout(unlightTimeout);
   });
 
   console.timeEnd("doorhanger init");
@@ -147,7 +149,6 @@ function negFbOrder(){
 
   return perms;
 }
-
 
 function present(aRecommendation, cmdCallback){
 
@@ -230,6 +231,11 @@ function scheduleHide(time_ms){
   }, time_ms);
 }
 
+function scheduleUnlight(){
+  clearTimeout(unlightTimeout);
+  unlightTimeout = setTimeout(unlightButton, prefs["presentation.doorhanger.button_unlight_delay"]*1000);
+}
+
 function showPanel(delay_ms, panelOptions){
 
   closedwithreason = false;
@@ -253,10 +259,12 @@ function hidePanel(fadeOut){
 
   clearTimeout(hideTimeout);
 
-  if (fadeOut)
+  if (fadeOut){
     panel.fadeOut();
-  else
+  }
+  else {
     panel.hide();
+  }
 
 }
 
@@ -264,13 +272,32 @@ function buttonClick(state){
 
  if (!buttonChecked){
     if (!panel.isShowing)
-      if (letReopen)
+      if (letReopen){
        updateShow({noschedule: true, nodelay:true, noinit: true}, {autohide: true, focus: true});
-     else
+      }
+    else
       button.state("window", {checked: false});
   }
   else
     pHide("bulbbutton", true);
+}
+
+function blinkButton(){
+
+  if (!prefs["presentation.doorhanger.button_blink_enabled"]) return Promise.resolve();
+
+  if (!button) return Promise.reject();
+
+  let p = prefs["presentation.doorhanger.button_blink_delay_ms"];
+
+  return delay(lightButton, 500)
+  .then(()=> delay(unlightButton, p))
+  .then(()=> delay(lightButton, p))
+  .then(()=> delay(unlightButton, p))
+  .then(()=> delay(lightButton, p))
+  .then(()=> delay(unlightButton, p))
+  .then(()=> delay(lightButton, p))
+  .then(()=> delay(unlightButton, p));
 }
 
 /*
@@ -281,13 +308,22 @@ function buttonSwitch(state){
     buttonOff();
 }
 */
+
 function buttonChange(state){
 
 }
 
+function lightButton(){
+  button.icon = "./ui/icons/lightbulb_gr.png";
+}
+
+function unlightButton(){
+  button.icon = "./ui/icons/lightbulb_bw.png";
+}
 
 function buttonOn(){
-  button.icon = "./ui/icons/lightbulb_gr.png";
+  clearTimeout(unlightTimeout);
+  lightButton();
   if (buttonChecked) return;
   //when sate is changed as below, button.state does not change, it only changes by button.click()
   button.state("window", {checked: true});
@@ -295,7 +331,7 @@ function buttonOn(){
 }
 
 function buttonOff(){
-  button.icon = "./ui/icons/lightbulb_bw.png";
+  unlightButton();
   if (!buttonChecked) return;
   button.state("window", {checked: false});
   buttonChecked = false;
@@ -322,8 +358,9 @@ function onPanelHide(){
   let currRec = dhData.currentRec;
   let report = currRec.report;
 
-  if (currRec.state.count == 1)
+  if (currRec.state.count == 1){
     report.firstopen = showLength;
+  }
 
   require("./../stats").event("dhHide", {collectInstance: true},
     { id: currRec.recomm.id,
@@ -334,8 +371,9 @@ function onPanelHide(){
 
   report.totalopen = report.totalopen + showLength;
 
-  if (!closedwithreason)
+  if (!closedwithreason){
     report.autofade = report.autofade + 1;
+  }
 
   dhData.currentRec = merge(currRec, {report: report});
 }
@@ -388,6 +426,10 @@ function pHide(reason, fadeOut){
   closedwithreason = true;
 
   hidePanel(fadeOut);
+
+ if (reason == "autohide" && currRec.state.count == 1)
+    blinkButton().then(lightButton).then(scheduleUnlight);
+
 }
 
 function pMouseenter(){
@@ -416,8 +458,6 @@ function openInfoPage(){
   report.infopage = report.infopage + 1;
 
   dhData.currentRec = merge(currRec, {report: report});
-
-
 }
 
 function resize(size){
@@ -548,6 +588,14 @@ function stop(){
     updateReport();
     report(); //report the last recommendation
   }
+}
+
+function delay(fn, ms){
+  return new Promise(function(resolve, reject){
+    setTimeout(()=>{
+      resolve(fn());
+    }, ms)
+  });
 }
 
 const debug = {
