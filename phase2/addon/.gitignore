@@ -4,3 +4,6 @@ scripts/*
 .DS_Store
 *.update.rdf
 node_modules/*
+coverage/
+test/z-ensure-coverage.js
+testing-env
