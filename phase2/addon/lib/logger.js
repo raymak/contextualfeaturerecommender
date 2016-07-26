@@ -16,6 +16,8 @@ const {send} = require("./sender");
 const {prefs} = require("sdk/simple-prefs");
 const {defer} = require("sdk/lang/functional");
 const unload = require("sdk/system/unload").when;
+const {Cu} = require("chrome");
+const {TelemetryController} = Cu.import("resource://gre/modules/TelemetryController.jsm");
 
 const loggerDataAddress = "logger.data";
 let loggerData;
@@ -71,6 +73,7 @@ function _log(type, attrs, options){
   }
 
   let OUT = {
+    telid: TelemetryController.clientID,
     userid: require('./experiment').userId,
     number: nextNumber(),
     is_test: self.isTest,
@@ -112,6 +115,7 @@ function _log_headless(type, attrs, options){
   let userid = prefs["userId"];
 
   let OUT = {
+    telid: TelemetryController.clientID,
     userid: userid,
     ts: Date.now(),
     localeTime: (new Date(Date.now())).toLocaleString(),   

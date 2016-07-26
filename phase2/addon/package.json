@@ -43,7 +43,7 @@
       "name": "clean_install",
       "type": "bool",
       "title": "Reset preferences and data upon installation",
-      "value": true,
+      "value": false,
       "hidden": true
     },
     {
