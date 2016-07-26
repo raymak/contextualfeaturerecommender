@@ -268,7 +268,7 @@ const stages = {
     });
   },
   end: end,
-  get surveyUrl: function () {
+  get surveyUrl () {
     return "https://qsurvey.mozilla.com/s3/cfr-end-of-study?" +
        ["userid=" + experiment.userId,
         "coeff=" + expData.mode.coeff,
