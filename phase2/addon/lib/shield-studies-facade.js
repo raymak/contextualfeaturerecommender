@@ -1,12 +1,3 @@
-
-let variationsMod = {
-  variations: {
-    'all': function () {}
-  },
-  isEligible: function () {return true},
-  cleanup: function () {}
-};
-
 /* 1. the modules needed to turn this into a STUDY */
 const xutils = require("shield-studies-addon-utils");
 const addonPrefs = require("sdk/simple-prefs").prefs;
@@ -14,6 +5,20 @@ const addonPrefs = require("sdk/simple-prefs").prefs;
 /* 2. configuration / setup constants for the study.
  *  These are only ones needed, or supported
  */
+const {quickCodes, modes} = require("./experiment-modes");
+
+let variations = {};
+
+Object.keys(quickCodes).forEach(function(v){
+  variations[v] = function(){addonPrefs["shield.variation"] = v};
+});
+
+let variationsMod = {
+  variations: variations,
+  isEligible: function () {return true},
+  cleanup: function () {}
+};
+
 const forSetup = {
   name: require("sdk/self").id, // unique for Telemetry
   choices: Object.keys(variationsMod.variations), // names of branches.
@@ -23,7 +28,17 @@ const forSetup = {
 };
 
 // 3. Study Object (module singleton);
-var ourConfig = xutils.xsetup(forSetup);
+var ourConfig = xutils.xsetup(forSetup); 
+// branch is now chosen; change the url
+let mode = modes[quickCodes[ourConfig.variation]];
+
+ourConfig.surveyUrl = "https://qsurvey.mozilla.com/s3/cfr-end-of-study?"
+         + [
+            "coeff=" + mode.coeff,
+            "moment=" + mode.moment,
+            "rate_limit=" + mode.rateLimit
+            ].join("&");
+
 let thisStudy = new xutils.Study(ourConfig, variationsMod);
 
 // 3a (optional). Watch for changes and reporting

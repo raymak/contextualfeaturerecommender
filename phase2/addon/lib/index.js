@@ -13,14 +13,14 @@ const recommFileAddress = prefs["recomm_list_address"];
 const shield = require("./shield-studies-facade");
 
 exports.main = function(options, callbacks){
-  shield.main(options, callbacks);
-
   console.log("Hello World! I am alive :)");
 
   console.time("full load");
   console.time("initial load");
 
   let installRunPromise = resolve()
+  .then(shield.generateTelemetryIdIfNeeded)
+  .then(()=> shield.main(options, callbacks))
   .then(()=> {
     if (options.loadReason === "install" || prefs["clean_startup"])
       return installRun();
@@ -120,7 +120,7 @@ exports.onUnload = function(reason){
 
   require('./sender').flush();
 
-  if (reason == "uninstall" && prefs["cleanup_on_death"])
+  if (!prefs["cleanup_handled_by_xutils"] && reason == "uninstall" && prefs["cleanup_on_death"])
     require('./utils').cleanUp({reset: true});
 
   console.log("end of unload");

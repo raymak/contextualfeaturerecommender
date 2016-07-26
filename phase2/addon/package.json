@@ -43,6 +43,29 @@
       "name": "clean_install",
       "type": "bool",
       "title": "Reset preferences and data upon installation",
+      "value": false,
+      "hidden": true
+    },
+    {
+      "name": "cleanup_handled_by_xutils",
+      "type": "bool",
+      "title": "Delegate clean up to shield studies utils",
+      "description": "If set, disable and end-of-study clean up will be handled by the shield addon utils.",
+      "value": true,
+      "hidden": true
+    },
+    {
+      "name": "death_handled_by_xutils",
+      "type": "bool",
+      "title": "Delegate death timing to shield studies utils",
+      "value": true,
+      "hidden": true
+    },
+    {
+      "name": "survey_handled_by_xutils",
+      "type": "bool",
+      "title": "Delegate survey opening to shield studies utils",
+      "description": "If set, disable and end-of-study survey opening will be handled by the shield addon utils.",
       "value": true,
       "hidden": true
     },
@@ -206,6 +229,13 @@
       "type": "integer",
       "title": "Immediate try time range",
       "value": 30,
+      "hidden": true
+    },
+    {
+      "name": "experiment.live_forever",
+      "type": "bool",
+      "title": "Let the study live forever in the end stage",
+      "value": true,
       "hidden": true
     },
     {
