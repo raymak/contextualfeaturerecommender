@@ -33,6 +33,7 @@ const statsEvent = require("./stats").event;
 const functional = require("sdk/lang/functional");
 const {defer, all} = require("sdk/core/promise")
 const {PersistentObject, osFileObjects} = require("./storage");
+const dh = require('./presentation/doorhanger');
 
 const {Downloads} = Cu.import("resource://gre/modules/Downloads.jsm");
 const {Task} = Cu.import("resource://gre/modules/Task.jsm");
@@ -654,6 +655,12 @@ const deliverer = {
     let aRecommendation = minRec;
 
     let rejectDelivery = false;
+
+    if (dh.buttonInited() && (!dh.buttonPlacement() || dh.buttonPlacement() == 'addon-bar')){
+      console.log("delivery rejected due to button replacement");
+      statsEvent("dh-button-moved-reject", {type: "delivery"});
+      rejectDelivery = true;
+    }
 
     if (prefs["passive_mode"]){
       console.log("delivery rejected due to passive mode");

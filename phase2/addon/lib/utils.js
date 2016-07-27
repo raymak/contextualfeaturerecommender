@@ -416,6 +416,25 @@ exports.overridePrefs = function(fileName){
   }
 }
 
+exports.findButtonPlacement = function(name){
+
+  try{
+    let placements = JSON.parse(require("sdk/preferences/service")
+                     .get("browser.uiCustomization.state", null))
+                     .placements;
+
+    for (let k in placements){
+      if (~placements[k].indexOf(name))
+        return k;
+    }
+  }
+  catch(e){
+    return null;
+  }
+
+  return null;
+}
+
 exports.selfDestruct = function(reason){
   console.log("self-destructing...");
   console.log("Goodbye cruel world... I'm leaving you today...");
