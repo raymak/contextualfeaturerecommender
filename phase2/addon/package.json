@@ -110,7 +110,7 @@
       "name": "timer.random_interval_length_tick",
       "type": "integer",
       "title": "Maximum length of the random time interval",
-      "value": 40,
+      "value": 100,
       "hidden": true
     },
     {
