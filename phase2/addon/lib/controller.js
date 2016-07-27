@@ -2189,8 +2189,8 @@ function loadRecFile(file){
       }
 
       if (recData.tags && prefs["exclude_tags"]){
-        let tags = recData.tags.split(";").map(s => s.trim())
-        let tags_exclude = prefs["exclude_tags"]
+        let tags = recData.tags.split(";").map(s => s.trim());
+        let tags_exclude = prefs["exclude_tags"];
 
         for (let tag of tags)
           if (~tags_exclude.indexOf(tag))

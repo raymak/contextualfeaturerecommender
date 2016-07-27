@@ -1,17 +1,19 @@
 body {
-        background: white;
-        padding: 0px 50px 50px 50px;
+    background: white;
+    padding: 0px 50px 50px 50px;
 
-        margin: 0px;
+    margin: 0px;
     }
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 500;
+}
 
 #container {
     width: 600px;
     margin-left: auto;
     margin-right: auto;
-    
-
-    font-family: 'Open Sans', sans-serif, 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+    font-family: Fira Sans, 'Open Sans', sans-serif, 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
 }
 
 #header {
@@ -19,11 +21,9 @@ body {
     position: sticky;
     background: white;
     top: 0;
-    font-family: 'Open Sans', sans-serif, 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
+    font-family: Fira Sans, 'Open Sans', sans-serif, 'Lucida Grande', 'Helvetica Neue', Helvetica, sans-serif;
     margin-bottom: 20px;
     padding-bottom: 10px;
-
-
 }
 
 
@@ -35,7 +35,6 @@ body {
     height: 80px;
     border-bottom: 3px groove black;
     padding-bottom: 10px;
-
 }
 
 #header div.image-div {

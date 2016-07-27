@@ -13,6 +13,11 @@ const featReport = require("./feature-report");
 
 const Recommendation = function(data) {
 
+  let tags = data.tags.split(";").map(s => s.trim());
+
+  if (~tags.indexOf('keyboard-shortcut'))
+    data.presentationData['*'] = merge({}, {icon: "images/icons/keyboard.png"}, data.presentationData['*']);  // using the keyboard icon for keyboard shortcuts
+
   data.presentationData['*'] = merge({}, {icon: ["images/icons/", data.id, ".png"].join("")}, data.presentationData['*']);
 
   let nRecommendation = {
