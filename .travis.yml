@@ -6,12 +6,13 @@ node_js:
 env:
 - TRAVIS=1
 
+before_install:
+  - cd phase2/addon
+
 before_script:  # turn off screen
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
   - sleep 2 # give xvfb some time to start
-  - cd phase2/addon
-
 
 addons:
   firefox: "latest"
