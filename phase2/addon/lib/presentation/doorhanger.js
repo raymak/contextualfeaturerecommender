@@ -16,7 +16,7 @@ const {prefs} = require("sdk/simple-prefs");
 const {data} = require("sdk/self");
 const {merge} = require("sdk/util/object");
 const {dumpUpdateObject, handleCmd, isEnabled} = require("../debug");
-const {logDhReport, logDhPresent} = require("../logger");
+const {logDhReport, logDhPresent, logDhButtonReplacement} = require("../logger");
 const timer = require("../timer");
 const self = require("../self");
 const featReport = require("../feature-report");
@@ -200,6 +200,12 @@ function updateEntry(options){
   panel.port.emit("updateEntry", entry, currentRec.state, {negFbOrder: negFbOrder(), os: self.sysInfo.os});
 
   wrdCnt = wordCount(entry.message);
+
+  let placement = buttonPlacement();
+
+  if (placement != 'nav-bar'){
+    logDhButtonReplacement({placement: placement});
+  }
 
   return new Promise(function(resolve, reject){
     panel.port.on("loaded", function(){resolve()});
@@ -590,6 +596,16 @@ function stop(){
   }
 }
 
+function buttonInited(){
+  return !!button;
+}
+
+function buttonPlacement(){
+  let buttonId = ('toggle-button--' + require('sdk/self').id.toLowerCase()+ '-' + button.id).
+   replace(/[^a-z0-9_-]/g, '');
+  return require('../utils').findButtonPlacement(buttonId);
+}
+
 function delay(fn, ms){
   return new Promise(function(resolve, reject){
     setTimeout(()=>{
@@ -657,4 +673,6 @@ const debug = {
 
 exports.init = init;
 exports.stop = stop;
+exports.buttonInited = buttonInited;
+exports.buttonPlacement = buttonPlacement;
 exports.present = present;
