@@ -4,4 +4,5 @@
   # but not .DS_Store files!
 {lib,data}/**/.DS_Store
 !/package.json
+!/icon.png
 !/node_modules/shield-studies-addon-utils/**
