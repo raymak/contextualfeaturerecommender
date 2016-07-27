@@ -427,6 +427,7 @@
     "grunt-istanbul": "^0.7.0",
     "grunt-shell": "^1.3.0",
     "istanbul-jpm": "^0.1.0",
+    "jpm": "^1.1.2",
     "shield-studies-addon-utils": "^1.2.0"
   },
   "scripts": {
