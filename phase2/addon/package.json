@@ -257,7 +257,7 @@
       "name": "experiment.name",
       "type": "string",
       "title": "Name of the very deployed experiment",
-      "value": "cfr-shield",
+      "value": "cfr-shield-1",
       "hidden": true
     },
     {
@@ -271,7 +271,7 @@
       "name": "experiment.intervention_length_tick",
       "type": "integer",
       "title": "Length of the intervention period (ticks)",
-      "value": 25920,
+      "value": 28080,
       "hidden": true
     },
     {
@@ -285,7 +285,7 @@
       "name": "experiment.modes.end.delay",
       "type": "integer",
       "title": "Delay before killing the addon",
-      "value": 20000,
+      "value": 10000,
       "hidden": true
     },
     {
@@ -357,7 +357,7 @@
       "name": "sender.send_to_telemetry",
       "type": "bool",
       "title": "Send data to Telemetry",
-      "value": false,
+      "value": true,
       "hidden": true
     },
     {
