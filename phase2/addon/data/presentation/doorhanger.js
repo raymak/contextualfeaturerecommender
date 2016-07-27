@@ -176,7 +176,7 @@ function openNegFeedback(){
   document.getElementById("interpunct").classList.add("invisible");
   document.getElementById("info-page").classList.add("invisible");
   document.getElementById("neg-feedback").classList.add("active");
-  document.getElementById("button-container").classList.add("feedback");
+  // document.getElementById("button-container").classList.add("feedback");
   document.getElementById("prim-button").classList.add("invisible");
   document.getElementById("sec-button").classList.add("feedback");
   document.getElementById("sec-button").textContent= "Learn more about Firefox Guide";

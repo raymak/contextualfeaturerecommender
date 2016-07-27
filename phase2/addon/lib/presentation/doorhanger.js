@@ -433,7 +433,7 @@ function pHide(reason, fadeOut){
 
   hidePanel(fadeOut);
 
- if (reason == "autohide" && currRec.state.count == 1)
+ if (reason == "autohide" && currRec.state.count == 1 && !report.primbtn && !report.secbtn)
     blinkButton().then(lightButton).then(scheduleUnlight);
 
 }
@@ -467,7 +467,7 @@ function openInfoPage(){
 }
 
 function resize(size){
-  panel.resize(size.width+3, size.height+3);
+  panel.resize(size.width+2, size.height+2);
 }
 
 function response(element, options){
