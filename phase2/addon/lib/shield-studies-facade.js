@@ -24,7 +24,7 @@ const forSetup = {
   choices: Object.keys(variationsMod.variations), // names of branches.
   duration: 30,   // in days,
   /* Get surveyUrl from Strategy + Insights */
-  surveyUrl: "https://qsurvey.mozilla.com/s3/Shield-Study-Example-Survey"
+  surveyUrl: "https://qsurvey.mozilla.com/s3/Firefox-Guide-Study-1-End-of-Study"
 };
 
 // 3. Study Object (module singleton);
@@ -32,7 +32,7 @@ var ourConfig = xutils.xsetup(forSetup);
 // branch is now chosen; change the url
 let mode = modes[quickCodes[ourConfig.variation]];
 
-ourConfig.surveyUrl = "https://qsurvey.mozilla.com/s3/cfr-end-of-study?"
+ourConfig.surveyUrl = "https://qsurvey.mozilla.com/s3/Firefox-Guide-Study-1-End-of-Study?"
          + [
             "coeff=" + mode.coeff,
             "moment=" + mode.moment,
