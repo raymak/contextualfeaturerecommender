@@ -267,6 +267,10 @@ function logMissingElement(info){
   log("MISSING_ELEMENT", info);
 }
 
+function logDhButtonReplacement(info){
+  log("DH_BUTTON_REPLACEMENT", info);
+}
+
 const debug = {
   init: function(){
     handleCmd(this.parseCmd);
@@ -329,4 +333,5 @@ exports.logLongInactivity = logLongInactivity;
 exports.logLongInactivityBack = logLongInactivityBack;
 exports.logPrefs = logPrefs;
 exports.logMissingElement = logMissingElement;
+exports.logDhButtonReplacement = logDhButtonReplacement;
 exports.logEnd = logEnd;
