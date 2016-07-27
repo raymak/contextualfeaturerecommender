@@ -9,7 +9,7 @@ const {prefs} = require("sdk/simple-prefs");
 const exp = require("./experiment");
 const AS = require("./async-storage-wrapper").open('stats');
 const {dumpUpdateObject, handleCmd, isEnabled, removeList} = require("./debug");
-const {elapsedTime, elapsedTotalTime} = require("./timer");
+const {elapsedTime, elapsedTotalTime, onTick} = require("./timer");
 const {PersistentObject} = require("./storage");
 const {merge} = require("sdk/util/object");
 const {resolve} = require("sdk/core/promise");
@@ -42,8 +42,8 @@ function _init(){
 
   handleCmd(debug.parseCmd);
 
-  require('./timer').onTick(periodicLog);
-  require('./timer').onTick(checkForMemoryLoss);
+  onTick(periodicLog);
+  onTick(checkForMemoryLoss);
 
   checkForMemoryLoss();
 

@@ -178,7 +178,7 @@ function checkStage(et, ett){
 const stages = {
   obs1: function(){
 
-    return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
+    return PersistentObject("osFile", {address: "delivery.data"})
     .then((deliveryData)=> {
 
       let mode = expData.mode;
@@ -198,7 +198,7 @@ const stages = {
   },
   intervention: function(){
 
-    return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
+    return PersistentObject("osFile", {address: "delivery.data"})
     .then((deliveryData)=> {
 
       deliveryData.mode = merge(deliveryData.mode, {observ_only: false});
@@ -210,7 +210,7 @@ const stages = {
     });
   },
   obs2: function(){
-    return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
+    return PersistentObject("osFile", {address: "delivery.data"})
     .then((deliveryData)=> {
 
       deliveryData.mode = merge(deliveryData.mode, {observ_only: true});
@@ -239,7 +239,7 @@ function end(){
   }
 
     // to make sure no notifications are delivered during the delay
-  return require('./storage').PersistentObject("osFile", {address: "delivery.data"})
+  return PersistentObject("osFile", {address: "delivery.data"})
   .then((deliveryData)=> {
 
     deliveryData.mode = merge(deliveryData.mode, {observ_only: true});

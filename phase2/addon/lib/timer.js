@@ -6,7 +6,6 @@
 "use strict";
 
 const {setInterval, clearInterval} = require("sdk/timers");
-const {PersistentObject} = require("./storage");
 const sp = require("sdk/simple-prefs");
 const prefs = sp.prefs;
 const {Cc, Ci} = require("chrome");
@@ -29,7 +28,7 @@ let tickInterval;
 let startTimeMs;
 
 const init = function(){
-  return PersistentObject("osFile", {address: timerDataAddress})
+  return require('./storage').PersistentObject("osFile", {address: timerDataAddress})
   .then((obj)=> {
     timerData = obj;
   }).then(_init);
