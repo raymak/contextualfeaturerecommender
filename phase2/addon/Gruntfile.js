@@ -11,6 +11,9 @@ module.exports = function(grunt) {
             }
         },
         shell: {
+            addonLintTest: {
+                command: 'jpm xpi; addons-linter --output json --pretty *xpi | node addon-lint-consumer.js',
+            },
             makeCoverageTest: {
                 command: "echo > test/z-ensure-coverage.js; git ls-tree -r HEAD --name-only lib | grep \"js$\" | xargs -I '{}' echo 'require(\"../{}\");' | egrep -v \"(jetpack|main.js)\" >> test/z-ensure-coverage.js",
             },
@@ -60,8 +63,8 @@ module.exports = function(grunt) {
 
     if (process.env.TRAVIS) {
         grunt.log.ok("testing with travis path for fx");
-        grunt.registerTask('test', ['eslint', 'instrument', 'shell:makeCoverageTest', 'shell:makeTestEnv', 'shell:jpmTestTravis', 'readcoverageglobal', 'storeCoverage', 'makeReport']);
+        grunt.registerTask('test', ['eslint', 'shell:addonLintTest', 'instrument', 'shell:makeCoverageTest', 'shell:makeTestEnv', 'shell:jpmTestTravis', 'readcoverageglobal', 'storeCoverage', 'makeReport']);
     } else {
-        grunt.registerTask('test', ['eslint', 'instrument', 'shell:makeCoverageTest', 'shell:makeTestEnv', 'shell:jpmTest', 'readcoverageglobal', 'storeCoverage', 'makeReport']);
+        grunt.registerTask('test', ['eslint', 'shell:addonLintTest', 'instrument', 'shell:makeCoverageTest', 'shell:makeTestEnv', 'shell:jpmTest', 'readcoverageglobal', 'storeCoverage', 'makeReport']);
     }
 };
