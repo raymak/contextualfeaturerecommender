@@ -81,7 +81,7 @@
       "type": "string",
       "title": "Feature recommendation list",
       "description": "Address of the feature recommendations list to load.",
-      "value": "cfr-moz-recs.json",
+      "value": "fx-guide-recs.json",
       "hidden": true
     },
     {
