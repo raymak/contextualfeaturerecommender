@@ -3,6 +3,7 @@
 !/{lib,data}/**
   # but not .DS_Store files!
 {lib,data}/**/.DS_Store
+{lib,data}/**/.eslintrc
 !/package.json
 !/icon.png
 !/node_modules/shield-studies-addon-utils/**
