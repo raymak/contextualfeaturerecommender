@@ -16,7 +16,7 @@ Object.keys(quickCodes).forEach(function(v){
 let variationsMod = {
   variations: variations,
   isEligible: function () {return true},
-  cleanup: function () {}
+  cleanup: function () {require('./utils').cleanUp({reset: true})}
 };
 
 const forSetup = {
