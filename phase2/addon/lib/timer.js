@@ -49,8 +49,6 @@ const _init = function(){
   if (!("silenceStart" in timerData))
     timerData.silenceStart = -1;
 
-  silenceLeft(); //to update the silence status;
-
   watchActivity();
 
   tickInterval = setInterval(tick, prefs["timer.tick_length_s"]*1000);
@@ -215,6 +213,8 @@ const tick = function(){
   tickHandlers.forEach(function(callback){
     callback(et, ett);
   });
+
+  silenceLeft(); //to update the silence status;
 
   debug.update({silenceStatus: true});
 }
