@@ -40,7 +40,14 @@ const {Task} = Cu.import("resource://gre/modules/Task.jsm");
 const {Services} = Cu.import("resource://gre/modules/Services.jsm");
 const {AddonManager} = Cu.import("resource://gre/modules/AddonManager.jsm");
 const {XPCOMUtils} = Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-const devtools = Cu.import("resource://devtools/shared/Loader.jsm").devtools;
+
+let devtools;
+try {
+  devtools = Cu.import("resource://devtools/shared/Loader.jsm").devtools; // Firefox 44+
+}
+catch(e){
+  devtools = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools; // Firefox 43-
+}
 
 const observerService = Cc["@mozilla.org/observer-service;1"]
                       .getService(Ci.nsIObserverService);

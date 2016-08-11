@@ -25,9 +25,10 @@ import argparse
 import importlib.util as imp
 
 
-DPVS = ['adoption_rate', 'et', 'ett', 'interruptible_ifreq', 'random_ifreq', 'n_recs_status', 'n_out_or_deliv_recs', 'long_inactivity_lengths_ifreq', 'startup_ifreq']
+DPVS = ['adoption_rate', 'et', 'ett', 'interruptible_ifreq', 'random_ifreq', 'n_recs_status', 'n_out_or_deliv_recs', 'try_or_adoption_rate', 'long_inactivity_lengths_ifreq', 'startup_ifreq']
 IPVS = ['moment', 'coeff', 'rate'] # moment, coeff, rate, condition
 INFO = ['name', 'userid', 'os'] # userid, os
+FVS = ['f_adoption_rate', 'f_adoption_try_rate', 'f_n_recs_status']
 
 opts = None
 config = None
@@ -65,6 +66,7 @@ def main():
 
     df = generate_variables_table(user_profiles)
     generate_user_info_table(user_profiles)
+    generate_features_variables_table(user_profiles)
 
 def load_config():
     global opts
@@ -194,13 +196,11 @@ def generate_user_info_table(ups, title = 'user_info_table'):
 
 def generate_variables_table(ups, title = 'variables_table', ipvs = IPVS, dpvs = DPVS, info = INFO):
     """
-        generates a table of the main variables of interest and saves them
+        generates a table of the main variables of interest (per user) and saves it
     """
 
     def get_dpvs(name):
-        return DataFrame([up.dpvs[name] for up_id,up in sorted(ups.items())])
-        # return [Series([up.dpvs[name] for up_id,up in sorted(ups.items())])]
-        
+        return DataFrame([up.dpvs[name] for up_id,up in sorted(ups.items())])        
 
     def get_ipvs(name):
         return DataFrame([up.ipvs[name] for up_id,up in sorted(ups.items())])
@@ -222,8 +222,44 @@ def generate_variables_table(ups, title = 'variables_table', ipvs = IPVS, dpvs =
         # table[dpv] = get_dpvs(dpv)
         table = pd.concat([table, get_dpvs(dpv)], axis=1)
 
-    if opts.verbosity > 0:
-        print(table)
+    save_table(table, title)
+
+    log(title + '\n' + str(table),[], opts.verbosity > 0)
+
+    return table
+
+def generate_features_variables_table(ups, title = 'features_table', fvs = FVS):
+    """
+        generates a table of the main variables of interest (per feature) and saves it
+    """
+
+    def feature_id_list():
+        for up_id,up in ups.items():
+            try:
+                attrs = up.log_set.type('FEAT_REPORT').last()['attrs']
+                if not len(attrs.keys()): continue
+                return list(set(attrs.keys()) | {'fullScreenShortcut', 'fullScreenShortcut-darwin'})
+            except KeyError:
+                continue
+
+    id_list = feature_id_list()
+
+    def get_fvs(fv):
+        res = []
+        for f_id in id_list:
+            val = globals()[fv](ups, f_id)
+            if type(val) != dict:
+                val = {fv: val}
+            res.append(val)
+
+        return DataFrame(res)
+
+    table = DataFrame()
+
+    table['id'] = Series(id_list)
+
+    for fv in fvs:
+        table = pd.concat([table, get_fvs(fv)], axis=1)
 
     save_table(table, title)
 
@@ -354,7 +390,7 @@ def n_recs_status(up):
 
         return counts
 
-    except IndexError:
+    except KeyError:
         return {'n_recs_outstanding': None, 'n_recs_inactive': None, 'n_recs_delivered': None, 'n_recs_active': None}
 
 def n_out_or_deliv_recs(up):
@@ -375,14 +411,38 @@ def n_out_or_deliv_recs(up):
 
         return count
 
-    except IndexError:
+    except KeyError:
         return None
 
+def try_or_adoption_rate(up):
+    """
+        calculates the try or adoption rate
+    """
 
+    try:
+        log = up.log_set
+        attrs = log.type('FEAT_REPORT').last()['attrs']
+
+        n_delivered = 0
+        n_adopted_tried = 0
+
+        for rec_id in attrs:
+            if attrs[rec_id]['status'] == 'delivered' and rec_id != 'welcome':
+                n_delivered += 1
+                if attrs[rec_id]['adopted'] or attrs[rec_id]['tried']:
+                    n_adopted_tried += 1
+
+        if n_delivered < 1:
+            return None
+
+        return n_adopted_tried/n_delivered
+
+    except KeyError:
+        return None
 
 def adoption_rate(up):
     """
-        calculates the adoption rate for the user
+        calculates the adoption rate
     """
 
     try:
@@ -391,7 +451,6 @@ def adoption_rate(up):
         attrs = feat_report_l['attrs']
 
         n_delivered = 0
-
         n_adopted = 0
 
         for rec_id in attrs:
@@ -405,7 +464,7 @@ def adoption_rate(up):
 
         return n_adopted/n_delivered
 
-    except IndexError:
+    except KeyError:
         return None
 
 def random_ifreq(up):
@@ -475,6 +534,79 @@ def rate(up):
 
 def coeff(up):
     return up.mode['coeff']
+
+### fvs evaluation functions
+def f_adoption_rate(ups, feature_id):
+    """
+        calculates the adoption rate for each feature
+    """
+
+    n_delivered = 0
+    n_adopted = 0
+
+    try:
+        for up_id,up in ups.items():
+            attrs = up.log_set.type('FEAT_REPORT').last()['attrs']
+
+            if not feature_id in attrs: continue
+
+            if attrs[feature_id]['status'] == 'delivered':
+                n_delivered += 1
+                if attrs[feature_id]['adopted']:
+                    n_adopted += 1
+
+
+        if n_delivered == 0: return None
+
+        return n_adopted/n_delivered
+
+    except KeyError:
+        return None
+
+def f_adoption_try_rate(ups, feature_id):
+    """
+        calculates the adoption rate for each feature
+    """
+
+    n_delivered = 0
+    n_adopted_tried = 0
+
+    try:
+        for up_id,up in ups.items():
+            attrs = up.log_set.type('FEAT_REPORT').last()['attrs']
+
+            if not feature_id in attrs: continue
+
+            if attrs[feature_id]['status'] == 'delivered':
+                n_delivered += 1
+                if attrs[feature_id]['adopted'] or attrs[feature_id]['tried']:
+                    n_adopted_tried+= 1
+
+
+        if n_delivered == 0: return None
+
+        return n_adopted_tried/n_delivered
+
+    except KeyError:
+        return None
+
+def f_n_recs_status(ups, feature_id):
+    """
+        extracts the number of users with each recommendation delivery status for the feature
+    """
+
+    counts = {'n_recs_outstanding': 0, 'n_recs_inactive': 0, 'n_recs_delivered': 0, 'n_recs_active': 0}
+
+    for up_id,up in ups.items():
+        try:
+            attrs = up.log_set.type('FEAT_REPORT').last()['attrs']
+
+            counts['n_recs_' + attrs[feature_id]['status']] += 1
+
+        except KeyError:
+            continue
+
+    return counts
 
 if __name__ == '__main__':
     main()
