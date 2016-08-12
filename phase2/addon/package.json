@@ -9,7 +9,7 @@
   "id": "guide-cfr-1@shield.mozilla.org",
   "author": "Kamyar Ardekani <kamyar@mozilla.com>",
   "homepage": "https://github.com/raymak/contextualfeaturerecommender",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "permissions": {
     "private-browsing": false
   },
