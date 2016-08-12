@@ -69,7 +69,7 @@ const _init = function(){
   unload(function(){sp.removeListener("experiment.startTimeMs", f)});
 
   debug.init();
-  debug.update({silenceStatus: true});
+  debug.update({silenceStatus: false});
 
   console.timeEnd("timer init");
 }
