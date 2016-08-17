@@ -268,7 +268,7 @@ function logMissingElement(info){
 }
 
 function logDhButtonReplacement(info){
-  log("DH_BUTTON_REPLACEMENT", info);
+  logWarning({type:"dh-button-replacement", info: info}, {headless: true});
 }
 
 const debug = {
