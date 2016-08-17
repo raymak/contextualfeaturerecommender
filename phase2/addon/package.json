@@ -357,7 +357,7 @@
       "name": "sender.send_to_telemetry",
       "type": "bool",
       "title": "Send data to Telemetry",
-      "value": false,
+      "value": true,
       "hidden": true
     },
     {
